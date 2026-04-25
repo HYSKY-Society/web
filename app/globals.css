@@ -9,3 +9,16 @@
 body {
   background-color: #04080F;
 }
+
+.btn-teal-glow {
+  background-color: #5d00f5;
+  border: 1px solid #00D4D4;
+  box-shadow: 0 0 0 rgba(0, 212, 212, 0);
+  transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.btn-teal-glow:hover {
+  background-color: #4a00c4;
+  box-shadow: 0 0 20px rgba(0, 212, 212, 0.5);
+  transform: scale(1.02);
+}

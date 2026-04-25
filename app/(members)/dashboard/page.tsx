@@ -123,8 +123,7 @@ export default async function DashboardPage() {
               href="https://www.zeffy.com/en-US/ticketing/flying-hy--2026"
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full text-white text-sm py-2.5 rounded-lg font-medium transition-colors text-center hover:bg-[#4a00c4]"
-              style={{ backgroundColor: '#5d00f5', border: '1px solid #00D4D4' }}
+              className="btn-teal-glow block w-full text-white text-sm py-2.5 rounded-lg font-medium text-center"
             >
               Register Now
             </a>
