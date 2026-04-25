@@ -12,7 +12,7 @@ type SheetsResponse = {
 export async function fetchWhitelistedEmails(): Promise<Set<string>> {
   const sheetId = process.env.GOOGLE_SHEET_ID
   const apiKey = process.env.GOOGLE_SHEETS_API_KEY
-  const range = process.env.GOOGLE_SHEET_RANGE ?? 'A2:A1000'
+  const range = process.env.GOOGLE_SHEET_RANGE ?? 'Members!A2:A1000'
 
   if (!sheetId || !apiKey) {
     console.error('[members] GOOGLE_SHEET_ID or GOOGLE_SHEETS_API_KEY is not set')
