@@ -2,14 +2,6 @@ import { currentUser } from '@clerk/nextjs/server'
 import Link from 'next/link'
 import { courses } from '@/lib/courses'
 
-const updates = [
-  { date: 'Apr 2025', type: 'Whitepaper', title: 'A Novel Method to Indirectly Measure Electro-Osmotic Drag and Back Diffusion from Total Water Flow Experiments in PEM', href: '/documents/pem-electro-osmotic-drag-whitepaper.pdf' },
-  { date: 'Apr 2025', type: 'Report', title: 'Q1 2025 Hydrogen Aviation Market Report Released' },
-  { date: 'Mar 2025', type: 'Event', title: 'Working Group: Certification Pathways for H₂ Aircraft' },
-  { date: 'Mar 2025', type: 'Announcement', title: '12 new organizations joined this quarter' },
-  { date: 'Feb 2025', type: 'Policy', title: 'Policy Brief: EU Hydrogen Aviation Incentive Framework' },
-]
-
 const stats = [
   { label: 'Members', value: '240+' },
   { label: 'Countries', value: '18' },
@@ -76,37 +68,20 @@ export default async function DashboardPage() {
 
       {/* Content grid */}
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Latest updates */}
-        <div className="lg:col-span-2 bg-white/5 border border-white/10 rounded-2xl p-6">
-          <h2 className="font-semibold text-base mb-5 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#5d00f5]" />
-            Latest Member Updates
-          </h2>
-          <div className="space-y-4">
-            {updates.map((item) => {
-              const inner = (
-                <>
-                  <span className="text-xs bg-[#5d00f5]/15 text-[#5d00f5] px-2.5 py-0.5 rounded-full whitespace-nowrap mt-0.5 font-medium">
-                    {item.type}
-                  </span>
-                  <div>
-                    <div className="font-medium text-sm leading-snug text-white/90">{item.title}</div>
-                    <div className="text-white/30 text-xs mt-1">{item.date}{item.href && <span className="ml-2 text-[#00D4D4]">↓ Download</span>}</div>
-                  </div>
-                </>
-              )
-              return item.href ? (
-                <a key={item.title} href={item.href} target="_blank" rel="noopener noreferrer"
-                  className="flex gap-4 items-start pb-4 border-b border-white/5 last:border-0 last:pb-0 hover:bg-white/3 rounded-lg px-2 -mx-2 transition-colors">
-                  {inner}
-                </a>
-              ) : (
-                <div key={item.title} className="flex gap-4 items-start pb-4 border-b border-white/5 last:border-0 last:pb-0">
-                  {inner}
-                </div>
-              )
-            })}
+        {/* Airtable embed */}
+        <div className="lg:col-span-2 bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+          <div className="px-6 pt-6 pb-3">
+            <h2 className="font-semibold text-base flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#5d00f5]" />
+              Member Resources
+            </h2>
           </div>
+          <iframe
+            src="https://airtable.com/embed/appoM2KFFLCAR6w43/pagJliokOXsfv3pbp"
+            width="100%"
+            height="500"
+            style={{ border: 'none', background: 'transparent' }}
+          />
         </div>
 
         {/* Sidebar */}
