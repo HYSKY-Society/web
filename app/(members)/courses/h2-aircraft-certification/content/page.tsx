@@ -134,13 +134,15 @@ export default async function CourseContentPage() {
 
             {/* Video */}
             {lecture.videoUrl ? (
-              <div className="mx-6 mb-4 rounded-xl overflow-hidden aspect-video bg-black">
+              <div className="mx-6 mb-4 rounded-xl overflow-hidden aspect-video bg-black relative">
                 <iframe
-                  src={lecture.videoUrl}
+                  src={`${lecture.videoUrl}?rel=0&modestbranding=1`}
                   className="w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
+                {/* Covers the "Watch on YouTube" button in the player chrome */}
+                <div className="absolute bottom-0 right-0 w-48 h-10 bg-black" />
               </div>
             ) : (
               <div className="mx-6 mb-4 rounded-xl aspect-video bg-white/3 border border-white/8 flex items-center justify-center">
