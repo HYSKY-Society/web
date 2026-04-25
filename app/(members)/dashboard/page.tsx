@@ -15,12 +15,12 @@ const stats = [
   { label: 'Reports Published', value: '14' },
 ]
 
-const resources = [
-  { label: 'Member Directory', icon: '👥' },
-  { label: 'Document Library', icon: '📄' },
-  { label: 'Event Calendar', icon: '📅' },
-  { label: 'Working Groups', icon: '🔬' },
-  { label: 'Discussion Forum', icon: '💬' },
+const courses = [
+  { label: 'Intro to Hydrogen Aviation', icon: '✈️' },
+  { label: 'Fuel Cell Fundamentals', icon: '⚗️' },
+  { label: 'H₂ Aircraft Certification', icon: '📋' },
+  { label: 'Hydrogen Infrastructure', icon: '🏗️' },
+  { label: 'Policy & Regulation', icon: '🌍' },
 ]
 
 export default async function DashboardPage() {
@@ -86,10 +86,10 @@ export default async function DashboardPage() {
           <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
             <h2 className="font-semibold text-base mb-4 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#5d00f5]" />
-              Resources
+              Courses
             </h2>
             <div className="space-y-1">
-              {resources.map((r) => (
+              {courses.map((r) => (
                 <button
                   key={r.label}
                   className="w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-lg hover:bg-white/10 transition-colors text-sm text-white/60 hover:text-white/90"
