@@ -33,7 +33,7 @@ export default async function HomePage() {
       {/* ── NAV ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-[6%] py-5"
         style={{ background: 'rgba(4,3,10,.7)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,.08)' }}>
-        <Image src="/logo-white.png" alt="HYSKY Society" height={32} width={110} className="object-contain" />
+        <Image src="/logo-new.png" alt="HYSKY Society" height={40} width={160} className="object-contain" />
         <div className="hidden sm:flex items-center gap-8">
           <a href="#programs" className="text-white/50 hover:text-white text-sm font-medium transition-colors">Programs</a>
           <a href="#connect" className="text-white/50 hover:text-white text-sm font-medium transition-colors">Community</a>
@@ -41,7 +41,7 @@ export default async function HomePage() {
           <a
             href="https://www.zeffy.com/en-US/ticketing/hysky-societys-membership"
             target="_blank" rel="noopener noreferrer"
-            className="bg-[#13dce8] hover:bg-white text-black font-black px-8 py-4 rounded-full text-sm transition-all"
+            className="bg-[#13dce8] hover:bg-white text-black font-black px-5 py-2.5 rounded-full text-sm transition-all"
             style={{ boxShadow: '0 0 35px rgba(19,220,232,.45)' }}
           >
             Become a Member
@@ -203,7 +203,7 @@ export default async function HomePage() {
 
       {/* ── FOOTER ── */}
       <footer className="flex flex-wrap justify-between items-center gap-4 px-[6%] py-8" style={{ borderTop: '1px solid rgba(255,255,255,.08)' }}>
-        <Image src="/logo-white.png" alt="HYSKY Society" height={24} width={80} className="object-contain opacity-60" />
+        <Image src="/logo-new.png" alt="HYSKY Society" height={30} width={120} className="object-contain opacity-70" />
         <p className="text-white/35 text-sm">Clean skies for future generations through hydrogen-powered flight.</p>
         <Link
           href="/sign-in"
