@@ -18,7 +18,7 @@ export async function fetchCourseEnrollees(tab: string): Promise<Set<string>> {
 
   let res: Response
   try {
-    res = await fetch(url, { next: { revalidate: 0 } })
+    res = await fetch(url, { next: { revalidate: 300 } })
   } catch (err) {
     console.error('[course-access] Network error fetching sheet:', err)
     return new Set()

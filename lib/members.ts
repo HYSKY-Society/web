@@ -26,7 +26,7 @@ export async function fetchWhitelistedEmails(): Promise<Set<string>> {
   let res: Response
   try {
     // Next.js caches this fetch for 5 minutes across all requests
-    res = await fetch(url, { next: { revalidate: 0 } })
+    res = await fetch(url, { next: { revalidate: 300 } })
   } catch (err) {
     console.error('[members] Network error fetching sheet:', err)
     return new Set()
