@@ -77,7 +77,7 @@ export default async function DashboardPage() {
             </h2>
           </div>
           <iframe
-            src="https://airtable.com/embed/appoM2KFFLCAR6w43/pagJliokOXsfv3pbp"
+            src="https://airtable.com/embed/appoM2KFFLCAR6w43/shrfBklnXlxsQs3wf"
             width="100%"
             height="500"
             style={{ border: 'none', background: 'transparent' }}
