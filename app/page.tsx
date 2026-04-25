@@ -93,7 +93,7 @@ export default async function HomePage() {
               rel="noopener noreferrer"
               className="bg-[#00D4D4] hover:opacity-90 text-black px-5 py-2.5 rounded-full font-bold text-sm transition-all hover:scale-[1.03]"
             >
-              Join HYSKY Connect
+              Become a Member
             </a>
           </div>
         </nav>
@@ -192,7 +192,7 @@ export default async function HomePage() {
               rel="noopener noreferrer"
               className="inline-block bg-[#00D4D4] hover:opacity-90 text-black px-8 py-4 rounded-full font-black uppercase tracking-wide text-sm transition-all hover:scale-[1.03] shadow-[0_0_35px_rgba(0,212,212,.45)]"
             >
-              Join HYSKY Connect
+              Become a Member
             </a>
           </div>
           <div
