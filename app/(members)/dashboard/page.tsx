@@ -116,11 +116,16 @@ export default async function DashboardPage() {
             <div className="text-[#5d00f5] text-xs font-semibold uppercase tracking-wider mb-2">
               Next Event
             </div>
-            <div className="text-white font-semibold text-sm mb-1">Annual Member Summit</div>
-            <div className="text-white/40 text-xs mb-4">June 12–13, 2025 · Washington D.C.</div>
-            <button className="w-full bg-[#5d00f5] hover:bg-[#4a00c4] text-white text-sm py-2.5 rounded-lg font-medium transition-colors">
+            <div className="text-white font-semibold text-sm mb-1">The 4th Global Flying HY H2 Aviation Conference</div>
+            <div className="text-white/40 text-xs mb-4">Nov 4, 2026 · Zoom · 9:00 AM – 5:00 PM CT</div>
+            <a
+              href="https://www.zeffy.com/en-US/ticketing/flying-hy--2026"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full bg-[#5d00f5] hover:bg-[#4a00c4] text-white text-sm py-2.5 rounded-lg font-medium transition-colors text-center"
+            >
               Register Now
-            </button>
+            </a>
           </div>
         </div>
       </div>
