@@ -96,13 +96,12 @@ export default async function HomePage() {
             >
               Join the Movement
             </a>
-            <a
-              href="#programs"
-              className="border text-white hover:border-[#13dce8] hover:text-[#13dce8] px-7 py-4 rounded-full text-base font-bold transition-all"
-              style={{ borderColor: 'rgba(255,255,255,.08)' }}
+            <Link
+              href="/sign-in"
+              className="border border-white/[.08] text-white hover:border-[#13dce8] hover:text-[#13dce8] hover:shadow-[0_0_20px_rgba(19,220,232,.35)] px-7 py-4 rounded-full text-base font-bold transition-all"
             >
-              Explore Programs
-            </a>
+              Login Now
+            </Link>
           </div>
         </div>
       </header>
