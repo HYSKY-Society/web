@@ -155,8 +155,8 @@ export default async function CourseContentPage() {
                   href={lecture.slidesUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-xs font-medium px-4 py-2 rounded-lg border transition-colors hover:bg-white/8"
-                  style={{ borderColor: `${accent}50`, color: accentLight }}
+                  className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-xl border transition-colors hover:bg-white/8"
+                  style={{ borderColor: '#00D4D4', color: '#00D4D4' }}
                 >
                   ↓ Download Slides
                 </a>
