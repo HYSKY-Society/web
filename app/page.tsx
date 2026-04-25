@@ -114,7 +114,7 @@ export default async function HomePage() {
         </h2>
         <div className="fade-up grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.08)' }}>
           {programs.map((p) => (
-            <div key={p.title} className="p-9 transition-colors hover:bg-[#5d00f5]/8" style={{ background: '#04030a' }}>
+            <div key={p.title} className="p-9 bg-[#04030a] transition-colors hover:bg-[#5d00f5]/[.08]">
               <div className="text-[#5d00f5] text-xs font-bold uppercase tracking-[2px] mb-3">{p.tag}</div>
               <h3 className="text-xl font-black mb-2">{p.title}</h3>
               <p className="text-white/45 text-sm leading-relaxed">{p.desc}</p>
