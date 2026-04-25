@@ -34,7 +34,7 @@ export default async function HomePage() {
       {/* ── NAV ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-[6%] py-5"
         style={{ background: 'rgba(4,3,10,.7)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,.08)' }}>
-        <Image src="/logo-new.png" alt="HYSKY Society" height={40} width={160} className="object-contain" />
+        <Image src="/logo-new.png" alt="HYSKY Society" height={52} width={210} className="object-contain" />
         <div className="hidden sm:flex items-center gap-8">
           <a href="#programs" className="text-white/50 hover:text-white text-sm font-medium transition-colors">Programs</a>
           <a href="#connect" className="text-white/50 hover:text-white text-sm font-medium transition-colors">Community</a>
@@ -42,10 +42,20 @@ export default async function HomePage() {
           <a
             href="https://www.zeffy.com/en-US/ticketing/hysky-societys-membership"
             target="_blank" rel="noopener noreferrer"
-            className="bg-[#13dce8] hover:bg-white text-black font-black px-5 py-2.5 rounded-full text-sm transition-all"
-            style={{ boxShadow: '0 0 35px rgba(19,220,232,.45)' }}
+            className="font-black px-5 py-2.5 rounded-full text-sm transition-all"
+            style={{
+              background: 'linear-gradient(white, white) padding-box, linear-gradient(90deg, #5d00f5, #13dce8) border-box',
+              border: '2px solid transparent',
+            }}
           >
-            Become a Member
+            <span style={{
+              background: 'linear-gradient(90deg, #5d00f5, #13dce8)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>
+              Become a Member
+            </span>
           </a>
         </div>
         <Link href="/sign-in" className="sm:hidden text-white/60 hover:text-white text-sm transition-colors">Login</Link>
@@ -166,12 +176,11 @@ export default async function HomePage() {
           {audience.map((a) => (
             <div
               key={a.text}
-              className={`flex items-center gap-4 px-7 py-6 text-sm font-medium transition-all cursor-default ${
+              className={`flex items-center gap-4 px-7 py-6 text-sm font-medium transition-all cursor-default bg-[#04030a] ${
                 a.highlight
-                  ? 'text-[#13dce8] font-bold hover:bg-[#13dce8]/7'
-                  : 'text-white/45 hover:text-white hover:bg-[#5d00f5]/6'
+                  ? 'audience-you text-[#13dce8] font-bold'
+                  : 'text-white/45 hover:text-white hover:bg-[#5d00f5]/[.06]'
               }`}
-              style={{ background: '#04030a' }}
             >
               <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${a.highlight ? 'bg-[#13dce8]' : 'bg-[#5d00f5]'}`} />
               {a.text}
