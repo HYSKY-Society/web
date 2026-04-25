@@ -22,3 +22,14 @@ body {
   box-shadow: 0 0 20px rgba(0, 212, 212, 0.5);
   transform: scale(1.02);
 }
+
+.fade-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .7s ease, transform .7s ease;
+}
+
+.fade-up.visible {
+  opacity: 1;
+  transform: none;
+}

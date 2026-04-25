@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
+import ScrollAnimations from './components/ScrollAnimations'
 
 const programs = [
   { tag: 'Membership', title: 'HYSKY Connect', desc: 'A dedicated platform where the hydrogen aviation ecosystem connects, collaborates, and grows.' },
@@ -27,6 +28,7 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen text-white overflow-x-hidden" style={{ background: '#04030a', fontFamily: 'Arial, Helvetica, sans-serif' }}>
+      <ScrollAnimations />
 
       {/* ── NAV ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-[6%] py-5"
@@ -110,7 +112,7 @@ export default async function HomePage() {
         <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-12" style={{ fontSize: 'clamp(2.4rem, 5vw, 5rem)' }}>
           Core <span style={{ color: '#5d00f5' }}>Programs</span>
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.08)' }}>
+        <div className="fade-up grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.08)' }}>
           {programs.map((p) => (
             <div key={p.title} className="p-9 transition-colors hover:bg-[#5d00f5]/8" style={{ background: '#04030a' }}>
               <div className="text-[#5d00f5] text-xs font-bold uppercase tracking-[2px] mb-3">{p.tag}</div>
@@ -160,7 +162,7 @@ export default async function HomePage() {
         <p className="text-white/50 text-lg leading-relaxed max-w-[560px] mb-12">
           If you are building, funding, regulating, researching, fueling, certifying, operating, or simply trying to understand hydrogen aviation — this is your place.
         </p>
-        <div className="grid sm:grid-cols-2 gap-px rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.08)' }}>
+        <div className="fade-up grid sm:grid-cols-2 gap-px rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.08)' }}>
           {audience.map((a) => (
             <div
               key={a.text}
