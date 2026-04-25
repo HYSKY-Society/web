@@ -19,7 +19,7 @@ export default function HeroHelicopter() {
   return (
     <div
       ref={wrapperRef}
-      className="absolute right-[-4%] top-0 w-[58%] h-full pointer-events-none z-[5] flex items-center"
+      className="absolute right-[2%] top-0 w-[48%] h-full pointer-events-none z-[5] flex items-center"
       style={{
         mixBlendMode: 'screen',
         opacity: 0.52,
