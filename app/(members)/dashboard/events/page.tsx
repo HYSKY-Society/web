@@ -10,6 +10,7 @@ const webinarDates = [
 
 const WEBINAR_LINK = 'https://us06web.zoom.us/meeting/register/tZUtd-GpqzojGdXo6wK6DVPDD55IQyYJvL1e#/registration'
 const FLYING_HY_LINK = 'https://www.zeffy.com/en-US/ticketing/flying-hy--2026'
+const SPEED_NETWORKING_LINK = '#' // TODO: add Zoom link
 
 export default function EventsPage() {
   return (
@@ -49,6 +50,32 @@ export default function EventsPage() {
             className="btn-teal-glow inline-flex items-center gap-2 text-white font-bold px-8 py-3 rounded-xl text-sm"
           >
             Register Now →
+          </a>
+        </div>
+      </div>
+
+      {/* Speed Networking */}
+      <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-6">
+        <div className="flex items-start justify-between flex-wrap gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-[#5d00f5]/20 text-[#9b6dff]">
+              🤝 Weekly
+            </div>
+            <h2 className="text-xl font-bold mb-1">Speed Networking</h2>
+            <p className="text-white/45 text-sm leading-relaxed max-w-xl mb-3">
+              Connect with fellow HYSKY members every week in a fast-paced networking session.
+            </p>
+            <div className="flex flex-wrap gap-4 text-white/45 text-sm">
+              <span>📅 Every Wednesday</span>
+              <span>🕘 9:00 – 9:45 AM CT</span>
+              <span>💻 Zoom</span>
+            </div>
+          </div>
+          <a
+            href={SPEED_NETWORKING_LINK}
+            className="shrink-0 inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-xl border border-white/20 text-white/40 cursor-not-allowed"
+          >
+            Link Coming Soon
           </a>
         </div>
       </div>
