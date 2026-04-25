@@ -4,6 +4,7 @@ import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import ScrollAnimations from './components/ScrollAnimations'
 import NewsletterPopup from './components/NewsletterPopup'
+import HeroHelicopter from './components/HeroHelicopter'
 
 const programs = [
   { tag: 'Membership', title: 'HYSKY Connect', desc: 'A dedicated platform where the hydrogen aviation ecosystem connects, collaborates, and grows.' },
@@ -80,24 +81,7 @@ export default async function HomePage() {
           }} />
         </div>
 
-        {/* Helicopter */}
-        <div
-          className="absolute right-[-4%] top-0 w-[58%] h-full pointer-events-none z-[5] flex items-center"
-          style={{
-            mixBlendMode: 'screen',
-            opacity: 0.52,
-            maskImage: 'radial-gradient(ellipse 80% 72% at 58% 50%, black 20%, transparent 70%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 80% 72% at 58% 50%, black 20%, transparent 70%)',
-          }}
-        >
-          <Image
-            src="/hero-helicopter.png"
-            alt=""
-            width={1100}
-            height={825}
-            className="w-full h-auto object-contain"
-          />
-        </div>
+        <HeroHelicopter />
 
         {/* Hero content */}
         <div className="relative z-10 max-w-[900px] px-[6%] pt-20 pb-16">
