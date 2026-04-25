@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import ScrollAnimations from './components/ScrollAnimations'
+import NewsletterPopup from './components/NewsletterPopup'
 
 const programs = [
   { tag: 'Membership', title: 'HYSKY Connect', desc: 'A dedicated platform where the hydrogen aviation ecosystem connects, collaborates, and grows.' },
@@ -205,13 +206,7 @@ export default async function HomePage() {
       <footer className="flex flex-wrap justify-between items-center gap-4 px-[6%] py-8" style={{ borderTop: '1px solid rgba(255,255,255,.08)' }}>
         <Image src="/logo-new.png" alt="HYSKY Society" height={30} width={120} className="object-contain opacity-70" />
         <p className="text-white/35 text-sm">Clean skies for future generations through hydrogen-powered flight.</p>
-        <Link
-          href="/sign-in"
-          className="border text-[#13dce8] text-sm font-bold px-5 py-2.5 rounded-full transition-all hover:bg-[#13dce8]/8"
-          style={{ borderColor: '#13dce8' }}
-        >
-          Member Login
-        </Link>
+        <NewsletterPopup />
         <p className="text-white/25 text-xs w-full sm:w-auto">© {new Date().getFullYear()} HYSKY Society. All rights reserved.</p>
       </footer>
 
