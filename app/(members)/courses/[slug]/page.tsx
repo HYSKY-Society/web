@@ -1,10 +1,20 @@
 import { getCourse } from '@/lib/courses'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { currentUser } from '@clerk/nextjs/server'
+import { hasCourseAccess } from '@/lib/course-access'
 
-export default function CoursePage({ params }: { params: { slug: string } }) {
+export default async function CoursePage({ params }: { params: { slug: string } }) {
   const course = getCourse(params.slug)
   if (!course) notFound()
+
+  const user = await currentUser()
+  const primaryEmail = user?.emailAddresses?.find(
+    (e) => e.id === user.primaryEmailAddressId
+  )?.emailAddress
+  const hasAccess = primaryEmail && course.slug === 'h2-aircraft-certification'
+    ? await hasCourseAccess(primaryEmail, 'H2 AC Cert')
+    : false
 
   const isFirst = course.slug === 'h2-aircraft-certification'
   const accent = isFirst ? '#5d00f5' : '#00D4D4'
@@ -50,15 +60,25 @@ export default function CoursePage({ params }: { params: { slug: string } }) {
           </div>
 
           {/* CTA */}
-          <a
-            href={course.buyLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-white font-bold px-10 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-base"
-            style={{ backgroundColor: accent, boxShadow: `0 8px 32px ${accent}50` }}
-          >
-            Enroll Now →
-          </a>
+          {hasAccess ? (
+            <Link
+              href="/courses/h2-aircraft-certification/content"
+              className="inline-flex items-center gap-2 text-white font-bold px-10 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-base"
+              style={{ backgroundColor: accent, boxShadow: `0 8px 32px ${accent}50` }}
+            >
+              Access Course Content →
+            </Link>
+          ) : (
+            <a
+              href={course.buyLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-white font-bold px-10 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-base"
+              style={{ backgroundColor: accent, boxShadow: `0 8px 32px ${accent}50` }}
+            >
+              Enroll Now →
+            </a>
+          )}
         </div>
       </div>
 
@@ -182,17 +202,33 @@ export default function CoursePage({ params }: { params: { slug: string } }) {
 
       {/* Bottom CTA */}
       <div className="rounded-3xl p-8 sm:p-12 text-center" style={{ background: `linear-gradient(135deg, ${accent}20, ${accent}08)`, border: `1px solid ${accent}30` }}>
-        <h2 className="font-bold text-2xl mb-2">Ready to enroll?</h2>
-        <p className="text-white/50 mb-6">Join industry professionals advancing hydrogen aviation certification.</p>
-        <a
-          href={course.buyLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 text-white font-bold px-10 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-base"
-          style={{ backgroundColor: accent, boxShadow: `0 8px 32px ${accent}50` }}
-        >
-          Enroll Now →
-        </a>
+        {hasAccess ? (
+          <>
+            <h2 className="font-bold text-2xl mb-2">You&apos;re enrolled!</h2>
+            <p className="text-white/50 mb-6">Jump back into the course content anytime.</p>
+            <Link
+              href="/courses/h2-aircraft-certification/content"
+              className="inline-flex items-center gap-2 text-white font-bold px-10 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-base"
+              style={{ backgroundColor: accent, boxShadow: `0 8px 32px ${accent}50` }}
+            >
+              Access Course Content →
+            </Link>
+          </>
+        ) : (
+          <>
+            <h2 className="font-bold text-2xl mb-2">Ready to enroll?</h2>
+            <p className="text-white/50 mb-6">Join industry professionals advancing hydrogen aviation certification.</p>
+            <a
+              href={course.buyLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-white font-bold px-10 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-base"
+              style={{ backgroundColor: accent, boxShadow: `0 8px 32px ${accent}50` }}
+            >
+              Enroll Now →
+            </a>
+          </>
+        )}
       </div>
     </div>
   )
