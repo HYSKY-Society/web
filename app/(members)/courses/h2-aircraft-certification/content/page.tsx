@@ -134,22 +134,12 @@ export default async function CourseContentPage() {
 
             {/* Video */}
             {lecture.videoUrl ? (
-              <div className="mx-6 mb-4 rounded-xl overflow-hidden aspect-video bg-black relative">
+              <div className="mx-6 mb-4 rounded-xl overflow-hidden aspect-video bg-black">
                 <iframe
                   src={`${lecture.videoUrl}?rel=0&modestbranding=1`}
                   className="w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
-                />
-                {/* Gradient fade covering the Watch on YouTube text, leaving fullscreen accessible */}
-                <div
-                  className="absolute bottom-0 pointer-events-none"
-                  style={{
-                    right: '40px',
-                    width: '180px',
-                    height: '50px',
-                    background: 'linear-gradient(to left, rgba(0,0,0,0.95) 30%, transparent 100%)',
-                  }}
                 />
               </div>
             ) : (
