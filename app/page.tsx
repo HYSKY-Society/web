@@ -6,10 +6,11 @@ import ScrollAnimations from './components/ScrollAnimations'
 import NewsletterPopup from './components/NewsletterPopup'
 import HeroHelicopter from './components/HeroHelicopter'
 
-const programs = [
+type Program = { tag: string; title: string; desc: string; href?: string }
+const programs: Program[] = [
   { tag: 'Membership', title: 'HYSKY Connect', desc: 'A dedicated platform where the hydrogen aviation ecosystem connects, collaborates, and grows.' },
   { tag: 'Education', title: 'HYSKY Edu', desc: 'Courses and training for hydrogen aircraft certification, operations, infrastructure, safety, and policy.' },
-  { tag: 'Event', title: 'FLYING HY', desc: "The world's largest annual hydrogen aviation event, bringing together innovators across air and aerospace." },
+  { tag: 'Event', title: 'FLYING HY', desc: "The world's largest annual hydrogen aviation event, bringing together innovators across air and aerospace.", href: '/flying-hy' },
   { tag: 'Webinars', title: 'HYSKY Monthly', desc: 'Free monthly webinars featuring leaders building the hydrogen aviation future.' },
   { tag: 'Podcast', title: 'HYSKY Pod', desc: 'Conversations with aviation, hydrogen, and climate tech innovators pushing the industry forward.' },
   { tag: 'Advocacy', title: 'Policy + Power', desc: 'Helping the ecosystem understand policy, engage responsibly, and advocate for hydrogen aviation progress.' },
@@ -127,11 +128,19 @@ export default async function HomePage() {
         </h2>
         <div className="fade-up grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.08)' }}>
           {programs.map((p) => (
-            <div key={p.title} className="p-9 bg-[#04030a] transition-colors hover:bg-[#5d00f5]/[.08]">
-              <div className="text-[#5d00f5] text-xs font-bold uppercase tracking-[2px] mb-3">{p.tag}</div>
-              <h3 className="text-xl font-black mb-2">{p.title}</h3>
-              <p className="text-white/45 text-sm leading-relaxed">{p.desc}</p>
-            </div>
+            p.href ? (
+              <Link key={p.title} href={p.href} className="p-9 bg-[#04030a] transition-colors hover:bg-[#5d00f5]/[.08] group cursor-pointer">
+                <div className="text-[#5d00f5] text-xs font-bold uppercase tracking-[2px] mb-3">{p.tag}</div>
+                <h3 className="text-xl font-black mb-2 group-hover:text-[#13dce8] transition-colors">{p.title}</h3>
+                <p className="text-white/45 text-sm leading-relaxed">{p.desc}</p>
+              </Link>
+            ) : (
+              <div key={p.title} className="p-9 bg-[#04030a] transition-colors hover:bg-[#5d00f5]/[.08]">
+                <div className="text-[#5d00f5] text-xs font-bold uppercase tracking-[2px] mb-3">{p.tag}</div>
+                <h3 className="text-xl font-black mb-2">{p.title}</h3>
+                <p className="text-white/45 text-sm leading-relaxed">{p.desc}</p>
+              </div>
+            )
           ))}
         </div>
       </section>
