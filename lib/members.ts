@@ -1,50 +1,45 @@
-type SheetsResponse = {
-  values?: string[][]
+import { db } from './db'
+import { users } from './schema'
+import { eq } from 'drizzle-orm'
+
+export type Tier = 'free' | 'paid'
+
+export async function getUserByClerkId(clerkId: string) {
+  return db.query.users.findFirst({ where: eq(users.id, clerkId) })
 }
 
-/**
- * Fetches the whitelisted email list from Google Sheets.
- * Results are cached by Next.js for 5 minutes (revalidate: 300).
- *
- * Sheet format: Column A contains email addresses, row 1 is a header.
- * The range env var defaults to "A2:A1000" to skip the header row.
- */
-export async function fetchWhitelistedEmails(): Promise<Set<string>> {
-  const sheetId = process.env.GOOGLE_SHEET_ID
-  const apiKey = process.env.GOOGLE_SHEETS_API_KEY
-  const range = process.env.GOOGLE_SHEET_RANGE ?? 'Members!A2:A1000'
-
-  if (!sheetId || !apiKey) {
-    console.error('[members] GOOGLE_SHEET_ID or GOOGLE_SHEETS_API_KEY is not set')
-    return new Set()
-  }
-
-  const url =
-    `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/` +
-    `${encodeURIComponent(range)}?key=${apiKey}`
-
-  let res: Response
-  try {
-    // Next.js caches this fetch for 5 minutes across all requests
-    res = await fetch(url, { next: { revalidate: 0 } })
-  } catch (err) {
-    console.error('[members] Network error fetching sheet:', err)
-    return new Set()
-  }
-
-  if (!res.ok) {
-    console.error(`[members] Sheets API returned ${res.status}: ${await res.text()}`)
-    return new Set()
-  }
-
-  const data: SheetsResponse = await res.json()
-  const rows = data.values ?? []
-  const emails = rows.flatMap((row) => row).filter(Boolean)
-
-  return new Set(emails.map((e) => e.toLowerCase().trim()))
+export async function getUserByEmail(email: string) {
+  return db.query.users.findFirst({
+    where: eq(users.email, email.toLowerCase().trim()),
+  })
 }
 
-export async function isEmailWhitelisted(email: string): Promise<boolean> {
-  const emails = await fetchWhitelistedEmails()
-  return emails.has(email.toLowerCase().trim())
+/** Creates user with free tier if they don't exist. Returns the tier. */
+export async function ensureUser(clerkId: string, email: string): Promise<Tier> {
+  const existing = await getUserByClerkId(clerkId)
+  if (existing) return existing.tier as Tier
+
+  await db.insert(users).values({
+    id: clerkId,
+    email: email.toLowerCase().trim(),
+    tier: 'free',
+  }).onConflictDoNothing()
+
+  return 'free'
+}
+
+export async function getUserTier(clerkId: string): Promise<Tier> {
+  const user = await getUserByClerkId(clerkId)
+  return (user?.tier as Tier) ?? 'free'
+}
+
+export async function setUserTier(clerkId: string, tier: Tier) {
+  await db.update(users).set({ tier }).where(eq(users.id, clerkId))
+}
+
+export async function setUserTierByEmail(email: string, tier: Tier) {
+  await db
+    .update(users)
+    .set({ tier })
+    .where(eq(users.email, email.toLowerCase().trim()))
 }

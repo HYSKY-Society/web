@@ -1,6 +1,6 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { isEmailWhitelisted } from '@/lib/members'
+import { ensureUser } from '@/lib/members'
 import Navbar from '@/components/navbar'
 
 export default async function MembersLayout({ children }: { children: React.ReactNode }) {
@@ -14,9 +14,13 @@ export default async function MembersLayout({ children }: { children: React.Reac
     (e) => e.id === user.primaryEmailAddressId
   )?.emailAddress
 
-  if (!primaryEmail || !(await isEmailWhitelisted(primaryEmail))) {
-    redirect('/not-authorized')
+  if (!primaryEmail) {
+    redirect('/sign-in')
   }
+
+  // Ensure the user exists in the DB. Creates them with free tier if not found
+  // (handles pre-existing Clerk accounts created before the DB was introduced).
+  await ensureUser(user.id, primaryEmail)
 
   return (
     <div className="min-h-screen bg-[#04080F]">

@@ -2,18 +2,15 @@ import { getCourse } from '@/lib/courses'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { currentUser } from '@clerk/nextjs/server'
-import { hasCourseAccess } from '@/lib/course-access'
+import { hasPaidAccess } from '@/lib/course-access'
 
 export default async function CoursePage({ params }: { params: { slug: string } }) {
   const course = getCourse(params.slug)
   if (!course) notFound()
 
   const user = await currentUser()
-  const primaryEmail = user?.emailAddresses?.find(
-    (e) => e.id === user.primaryEmailAddressId
-  )?.emailAddress
-  const hasAccess = primaryEmail && course.slug === 'h2-aircraft-certification'
-    ? await hasCourseAccess(primaryEmail, 'H2 AC Cert')
+  const hasAccess = user && course.slug === 'h2-aircraft-certification'
+    ? await hasPaidAccess(user.id)
     : false
 
   const isFirst = course.slug === 'h2-aircraft-certification'

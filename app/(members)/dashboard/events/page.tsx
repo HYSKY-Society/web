@@ -1,3 +1,7 @@
+import { currentUser } from '@clerk/nextjs/server'
+import { hasPaidAccess } from '@/lib/course-access'
+import UpgradeGate from '@/components/UpgradeGate'
+
 const webinarDates = [
   'May 18, 2026',
   'June 15, 2026',
@@ -12,7 +16,14 @@ const WEBINAR_LINK = 'https://us06web.zoom.us/meeting/register/tZUtd-GpqzojGdXo6
 const FLYING_HY_LINK = 'https://www.zeffy.com/en-US/ticketing/flying-hy--2026'
 const SPEED_NETWORKING_LINK = '#' // TODO: add Zoom link
 
-export default function EventsPage() {
+export default async function EventsPage() {
+  const user = await currentUser()
+  const paid = user ? await hasPaidAccess(user.id) : false
+
+  if (!paid) {
+    return <UpgradeGate feature="Events" />
+  }
+
   return (
     <div className="text-white max-w-4xl">
       <div className="mb-8">

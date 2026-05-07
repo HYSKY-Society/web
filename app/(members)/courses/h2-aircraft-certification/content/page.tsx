@@ -1,8 +1,7 @@
 import { currentUser } from '@clerk/nextjs/server'
-import { hasCourseAccess } from '@/lib/course-access'
+import { hasPaidAccess } from '@/lib/course-access'
 import Link from 'next/link'
 
-const TAB = 'H2 AC Cert'
 const accent = '#5d00f5'
 const accentLight = '#9b6dff'
 
@@ -59,11 +58,8 @@ const lectures = [
 
 export default async function CourseContentPage() {
   const user = await currentUser()
-  const primaryEmail = user?.emailAddresses?.find(
-    (e) => e.id === user.primaryEmailAddressId
-  )?.emailAddress
 
-  const hasAccess = primaryEmail ? await hasCourseAccess(primaryEmail, TAB) : false
+  const hasAccess = user ? await hasPaidAccess(user.id) : false
 
   if (!hasAccess) {
     return (
@@ -71,8 +67,7 @@ export default async function CourseContentPage() {
         <div className="text-5xl mb-6">🔒</div>
         <h1 className="text-2xl font-bold mb-3">Course Access Required</h1>
         <p className="text-white/50 mb-8 leading-relaxed">
-          Your account <span className="text-white/70">{primaryEmail}</span> hasn&apos;t been enrolled in the H2 Aircraft Certification Course yet.
-          If you&apos;ve already purchased, please allow a few minutes and refresh the page.
+          This content is available to paid HYSKY members. Upgrade your membership to access the full course.
         </p>
         <a
           href="https://www.zeffy.com/en-US/ticketing/h2-aircraft-certification-course"

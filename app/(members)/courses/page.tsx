@@ -1,7 +1,17 @@
 import Link from 'next/link'
+import { currentUser } from '@clerk/nextjs/server'
+import { hasPaidAccess } from '@/lib/course-access'
 import { courses } from '@/lib/courses'
+import UpgradeGate from '@/components/UpgradeGate'
 
-export default function CoursesPage() {
+export default async function CoursesPage() {
+  const user = await currentUser()
+  const paid = user ? await hasPaidAccess(user.id) : false
+
+  if (!paid) {
+    return <UpgradeGate feature="Courses" />
+  }
+
   return (
     <div className="text-white max-w-4xl">
       <div className="mb-8">

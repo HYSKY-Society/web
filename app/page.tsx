@@ -1,13 +1,10 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import Script from 'next/script'
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import ScrollAnimations from './components/ScrollAnimations'
 import NewsletterPopup from './components/NewsletterPopup'
 import HeroHelicopter from './components/HeroHelicopter'
-
-const ZEFFY_MEMBERSHIP = 'https://www.zeffy.com/embed/ticketing/hysky-societys-membership?modal=true'
 
 type Program = { tag: string; title: string; desc: string; href?: string }
 const programs: Program[] = [
@@ -44,8 +41,8 @@ export default async function HomePage() {
           <a href="#programs" className="text-white/50 hover:text-white text-sm font-medium transition-colors">Programs</a>
           <a href="#connect" className="text-white/50 hover:text-white text-sm font-medium transition-colors">Community</a>
           <a href="#audience" className="text-white/50 hover:text-white text-sm font-medium transition-colors">Who It&apos;s For</a>
-          <a
-            {...({'zeffy-form-link': ZEFFY_MEMBERSHIP} as object)}
+          <Link
+            href="/sign-up"
             className="font-black px-5 py-2.5 rounded-full text-sm transition-all cursor-pointer"
             style={{
               background: 'linear-gradient(white, white) padding-box, linear-gradient(90deg, #5d00f5, #13dce8) border-box',
@@ -60,7 +57,7 @@ export default async function HomePage() {
             }}>
               Become a Member
             </span>
-          </a>
+          </Link>
         </div>
         <Link href="/sign-in" className="sm:hidden text-white/60 hover:text-white text-sm transition-colors">Login</Link>
       </nav>
@@ -105,13 +102,13 @@ export default async function HomePage() {
           </p>
 
           <div className="flex flex-wrap gap-4 items-center">
-            <a
-              {...({'zeffy-form-link': ZEFFY_MEMBERSHIP} as object)}
-              className="bg-[#13dce8] hover:bg-white text-black font-black px-8 py-4 rounded-full text-base transition-all cursor-pointer"
+            <Link
+              href="/sign-up"
+              className="bg-[#13dce8] hover:bg-white text-black font-black px-8 py-4 rounded-full text-base transition-all"
               style={{ boxShadow: '0 0 35px rgba(19,220,232,.45)' }}
             >
               Join the Movement
-            </a>
+            </Link>
             <Link
               href="/sign-in"
               className="border border-white/[.08] text-white hover:border-[#13dce8] hover:text-[#13dce8] hover:shadow-[0_0_20px_rgba(19,220,232,.35)] px-7 py-4 rounded-full text-base font-bold transition-all"
@@ -162,13 +159,13 @@ export default async function HomePage() {
             <p className="text-white/50 text-lg leading-relaxed mb-8">
               From UAVs and eVTOLs to fixed-wing aircraft, rotorcraft, WIG craft, spacecraft, fuel cells, storage systems, refueling infrastructure, and hydrogen production — HYSKY is where the ecosystem meets.
             </p>
-            <a
-              {...({'zeffy-form-link': ZEFFY_MEMBERSHIP} as object)}
-              className="inline-block bg-[#13dce8] hover:bg-white text-black font-black px-8 py-4 rounded-full text-base transition-all cursor-pointer"
+            <Link
+              href="/sign-up"
+              className="inline-block bg-[#13dce8] hover:bg-white text-black font-black px-8 py-4 rounded-full text-base transition-all"
               style={{ boxShadow: '0 0 35px rgba(19,220,232,.45)' }}
             >
               Become a Member
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -212,13 +209,13 @@ export default async function HomePage() {
           <p className="text-white/50 text-lg leading-relaxed max-w-[500px] mx-auto mb-10">
             HYSKY Society is building that place — through community, education, advocacy, awareness, and the world&apos;s leading hydrogen aviation programs.
           </p>
-          <a
-            {...({'zeffy-form-link': ZEFFY_MEMBERSHIP} as object)}
-            className="inline-block bg-[#13dce8] hover:bg-white text-black font-black px-8 py-4 rounded-full text-base transition-all cursor-pointer"
+          <Link
+            href="/sign-up"
+            className="inline-block bg-[#13dce8] hover:bg-white text-black font-black px-8 py-4 rounded-full text-base transition-all"
             style={{ boxShadow: '0 0 35px rgba(19,220,232,.45)' }}
           >
             Join the Movement
-          </a>
+          </Link>
         </div>
       </section>
 
@@ -229,8 +226,6 @@ export default async function HomePage() {
         <NewsletterPopup />
         <p className="text-white/25 text-xs w-full sm:w-auto">© {new Date().getFullYear()} HYSKY Society. All rights reserved.</p>
       </footer>
-
-      <Script src="https://zeffy-scripts.s3.ca-central-1.amazonaws.com/embed-form-script.min.js" strategy="lazyOnload" />
     </main>
   )
 }
