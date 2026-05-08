@@ -18,7 +18,7 @@ async function updateTier(formData: FormData) {
   'use server'
   const id = formData.get('id') as string
   const tier = formData.get('tier') as Tier
-  if (id && (tier === 'free' || tier === 'paid')) {
+  if (id && ['free', 'member_courses', 'member_courses_events', 'member_full'].includes(tier)) {
     await setUserTier(id, tier)
     revalidatePath('/admin/users')
   }
@@ -89,7 +89,9 @@ export default async function AdminUsersPage() {
                     className="bg-white/8 border border-white/15 text-white text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#5d00f5]/60"
                   >
                     <option value="free">Free</option>
-                    <option value="paid">Paid</option>
+                    <option value="member_courses">Member — Courses</option>
+                    <option value="member_courses_events">Member — Courses + Events</option>
+                    <option value="member_full">Member — Full</option>
                   </select>
                   <button
                     type="submit"

@@ -2,25 +2,30 @@ import { getCourse } from '@/lib/courses'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { currentUser } from '@clerk/nextjs/server'
-import { hasPaidAccess } from '@/lib/course-access'
+import { hasCourseAccess } from '@/lib/course-access'
+import { EnrollButton } from '@/components/EnrollButton'
+import { ZEFFY } from '@/lib/zeffy'
+
+const COURSE_EMBED_URLS: Record<string, string> = {
+  'h2-aircraft-certification': ZEFFY.h2Certification,
+}
 
 export default async function CoursePage({ params }: { params: { slug: string } }) {
   const course = getCourse(params.slug)
   if (!course) notFound()
 
   const user = await currentUser()
-  const hasAccess = user && course.slug === 'h2-aircraft-certification'
-    ? await hasPaidAccess(user.id)
-    : false
+  const hasAccess = user ? await hasCourseAccess(user.id, course.slug) : false
 
   const isFirst = course.slug === 'h2-aircraft-certification'
   const accent = isFirst ? '#5d00f5' : '#00D4D4'
   const accentLight = isFirst ? '#9b6dff' : '#33ffff'
   const badgeLabel = isFirst ? '✈️ Certification' : '🛡️ Safety'
+  const embedUrl = COURSE_EMBED_URLS[course.slug] ?? ZEFFY.membership
+  const contentPath = `/courses/${course.slug}/content`
 
   return (
     <div className="text-white max-w-4xl">
-      {/* Back */}
       <Link href="/courses" className="inline-flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-8 transition-colors">
         ← Back to Courses
       </Link>
@@ -36,7 +41,6 @@ export default async function CoursePage({ params }: { params: { slug: string } 
           <h1 className="text-3xl sm:text-4xl font-bold mb-4 leading-tight">{course.title}</h1>
           <p className="text-white/55 text-lg leading-relaxed max-w-2xl mb-8">{course.tagline}</p>
 
-          {/* Highlights */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
             {course.highlights.map((h) => (
               <div key={h.label} className="bg-black/20 rounded-xl p-4 border border-white/8">
@@ -47,7 +51,6 @@ export default async function CoursePage({ params }: { params: { slug: string } 
             ))}
           </div>
 
-          {/* Key features */}
           <div className="flex flex-wrap gap-2 mb-8">
             {course.keyFeatures.map((f) => (
               <span key={f} className="text-xs px-3 py-1.5 rounded-full border text-white/60 border-white/15 bg-white/5">
@@ -56,26 +59,14 @@ export default async function CoursePage({ params }: { params: { slug: string } 
             ))}
           </div>
 
-          {/* CTA */}
-          {hasAccess ? (
-            <Link
-              href="/courses/h2-aircraft-certification/content"
-              className="inline-flex items-center gap-2 text-white font-bold px-10 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-base"
-              style={{ backgroundColor: accent, boxShadow: `0 8px 32px ${accent}50` }}
-            >
-              Access Course Content →
-            </Link>
-          ) : (
-            <a
-              href={course.buyLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-white font-bold px-10 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-base"
-              style={{ backgroundColor: accent, boxShadow: `0 8px 32px ${accent}50` }}
-            >
-              Enroll Now →
-            </a>
-          )}
+          <EnrollButton
+            hasAccess={hasAccess}
+            courseSlug={course.slug}
+            courseTitle={course.title}
+            courseEmbedUrl={embedUrl}
+            contentPath={contentPath}
+            accent={accent}
+          />
         </div>
       </div>
 
@@ -204,7 +195,7 @@ export default async function CoursePage({ params }: { params: { slug: string } 
             <h2 className="font-bold text-2xl mb-2">You&apos;re enrolled!</h2>
             <p className="text-white/50 mb-6">Jump back into the course content anytime.</p>
             <Link
-              href="/courses/h2-aircraft-certification/content"
+              href={contentPath}
               className="inline-flex items-center gap-2 text-white font-bold px-10 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-base"
               style={{ backgroundColor: accent, boxShadow: `0 8px 32px ${accent}50` }}
             >
@@ -215,15 +206,14 @@ export default async function CoursePage({ params }: { params: { slug: string } 
           <>
             <h2 className="font-bold text-2xl mb-2">Ready to enroll?</h2>
             <p className="text-white/50 mb-6">Join industry professionals advancing hydrogen aviation certification.</p>
-            <a
-              href={course.buyLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-white font-bold px-10 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-base"
-              style={{ backgroundColor: accent, boxShadow: `0 8px 32px ${accent}50` }}
-            >
-              Enroll Now →
-            </a>
+            <EnrollButton
+              hasAccess={false}
+              courseSlug={course.slug}
+              courseTitle={course.title}
+              courseEmbedUrl={embedUrl}
+              contentPath={contentPath}
+              accent={accent}
+            />
           </>
         )}
       </div>

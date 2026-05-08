@@ -39,13 +39,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 })
   }
 
-  if (member.tier === 'paid') {
-    return NextResponse.json({ message: 'Already a paid member' }, { status: 200 })
+  if (member.tier === 'member_full') {
+    return NextResponse.json({ message: 'Already a full member' }, { status: 200 })
   }
 
-  // Upgrade user and decrement code uses in a single transaction
+  // Discount codes grant full membership — upgrade and decrement in one transaction
   await db.transaction(async (tx) => {
-    await tx.update(users).set({ tier: 'paid' }).where(eq(users.id, userId))
+    await tx.update(users).set({ tier: 'member_full' }).where(eq(users.id, userId))
 
     if (discount.usesRemaining !== null) {
       await tx

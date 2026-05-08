@@ -1,6 +1,6 @@
-import { currentUser } from '@clerk/nextjs/server'
-import { hasPaidAccess } from '@/lib/course-access'
-import UpgradeGate from '@/components/UpgradeGate'
+import Link from 'next/link'
+import { EventRegisterButton } from '@/components/EventRegisterButton'
+import { ZEFFY } from '@/lib/zeffy'
 
 const webinarDates = [
   'May 18, 2026',
@@ -13,17 +13,14 @@ const webinarDates = [
 ]
 
 const WEBINAR_LINK = 'https://us06web.zoom.us/meeting/register/tZUtd-GpqzojGdXo6wK6DVPDD55IQyYJvL1e#/registration'
-const FLYING_HY_LINK = 'https://www.zeffy.com/en-US/ticketing/flying-hy--2026'
-const SPEED_NETWORKING_LINK = '#' // TODO: add Zoom link
 
-export default async function EventsPage() {
-  const user = await currentUser()
-  const paid = user ? await hasPaidAccess(user.id) : false
+const flyingHyOptions = [
+  { label: 'Attendee', icon: '🎟️', embedUrl: ZEFFY.flyingHyAttendee },
+  { label: 'Sponsor', icon: '🏆', embedUrl: ZEFFY.flyingHySponsor },
+  { label: 'Membership', icon: '👥', embedUrl: ZEFFY.membership },
+]
 
-  if (!paid) {
-    return <UpgradeGate feature="Events" />
-  }
-
+export default function EventsPage() {
   return (
     <div className="text-white max-w-4xl">
       <div className="mb-8">
@@ -54,14 +51,20 @@ export default async function EventsPage() {
           <p className="text-white/50 text-sm leading-relaxed mb-6 max-w-2xl">
             The world&apos;s largest annual hydrogen aviation event — bringing together innovators, researchers, regulators, and industry leaders from across air and aerospace.
           </p>
-          <a
-            href={FLYING_HY_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-teal-glow inline-flex items-center gap-2 text-white font-bold px-8 py-3 rounded-xl text-sm"
-          >
-            Register Now →
-          </a>
+          <div className="flex flex-wrap gap-3">
+            <EventRegisterButton
+              label="Register Now →"
+              options={flyingHyOptions}
+              title="FLYING HY 2026 — Get Your Ticket"
+              className="btn-teal-glow inline-flex items-center gap-2 text-white font-bold px-8 py-3 rounded-xl text-sm"
+            />
+            <Link
+              href="/dashboard/events/flying-hy-2026"
+              className="inline-flex items-center gap-2 text-white/60 hover:text-white font-semibold px-6 py-3 rounded-xl text-sm border border-white/15 hover:border-white/30 transition-colors"
+            >
+              View Details →
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -82,12 +85,9 @@ export default async function EventsPage() {
               <span>💻 Zoom</span>
             </div>
           </div>
-          <a
-            href={SPEED_NETWORKING_LINK}
-            className="shrink-0 inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-xl border border-white/20 text-white/40 cursor-not-allowed"
-          >
+          <span className="shrink-0 inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-xl border border-white/20 text-white/40">
             Link Coming Soon
-          </a>
+          </span>
         </div>
       </div>
 

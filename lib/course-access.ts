@@ -1,7 +1,16 @@
-import { getUserTier } from './members'
+import { hasCourseMembership, hasEventMembership, hasIndividualCourseAccess, hasIndividualEventAccess } from './members'
 
-/** Returns true if the user's tier allows access to gated content. */
+export async function hasCourseAccess(clerkId: string, courseSlug: string): Promise<boolean> {
+  if (await hasCourseMembership(clerkId)) return true
+  return hasIndividualCourseAccess(clerkId, courseSlug)
+}
+
+export async function hasEventAccess(clerkId: string, eventSlug: string): Promise<boolean> {
+  if (await hasEventMembership(clerkId)) return true
+  return hasIndividualEventAccess(clerkId, eventSlug)
+}
+
+// Kept for backward compat — true if user has any paid membership
 export async function hasPaidAccess(clerkId: string): Promise<boolean> {
-  const tier = await getUserTier(clerkId)
-  return tier === 'paid'
+  return hasCourseMembership(clerkId)
 }

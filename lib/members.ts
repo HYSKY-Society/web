@@ -1,8 +1,12 @@
 import { db } from './db'
-import { users } from './schema'
-import { eq } from 'drizzle-orm'
+import { users, coursePurchases, eventPurchases } from './schema'
+import { eq, and } from 'drizzle-orm'
 
-export type Tier = 'free' | 'paid'
+// Tiers in ascending order of access
+export type Tier = 'free' | 'member_courses' | 'member_courses_events' | 'member_full'
+
+const TIERS_WITH_COURSES: Tier[] = ['member_courses', 'member_courses_events', 'member_full']
+const TIERS_WITH_EVENTS: Tier[] = ['member_courses_events', 'member_full']
 
 export async function getUserByClerkId(clerkId: string) {
   return db.query.users.findFirst({ where: eq(users.id, clerkId) })
@@ -14,7 +18,6 @@ export async function getUserByEmail(email: string) {
   })
 }
 
-/** Creates user with free tier if they don't exist. Returns the tier. */
 export async function ensureUser(clerkId: string, email: string): Promise<Tier> {
   const existing = await getUserByClerkId(clerkId)
   if (existing) return existing.tier as Tier
@@ -42,4 +45,36 @@ export async function setUserTierByEmail(email: string, tier: Tier) {
     .update(users)
     .set({ tier })
     .where(eq(users.email, email.toLowerCase().trim()))
+}
+
+export async function hasCourseMembership(clerkId: string): Promise<boolean> {
+  const tier = await getUserTier(clerkId)
+  return TIERS_WITH_COURSES.includes(tier)
+}
+
+export async function hasEventMembership(clerkId: string): Promise<boolean> {
+  const tier = await getUserTier(clerkId)
+  return TIERS_WITH_EVENTS.includes(tier)
+}
+
+export async function addCoursePurchase(userId: string, courseSlug: string) {
+  await db.insert(coursePurchases).values({ userId, courseSlug }).onConflictDoNothing()
+}
+
+export async function addEventPurchase(userId: string, eventSlug: string) {
+  await db.insert(eventPurchases).values({ userId, eventSlug }).onConflictDoNothing()
+}
+
+export async function hasIndividualCourseAccess(userId: string, courseSlug: string): Promise<boolean> {
+  const row = await db.query.coursePurchases.findFirst({
+    where: and(eq(coursePurchases.userId, userId), eq(coursePurchases.courseSlug, courseSlug)),
+  })
+  return !!row
+}
+
+export async function hasIndividualEventAccess(userId: string, eventSlug: string): Promise<boolean> {
+  const row = await db.query.eventPurchases.findFirst({
+    where: and(eq(eventPurchases.userId, userId), eq(eventPurchases.eventSlug, eventSlug)),
+  })
+  return !!row
 }

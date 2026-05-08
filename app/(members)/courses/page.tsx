@@ -1,22 +1,12 @@
 import Link from 'next/link'
-import { currentUser } from '@clerk/nextjs/server'
-import { hasPaidAccess } from '@/lib/course-access'
 import { courses } from '@/lib/courses'
-import UpgradeGate from '@/components/UpgradeGate'
 
-export default async function CoursesPage() {
-  const user = await currentUser()
-  const paid = user ? await hasPaidAccess(user.id) : false
-
-  if (!paid) {
-    return <UpgradeGate feature="Courses" />
-  }
-
+export default function CoursesPage() {
   return (
     <div className="text-white max-w-4xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-1.5">Courses</h1>
-        <p className="text-white/40">Member-exclusive hydrogen aviation courses.</p>
+        <p className="text-white/40">Hydrogen aviation courses from HYSKY Society.</p>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-6">
