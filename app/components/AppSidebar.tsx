@@ -106,6 +106,8 @@ export default function AppSidebar({
             <SidebarItem href="/admin/podcast"        icon="🎙" label="Manage Podcast" onClick={onClose} />
             <SidebarItem href="/admin/sponsors"       icon="💼" label="Manage Sponsors" onClick={onClose} />
             <SidebarItem href="/admin/codes"          icon="🏷" label="Discount Codes"  onClick={onClose} />
+            <SidebarItem href="/admin/flying-hy"      icon="✈️" label="FLYING HY"       onClick={onClose} />
+            <SidebarItem href="/admin/press"           icon="📰" label="Press"           onClick={onClose} />
           </>
         )}
       </nav>

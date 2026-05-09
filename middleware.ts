@@ -11,6 +11,8 @@ const isPublicRoute = createRouteMatcher([
   '/events(.*)',
   '/hysky-monthly',
   '/podcast',
+  '/press(.*)',
+  '/flying-hy(.*)',
   '/sponsors',
   '/api/webhooks(.*)',
   '/api/oembed',

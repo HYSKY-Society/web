@@ -94,6 +94,46 @@ export const userProfiles = pgTable('user_profiles', {
   updatedAt:   timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+export const pressPosts = pgTable('press_posts', {
+  id:              text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  slug:            text('slug').notNull().unique(),
+  title:           text('title').notNull(),
+  author:          text('author').notNull().default('HYSKY Society'),
+  excerpt:         text('excerpt'),
+  content:         text('content'),
+  coverImageUrl:   text('cover_image_url'),
+  publishedAt:     timestamp('published_at', { withTimezone: true }).notNull(),
+  readTimeMinutes: integer('read_time_minutes'),
+  isPublished:     boolean('is_published').notNull().default(true),
+  createdAt:       timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const flyingHySpeakers = pgTable('flying_hy_speakers', {
+  id:           text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  eventYear:    integer('event_year').notNull(),
+  name:         text('name').notNull(),
+  title:        text('title'),
+  organization: text('organization'),
+  bio:          text('bio'),
+  avatarUrl:    text('avatar_url'),
+  sessionTitle: text('session_title'),
+  displayOrder: integer('display_order').notNull().default(0),
+  isPublished:  boolean('is_published').notNull().default(true),
+  createdAt:    timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const flyingHyAgenda = pgTable('flying_hy_agenda', {
+  id:           text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  eventYear:    integer('event_year').notNull(),
+  timeSlot:     text('time_slot'),
+  title:        text('title').notNull(),
+  description:  text('description'),
+  speakerName:  text('speaker_name'),
+  sessionType:  text('session_type').notNull().default('session'),
+  displayOrder: integer('display_order').notNull().default(0),
+  createdAt:    timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export type User = typeof users.$inferSelect
 export type UserProfile = typeof userProfiles.$inferSelect
 export type DiscountCode = typeof discountCodes.$inferSelect

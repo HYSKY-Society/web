@@ -5,11 +5,19 @@ import { usePathname } from 'next/navigation'
 import { SignInButton, SignUpButton } from '@clerk/nextjs'
 
 const NAV = [
-  { href: '/about',           label: 'About Us',      icon: '🏠' },
-  { href: '/courses',         label: 'Courses',       icon: '📚' },
-  { href: '/events',           label: 'Events',       icon: '📅' },
-  { href: '/hysky-monthly',   label: 'HYSKY Monthly', icon: '🎬' },
-  { href: '/podcast',         label: 'Podcast',       icon: '🎙' },
+  { href: '/about',        label: 'About Us',      icon: '🏠' },
+  { href: '/courses',      label: 'Courses',       icon: '📚' },
+  { href: '/events',       label: 'Events',        icon: '📅' },
+  { href: '/flying-hy',    label: 'FLYING HY',     icon: '✈️', sub: [
+    { href: '/flying-hy#about',    label: 'About' },
+    { href: '/flying-hy#speakers', label: 'Speakers' },
+    { href: '/flying-hy#agenda',   label: 'Agenda' },
+    { href: '/flying-hy#sponsors', label: 'Sponsors' },
+    { href: '/flying-hy#faq',      label: 'FAQ' },
+  ]},
+  { href: '/hysky-monthly', label: 'HYSKY Monthly', icon: '🎬' },
+  { href: '/podcast',       label: 'Podcast',       icon: '🎙' },
+  { href: '/press',         label: 'Press',         icon: '📰' },
 ]
 
 export default function PublicSidebar({
@@ -23,20 +31,31 @@ export default function PublicSidebar({
       style={{ background: '#060510', borderRight: '1px solid rgba(255,255,255,.07)' }}
     >
       <nav className="flex-1 overflow-y-auto py-2 space-y-0.5 px-1">
-        {NAV.map(({ href, label, icon }) => {
+        {NAV.map(({ href, label, icon, sub }) => {
           const active = pathname === href || (href.length > 1 && pathname.startsWith(href + '/'))
           return (
-            <Link
-              key={href}
-              href={href}
-              onClick={onClose}
-              className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                active ? 'bg-[#5d00f5]/20 text-white' : 'text-white/55 hover:text-white hover:bg-white/6'
-              }`}
-            >
-              <span className="text-base leading-none">{icon}</span>
-              <span className="truncate">{label}</span>
-            </Link>
+            <div key={href}>
+              <Link
+                href={href}
+                onClick={onClose}
+                className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                  active ? 'bg-[#5d00f5]/20 text-white' : 'text-white/55 hover:text-white hover:bg-white/6'
+                }`}
+              >
+                <span className="text-base leading-none">{icon}</span>
+                <span className="truncate">{label}</span>
+              </Link>
+              {sub && active && sub.map(s => (
+                <a
+                  key={s.href}
+                  href={s.href}
+                  onClick={onClose}
+                  className="flex items-center gap-2.5 pl-10 pr-3 py-1 rounded-lg text-xs text-white/40 hover:text-white/70 transition-colors"
+                >
+                  {s.label}
+                </a>
+              ))}
+            </div>
           )
         })}
         {isLoggedIn && (
