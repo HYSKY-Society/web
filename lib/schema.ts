@@ -77,7 +77,24 @@ export const pendingTiers = pgTable('pending_tiers', {
   createdAt:  timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+export const userProfiles = pgTable('user_profiles', {
+  userId:      text('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  displayName: text('display_name'),
+  headline:    text('headline'),
+  bio:         text('bio'),
+  location:    text('location'),
+  company:     text('company'),
+  jobTitle:    text('job_title'),
+  website:     text('website'),
+  linkedinUrl: text('linkedin_url'),
+  twitterUrl:  text('twitter_url'),
+  avatarUrl:   text('avatar_url'),
+  isVisible:   boolean('is_visible').notNull().default(true),
+  updatedAt:   timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export type User = typeof users.$inferSelect
+export type UserProfile = typeof userProfiles.$inferSelect
 export type DiscountCode = typeof discountCodes.$inferSelect
 export type CoursePurchase = typeof coursePurchases.$inferSelect
 export type EventPurchase = typeof eventPurchases.$inferSelect

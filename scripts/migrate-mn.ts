@@ -12,9 +12,9 @@
  *  4. Upserts VIP members into sponsors table
  */
 
+import * as https from 'https'
 import { db } from '../lib/db'
 import { pendingTiers, sponsors } from '../lib/schema'
-
 
 const BASE    = 'https://api.mn.co/admin/v1'
 const NETWORK = '8343683'
@@ -51,27 +51,29 @@ const PLAN_MAP: Record<number, { tier?: string; course?: string; event?: string;
 }
 
 // ── API helpers ───────────────────────────────────────────────────────────────
+function httpsGet(urlStr: string): Promise<{ status: number; body: string }> {
+  return new Promise((resolve, reject) => {
+    const req = https.get(urlStr, { headers: { Authorization: `Bearer ${TOKEN}`, Accept: 'application/json' } }, (res) => {
+      let body = ''
+      res.on('data', (chunk: Buffer) => { body += chunk.toString() })
+      res.on('end', () => resolve({ status: res.statusCode ?? 0, body }))
+    })
+    req.setTimeout(15000, () => { req.destroy(new Error('Request timed out')) })
+    req.on('error', reject)
+  })
+}
+
 async function mnGet(path: string, params: Record<string, string | number> = {}, retries = 3): Promise<Record<string, unknown>> {
   const url = new URL(`${BASE}${path}`)
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v))
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), 20000)
-  try {
-    const res = await fetch(url.toString(), {
-      headers: { Authorization: `Bearer ${TOKEN}`, Accept: 'application/json' },
-      signal: controller.signal,
-    })
-    if (res.status === 429 && retries > 0) {
-      const wait = 65000 // wait 65s to clear the per-minute quota
-      console.log(`    ⏳  Rate limited — waiting ${wait / 1000}s…`)
-      await new Promise(r => setTimeout(r, wait))
-      return mnGet(path, params, retries - 1)
-    }
-    if (!res.ok) throw new Error(`MN ${path}: ${res.status} — ${await res.text()}`)
-    return res.json() as Promise<Record<string, unknown>>
-  } finally {
-    clearTimeout(timer)
+  const { status, body } = await httpsGet(url.toString())
+  if (status === 429 && retries > 0) {
+    console.log(`    ⏳  Rate limited — waiting 65s…`)
+    await new Promise(r => setTimeout(r, 65000))
+    return mnGet(path, params, retries - 1)
   }
+  if (status < 200 || status >= 300) throw new Error(`MN ${path}: ${status} — ${body}`)
+  return JSON.parse(body) as Record<string, unknown>
 }
 
 async function fetchAll(path: string): Promise<Record<string, unknown>[]> {
@@ -81,8 +83,7 @@ async function fetchAll(path: string): Promise<Record<string, unknown>[]> {
     const data = await mnGet(path, { per_page: 100, page })
     const batch = (data.items as Record<string, unknown>[]) ?? []
     items.push(...batch)
-    const links = data.links as Record<string, string> | undefined
-    if (!links?.next) break
+    if (batch.length < 100) break  // MN always returns next link — stop when page is not full
     page++
     await new Promise(r => setTimeout(r, 400)) // stay under 200 req/min
   }

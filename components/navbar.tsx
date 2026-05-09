@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 
 const links = [
   { href: '/dashboard',        label: 'Dashboard' },
+  { href: '/members',          label: 'Members' },
   { href: '/courses',          label: 'Courses' },
   { href: '/dashboard/events', label: 'Events' },
   { href: '/hysky-monthly',    label: 'HYSKY Monthly' },
@@ -42,6 +43,12 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
+          <Link
+            href="/profile"
+            className="hidden sm:block text-xs text-white/30 hover:text-white/60 transition-colors"
+          >
+            Profile
+          </Link>
           <Link
             href="/admin"
             className="hidden sm:block text-xs text-white/30 hover:text-white/60 transition-colors"
