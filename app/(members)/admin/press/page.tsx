@@ -20,7 +20,10 @@ async function togglePublished(id: string, current: boolean) {
 }
 
 export default async function AdminPressPage() {
-  const posts = await db.select().from(pressPosts).orderBy(desc(pressPosts.publishedAt))
+  let posts: typeof pressPosts.$inferSelect[] = []
+  try {
+    posts = await db.select().from(pressPosts).orderBy(desc(pressPosts.publishedAt))
+  } catch { /* table not yet migrated */ }
 
   return (
     <div className="text-white max-w-4xl">

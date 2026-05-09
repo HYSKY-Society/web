@@ -7,14 +7,18 @@ import { deleteSpeaker, deleteAgendaItem } from './actions'
 const YEAR = 2026
 
 export default async function AdminFlyingHyPage() {
-  const [speakers, agenda] = await Promise.all([
-    db.select().from(flyingHySpeakers)
-      .where(eq(flyingHySpeakers.eventYear, YEAR))
-      .orderBy(asc(flyingHySpeakers.displayOrder)),
-    db.select().from(flyingHyAgenda)
-      .where(eq(flyingHyAgenda.eventYear, YEAR))
-      .orderBy(asc(flyingHyAgenda.displayOrder)),
-  ])
+  let speakers: typeof flyingHySpeakers.$inferSelect[] = []
+  let agenda: typeof flyingHyAgenda.$inferSelect[] = []
+  try {
+    ;[speakers, agenda] = await Promise.all([
+      db.select().from(flyingHySpeakers)
+        .where(eq(flyingHySpeakers.eventYear, YEAR))
+        .orderBy(asc(flyingHySpeakers.displayOrder)),
+      db.select().from(flyingHyAgenda)
+        .where(eq(flyingHyAgenda.eventYear, YEAR))
+        .orderBy(asc(flyingHyAgenda.displayOrder)),
+    ])
+  } catch { /* table not yet migrated */ }
 
   return (
     <div className="text-white max-w-4xl space-y-10">
