@@ -70,7 +70,7 @@ export default async function FeedPage() {
       {/* ── Upcoming Events ─────────────────────────────────────── */}
       {upcomingEvents.length > 0 && (
         <section>
-          <SectionHeader icon="🗓" title="Upcoming Events" href="/dashboard/events" linkLabel="All events" />
+          <SectionHeader icon="🗓" title="Upcoming Events" href="/events" linkLabel="All events" />
           <div className="space-y-3">
             {upcomingEvents.map(ev => (
               <FeedCard key={ev.slug}>

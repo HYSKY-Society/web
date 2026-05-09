@@ -7,7 +7,7 @@ import { SignInButton, SignUpButton } from '@clerk/nextjs'
 const NAV = [
   { href: '/about',           label: 'About Us',      icon: '🏠' },
   { href: '/courses',         label: 'Courses',       icon: '📚' },
-  { href: '/dashboard/events', label: 'Events',       icon: '📅' },
+  { href: '/events',           label: 'Events',       icon: '📅' },
   { href: '/hysky-monthly',   label: 'HYSKY Monthly', icon: '🎬' },
   { href: '/podcast',         label: 'Podcast',       icon: '🎙' },
 ]

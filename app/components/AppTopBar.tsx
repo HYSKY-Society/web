@@ -9,7 +9,7 @@ const ALL_NAV = [
   { href: '/feed',              label: 'Feed',          authOnly: true },
   { href: '/about',             label: 'About Us',      authOnly: false },
   { href: '/courses',           label: 'Courses',       authOnly: false },
-  { href: '/dashboard/events',  label: 'Events',        authOnly: false },
+  { href: '/events',            label: 'Events',        authOnly: false },
   { href: '/hysky-monthly',     label: 'HYSKY Monthly', authOnly: false },
   { href: '/podcast',           label: 'Podcast',       authOnly: false },
 ]
@@ -56,16 +56,16 @@ export default function AppTopBar({ onMenuClick, isLoggedIn = true }: { onMenuCl
         })}
       </nav>
 
-      {/* Auth buttons — desktop, public pages only */}
+      {/* Auth buttons — public pages only */}
       {!isLoggedIn && (
-        <div className="hidden md:flex items-center gap-2 ml-auto">
+        <div className="flex items-center gap-2 ml-auto">
           <SignInButton mode="modal">
             <button className="text-sm font-medium px-3 py-1.5 rounded-lg text-white/55 hover:text-white hover:bg-white/6 transition-colors">
               Log In
             </button>
           </SignInButton>
           <SignUpButton mode="modal">
-            <button className="text-sm font-bold px-4 py-1.5 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] text-white transition-colors">
+            <button className="hidden sm:block text-sm font-bold px-4 py-1.5 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] text-white transition-colors">
               Join Free
             </button>
           </SignUpButton>
