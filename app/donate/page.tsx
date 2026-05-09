@@ -1,9 +1,11 @@
 import { ZEFFY } from '@/lib/zeffy'
+import PublicNav from '@/app/components/PublicNav'
 
 export default function DonatePage() {
   return (
     <div className="min-h-screen text-white" style={{ background: 'linear-gradient(135deg, #04030a 0%, #0a0520 100%)' }}>
-      <div className="max-w-2xl mx-auto px-6 py-16">
+      <PublicNav />
+      <div className="max-w-2xl mx-auto px-6 pt-[88px] pb-16">
         {/* Header */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-5 bg-[#5d00f5]/20 text-[#9b6dff]">

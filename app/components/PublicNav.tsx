@@ -18,14 +18,17 @@ export default async function PublicNav() {
         <Image src="/logo-new.png" alt="HYSKY Society" height={44} width={175} className="object-contain" />
       </Link>
       <div className="flex items-center gap-6">
-        <Link href="/hysky-monthly" className="hidden sm:block text-sm text-white/50 hover:text-white transition-colors">
+        <Link href="/hysky-monthly" className="hidden md:block text-sm text-white/50 hover:text-white transition-colors">
           HYSKY Monthly
         </Link>
-        <Link href="/podcast" className="hidden sm:block text-sm text-white/50 hover:text-white transition-colors">
+        <Link href="/podcast" className="hidden md:block text-sm text-white/50 hover:text-white transition-colors">
           Podcast
         </Link>
-        <Link href="/sponsors" className="hidden sm:block text-sm text-white/50 hover:text-white transition-colors">
+        <Link href="/sponsors" className="hidden md:block text-sm text-white/50 hover:text-white transition-colors">
           Sponsors
+        </Link>
+        <Link href="/donate" className="hidden md:block text-sm text-white/50 hover:text-white transition-colors">
+          Donate
         </Link>
         {userId ? (
           <Link

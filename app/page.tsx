@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import ScrollAnimations from './components/ScrollAnimations'
 import NewsletterPopup from './components/NewsletterPopup'
 import HeroHelicopter from './components/HeroHelicopter'
+import PublicNav from './components/PublicNav'
 
 type Program = { tag: string; title: string; desc: string; href?: string }
 const programs: Program[] = [
@@ -33,37 +34,10 @@ export default async function HomePage() {
     <main className="min-h-screen text-white overflow-x-hidden" style={{ background: '#04030a', fontFamily: 'Arial, Helvetica, sans-serif' }}>
       <ScrollAnimations />
 
-      {/* ── NAV ── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-[6%] py-5"
-        style={{ background: 'rgba(4,3,10,.7)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,.08)' }}>
-        <Image src="/logo-new.png" alt="HYSKY Society" height={52} width={210} className="object-contain" />
-        <div className="hidden sm:flex items-center gap-8">
-          <a href="#programs" className="text-white/50 hover:text-white text-sm font-medium transition-colors">Programs</a>
-          <a href="#connect" className="text-white/50 hover:text-white text-sm font-medium transition-colors">Community</a>
-          <a href="#audience" className="text-white/50 hover:text-white text-sm font-medium transition-colors">Who It&apos;s For</a>
-          <Link
-            href="/sign-up"
-            className="font-black px-5 py-2.5 rounded-full text-sm transition-all cursor-pointer"
-            style={{
-              background: 'linear-gradient(white, white) padding-box, linear-gradient(90deg, #5d00f5, #13dce8) border-box',
-              border: '2px solid transparent',
-            }}
-          >
-            <span style={{
-              background: 'linear-gradient(90deg, #5d00f5, #13dce8)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}>
-              Become a Member
-            </span>
-          </Link>
-        </div>
-        <Link href="/sign-in" className="sm:hidden text-white/60 hover:text-white text-sm transition-colors">Login</Link>
-      </nav>
+      <PublicNav />
 
       {/* ── HERO ── */}
-      <header className="relative min-h-screen flex flex-col justify-between pt-[120px]">
+      <header className="relative min-h-screen flex flex-col justify-between pt-[88px]">
         {/* Background */}
         <div className="absolute inset-0 z-0" style={{
           background: `

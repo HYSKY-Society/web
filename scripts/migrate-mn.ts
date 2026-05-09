@@ -14,7 +14,7 @@
 
 import { db } from '../lib/db'
 import { pendingTiers, sponsors } from '../lib/schema'
-import { eq } from 'drizzle-orm'
+
 
 const BASE    = 'https://api.mn.co/admin/v1'
 const NETWORK = '8343683'
@@ -51,14 +51,27 @@ const PLAN_MAP: Record<number, { tier?: string; course?: string; event?: string;
 }
 
 // ── API helpers ───────────────────────────────────────────────────────────────
-async function mnGet(path: string, params: Record<string, string | number> = {}) {
+async function mnGet(path: string, params: Record<string, string | number> = {}, retries = 3): Promise<Record<string, unknown>> {
   const url = new URL(`${BASE}${path}`)
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v))
-  const res = await fetch(url.toString(), {
-    headers: { Authorization: `Bearer ${TOKEN}`, Accept: 'application/json' },
-  })
-  if (!res.ok) throw new Error(`MN ${path}: ${res.status} — ${await res.text()}`)
-  return res.json() as Promise<Record<string, unknown>>
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 20000)
+  try {
+    const res = await fetch(url.toString(), {
+      headers: { Authorization: `Bearer ${TOKEN}`, Accept: 'application/json' },
+      signal: controller.signal,
+    })
+    if (res.status === 429 && retries > 0) {
+      const wait = 65000 // wait 65s to clear the per-minute quota
+      console.log(`    ⏳  Rate limited — waiting ${wait / 1000}s…`)
+      await new Promise(r => setTimeout(r, wait))
+      return mnGet(path, params, retries - 1)
+    }
+    if (!res.ok) throw new Error(`MN ${path}: ${res.status} — ${await res.text()}`)
+    return res.json() as Promise<Record<string, unknown>>
+  } finally {
+    clearTimeout(timer)
+  }
 }
 
 async function fetchAll(path: string): Promise<Record<string, unknown>[]> {
