@@ -3,9 +3,9 @@ import { users, userProfiles, coursePurchases, eventPurchases, pendingTiers, pod
 import { eq, and, or, isNull, count } from 'drizzle-orm'
 
 // Re-export from client-safe tiers module so server code imports one place
-export type { Tier } from './tiers'
+export type { Tier, MemberListItem } from './tiers'
 export { TIER_LABELS, TIERS_WITH_COURSES, TIERS_WITH_EVENTS, PAID_TIERS, isPaidTier } from './tiers'
-import type { Tier } from './tiers'
+import type { Tier, MemberListItem } from './tiers'
 import { TIERS_WITH_COURSES, TIERS_WITH_EVENTS } from './tiers'
 
 // ── User CRUD ─────────────────────────────────────────────────────────────────
@@ -137,18 +137,6 @@ export async function upsertProfile(userId: string, data: ProfileData) {
 }
 
 // ── Member directory ──────────────────────────────────────────────────────────
-
-export type MemberListItem = {
-  id:          string
-  tier:        string
-  displayName: string | null
-  headline:    string | null
-  company:     string | null
-  jobTitle:    string | null
-  location:    string | null
-  avatarUrl:   string | null
-  isVisible:   boolean | null
-}
 
 export async function getAllVisibleMembers(): Promise<MemberListItem[]> {
   const rows = await db

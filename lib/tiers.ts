@@ -17,3 +17,16 @@ export const TIERS_WITH_EVENTS: Tier[]  = ['member_courses_events', 'member_full
 export function isPaidTier(tier: Tier): boolean {
   return PAID_TIERS.includes(tier)
 }
+
+// Safe to use in client components — no server deps
+export type MemberListItem = {
+  id:          string
+  tier:        string
+  displayName: string | null
+  headline:    string | null
+  company:     string | null
+  jobTitle:    string | null
+  location:    string | null
+  avatarUrl:   string | null
+  isVisible:   boolean | null
+}
