@@ -2,11 +2,13 @@ import { db } from '@/lib/db'
 import { podcastEpisodes } from '@/lib/schema'
 import { eq, desc } from 'drizzle-orm'
 import { toEmbedUrl } from '@/lib/youtube'
-import PublicNav from '@/app/components/PublicNav'
+import SmartNav from '@/app/components/SmartNav'
+import { auth } from '@clerk/nextjs/server'
 
 export const revalidate = 3600
 
 export default async function PodcastPage() {
+  const { userId } = auth()
   const episodes = await db
     .select()
     .from(podcastEpisodes)
@@ -15,7 +17,7 @@ export default async function PodcastPage() {
 
   return (
     <div className="min-h-screen text-white" style={{ background: '#04030a' }}>
-      <PublicNav />
+      <SmartNav />
 
       <div
         className="absolute inset-0 z-0 pointer-events-none"
@@ -24,7 +26,7 @@ export default async function PodcastPage() {
         }}
       />
 
-      <main className="relative z-10 max-w-5xl mx-auto px-6 pt-[100px] pb-20">
+      <main className={`relative z-10 max-w-5xl mx-auto px-6 pb-20 ${userId ? 'pt-8' : 'pt-[100px]'}`}>
         {/* Hero */}
         <div className="text-center mb-16">
           <div

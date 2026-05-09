@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import type { MemberListItem, Tier } from '@/lib/members'
-import { TIER_LABELS, isPaidTier } from '@/lib/members'
+import type { MemberListItem } from '@/lib/members'
+import { type Tier, TIER_LABELS, isPaidTier } from '@/lib/tiers'
 
 function initials(name: string | null): string {
   if (!name) return '?'

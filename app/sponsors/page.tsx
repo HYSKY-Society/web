@@ -1,8 +1,9 @@
 import { db } from '@/lib/db'
 import { sponsors } from '@/lib/schema'
 import { eq } from 'drizzle-orm'
-import PublicNav from '@/app/components/PublicNav'
+import SmartNav from '@/app/components/SmartNav'
 import Image from 'next/image'
+import { auth } from '@clerk/nextjs/server'
 
 export const revalidate = 3600
 
@@ -18,6 +19,7 @@ const TIERS = [
 ]
 
 export default async function SponsorsPage() {
+  const { userId } = auth()
   const activeSponsors = await db
     .select()
     .from(sponsors)
@@ -28,7 +30,7 @@ export default async function SponsorsPage() {
 
   return (
     <div className="min-h-screen text-white" style={{ background: '#04030a' }}>
-      <PublicNav />
+      <SmartNav />
 
       <div
         className="absolute inset-0 z-0 pointer-events-none"
@@ -37,7 +39,7 @@ export default async function SponsorsPage() {
         }}
       />
 
-      <main className="relative z-10 max-w-5xl mx-auto px-6 pt-[100px] pb-20">
+      <main className={`relative z-10 max-w-5xl mx-auto px-6 pb-20 ${userId ? 'pt-8' : 'pt-[100px]'}`}>
         {/* Hero */}
         <div className="text-center mb-16">
           <div
