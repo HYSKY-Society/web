@@ -1,31 +1,35 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { ensureUser } from '@/lib/members'
-import Navbar from '@/components/navbar'
+import { ensureUser, getProfile, getUserCourseSlugs, getUserEventSlugs } from '@/lib/members'
+import { isAdmin } from '@/lib/admin'
+import AppShell from '@/app/components/AppShell'
+import type { SidebarData } from '@/app/components/AppShell'
 
 export default async function MembersLayout({ children }: { children: React.ReactNode }) {
   const user = await currentUser()
-
-  if (!user) {
-    redirect('/sign-in')
-  }
+  if (!user) redirect('/sign-in')
 
   const primaryEmail = user.emailAddresses.find(
     (e) => e.id === user.primaryEmailAddressId
   )?.emailAddress
+  if (!primaryEmail) redirect('/sign-in')
 
-  if (!primaryEmail) {
-    redirect('/sign-in')
+  const tier = await ensureUser(user.id, primaryEmail)
+
+  const [profile, courseSlugs, eventSlugs] = await Promise.all([
+    getProfile(user.id),
+    getUserCourseSlugs(user.id),
+    getUserEventSlugs(user.id),
+  ])
+
+  const sidebarData: SidebarData = {
+    tier,
+    displayName:          profile?.displayName ?? null,
+    email:                primaryEmail,
+    enrolledCourseSlugs:  courseSlugs,
+    enrolledEventSlugs:   eventSlugs,
+    isAdmin:              isAdmin(primaryEmail),
   }
 
-  // Ensure the user exists in the DB. Creates them with free tier if not found
-  // (handles pre-existing Clerk accounts created before the DB was introduced).
-  await ensureUser(user.id, primaryEmail)
-
-  return (
-    <div className="min-h-screen bg-[#04080F]">
-      <Navbar />
-      <main className="max-w-7xl mx-auto px-4 sm:px-8 py-8">{children}</main>
-    </div>
-  )
+  return <AppShell sidebarData={sidebarData}>{children}</AppShell>
 }
