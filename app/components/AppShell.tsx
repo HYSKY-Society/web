@@ -13,7 +13,7 @@ export type SidebarData = {
   isAdmin:              boolean
 }
 
-export default function AppShell({ sidebarData, children }: { sidebarData: SidebarData; children: React.ReactNode }) {
+export default function AppShell({ sidebarData, children, noPadding }: { sidebarData: SidebarData; children: React.ReactNode; noPadding?: boolean }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
@@ -35,9 +35,11 @@ export default function AppShell({ sidebarData, children }: { sidebarData: Sideb
       )}
 
       <main className="lg:ml-[260px] pt-[60px] min-h-[calc(100vh-60px)]">
-        <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-5xl">
-          {children}
-        </div>
+        {noPadding ? children : (
+          <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-5xl">
+            {children}
+          </div>
+        )}
       </main>
     </div>
   )
