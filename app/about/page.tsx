@@ -1,0 +1,299 @@
+import Link from 'next/link'
+import Image from 'next/image'
+import { auth } from '@clerk/nextjs/server'
+import ScrollAnimations from '@/app/components/ScrollAnimations'
+import NewsletterPopup from '@/app/components/NewsletterPopup'
+import HeroHelicopter from '@/app/components/HeroHelicopter'
+import SmartNav from '@/app/components/SmartNav'
+
+const programs = [
+  { tag: 'Membership',  title: 'HYSKY Connect',   desc: 'A dedicated platform where the hydrogen aviation ecosystem connects, collaborates, and grows.' },
+  { tag: 'Education',   title: 'HYSKY Edu',        desc: 'Courses and training for hydrogen aircraft certification, operations, infrastructure, safety, and policy.' },
+  { tag: 'Event',       title: 'FLYING HY',        desc: "The world's largest annual hydrogen aviation event, bringing together innovators across air and aerospace.", href: '/flying-hy' },
+  { tag: 'Webinars',    title: 'HYSKY Monthly',    desc: 'Free monthly webinars featuring leaders building the hydrogen aviation future.' },
+  { tag: 'Podcast',     title: 'HYSKY Pod',        desc: 'Conversations with aviation, hydrogen, and climate tech innovators pushing the industry forward.' },
+  { tag: 'Advocacy',    title: 'Policy + Power',   desc: 'Helping the ecosystem understand policy, engage responsibly, and advocate for hydrogen aviation progress.' },
+]
+
+const audience = [
+  { text: 'Aircraft developers — UAVs, eVTOLs, fixed-wing, rotorcraft, WIG craft, spacecraft', highlight: false },
+  { text: 'Hydrogen producers, logistics providers, and refueling infrastructure companies', highlight: false },
+  { text: 'Fuel cell, propulsion, fuel management, and onboard storage innovators', highlight: false },
+  { text: 'Researchers, universities, regulators, standards bodies, airports, policymakers', highlight: false },
+  { text: 'Compliance and regulatory leads working across FAA, EASA, Transport Canada', highlight: false },
+  { text: 'Anyone interested in hydrogen aviation… YOU', highlight: true },
+]
+
+const socials = [
+  { label: 'Instagram',  href: 'https://www.instagram.com/hysky_society/',                    icon: 'IG' },
+  { label: 'Facebook',   href: 'https://www.facebook.com/hyskysociety',                       icon: 'FB' },
+  { label: 'Twitter / X', href: 'https://twitter.com/Hy__Sky',                               icon: 'X' },
+  { label: 'LinkedIn',   href: 'https://www.linkedin.com/company/hyskysociety',               icon: 'LI' },
+  { label: 'YouTube',    href: 'https://www.youtube.com/@hy-sky',                             icon: 'YT' },
+  { label: 'TikTok',     href: 'https://www.tiktok.com/@hysky_society',                       icon: 'TT' },
+]
+
+export default async function AboutPage() {
+  const { userId } = auth()
+
+  return (
+    <main className="min-h-screen text-white overflow-x-hidden" style={{ background: '#04030a', fontFamily: 'Arial, Helvetica, sans-serif' }}>
+      <ScrollAnimations />
+      <SmartNav />
+
+      {/* ── HERO ──────────────────────────────────────────────────────────── */}
+      <header className="relative min-h-screen flex flex-col justify-between" style={{ paddingTop: userId ? '88px' : '88px' }}>
+        <div className="absolute inset-0 z-0" style={{
+          background: `
+            radial-gradient(ellipse 60% 60% at 70% 40%, rgba(93,0,245,.28), transparent),
+            radial-gradient(ellipse 40% 40% at 20% 70%, rgba(19,220,232,.12), transparent),
+            #04030a
+          `
+        }}>
+          <div className="absolute inset-0" style={{
+            backgroundImage: `linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px)`,
+            backgroundSize: '80px 80px',
+            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 55%, transparent 78%)',
+            maskImage: 'linear-gradient(to bottom, black 0%, black 55%, transparent 78%)',
+          }} />
+        </div>
+
+        <HeroHelicopter />
+
+        <div className="relative z-10 max-w-[900px] px-[6%] pt-20 pb-16">
+          <div className="flex items-center gap-3 mb-7">
+            <span className="w-6 h-px bg-[#5d00f5]" />
+            <span className="text-[#5d00f5] text-xs font-bold uppercase tracking-[2.5px]">Clean skies for future generations</span>
+          </div>
+
+          <h1 className="font-black uppercase leading-[.88] tracking-[-2px] mb-8" style={{ fontSize: 'clamp(3.5rem, 9vw, 9rem)' }}>
+            Hydrogen<br />
+            Powered<br />
+            <span style={{ color: '#5d00f5' }}>Flight</span>
+          </h1>
+
+          <p className="text-white/50 text-lg leading-relaxed max-w-[520px] mb-10">
+            HYSKY Society is a 501(c)(3) nonprofit accelerating the decarbonization of aviation through hydrogen-powered flight — through community, education, advocacy, and the world&apos;s leading hydrogen aviation programs.
+          </p>
+
+          <div className="flex flex-wrap gap-4 items-center">
+            <Link
+              href="/sign-up"
+              className="bg-[#13dce8] hover:bg-white text-black font-black px-8 py-4 rounded-full text-base transition-all"
+              style={{ boxShadow: '0 0 35px rgba(19,220,232,.45)' }}
+            >
+              Join the Movement
+            </Link>
+            <Link
+              href="/sign-in"
+              className="border border-white/[.08] text-white hover:border-[#13dce8] hover:text-[#13dce8] hover:shadow-[0_0_20px_rgba(19,220,232,.35)] px-7 py-4 rounded-full text-base font-bold transition-all"
+            >
+              Login Now
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* ── MISSION ───────────────────────────────────────────────────────── */}
+      <section className="px-[6%] py-28">
+        <div className="grid lg:grid-cols-2 gap-16 items-start">
+          <div>
+            <div className="text-[#5d00f5] text-xs font-bold uppercase tracking-[2.5px] mb-5">Mission</div>
+            <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-6" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
+              Why We <span style={{ color: '#5d00f5' }}>Exist</span>
+            </h2>
+            <p className="text-white/55 text-lg leading-relaxed">
+              HYSKY Society is a 501(c)(3) nonprofit committed to decarbonizing aviation and aerospace with hydrogen. Our mission is simple: if it defies gravity and uses hydrogen as fuel, it&apos;s part of our vision for sustainable flight.
+            </p>
+          </div>
+          <div className="lg:border-l lg:pl-16" style={{ borderColor: 'rgba(255,255,255,.08)' }}>
+            <div className="text-[#13dce8] text-xs font-bold uppercase tracking-[2.5px] mb-5">Vision</div>
+            <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-6" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
+              Where We&apos;re <span style={{ color: '#13dce8' }}>Going</span>
+            </h2>
+            <p className="text-white/55 text-lg leading-relaxed">
+              Clean skies for future generations through hydrogen-powered flight. We solve the chicken-and-egg problem of hydrogen by starting small with long-range hydrogen-powered UAVs, building the supporting infrastructure, and scaling up to passenger aircraft.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div className="h-px mx-[6%]" style={{ background: 'rgba(255,255,255,.08)' }} />
+
+      {/* ── WHO WE ARE ────────────────────────────────────────────────────── */}
+      <section className="px-[6%] py-28">
+        <div className="text-[#5d00f5] text-xs font-bold uppercase tracking-[2.5px] mb-4">Who We Are</div>
+        <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-6" style={{ fontSize: 'clamp(2.4rem, 5vw, 5rem)' }}>
+          Founded in 2023. <span style={{ color: '#5d00f5' }}>Built for the Ecosystem.</span>
+        </h2>
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
+          <p className="text-white/55 text-lg leading-relaxed">
+            HYSKY bridges the gap between hydrogen and aviation by connecting the people, technology, and infrastructure needed to make hydrogen-powered flight possible. We unite innovators across eVTOLs, fixed-wing aircraft, UAVs/drones, WIG craft, and spacecraft.
+          </p>
+          <p className="text-white/55 text-lg leading-relaxed">
+            From UAVs and eVTOLs to fixed-wing aircraft, rotorcraft, WIG craft, spacecraft, fuel cells, storage systems, refueling infrastructure, and hydrogen production — HYSKY is where the ecosystem meets.
+          </p>
+        </div>
+      </section>
+
+      <div className="h-px mx-[6%]" style={{ background: 'rgba(255,255,255,.08)' }} />
+
+      {/* ── PROGRAMS ──────────────────────────────────────────────────────── */}
+      <section id="programs" className="px-[6%] py-28">
+        <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-12" style={{ fontSize: 'clamp(2.4rem, 5vw, 5rem)' }}>
+          Core <span style={{ color: '#5d00f5' }}>Programs</span>
+        </h2>
+        <div className="fade-up grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.08)' }}>
+          {programs.map((p) =>
+            p.href ? (
+              <Link key={p.title} href={p.href} className="p-9 bg-[#04030a] transition-colors hover:bg-[#5d00f5]/[.08] group cursor-pointer">
+                <div className="text-[#5d00f5] text-xs font-bold uppercase tracking-[2px] mb-3">{p.tag}</div>
+                <h3 className="text-xl font-black mb-2 group-hover:text-[#13dce8] transition-colors">{p.title}</h3>
+                <p className="text-white/45 text-sm leading-relaxed">{p.desc}</p>
+              </Link>
+            ) : (
+              <div key={p.title} className="p-9 bg-[#04030a] transition-colors hover:bg-[#5d00f5]/[.08]">
+                <div className="text-[#5d00f5] text-xs font-bold uppercase tracking-[2px] mb-3">{p.tag}</div>
+                <h3 className="text-xl font-black mb-2">{p.title}</h3>
+                <p className="text-white/45 text-sm leading-relaxed">{p.desc}</p>
+              </div>
+            )
+          )}
+        </div>
+      </section>
+
+      <div className="h-px mx-[6%]" style={{ background: 'rgba(255,255,255,.08)' }} />
+
+      {/* ── COMMUNITY ─────────────────────────────────────────────────────── */}
+      <section id="connect" className="px-[6%] py-28">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div>
+            <div className="text-[#5d00f5] text-xs font-bold uppercase tracking-[2.5px] mb-6">Community</div>
+            <p className="font-black uppercase leading-[1.05] tracking-[-1px]" style={{ fontSize: 'clamp(2rem, 4vw, 3.8rem)' }}>
+              If it defies gravity and uses hydrogen,{' '}
+              <span style={{ color: '#5d00f5' }}>it belongs here.</span>
+            </p>
+          </div>
+          <div className="lg:border-l lg:pl-16" style={{ borderColor: 'rgba(255,255,255,.08)' }}>
+            <p className="text-white/50 text-lg leading-relaxed mb-8">
+              From UAVs and eVTOLs to fixed-wing aircraft, rotorcraft, WIG craft, spacecraft, fuel cells, storage systems, refueling infrastructure, and hydrogen production — HYSKY is where the ecosystem meets.
+            </p>
+            <Link
+              href="/sign-up"
+              className="inline-block bg-[#13dce8] hover:bg-white text-black font-black px-8 py-4 rounded-full text-base transition-all"
+              style={{ boxShadow: '0 0 35px rgba(19,220,232,.45)' }}
+            >
+              Become a Member
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <div className="h-px mx-[6%]" style={{ background: 'rgba(255,255,255,.08)' }} />
+
+      {/* ── AUDIENCE ──────────────────────────────────────────────────────── */}
+      <section id="audience" className="px-[6%] py-28">
+        <div className="text-[#5d00f5] text-xs font-bold uppercase tracking-[2.5px] mb-4">Who It&apos;s For</div>
+        <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-4" style={{ fontSize: 'clamp(2.4rem, 5vw, 5rem)' }}>
+          Built for Every Corner <span style={{ color: '#5d00f5' }}>of the Ecosystem</span>
+        </h2>
+        <p className="text-white/50 text-lg leading-relaxed max-w-[560px] mb-12">
+          If you are building, funding, regulating, researching, fueling, certifying, operating, or simply trying to understand hydrogen aviation — this is your place.
+        </p>
+        <div className="fade-up grid sm:grid-cols-2 gap-px rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.08)' }}>
+          {audience.map((a) => (
+            <div
+              key={a.text}
+              className={`flex items-center gap-4 px-7 py-6 text-sm font-medium transition-all cursor-default bg-[#04030a] ${
+                a.highlight
+                  ? 'audience-you text-[#13dce8] font-bold'
+                  : 'text-white/45 hover:text-white hover:bg-[#5d00f5]/[.06]'
+              }`}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${a.highlight ? 'bg-[#13dce8]' : 'bg-[#5d00f5]'}`} />
+              {a.text}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── SOCIALS ───────────────────────────────────────────────────────── */}
+      <section className="px-[6%] py-20">
+        <div className="h-px mb-20" style={{ background: 'rgba(255,255,255,.08)' }} />
+        <div className="text-[#5d00f5] text-xs font-bold uppercase tracking-[2.5px] mb-8">Follow Along</div>
+        <div className="flex flex-wrap gap-4">
+          {socials.map(s => (
+            <a
+              key={s.label}
+              href={s.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-5 py-3 rounded-xl font-semibold text-sm transition-all hover:scale-[1.03]"
+              style={{ background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.1)', color: 'rgba(255,255,255,.65)' }}
+            >
+              <span className="text-xs font-black text-white/35">{s.icon}</span>
+              {s.label}
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {/* ── FINAL CTA ─────────────────────────────────────────────────────── */}
+      <section className="relative text-center px-[6%] py-28 overflow-hidden">
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 70% 70% at center, rgba(93,0,245,.22), transparent)' }} />
+        <div className="relative z-10">
+          <div className="text-[#5d00f5] text-xs font-bold uppercase tracking-[2.5px] mb-6">Get Involved</div>
+          <h2 className="font-black uppercase leading-[.92] tracking-[-1px] max-w-4xl mx-auto mb-5" style={{ fontSize: 'clamp(2.4rem, 5vw, 5rem)' }}>
+            The Future of Flight <span style={{ color: '#5d00f5' }}>Needs a Place to Gather.</span>
+          </h2>
+          <p className="text-white/50 text-lg leading-relaxed max-w-[500px] mx-auto mb-10">
+            HYSKY Society is building that place — through community, education, advocacy, awareness, and the world&apos;s leading hydrogen aviation programs.
+          </p>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Link
+              href="/sign-up"
+              className="inline-block bg-[#13dce8] hover:bg-white text-black font-black px-8 py-4 rounded-full text-base transition-all"
+              style={{ boxShadow: '0 0 35px rgba(19,220,232,.45)' }}
+            >
+              Join the Movement
+            </Link>
+            <a
+              href="mailto:admin@hysky.org"
+              className="inline-block border border-white/[.08] text-white hover:border-[#13dce8] hover:text-[#13dce8] px-8 py-4 rounded-full text-base font-bold transition-all"
+            >
+              Contact Us
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FOOTER ────────────────────────────────────────────────────────── */}
+      <footer style={{ borderTop: '1px solid rgba(255,255,255,.08)' }}>
+        <div className="flex flex-wrap justify-between items-center gap-6 px-[6%] py-10">
+          <Image src="/logo-new.png" alt="HYSKY Society" height={30} width={120} className="object-contain opacity-70" />
+          <p className="text-white/35 text-sm max-w-sm leading-relaxed">
+            Clean skies for future generations through hydrogen-powered flight. Donations are tax deductible.
+          </p>
+          <NewsletterPopup />
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-4 px-[6%] pb-8">
+          <p className="text-white/25 text-xs">© {new Date().getFullYear()} HYSKY Society. All rights reserved.</p>
+          <div className="flex gap-6 text-white/25 text-xs">
+            <span>EIN / TIN: 88-2447859</span>
+            <span>SAM UEI: SLANPKA45AM7</span>
+            <span>Cage Code: 9BZ12</span>
+          </div>
+          <div className="flex gap-4">
+            {socials.map(s => (
+              <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
+                className="text-white/20 hover:text-white/60 text-xs font-bold transition-colors"
+              >
+                {s.icon}
+              </a>
+            ))}
+          </div>
+        </div>
+      </footer>
+    </main>
+  )
+}
