@@ -5,13 +5,7 @@ import { db } from '@/lib/db'
 import { discountCodes } from '@/lib/schema'
 import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
-
-function getAdminEmails(): string[] {
-  return (process.env.ADMIN_EMAILS || '')
-    .split(',')
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean)
-}
+import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
 
 async function createCode(formData: FormData) {
   'use server'
@@ -39,12 +33,6 @@ async function deleteCode(formData: FormData) {
   }
 }
 
-const navLinks = [
-  { href: '/admin', label: 'Overview', active: false },
-  { href: '/admin/users', label: 'Users', active: false },
-  { href: '/admin/codes', label: 'Discount Codes', active: true },
-]
-
 export default async function AdminCodesPage() {
   const user = await currentUser()
   if (!user) redirect('/sign-in')
@@ -64,13 +52,13 @@ export default async function AdminCodesPage() {
       </div>
 
       {/* Sub-nav */}
-      <div className="flex gap-1 mb-8 bg-white/5 border border-white/10 rounded-xl p-1 w-fit">
-        {navLinks.map((l) => (
+      <div className="flex gap-1 mb-8 bg-white/5 border border-white/10 rounded-xl p-1 w-fit flex-wrap">
+        {ADMIN_NAV.map((l) => (
           <Link
             key={l.href}
             href={l.href}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              l.active ? 'bg-[#5d00f5] text-white' : 'text-white/50 hover:text-white'
+              l.href === '/admin/codes' ? 'bg-[#5d00f5] text-white' : 'text-white/50 hover:text-white'
             }`}
           >
             {l.label}

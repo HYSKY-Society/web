@@ -6,9 +6,12 @@ import { UserButton } from '@clerk/nextjs'
 import { usePathname } from 'next/navigation'
 
 const links = [
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/courses', label: 'Courses' },
+  { href: '/dashboard',        label: 'Dashboard' },
+  { href: '/courses',          label: 'Courses' },
   { href: '/dashboard/events', label: 'Events' },
+  { href: '/hysky-monthly',    label: 'HYSKY Monthly' },
+  { href: '/podcast',          label: 'Podcast' },
+  { href: '/sponsors',         label: 'Sponsors' },
 ]
 
 export default function Navbar() {
@@ -21,7 +24,7 @@ export default function Navbar() {
           <Link href="/dashboard">
             <Image src="/logo-white.png" alt="HYSKY Society" height={36} width={120} className="object-contain" />
           </Link>
-          <nav className="hidden sm:flex gap-1">
+          <nav className="hidden md:flex gap-1">
             {links.map((l) => (
               <Link
                 key={l.href}

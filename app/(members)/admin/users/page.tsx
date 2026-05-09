@@ -6,13 +6,7 @@ import { users } from '@/lib/schema'
 import { setUserTier } from '@/lib/members'
 import { revalidatePath } from 'next/cache'
 import type { Tier } from '@/lib/members'
-
-function getAdminEmails(): string[] {
-  return (process.env.ADMIN_EMAILS || '')
-    .split(',')
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean)
-}
+import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
 
 async function updateTier(formData: FormData) {
   'use server'
@@ -23,12 +17,6 @@ async function updateTier(formData: FormData) {
     revalidatePath('/admin/users')
   }
 }
-
-const navLinks = [
-  { href: '/admin', label: 'Overview', active: false },
-  { href: '/admin/users', label: 'Users', active: true },
-  { href: '/admin/codes', label: 'Discount Codes', active: false },
-]
 
 export default async function AdminUsersPage() {
   const user = await currentUser()
@@ -49,13 +37,13 @@ export default async function AdminUsersPage() {
       </div>
 
       {/* Sub-nav */}
-      <div className="flex gap-1 mb-8 bg-white/5 border border-white/10 rounded-xl p-1 w-fit">
-        {navLinks.map((l) => (
+      <div className="flex gap-1 mb-8 bg-white/5 border border-white/10 rounded-xl p-1 w-fit flex-wrap">
+        {ADMIN_NAV.map((l) => (
           <Link
             key={l.href}
             href={l.href}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              l.active ? 'bg-[#5d00f5] text-white' : 'text-white/50 hover:text-white'
+              l.href === '/admin/users' ? 'bg-[#5d00f5] text-white' : 'text-white/50 hover:text-white'
             }`}
           >
             {l.label}

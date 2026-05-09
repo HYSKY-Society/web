@@ -4,13 +4,7 @@ import Link from 'next/link'
 import { db } from '@/lib/db'
 import { users } from '@/lib/schema'
 import { eq, sql } from 'drizzle-orm'
-
-function getAdminEmails(): string[] {
-  return (process.env.ADMIN_EMAILS || '')
-    .split(',')
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean)
-}
+import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
 
 export default async function AdminPage() {
   const user = await currentUser()
@@ -40,12 +34,6 @@ export default async function AdminPage() {
     { label: 'Clerk Accounts', value: clerkCount, color: 'text-[#13dce8]' },
   ]
 
-  const navLinks = [
-    { href: '/admin', label: 'Overview', active: true },
-    { href: '/admin/users', label: 'Users', active: false },
-    { href: '/admin/codes', label: 'Discount Codes', active: false },
-  ]
-
   return (
     <div className="text-white max-w-3xl">
       <div className="mb-8">
@@ -54,13 +42,13 @@ export default async function AdminPage() {
       </div>
 
       {/* Sub-nav */}
-      <div className="flex gap-1 mb-8 bg-white/5 border border-white/10 rounded-xl p-1 w-fit">
-        {navLinks.map((l) => (
+      <div className="flex gap-1 mb-8 bg-white/5 border border-white/10 rounded-xl p-1 w-fit flex-wrap">
+        {ADMIN_NAV.map((l) => (
           <Link
             key={l.href}
             href={l.href}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              l.active ? 'bg-[#5d00f5] text-white' : 'text-white/50 hover:text-white'
+              l.href === '/admin' ? 'bg-[#5d00f5] text-white' : 'text-white/50 hover:text-white'
             }`}
           >
             {l.label}

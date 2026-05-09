@@ -6,6 +6,9 @@ const isPublicRoute = createRouteMatcher([
   '/sign-up(.*)',
   '/not-authorized',
   '/donate',
+  '/hysky-monthly',
+  '/podcast',
+  '/sponsors',
   '/api/webhooks(.*)',
 ])
 
