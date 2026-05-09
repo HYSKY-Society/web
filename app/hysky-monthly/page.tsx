@@ -2,14 +2,12 @@ import { db } from '@/lib/db'
 import { hyskySessions } from '@/lib/schema'
 import { eq, desc } from 'drizzle-orm'
 import { getNextHyskyMonthly, formatSessionDate } from '@/lib/hysky-monthly'
-import SmartNav from '@/app/components/SmartNav'
+import PublicShell from '@/app/components/PublicShell'
 import VideoCard from '@/app/components/VideoCard'
-import { auth } from '@clerk/nextjs/server'
 
 export const revalidate = 3600
 
 export default async function HyskyMonthlyPage() {
-  const { userId } = auth()
   const sessions = await db
     .select()
     .from(hyskySessions)
@@ -23,87 +21,85 @@ export default async function HyskyMonthlyPage() {
   const nextDate = getNextHyskyMonthly()
   const nextFormatted = formatSessionDate(nextDate)
 
-  // Check if there's an admin-created entry for the next session
   const nextSession = upcoming[0] ?? null
 
   return (
-    <div className="min-h-screen text-white" style={{ background: '#04030a' }}>
-      <SmartNav />
-
-      <div
-        className="absolute inset-0 z-0 pointer-events-none"
-        style={{
-          background: `radial-gradient(ellipse 60% 50% at 50% 0%, rgba(93,0,245,.22), transparent)`,
-        }}
-      />
-
-      <main className={`relative z-10 max-w-5xl mx-auto px-6 pb-20 ${userId ? 'pt-8' : 'pt-[100px]'}`}>
-        {/* Hero */}
-        <div className="text-center mb-16">
-          <div
-            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest px-3 py-1.5 rounded-full mb-5"
-            style={{ background: 'rgba(93,0,245,.2)', color: '#9b6dff' }}
-          >
-            Free Monthly Webinar
-          </div>
-          <h1 className="text-5xl sm:text-6xl font-black mb-4 leading-tight">
-            HYSKY Monthly
-          </h1>
-          <p className="text-white/50 text-lg max-w-xl mx-auto leading-relaxed">
-            Free monthly webinars featuring the leaders building the hydrogen aviation future.
-            Open to everyone — no membership required.
-          </p>
-        </div>
-
-        {/* Next Session Card */}
+    <PublicShell>
+      <div className="relative">
         <div
-          className="rounded-3xl p-8 sm:p-10 mb-16 text-center"
+          className="absolute inset-0 z-0 pointer-events-none"
           style={{
-            background: 'linear-gradient(135deg, rgba(93,0,245,.18), rgba(4,8,15,.95))',
-            border: '1px solid rgba(93,0,245,.4)',
+            background: `radial-gradient(ellipse 60% 50% at 50% 0%, rgba(93,0,245,.22), transparent)`,
           }}
-        >
-          <p className="text-white/40 text-sm uppercase tracking-widest mb-2">Next Session</p>
-          <h2 className="text-3xl font-bold mb-1">
-            {nextSession?.title ?? 'Coming Soon'}
-          </h2>
-          <p className="text-[#9b6dff] font-semibold mb-3">{nextFormatted}</p>
-          {nextSession?.description && (
-            <p className="text-white/45 text-sm max-w-lg mx-auto mb-6 leading-relaxed">
-              {nextSession.description}
-            </p>
-          )}
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            {nextSession?.zoomUrl ? (
-              <a
-                href={nextSession.zoomUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl font-bold text-white transition-all hover:scale-[1.02]"
-                style={{ background: '#5d00f5', boxShadow: '0 0 30px rgba(93,0,245,.4)' }}
-              >
-                Register on Zoom →
-              </a>
-            ) : (
-              <a
-                href="https://www.youtube.com/@hy-sky"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl font-bold text-white transition-all hover:scale-[1.02]"
-                style={{ background: '#FF0000' }}
-              >
-                Watch Live on YouTube →
-              </a>
-            )}
-          </div>
-        </div>
+        />
 
-        {/* Past Sessions */}
-        {past.length > 0 && (
-          <section>
-            <h2 className="text-2xl font-bold mb-6">Past Sessions</h2>
-            <div className="grid sm:grid-cols-2 gap-6">
-              {past.map((session) => (
+        <main className="relative z-10 max-w-5xl mx-auto px-6 pb-20 pt-8">
+          {/* Hero */}
+          <div className="text-center mb-16">
+            <div
+              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest px-3 py-1.5 rounded-full mb-5"
+              style={{ background: 'rgba(93,0,245,.2)', color: '#9b6dff' }}
+            >
+              Free Monthly Webinar
+            </div>
+            <h1 className="text-5xl sm:text-6xl font-black mb-4 leading-tight">
+              HYSKY Monthly
+            </h1>
+            <p className="text-white/50 text-lg max-w-xl mx-auto leading-relaxed">
+              Free monthly webinars featuring the leaders building the hydrogen aviation future.
+              Open to everyone — no membership required.
+            </p>
+          </div>
+
+          {/* Next Session Card */}
+          <div
+            className="rounded-3xl p-8 sm:p-10 mb-16 text-center"
+            style={{
+              background: 'linear-gradient(135deg, rgba(93,0,245,.18), rgba(4,8,15,.95))',
+              border: '1px solid rgba(93,0,245,.4)',
+            }}
+          >
+            <p className="text-white/40 text-sm uppercase tracking-widest mb-2">Next Session</p>
+            <h2 className="text-3xl font-bold mb-1">
+              {nextSession?.title ?? 'Coming Soon'}
+            </h2>
+            <p className="text-[#9b6dff] font-semibold mb-3">{nextFormatted}</p>
+            {nextSession?.description && (
+              <p className="text-white/45 text-sm max-w-lg mx-auto mb-6 leading-relaxed">
+                {nextSession.description}
+              </p>
+            )}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              {nextSession?.zoomUrl ? (
+                <a
+                  href={nextSession.zoomUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl font-bold text-white transition-all hover:scale-[1.02]"
+                  style={{ background: '#5d00f5', boxShadow: '0 0 30px rgba(93,0,245,.4)' }}
+                >
+                  Register on Zoom →
+                </a>
+              ) : (
+                <a
+                  href="https://www.youtube.com/@hy-sky"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl font-bold text-white transition-all hover:scale-[1.02]"
+                  style={{ background: '#FF0000' }}
+                >
+                  Watch Live on YouTube →
+                </a>
+              )}
+            </div>
+          </div>
+
+          {/* Past Sessions */}
+          {past.length > 0 && (
+            <section>
+              <h2 className="text-2xl font-bold mb-6">Past Sessions</h2>
+              <div className="grid sm:grid-cols-2 gap-6">
+                {past.map((session) => (
                   <div
                     key={session.id}
                     className="rounded-2xl overflow-hidden"
@@ -135,35 +131,36 @@ export default async function HyskyMonthlyPage() {
                     </div>
                   </div>
                 ))}
-            </div>
-          </section>
-        )}
+              </div>
+            </section>
+          )}
 
-        {past.length === 0 && (
-          <div className="text-center py-16 text-white/25">
-            <p>Past recordings will appear here after each session.</p>
+          {past.length === 0 && (
+            <div className="text-center py-16 text-white/25">
+              <p>Past recordings will appear here after each session.</p>
+              <a
+                href="https://www.youtube.com/@hy-sky"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-4 text-[#9b6dff] hover:text-[#5d00f5] transition-colors text-sm"
+              >
+                Watch on YouTube @hy-sky →
+              </a>
+            </div>
+          )}
+
+          {/* CTA */}
+          <div className="text-center mt-16 pt-12" style={{ borderTop: '1px solid rgba(255,255,255,.08)' }}>
+            <p className="text-white/35 text-sm mb-4">Want to present at HYSKY Monthly?</p>
             <a
-              href="https://www.youtube.com/@hy-sky"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block mt-4 text-[#9b6dff] hover:text-[#5d00f5] transition-colors text-sm"
+              href="mailto:admin@hysky.org"
+              className="text-[#5d00f5] hover:text-[#9b6dff] transition-colors text-sm font-medium"
             >
-              Watch on YouTube @hy-sky →
+              Get in touch →
             </a>
           </div>
-        )}
-
-        {/* CTA */}
-        <div className="text-center mt-16 pt-12" style={{ borderTop: '1px solid rgba(255,255,255,.08)' }}>
-          <p className="text-white/35 text-sm mb-4">Want to present at HYSKY Monthly?</p>
-          <a
-            href="mailto:admin@hysky.org"
-            className="text-[#5d00f5] hover:text-[#9b6dff] transition-colors text-sm font-medium"
-          >
-            Get in touch →
-          </a>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </PublicShell>
   )
 }

@@ -3,18 +3,20 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import { SignInButton, SignUpButton } from '@clerk/nextjs'
 
-const NAV = [
-  { href: '/feed',              label: 'Feed' },
-  { href: '/about',             label: 'About Us' },
-  { href: '/courses',           label: 'Courses' },
-  { href: '/dashboard/events',  label: 'Events' },
-  { href: '/hysky-monthly',     label: 'HYSKY Monthly' },
-  { href: '/podcast',           label: 'Podcast' },
+const ALL_NAV = [
+  { href: '/feed',              label: 'Feed',          authOnly: true },
+  { href: '/about',             label: 'About Us',      authOnly: false },
+  { href: '/courses',           label: 'Courses',       authOnly: false },
+  { href: '/dashboard/events',  label: 'Events',        authOnly: false },
+  { href: '/hysky-monthly',     label: 'HYSKY Monthly', authOnly: false },
+  { href: '/podcast',           label: 'Podcast',       authOnly: false },
 ]
 
-export default function AppTopBar({ onMenuClick }: { onMenuClick: () => void }) {
+export default function AppTopBar({ onMenuClick, isLoggedIn = true }: { onMenuClick: () => void; isLoggedIn?: boolean }) {
   const pathname = usePathname()
+  const NAV = ALL_NAV.filter(n => !n.authOnly || isLoggedIn)
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-[60px] flex items-center px-4 sm:px-6 border-b border-white/8"
@@ -32,7 +34,7 @@ export default function AppTopBar({ onMenuClick }: { onMenuClick: () => void }) 
       </button>
 
       {/* Logo */}
-      <Link href="/feed" className="shrink-0 mr-6">
+      <Link href={isLoggedIn ? '/feed' : '/about'} className="shrink-0 mr-6">
         <Image src="/logo-white.png" alt="HYSKY Society" height={32} width={100} className="object-contain" />
       </Link>
 
@@ -53,6 +55,22 @@ export default function AppTopBar({ onMenuClick }: { onMenuClick: () => void }) 
           )
         })}
       </nav>
+
+      {/* Auth buttons — desktop, public pages only */}
+      {!isLoggedIn && (
+        <div className="hidden md:flex items-center gap-2 ml-auto">
+          <SignInButton mode="modal">
+            <button className="text-sm font-medium px-3 py-1.5 rounded-lg text-white/55 hover:text-white hover:bg-white/6 transition-colors">
+              Log In
+            </button>
+          </SignInButton>
+          <SignUpButton mode="modal">
+            <button className="text-sm font-bold px-4 py-1.5 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] text-white transition-colors">
+              Join Free
+            </button>
+          </SignUpButton>
+        </div>
+      )}
     </header>
   )
 }

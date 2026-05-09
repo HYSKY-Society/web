@@ -1,10 +1,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { auth } from '@clerk/nextjs/server'
 import ScrollAnimations from '@/app/components/ScrollAnimations'
 import NewsletterPopup from '@/app/components/NewsletterPopup'
 import HeroHelicopter from '@/app/components/HeroHelicopter'
-import SmartNav from '@/app/components/SmartNav'
+import PublicShell from '@/app/components/PublicShell'
 
 const programs = [
   { tag: 'Membership',  title: 'HYSKY Connect',   desc: 'A dedicated platform where the hydrogen aviation ecosystem connects, collaborates, and grows.' },
@@ -34,15 +33,12 @@ const socials = [
 ]
 
 export default async function AboutPage() {
-  const { userId } = auth()
-
   return (
-    <main className="min-h-screen text-white overflow-x-hidden" style={{ background: '#04030a', fontFamily: 'Arial, Helvetica, sans-serif' }}>
+    <PublicShell>
       <ScrollAnimations />
-      <SmartNav />
 
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
-      <header className="relative min-h-screen flex flex-col justify-between" style={{ paddingTop: userId ? '88px' : '88px' }}>
+      <header className="relative min-h-screen flex flex-col justify-between">
         <div className="absolute inset-0 z-0" style={{
           background: `
             radial-gradient(ellipse 60% 60% at 70% 40%, rgba(93,0,245,.28), transparent),
@@ -294,6 +290,6 @@ export default async function AboutPage() {
           </div>
         </div>
       </footer>
-    </main>
+    </PublicShell>
   )
 }
