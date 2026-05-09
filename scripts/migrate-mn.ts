@@ -137,7 +137,7 @@ async function main() {
         tier: 'free',
         courses: [],
         events: [],
-        avatarUrl: (m.profile_photo_url as string | undefined) ?? (m.avatar_url as string | undefined) ?? null,
+        avatarUrl: (m.avatar as string | undefined) ?? (m.profile_photo_url as string | undefined) ?? null,
       }
 
       if (mapping.tier && (TIER_RANK[mapping.tier] ?? 0) > (TIER_RANK[rec.tier] ?? 0)) {

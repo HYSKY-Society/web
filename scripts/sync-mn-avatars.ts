@@ -79,10 +79,10 @@ async function main() {
   for (const m of members) {
     const email = (m.email as string | undefined)?.toLowerCase().trim()
     if (!email) continue
-    const url = (m.profile_photo_url as string | undefined)
+    const url = (m.avatar as string | undefined)
+             ?? (m.profile_photo_url as string | undefined)
              ?? (m.avatar_url as string | undefined)
              ?? (m.profile_image_url as string | undefined)
-             ?? (m.photo_url as string | undefined)
     if (url) avatarMap.set(email, url)
   }
   console.log(`    ${avatarMap.size} members have avatar URLs`)
