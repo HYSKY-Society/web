@@ -1,9 +1,9 @@
 import { db } from './db'
-import { users, coursePurchases, eventPurchases } from './schema'
+import { users, coursePurchases, eventPurchases, pendingTiers } from './schema'
 import { eq, and } from 'drizzle-orm'
 
 // Tiers in ascending order of access
-export type Tier = 'free' | 'member_courses' | 'member_courses_events' | 'member_full'
+export type Tier = 'free' | 'instructor' | 'member_courses' | 'member_courses_events' | 'member_full'
 
 const TIERS_WITH_COURSES: Tier[] = ['member_courses', 'member_courses_events', 'member_full']
 const TIERS_WITH_EVENTS: Tier[] = ['member_courses_events', 'member_full']
@@ -22,13 +22,32 @@ export async function ensureUser(clerkId: string, email: string): Promise<Tier> 
   const existing = await getUserByClerkId(clerkId)
   if (existing) return existing.tier as Tier
 
+  const normalizedEmail = email.toLowerCase().trim()
+
+  // Check for pre-migrated tier from Mighty Networks
+  const pending = await db.query.pendingTiers.findFirst({
+    where: eq(pendingTiers.email, normalizedEmail),
+  })
+
+  const tier = (pending?.tier as Tier) ?? 'free'
+
   await db.insert(users).values({
     id: clerkId,
-    email: email.toLowerCase().trim(),
-    tier: 'free',
+    email: normalizedEmail,
+    tier,
   }).onConflictDoNothing()
 
-  return 'free'
+  if (pending) {
+    // Apply any pre-purchased courses and events
+    const courses = JSON.parse(pending.courseSlugs) as string[]
+    const events = JSON.parse(pending.eventSlugs) as string[]
+    for (const slug of courses) await addCoursePurchase(clerkId, slug)
+    for (const slug of events) await addEventPurchase(clerkId, slug)
+    // Clean up — no longer needed once the user account exists
+    await db.delete(pendingTiers).where(eq(pendingTiers.email, normalizedEmail))
+  }
+
+  return tier
 }
 
 export async function getUserTier(clerkId: string): Promise<Tier> {

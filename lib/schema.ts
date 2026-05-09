@@ -65,6 +65,18 @@ export const podcastEpisodes = pgTable('podcast_episodes', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+// Holds pre-migrated member data from Mighty Networks.
+// Applied automatically in ensureUser() on first Clerk sign-in, then deleted.
+export const pendingTiers = pgTable('pending_tiers', {
+  email:      text('email').primaryKey(),
+  tier:       text('tier').notNull().default('free'),
+  name:       text('name'),
+  mnMemberId: text('mn_member_id'),
+  courseSlugs: text('course_slugs').notNull().default('[]'), // JSON array
+  eventSlugs:  text('event_slugs').notNull().default('[]'),  // JSON array
+  createdAt:  timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export type User = typeof users.$inferSelect
 export type DiscountCode = typeof discountCodes.$inferSelect
 export type CoursePurchase = typeof coursePurchases.$inferSelect
@@ -72,3 +84,4 @@ export type EventPurchase = typeof eventPurchases.$inferSelect
 export type Sponsor = typeof sponsors.$inferSelect
 export type HyskySession = typeof hyskySessions.$inferSelect
 export type PodcastEpisode = typeof podcastEpisodes.$inferSelect
+export type PendingTier = typeof pendingTiers.$inferSelect
