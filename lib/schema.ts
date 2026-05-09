@@ -91,6 +91,7 @@ export const userProfiles = pgTable('user_profiles', {
   twitterUrl:  text('twitter_url'),
   avatarUrl:   text('avatar_url'),
   isVisible:   boolean('is_visible').notNull().default(true),
+  lastSeenAt:  timestamp('last_seen_at', { withTimezone: true }),
   updatedAt:   timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
@@ -134,6 +135,15 @@ export const flyingHyAgenda = pgTable('flying_hy_agenda', {
   createdAt:    timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+export const directMessages = pgTable('direct_messages', {
+  id:         text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  fromUserId: text('from_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  toUserId:   text('to_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  content:    text('content').notNull(),
+  readAt:     timestamp('read_at', { withTimezone: true }),
+  createdAt:  timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export type User = typeof users.$inferSelect
 export type UserProfile = typeof userProfiles.$inferSelect
 export type DiscountCode = typeof discountCodes.$inferSelect
@@ -143,3 +153,4 @@ export type Sponsor = typeof sponsors.$inferSelect
 export type HyskySession = typeof hyskySessions.$inferSelect
 export type PodcastEpisode = typeof podcastEpisodes.$inferSelect
 export type PendingTier = typeof pendingTiers.$inferSelect
+export type DirectMessage = typeof directMessages.$inferSelect

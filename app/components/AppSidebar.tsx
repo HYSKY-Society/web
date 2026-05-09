@@ -61,7 +61,7 @@ export default function AppSidebar({
 
         {/* ── My Events ─────────────────────────────────────────── */}
         <SidebarSection label="My Events" />
-        <SidebarItem href="/events" icon="📅" label="Calendar" onClick={onClose} />
+        <SidebarItem href="/calendar" icon="📅" label="Calendar" onClick={onClose} />
         {enrolledEvents.length > 0
           ? enrolledEvents.map(e => (
               <SidebarItem key={e.slug} href={`/dashboard/events/${e.slug}`} icon="•" label={e.title} onClick={onClose} sub />
@@ -88,6 +88,7 @@ export default function AppSidebar({
           </span>
         </div>
         <SidebarItem href="/members" icon="👥" label="Members Directory" onClick={onClose} />
+        <SidebarItem href="/network" icon="🌐" label="Network" onClick={onClose} />
 
         {/* ── Sponsors ──────────────────────────────────────────── */}
         <SidebarSection label="Sponsors" />
