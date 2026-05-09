@@ -68,13 +68,14 @@ export const podcastEpisodes = pgTable('podcast_episodes', {
 // Holds pre-migrated member data from Mighty Networks.
 // Applied automatically in ensureUser() on first Clerk sign-in, then deleted.
 export const pendingTiers = pgTable('pending_tiers', {
-  email:      text('email').primaryKey(),
-  tier:       text('tier').notNull().default('free'),
-  name:       text('name'),
-  mnMemberId: text('mn_member_id'),
+  email:       text('email').primaryKey(),
+  tier:        text('tier').notNull().default('free'),
+  name:        text('name'),
+  mnMemberId:  text('mn_member_id'),
+  avatarUrl:   text('avatar_url'),
   courseSlugs: text('course_slugs').notNull().default('[]'), // JSON array
   eventSlugs:  text('event_slugs').notNull().default('[]'),  // JSON array
-  createdAt:  timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  createdAt:   timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
 export const userProfiles = pgTable('user_profiles', {

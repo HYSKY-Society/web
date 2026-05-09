@@ -95,7 +95,7 @@ export default function MemberDirectory({
         {filtered.map(m => {
           const name = m.displayName || 'HYSKY Member'
           const card = (
-            <div className={`group bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col gap-3 transition-all ${canInteract ? 'hover:border-[#5d00f5]/40 hover:bg-white/8 cursor-pointer' : 'opacity-80'}`}>
+            <div className={`group bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col gap-3 transition-all ${canInteract && !m.isPending ? 'hover:border-[#5d00f5]/40 hover:bg-white/8 cursor-pointer' : 'opacity-80'}`}>
               <div className="flex items-start gap-3">
                 <Avatar name={name} url={m.avatarUrl} size={48} />
                 <div className="min-w-0 flex-1">
@@ -122,7 +122,9 @@ export default function MemberDirectory({
               </div>
               <div className="flex items-center justify-between mt-auto pt-1 border-t border-white/6">
                 <TierChip tier={m.tier} />
-                {canInteract ? (
+                {m.isPending ? (
+                  <span className="text-white/20 text-xs">Pending sign-in</span>
+                ) : canInteract ? (
                   <span className="text-[#9b6dff] text-xs group-hover:underline">View profile →</span>
                 ) : (
                   <span className="text-white/20 text-xs">🔒 Paid only</span>
@@ -131,7 +133,7 @@ export default function MemberDirectory({
             </div>
           )
 
-          return canInteract ? (
+          return canInteract && !m.isPending ? (
             <Link key={m.id} href={`/members/${m.id}`}>{card}</Link>
           ) : (
             <div key={m.id}>{card}</div>

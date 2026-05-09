@@ -1,8 +1,8 @@
 import { db } from '@/lib/db'
 import { podcastEpisodes } from '@/lib/schema'
 import { eq, desc } from 'drizzle-orm'
-import { toEmbedUrl } from '@/lib/youtube'
 import SmartNav from '@/app/components/SmartNav'
+import VideoCard from '@/app/components/VideoCard'
 import { auth } from '@clerk/nextjs/server'
 
 export const revalidate = 3600
@@ -56,25 +56,13 @@ export default async function PodcastPage() {
         {/* Episodes Grid */}
         {episodes.length > 0 ? (
           <div className="grid sm:grid-cols-2 gap-6">
-            {episodes.map((ep) => {
-              const embedUrl = toEmbedUrl(ep.youtubeUrl)
-              return (
+            {episodes.map((ep) => (
                 <div
                   key={ep.id}
                   className="rounded-2xl overflow-hidden"
                   style={{ background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)' }}
                 >
-                  {embedUrl && (
-                    <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                      <iframe
-                        src={embedUrl}
-                        title={ep.title}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="absolute inset-0 w-full h-full"
-                      />
-                    </div>
-                  )}
+                  <VideoCard youtubeUrl={ep.youtubeUrl} title={ep.title} />
                   <div className="p-5">
                     <div className="flex items-center gap-2 mb-1">
                       {ep.episodeNumber && (
@@ -99,8 +87,7 @@ export default async function PodcastPage() {
                     )}
                   </div>
                 </div>
-              )
-            })}
+            ))}
           </div>
         ) : (
           <div className="text-center py-20 text-white/25">

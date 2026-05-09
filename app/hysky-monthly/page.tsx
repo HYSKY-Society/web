@@ -2,8 +2,8 @@ import { db } from '@/lib/db'
 import { hyskySessions } from '@/lib/schema'
 import { eq, desc } from 'drizzle-orm'
 import { getNextHyskyMonthly, formatSessionDate } from '@/lib/hysky-monthly'
-import { toEmbedUrl } from '@/lib/youtube'
 import SmartNav from '@/app/components/SmartNav'
+import VideoCard from '@/app/components/VideoCard'
 import { auth } from '@clerk/nextjs/server'
 
 export const revalidate = 3600
@@ -103,24 +103,14 @@ export default async function HyskyMonthlyPage() {
           <section>
             <h2 className="text-2xl font-bold mb-6">Past Sessions</h2>
             <div className="grid sm:grid-cols-2 gap-6">
-              {past.map((session) => {
-                const embedUrl = session.youtubeUrl ? toEmbedUrl(session.youtubeUrl) : null
-                return (
+              {past.map((session) => (
                   <div
                     key={session.id}
                     className="rounded-2xl overflow-hidden"
                     style={{ background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)' }}
                   >
-                    {embedUrl ? (
-                      <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                        <iframe
-                          src={embedUrl}
-                          title={session.title}
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                          className="absolute inset-0 w-full h-full"
-                        />
-                      </div>
+                    {session.youtubeUrl ? (
+                      <VideoCard youtubeUrl={session.youtubeUrl} title={session.title} />
                     ) : (
                       <div
                         className="flex items-center justify-center text-white/20 text-sm"
@@ -144,8 +134,7 @@ export default async function HyskyMonthlyPage() {
                       )}
                     </div>
                   </div>
-                )
-              })}
+                ))}
             </div>
           </section>
         )}

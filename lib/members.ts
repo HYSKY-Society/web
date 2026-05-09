@@ -1,6 +1,6 @@
 import { db } from './db'
 import { users, userProfiles, coursePurchases, eventPurchases, pendingTiers, podcastEpisodes } from './schema'
-import { eq, and, or, isNull, count } from 'drizzle-orm'
+import { eq, and, or, isNull, count, notInArray } from 'drizzle-orm'
 
 // Re-export from client-safe tiers module so server code imports one place
 export type { Tier, MemberListItem } from './tiers'
@@ -39,6 +39,12 @@ export async function ensureUser(clerkId: string, email: string): Promise<Tier> 
     const events  = JSON.parse(pending.eventSlugs)  as string[]
     for (const slug of courses) await addCoursePurchase(clerkId, slug)
     for (const slug of events)  await addEventPurchase(clerkId, slug)
+    if (pending.name || pending.avatarUrl) {
+      await upsertProfile(clerkId, {
+        displayName: pending.name ?? undefined,
+        avatarUrl:   pending.avatarUrl ?? undefined,
+      })
+    }
     await db.delete(pendingTiers).where(eq(pendingTiers.email, normalizedEmail))
   }
 
@@ -139,23 +145,44 @@ export async function upsertProfile(userId: string, data: ProfileData) {
 // ── Member directory ──────────────────────────────────────────────────────────
 
 export async function getAllVisibleMembers(): Promise<MemberListItem[]> {
-  const rows = await db
-    .select({
-      id:          users.id,
-      tier:        users.tier,
-      displayName: userProfiles.displayName,
-      headline:    userProfiles.headline,
-      company:     userProfiles.company,
-      jobTitle:    userProfiles.jobTitle,
-      location:    userProfiles.location,
-      avatarUrl:   userProfiles.avatarUrl,
-      isVisible:   userProfiles.isVisible,
-    })
-    .from(users)
-    .leftJoin(userProfiles, eq(users.id, userProfiles.userId))
-    .where(or(isNull(userProfiles.isVisible), eq(userProfiles.isVisible, true)))
+  const [activeRows, registeredEmails, pendingRows] = await Promise.all([
+    db
+      .select({
+        id:          users.id,
+        tier:        users.tier,
+        displayName: userProfiles.displayName,
+        headline:    userProfiles.headline,
+        company:     userProfiles.company,
+        jobTitle:    userProfiles.jobTitle,
+        location:    userProfiles.location,
+        avatarUrl:   userProfiles.avatarUrl,
+        isVisible:   userProfiles.isVisible,
+      })
+      .from(users)
+      .leftJoin(userProfiles, eq(users.id, userProfiles.userId))
+      .where(or(isNull(userProfiles.isVisible), eq(userProfiles.isVisible, true))),
+    db.select({ email: users.email }).from(users),
+    db.select({ email: pendingTiers.email, tier: pendingTiers.tier, name: pendingTiers.name, avatarUrl: pendingTiers.avatarUrl }).from(pendingTiers),
+  ])
 
-  return rows
+  const registeredSet = new Set(registeredEmails.map(r => r.email))
+
+  const pendingMapped: MemberListItem[] = pendingRows
+    .filter(r => !registeredSet.has(r.email))
+    .map(r => ({
+      id:          `pending:${r.email}`,
+      tier:        r.tier,
+      displayName: r.name,
+      headline:    null,
+      company:     null,
+      jobTitle:    null,
+      location:    null,
+      avatarUrl:   r.avatarUrl ?? null,
+      isVisible:   true,
+      isPending:   true,
+    }))
+
+  return [...activeRows, ...pendingMapped]
 }
 
 export type MemberProfile = {

@@ -29,4 +29,5 @@ export type MemberListItem = {
   location:    string | null
   avatarUrl:   string | null
   isVisible:   boolean | null
+  isPending?:  boolean
 }

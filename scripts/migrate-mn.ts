@@ -99,6 +99,7 @@ interface MemberRecord {
   courses: string[]
   events: string[]
   vipTier?: string
+  avatarUrl?: string | null
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
@@ -136,6 +137,7 @@ async function main() {
         tier: 'free',
         courses: [],
         events: [],
+        avatarUrl: (m.profile_photo_url as string | undefined) ?? (m.avatar_url as string | undefined) ?? null,
       }
 
       if (mapping.tier && (TIER_RANK[mapping.tier] ?? 0) > (TIER_RANK[rec.tier] ?? 0)) {
@@ -163,6 +165,7 @@ async function main() {
       tier: 'free',
       courses: [],
       events: [],
+      avatarUrl: (m.profile_photo_url as string | undefined) ?? (m.avatar_url as string | undefined) ?? null,
     })
   }
 
@@ -177,12 +180,14 @@ async function main() {
       tier:        r.tier,
       name:        r.name || null,
       mnMemberId:  r.mnId,
+      avatarUrl:   r.avatarUrl ?? null,
       courseSlugs: JSON.stringify(r.courses),
       eventSlugs:  JSON.stringify(r.events),
     }).onConflictDoUpdate({
       target: pendingTiers.email,
       set: {
         tier:        r.tier,
+        avatarUrl:   r.avatarUrl ?? null,
         courseSlugs: JSON.stringify(r.courses),
         eventSlugs:  JSON.stringify(r.events),
       },
