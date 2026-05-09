@@ -8,8 +8,11 @@ import PublicShell from '@/app/components/PublicShell'
 export const revalidate = 3600
 
 export default async function PressPostPage({ params }: { params: { slug: string } }) {
-  const [post] = await db.select().from(pressPosts)
-    .where(and(eq(pressPosts.slug, params.slug), eq(pressPosts.isPublished, true)))
+  let post: typeof pressPosts.$inferSelect | undefined
+  try {
+    ;[post] = await db.select().from(pressPosts)
+      .where(and(eq(pressPosts.slug, params.slug), eq(pressPosts.isPublished, true)))
+  } catch { /* table not yet migrated */ }
 
   if (!post) notFound()
 

@@ -7,9 +7,12 @@ import PublicShell from '@/app/components/PublicShell'
 export const revalidate = 3600
 
 export default async function PressPage() {
-  const posts = await db.select().from(pressPosts)
-    .where(eq(pressPosts.isPublished, true))
-    .orderBy(desc(pressPosts.publishedAt))
+  let posts: typeof pressPosts.$inferSelect[] = []
+  try {
+    posts = await db.select().from(pressPosts)
+      .where(eq(pressPosts.isPublished, true))
+      .orderBy(desc(pressPosts.publishedAt))
+  } catch { /* table not yet migrated */ }
 
   return (
     <PublicShell>

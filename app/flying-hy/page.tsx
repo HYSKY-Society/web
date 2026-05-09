@@ -33,15 +33,19 @@ const previousEditions = [
 ]
 
 export default async function FlyingHyPage() {
-  const [speakers, agenda] = await Promise.all([
-    db.select().from(flyingHySpeakers)
-      .where(eq(flyingHySpeakers.isPublished, true))
-      .orderBy(asc(flyingHySpeakers.eventYear), asc(flyingHySpeakers.displayOrder))
-      .then(rows => rows.filter(s => s.eventYear === YEAR)),
-    db.select().from(flyingHyAgenda)
-      .where(eq(flyingHyAgenda.eventYear, YEAR))
-      .orderBy(asc(flyingHyAgenda.displayOrder)),
-  ])
+  let speakers: typeof flyingHySpeakers.$inferSelect[] = []
+  let agenda: typeof flyingHyAgenda.$inferSelect[] = []
+  try {
+    ;[speakers, agenda] = await Promise.all([
+      db.select().from(flyingHySpeakers)
+        .where(eq(flyingHySpeakers.isPublished, true))
+        .orderBy(asc(flyingHySpeakers.eventYear), asc(flyingHySpeakers.displayOrder))
+        .then(rows => rows.filter(s => s.eventYear === YEAR)),
+      db.select().from(flyingHyAgenda)
+        .where(eq(flyingHyAgenda.eventYear, YEAR))
+        .orderBy(asc(flyingHyAgenda.displayOrder)),
+    ])
+  } catch { /* tables not yet migrated */ }
 
   return (
     <PublicShell>
