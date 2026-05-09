@@ -6,7 +6,9 @@ import { hyskySessions } from '@/lib/schema'
 import { revalidatePath } from 'next/cache'
 import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
 import { getNextHyskyMonthly, formatSessionDate } from '@/lib/hysky-monthly'
+import { syncMonthlyPlaylist } from '@/lib/youtube-sync'
 import { eq, desc } from 'drizzle-orm'
+import AddSessionForm from './AddSessionForm'
 
 async function createSession(formData: FormData) {
   'use server'
@@ -16,13 +18,7 @@ async function createSession(formData: FormData) {
   const youtubeUrl = (formData.get('youtubeUrl') as string).trim() || null
   const zoomUrl = (formData.get('zoomUrl') as string).trim() || null
   if (!title || !sessionDate) return
-  await db.insert(hyskySessions).values({
-    title,
-    description,
-    sessionDate: new Date(sessionDate),
-    youtubeUrl,
-    zoomUrl,
-  })
+  await db.insert(hyskySessions).values({ title, description, sessionDate: new Date(sessionDate), youtubeUrl, zoomUrl })
   revalidatePath('/admin/hysky-monthly')
   revalidatePath('/hysky-monthly')
 }
@@ -35,20 +31,22 @@ async function deleteSession(formData: FormData) {
   revalidatePath('/hysky-monthly')
 }
 
+async function syncFromYoutube() {
+  'use server'
+  await syncMonthlyPlaylist()
+  revalidatePath('/admin/hysky-monthly')
+  revalidatePath('/hysky-monthly')
+}
+
 export default async function AdminHyskyMonthlyPage() {
   const user = await currentUser()
   if (!user) redirect('/sign-in')
   const email = user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)?.emailAddress?.toLowerCase() ?? ''
   if (!getAdminEmails().includes(email)) redirect('/dashboard')
 
-  const sessions = await db
-    .select()
-    .from(hyskySessions)
-    .orderBy(desc(hyskySessions.sessionDate))
-
+  const sessions = await db.select().from(hyskySessions).orderBy(desc(hyskySessions.sessionDate))
   const nextAuto = getNextHyskyMonthly()
   const nextAutoFormatted = formatSessionDate(nextAuto)
-  // default value for the date input: ISO format trimmed to minutes
   const nextDateDefault = nextAuto.toISOString().slice(0, 16)
 
   return (
@@ -75,62 +73,41 @@ export default async function AdminHyskyMonthlyPage() {
 
       {/* Auto-calc info */}
       <div
-        className="flex items-start gap-3 rounded-xl px-5 py-4 mb-6 text-sm"
+        className="flex items-start gap-3 rounded-xl px-5 py-4 mb-4 text-sm"
         style={{ background: 'rgba(93,0,245,.12)', border: '1px solid rgba(93,0,245,.25)' }}
       >
         <span className="text-[#9b6dff]">ℹ</span>
         <div>
           <span className="text-white/70">Next auto-calculated session: </span>
           <span className="text-[#9b6dff] font-semibold">{nextAutoFormatted}</span>
-          <span className="text-white/40"> (third Monday of each month). Add an entry below to attach a title, Zoom link, and YouTube recording.</span>
+          <span className="text-white/40"> (third Monday of each month).</span>
         </div>
+      </div>
+
+      {/* Sync from YouTube */}
+      <div
+        className="flex items-center justify-between gap-4 rounded-xl px-5 py-4 mb-6"
+        style={{ background: 'rgba(93,0,245,.08)', border: '1px solid rgba(93,0,245,.2)' }}
+      >
+        <div>
+          <p className="text-sm font-medium text-white">YouTube Playlist Sync</p>
+          <p className="text-white/40 text-xs mt-0.5">Fetches latest videos from the HYSKY Monthly playlist (RSS — no API key needed)</p>
+        </div>
+        <form action={syncFromYoutube}>
+          <button
+            type="submit"
+            className="shrink-0 text-sm px-4 py-2 rounded-lg font-semibold transition-colors"
+            style={{ background: 'rgba(93,0,245,.2)', color: '#9b6dff', border: '1px solid rgba(93,0,245,.3)' }}
+          >
+            ↓ Sync Now
+          </button>
+        </form>
       </div>
 
       {/* Add session form */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8">
-        <h2 className="font-semibold mb-4">Add Session</h2>
-        <form action={createSession} className="grid gap-3">
-          <div className="grid sm:grid-cols-2 gap-3">
-            <input
-              name="title"
-              required
-              placeholder="Session title *"
-              className="bg-white/8 border border-white/15 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#5d00f5]/60 placeholder-white/25"
-            />
-            <input
-              name="sessionDate"
-              type="datetime-local"
-              defaultValue={nextDateDefault}
-              required
-              className="bg-white/8 border border-white/15 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#5d00f5]/60"
-            />
-          </div>
-          <textarea
-            name="description"
-            placeholder="Session description (optional)"
-            rows={2}
-            className="bg-white/8 border border-white/15 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#5d00f5]/60 placeholder-white/25 resize-none"
-          />
-          <input
-            name="zoomUrl"
-            type="url"
-            placeholder="Zoom registration link (before event)"
-            className="bg-white/8 border border-white/15 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#5d00f5]/60 placeholder-white/25"
-          />
-          <input
-            name="youtubeUrl"
-            type="url"
-            placeholder="YouTube recording URL (after event)"
-            className="bg-white/8 border border-white/15 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#5d00f5]/60 placeholder-white/25"
-          />
-          <button
-            type="submit"
-            className="self-start text-sm px-5 py-2 rounded-lg font-semibold text-white transition-colors"
-            style={{ background: '#5d00f5' }}
-          >
-            Add Session
-          </button>
-        </form>
+        <h2 className="font-semibold mb-4">Add Session Manually</h2>
+        <AddSessionForm createSession={createSession} nextDateDefault={nextDateDefault} />
       </div>
 
       {/* Session list */}

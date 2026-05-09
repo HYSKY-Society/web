@@ -5,7 +5,9 @@ import { db } from '@/lib/db'
 import { podcastEpisodes } from '@/lib/schema'
 import { revalidatePath } from 'next/cache'
 import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
-import { eq, desc } from 'drizzle-orm'
+import { syncPodcastPlaylist } from '@/lib/youtube-sync'
+import { eq, desc, max } from 'drizzle-orm'
+import AddEpisodeForm from './AddEpisodeForm'
 
 async function createEpisode(formData: FormData) {
   'use server'
@@ -17,9 +19,7 @@ async function createEpisode(formData: FormData) {
   const description = (formData.get('description') as string).trim() || null
   if (!title || !youtubeUrl || !publishedAt) return
   await db.insert(podcastEpisodes).values({
-    title,
-    youtubeUrl,
-    publishedAt: new Date(publishedAt),
+    title, youtubeUrl, publishedAt: new Date(publishedAt),
     episodeNumber: isNaN(episodeNumber as number) ? null : episodeNumber,
     description,
   })
@@ -35,17 +35,21 @@ async function deleteEpisode(formData: FormData) {
   revalidatePath('/podcast')
 }
 
+async function syncFromYoutube() {
+  'use server'
+  await syncPodcastPlaylist()
+  revalidatePath('/admin/podcast')
+  revalidatePath('/podcast')
+}
+
 export default async function AdminPodcastPage() {
   const user = await currentUser()
   if (!user) redirect('/sign-in')
   const email = user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)?.emailAddress?.toLowerCase() ?? ''
   if (!getAdminEmails().includes(email)) redirect('/dashboard')
 
-  const episodes = await db
-    .select()
-    .from(podcastEpisodes)
-    .orderBy(desc(podcastEpisodes.publishedAt))
-
+  const episodes = await db.select().from(podcastEpisodes).orderBy(desc(podcastEpisodes.publishedAt))
+  const [{ maxEp }] = await db.select({ maxEp: max(podcastEpisodes.episodeNumber) }).from(podcastEpisodes)
   const today = new Date().toISOString().slice(0, 10)
 
   return (
@@ -70,55 +74,34 @@ export default async function AdminPodcastPage() {
         ))}
       </div>
 
-      {/* Add episode form */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8">
-        <h2 className="font-semibold mb-4">Add Episode</h2>
-        <form action={createEpisode} className="grid gap-3">
-          <div className="grid sm:grid-cols-3 gap-3">
-            <input
-              name="title"
-              required
-              placeholder="Episode title *"
-              className="sm:col-span-2 bg-white/8 border border-white/15 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#5d00f5]/60 placeholder-white/25"
-            />
-            <input
-              name="episodeNumber"
-              type="number"
-              min="1"
-              placeholder="Ep. #"
-              className="bg-white/8 border border-white/15 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#5d00f5]/60 placeholder-white/25"
-            />
-          </div>
-          <div className="grid sm:grid-cols-2 gap-3">
-            <input
-              name="youtubeUrl"
-              type="url"
-              required
-              placeholder="YouTube URL *"
-              className="bg-white/8 border border-white/15 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#5d00f5]/60 placeholder-white/25"
-            />
-            <input
-              name="publishedAt"
-              type="date"
-              defaultValue={today}
-              required
-              className="bg-white/8 border border-white/15 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#5d00f5]/60"
-            />
-          </div>
-          <textarea
-            name="description"
-            placeholder="Episode description (optional)"
-            rows={2}
-            className="bg-white/8 border border-white/15 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#5d00f5]/60 placeholder-white/25 resize-none"
-          />
+      {/* Sync from YouTube */}
+      <div
+        className="flex items-center justify-between gap-4 rounded-xl px-5 py-4 mb-6"
+        style={{ background: 'rgba(255,0,0,.08)', border: '1px solid rgba(255,0,0,.2)' }}
+      >
+        <div>
+          <p className="text-sm font-medium text-white">YouTube Playlist Sync</p>
+          <p className="text-white/40 text-xs mt-0.5">Fetches latest videos from the HYSKY Pod playlist (RSS — no API key needed)</p>
+        </div>
+        <form action={syncFromYoutube}>
           <button
             type="submit"
-            className="self-start text-sm px-5 py-2 rounded-lg font-semibold text-white transition-colors"
-            style={{ background: '#5d00f5' }}
+            className="shrink-0 text-sm px-4 py-2 rounded-lg font-semibold transition-colors"
+            style={{ background: 'rgba(255,0,0,.2)', color: '#ff6666', border: '1px solid rgba(255,0,0,.3)' }}
           >
-            Add Episode
+            ↓ Sync Now
           </button>
         </form>
+      </div>
+
+      {/* Add episode form */}
+      <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8">
+        <h2 className="font-semibold mb-4">Add Episode Manually</h2>
+        <AddEpisodeForm
+          createEpisode={createEpisode}
+          nextEpNum={(maxEp ?? 0) + 1}
+          today={today}
+        />
       </div>
 
       {/* Episode list */}
