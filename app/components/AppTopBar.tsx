@@ -52,7 +52,7 @@ export default function AppTopBar({ onMenuClick, isLoggedIn = true }: { onMenuCl
       </Link>
 
       {/* Nav links — desktop */}
-      <nav className="hidden lg:flex gap-0 flex-1 overflow-hidden">
+      <nav className="hidden md:flex gap-0 flex-1 min-w-0">
         {NAV.map((item) => {
           const active = pathname === item.href || (item.href.length > 1 && pathname.startsWith(item.href + '/'))
           if (item.dropdown) {
