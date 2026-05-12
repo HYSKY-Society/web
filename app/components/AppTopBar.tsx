@@ -23,7 +23,7 @@ const ALL_NAV: NavItem[] = [
   ]},
   { href: '/hysky-monthly', label: 'HYSKY Monthly' },
   { href: '/podcast',       label: 'Podcast' },
-  { href: '/press',         label: 'Press' },
+  { href: '/news',          label: 'News' },
 ]
 
 export default function AppTopBar({ onMenuClick, isLoggedIn = true }: { onMenuClick: () => void; isLoggedIn?: boolean }) {
