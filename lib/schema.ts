@@ -135,6 +135,21 @@ export const flyingHyAgenda = pgTable('flying_hy_agenda', {
   createdAt:    timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+export const newsSubscriptions = pgTable('news_subscriptions', {
+  userId:    text('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  tier:      text('tier').notNull().default('free'), // free | complimentary | monthly | annual
+  expiresAt: timestamp('expires_at', { withTimezone: true }), // null = free/complimentary (no expiry)
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const newsArticleViews = pgTable('news_article_views', {
+  id:        text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId:    text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  articleId: text('article_id').notNull(),
+  viewedAt:  timestamp('viewed_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export const directMessages = pgTable('direct_messages', {
   id:         text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   fromUserId: text('from_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -154,3 +169,5 @@ export type HyskySession = typeof hyskySessions.$inferSelect
 export type PodcastEpisode = typeof podcastEpisodes.$inferSelect
 export type PendingTier = typeof pendingTiers.$inferSelect
 export type DirectMessage = typeof directMessages.$inferSelect
+export type NewsSubscription = typeof newsSubscriptions.$inferSelect
+export type NewsArticleView = typeof newsArticleViews.$inferSelect
