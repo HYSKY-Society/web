@@ -3,9 +3,16 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { SignInButton, SignUpButton, UserButton } from '@clerk/nextjs'
-import { TIER_LABELS, type NewsTier } from '@/lib/news'
+import type { NewsTier } from '@/lib/news'
 
-const TIER_COLORS: Record<NewsTier, string> = {
+const TIER_LABELS: Record<string, string> = {
+  free:          'Free',
+  complimentary: 'Complimentary',
+  monthly:       'Monthly',
+  annual:        'Annual',
+}
+
+const TIER_COLORS: Record<string, string> = {
   free:          '#888',
   complimentary: '#2e7d32',
   monthly:       '#5D00F5',
@@ -89,7 +96,7 @@ export default function NewsTopBar({
               Upgrade
             </Link>
           )}
-          <UserButton afterSignOutUrl="/news" />
+          <UserButton />
         </div>
       )}
     </header>
