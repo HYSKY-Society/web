@@ -35,11 +35,11 @@ export default function AppTopBar({ onMenuClick, isLoggedIn = true }: { onMenuCl
     <header className="fixed top-0 left-0 right-0 z-50 h-[60px] flex items-center px-4 sm:px-6 border-b border-white/8"
       style={{ background: 'rgba(4,8,15,.92)', backdropFilter: 'blur(12px)' }}
     >
-      {/* Hamburger */}
+      {/* Hamburger — visible on all sizes; toggles overlay on mobile, collapses sidebar on desktop */}
       <button
         onClick={onMenuClick}
-        className="lg:hidden mr-3 flex flex-col gap-1.5 p-1 text-white/60 hover:text-white transition-colors"
-        aria-label="Toggle menu"
+        className="mr-3 flex flex-col gap-1.5 p-1 text-white/60 hover:text-white transition-colors"
+        aria-label="Toggle sidebar"
       >
         <span className="block w-5 h-0.5 bg-current rounded" />
         <span className="block w-5 h-0.5 bg-current rounded" />

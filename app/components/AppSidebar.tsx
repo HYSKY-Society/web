@@ -45,8 +45,8 @@ function EmptyNote({ text }: { text: string }) {
 }
 
 export default function AppSidebar({
-  data, open, onClose,
-}: { data: SidebarData; open: boolean; onClose: () => void }) {
+  data, open, collapsed, onClose,
+}: { data: SidebarData; open: boolean; collapsed: boolean; onClose: () => void }) {
   const enrolledCourses = allCourses.filter(c => data.enrolledCourseSlugs.includes(c.slug))
   const enrolledEvents  = allEvents.filter(e => data.enrolledEventSlugs.includes(e.slug))
   const tierLabel = TIER_LABELS[data.tier as Tier] ?? data.tier
@@ -54,7 +54,8 @@ export default function AppSidebar({
   return (
     <aside
       className={`fixed top-[60px] left-0 bottom-0 w-[260px] z-40 flex flex-col transition-transform duration-300 ease-in-out
-        ${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
+        ${open ? 'translate-x-0' : '-translate-x-full'}
+        ${collapsed ? '' : 'lg:translate-x-0'}`}
       style={{ background: '#060510', borderRight: '1px solid rgba(255,255,255,.07)' }}
     >
       <nav className="flex-1 overflow-y-auto py-2 space-y-0.5">
