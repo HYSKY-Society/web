@@ -7,7 +7,7 @@ import { useState } from 'react'
 import { SignInButton, SignUpButton } from '@clerk/nextjs'
 
 type DropdownItem = { href: string; label: string }
-type NavItem = { href: string; label: string; authOnly?: boolean; dropdown?: DropdownItem[] }
+type NavItem = { href: string; label: string; authOnly?: boolean; newTab?: boolean; dropdown?: DropdownItem[] }
 
 const ALL_NAV: NavItem[] = [
   { href: '/feed',         label: 'Feed',          authOnly: true },
@@ -23,7 +23,7 @@ const ALL_NAV: NavItem[] = [
   ]},
   { href: '/hysky-monthly', label: 'HYSKY Monthly' },
   { href: '/podcast',       label: 'Podcast' },
-  { href: '/news',          label: 'News' },
+  { href: '/news',          label: 'News', newTab: true },
 ]
 
 export default function AppTopBar({ onMenuClick, isLoggedIn = true }: { onMenuClick: () => void; isLoggedIn?: boolean }) {
@@ -100,6 +100,8 @@ export default function AppTopBar({ onMenuClick, isLoggedIn = true }: { onMenuCl
             <Link
               key={item.href}
               href={item.href}
+              target={item.newTab ? '_blank' : undefined}
+              rel={item.newTab ? 'noopener noreferrer' : undefined}
               className={`px-2.5 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                 active ? 'bg-white/10 text-white' : 'text-white/45 hover:text-white hover:bg-white/6'
               }`}

@@ -38,17 +38,20 @@ export default function NewsTopBar({
       padding: '0 24px',
       gap: 12,
     }}>
-      {/* Logo + wordmark */}
-      <Link href="/news" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', marginRight: 'auto' }}>
-        <Image src="/logo-purple.png" alt="HYSKY" height={22} width={70} style={{ objectFit: 'contain' }} />
-        <span style={{
+      {/* Logo → hysky.org in new tab; "News" → news listing same tab */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginRight: 'auto' }}>
+        <a href="https://hysky.org" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <Image src="/logo-purple.png" alt="HYSKY" height={22} width={70} style={{ objectFit: 'contain' }} />
+        </a>
+        <Link href="/news" style={{
           fontSize: '0.8rem', fontWeight: 700, color: '#111',
-          borderLeft: '1px solid #ddd', paddingLeft: 10,
+          borderLeft: '1px solid #ddd', paddingLeft: 10, marginLeft: 8,
           letterSpacing: '0.04em', textTransform: 'uppercase',
+          textDecoration: 'none',
         }}>
           News
-        </span>
-      </Link>
+        </Link>
+      </div>
 
       {/* Tier badge (logged-in only) */}
       {isLoggedIn && tier && (
