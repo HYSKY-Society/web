@@ -56,7 +56,7 @@ export default function AppShell({ sidebarData, children, noPadding }: { sidebar
       )}
 
       <main className={`pt-[60px] min-h-[calc(100vh-60px)] transition-[margin-left] duration-300 ease-in-out ${
-        collapsed ? 'lg:ml-0' : 'lg:ml-[260px]'
+        collapsed ? 'lg:ml-[60px]' : 'lg:ml-[260px]'
       }`}>
         {noPadding ? children : (
           <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-5xl">
