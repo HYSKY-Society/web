@@ -3,11 +3,6 @@
   "rewrites": [
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "news.hysky.org" }],
-      "destination": "/news/:path*"
-    },
-    {
-      "source": "/:path*",
       "has": [{ "type": "host", "value": "hysky.news" }],
       "destination": "/news/:path*"
     },
