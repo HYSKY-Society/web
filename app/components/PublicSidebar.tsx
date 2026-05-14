@@ -17,7 +17,7 @@ const NAV = [
   ]},
   { href: '/hysky-monthly', label: 'HYSKY Monthly', icon: '🎬' },
   { href: '/podcast',       label: 'Podcast',       icon: '🎙' },
-  { href: '/news',          label: 'News',          icon: '📰' },
+  { href: 'https://hysky.news', label: 'News', icon: '📰', newTab: true },
 ]
 
 export default function PublicSidebar({
@@ -31,13 +31,14 @@ export default function PublicSidebar({
       style={{ background: '#060510', borderRight: '1px solid rgba(255,255,255,.07)' }}
     >
       <nav className="flex-1 overflow-y-auto py-2 space-y-0.5 px-1">
-        {NAV.map(({ href, label, icon, sub }) => {
+        {NAV.map(({ href, label, icon, sub, newTab }) => {
           const active = pathname === href || (href.length > 1 && pathname.startsWith(href + '/'))
           return (
             <div key={href}>
               <Link
                 href={href}
                 onClick={onClose}
+                {...(newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                 className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
                   active ? 'bg-[#5d00f5]/20 text-white' : 'text-white/55 hover:text-white hover:bg-white/6'
                 }`}
