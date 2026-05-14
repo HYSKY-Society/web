@@ -26,7 +26,14 @@ export default clerkMiddleware((auth, request) => {
 
   // When news.hysky.org is added as a Vercel domain, rewrite its root
   // and any non-/news paths so they resolve to /news/* routes.
-  if (hostname.startsWith('news.')) {
+  
+  const isNewsHost =
+    hostname.startsWith('news.') ||
+    hostname === 'hysky.news' ||
+    hostname === 'www.hysky.news'
+
+  // Rewrite news-host root and non-/news paths so they resolve to /news/* routes.
+  if (isNewsHost) {
     const url = request.nextUrl.clone()
     if (!url.pathname.startsWith('/news') && !url.pathname.startsWith('/api') && !url.pathname.startsWith('/_next')) {
       url.pathname = url.pathname === '/' ? '/news' : `/news${url.pathname}`
