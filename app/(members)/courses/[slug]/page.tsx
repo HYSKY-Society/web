@@ -17,10 +17,9 @@ export default async function CoursePage({ params }: { params: { slug: string } 
   const user = await currentUser()
   const hasAccess = user ? await hasCourseAccess(user.id, course.slug) : false
 
-  const isFirst = course.slug === 'h2-aircraft-certification'
-  const accent = isFirst ? '#5d00f5' : '#00D4D4'
-  const accentLight = isFirst ? '#9b6dff' : '#33ffff'
-  const badgeLabel = isFirst ? '✈️ Certification' : '🛡️ Safety'
+  const accent = course.accent
+  const accentLight = course.accentLight
+  const badgeLabel = course.badge
   const embedUrl = COURSE_EMBED_URLS[course.slug] ?? ZEFFY.membership
   const contentPath = `/courses/${course.slug}/content`
 
@@ -156,6 +155,103 @@ export default async function CoursePage({ params }: { params: { slug: string } 
         </div>
       )}
 
+      {/* Lectures */}
+      {course.lectures && course.lectures.length > 0 && (
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-6">
+          <h2 className="font-bold text-xl mb-6 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: accent }} />
+            Lectures
+          </h2>
+          <div className="space-y-3">
+            {course.lectures.map((lecture, i) => (
+              <div key={lecture.title} className="flex items-start gap-4 border border-white/8 rounded-xl p-4">
+                <span
+                  className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white mt-0.5"
+                  style={{ backgroundColor: lecture.upcoming ? '#ffffff15' : accent }}
+                >
+                  {i + 1}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className={`text-sm font-medium leading-snug ${lecture.upcoming ? 'text-white/35' : 'text-white/90'}`}>
+                    {lecture.title}
+                    {lecture.upcoming && (
+                      <span className="ml-2 text-xs px-2 py-0.5 rounded-full border border-white/15 text-white/35">Upcoming</span>
+                    )}
+                  </div>
+                  {(lecture.videoUrl || lecture.slidesUrl) && (
+                    <div className="flex gap-3 mt-1.5">
+                      {lecture.videoUrl && (
+                        <a
+                          href={lecture.videoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-medium flex items-center gap-1 transition-opacity hover:opacity-80"
+                          style={{ color: accentLight }}
+                        >
+                          ▶ Watch
+                        </a>
+                      )}
+                      {lecture.slidesUrl && (
+                        <a
+                          href={lecture.slidesUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-medium flex items-center gap-1 text-white/40 hover:text-white/70 transition-colors"
+                        >
+                          ↓ Slides
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Reading Materials */}
+      {course.readingMaterials && course.readingMaterials.length > 0 && (
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-6">
+          <h2 className="font-bold text-xl mb-5 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: accent }} />
+            Reading Material, Guides & Templates
+          </h2>
+          <ul className="space-y-2">
+            {course.readingMaterials.map((item) => (
+              <li key={item.label}>
+                <div className="flex gap-2 text-sm">
+                  <span style={{ color: accentLight }} className="shrink-0 mt-0.5">·</span>
+                  {item.url ? (
+                    <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-white/65 hover:text-white transition-colors">
+                      {item.label}
+                    </a>
+                  ) : (
+                    <span className="text-white/65">{item.label}</span>
+                  )}
+                </div>
+                {item.children && (
+                  <ul className="ml-5 mt-1 space-y-1">
+                    {item.children.map((child) => (
+                      <li key={child.label} className="flex gap-2 text-sm">
+                        <span className="text-white/25 shrink-0">◦</span>
+                        {child.url ? (
+                          <a href={child.url} target="_blank" rel="noopener noreferrer" className="text-white/45 hover:text-white/70 transition-colors">
+                            {child.label}
+                          </a>
+                        ) : (
+                          <span className="text-white/45">{child.label}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* Instructors */}
       {course.instructors.length > 0 && (
         <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-6">
@@ -205,7 +301,7 @@ export default async function CoursePage({ params }: { params: { slug: string } 
         ) : (
           <>
             <h2 className="font-bold text-2xl mb-2">Ready to enroll?</h2>
-            <p className="text-white/50 mb-6">Join industry professionals advancing hydrogen aviation certification.</p>
+            <p className="text-white/50 mb-6">Join industry professionals advancing hydrogen aviation.</p>
             <EnrollButton
               hasAccess={false}
               courseSlug={course.slug}
