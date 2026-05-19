@@ -1,7 +1,7 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { directMessages, userProfiles, users } from '@/lib/schema'
-import { eq, or, and, sql, desc } from 'drizzle-orm'
+import { userProfiles } from '@/lib/schema'
+import { sql } from 'drizzle-orm'
 import Link from 'next/link'
 
 function timeAgo(date: Date) {
@@ -17,7 +17,7 @@ export default async function MessagesPage() {
   const myId = clerkUser!.id
 
   // Latest message per conversation partner
-  const rows = await db.execute(sql`
+  const result = await db.execute(sql`
     SELECT DISTINCT ON (other_id)
       CASE WHEN from_user_id = ${myId} THEN to_user_id ELSE from_user_id END AS other_id,
       content  AS last_message,
@@ -26,7 +26,8 @@ export default async function MessagesPage() {
     FROM direct_messages
     WHERE from_user_id = ${myId} OR to_user_id = ${myId}
     ORDER BY other_id, created_at DESC
-  `) as { other_id: string; last_message: string; last_at: Date; from_user_id: string }[]
+  `)
+  const rows = result.rows as unknown as { other_id: string; last_message: string; last_at: Date; from_user_id: string }[]
 
   const otherIds = rows.map(r => r.other_id)
 
