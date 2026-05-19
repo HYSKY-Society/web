@@ -2,18 +2,47 @@ import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { db } from '@/lib/db'
-import { users } from '@/lib/schema'
-import { setUserTier } from '@/lib/members'
+import { users, coursePurchases } from '@/lib/schema'
+import { eq, and } from 'drizzle-orm'
+import { setUserTier, addCoursePurchase } from '@/lib/members'
 import { revalidatePath } from 'next/cache'
 import type { Tier } from '@/lib/members'
 import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
 
+const COURSES = [
+  { slug: 'h2-aircraft-certification', label: 'Certification' },
+  { slug: 'h2-safety-for-aviation',    label: 'Safety' },
+  { slug: 'h2-aviation-policy',        label: 'Policy' },
+]
+
 async function updateTier(formData: FormData) {
   'use server'
-  const id = formData.get('id') as string
+  const id   = formData.get('id') as string
   const tier = formData.get('tier') as Tier
   if (id && ['free', 'member_courses', 'member_courses_events', 'member_full'].includes(tier)) {
     await setUserTier(id, tier)
+    revalidatePath('/admin/users')
+  }
+}
+
+async function grantCourse(formData: FormData) {
+  'use server'
+  const userId     = formData.get('userId') as string
+  const courseSlug = formData.get('courseSlug') as string
+  if (userId && courseSlug) {
+    await addCoursePurchase(userId, courseSlug)
+    revalidatePath('/admin/users')
+  }
+}
+
+async function revokeCourse(formData: FormData) {
+  'use server'
+  const userId     = formData.get('userId') as string
+  const courseSlug = formData.get('courseSlug') as string
+  if (userId && courseSlug) {
+    await db.delete(coursePurchases).where(
+      and(eq(coursePurchases.userId, userId), eq(coursePurchases.courseSlug, courseSlug))
+    )
     revalidatePath('/admin/users')
   }
 }
@@ -27,7 +56,16 @@ export default async function AdminUsersPage() {
 
   if (!getAdminEmails().includes(userEmail)) redirect('/dashboard')
 
-  const allUsers = await db.select().from(users).orderBy(users.createdAt)
+  const [allUsers, allPurchases] = await Promise.all([
+    db.select().from(users).orderBy(users.createdAt),
+    db.select().from(coursePurchases),
+  ])
+
+  const purchasesByUser: Record<string, string[]> = {}
+  for (const p of allPurchases) {
+    if (!purchasesByUser[p.userId]) purchasesByUser[p.userId] = []
+    purchasesByUser[p.userId].push(p.courseSlug)
+  }
 
   return (
     <div className="text-white max-w-3xl">
@@ -61,35 +99,66 @@ export default async function AdminUsersPage() {
           <p className="text-white/25 text-sm text-center py-12">No members yet.</p>
         ) : (
           <div className="divide-y divide-white/5">
-            {allUsers.map((u) => (
-              <div key={u.id} className="flex items-center justify-between gap-4 px-6 py-3.5 flex-wrap">
-                <div>
-                  <p className="font-mono text-sm text-white/80">{u.email}</p>
-                  <p className="text-white/30 text-xs mt-0.5">
-                    Joined {new Date(u.createdAt).toLocaleDateString()}
-                  </p>
+            {allUsers.map((u) => {
+              const userCourses = purchasesByUser[u.id] ?? []
+              return (
+                <div key={u.id} className="px-6 py-4 space-y-3">
+                  {/* Row 1: email + tier */}
+                  <div className="flex items-center justify-between gap-4 flex-wrap">
+                    <div>
+                      <p className="font-mono text-sm text-white/80">{u.email}</p>
+                      <p className="text-white/30 text-xs mt-0.5">
+                        Joined {new Date(u.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <form action={updateTier} className="flex items-center gap-2">
+                      <input type="hidden" name="id" value={u.id} />
+                      <select
+                        name="tier"
+                        defaultValue={u.tier}
+                        className="bg-white/8 border border-white/15 text-white text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#5d00f5]/60"
+                      >
+                        <option value="free">Free</option>
+                        <option value="member_courses">Member — Courses</option>
+                        <option value="member_courses_events">Member — Courses + Events</option>
+                        <option value="member_full">Member — Full</option>
+                      </select>
+                      <button
+                        type="submit"
+                        className="text-xs px-3 py-1.5 rounded-lg font-medium transition-colors bg-[#5d00f5]/20 text-[#9b6dff] hover:bg-[#5d00f5]/40 border border-[#5d00f5]/30"
+                      >
+                        Save
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Row 2: per-course access */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] text-white/25 uppercase tracking-wider font-semibold">Courses:</span>
+                    {COURSES.map((c) => {
+                      const has = userCourses.includes(c.slug)
+                      return (
+                        <form key={c.slug} action={has ? revokeCourse : grantCourse}>
+                          <input type="hidden" name="userId"     value={u.id} />
+                          <input type="hidden" name="courseSlug" value={c.slug} />
+                          <button
+                            type="submit"
+                            className={`text-[11px] px-2.5 py-1 rounded-full border font-semibold transition-colors ${
+                              has
+                                ? 'bg-green-500/15 border-green-500/40 text-green-400 hover:bg-red-500/15 hover:border-red-500/40 hover:text-red-400'
+                                : 'bg-white/5 border-white/15 text-white/30 hover:bg-[#5d00f5]/20 hover:border-[#5d00f5]/40 hover:text-[#9b6dff]'
+                            }`}
+                            title={has ? `Revoke ${c.label}` : `Grant ${c.label}`}
+                          >
+                            {has ? `✓ ${c.label}` : `+ ${c.label}`}
+                          </button>
+                        </form>
+                      )
+                    })}
+                  </div>
                 </div>
-                <form action={updateTier} className="flex items-center gap-2">
-                  <input type="hidden" name="id" value={u.id} />
-                  <select
-                    name="tier"
-                    defaultValue={u.tier}
-                    className="bg-white/8 border border-white/15 text-white text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#5d00f5]/60"
-                  >
-                    <option value="free">Free</option>
-                    <option value="member_courses">Member — Courses</option>
-                    <option value="member_courses_events">Member — Courses + Events</option>
-                    <option value="member_full">Member — Full</option>
-                  </select>
-                  <button
-                    type="submit"
-                    className="text-xs px-3 py-1.5 rounded-lg font-medium transition-colors bg-[#5d00f5]/20 text-[#9b6dff] hover:bg-[#5d00f5]/40 border border-[#5d00f5]/30"
-                  >
-                    Save
-                  </button>
-                </form>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>

@@ -84,11 +84,8 @@ export async function POST(req: NextRequest) {
     }
 
   } else {
-    // Fallback: unknown campaign — log full payload for debugging
+    // Fallback: unknown campaign — log full payload for debugging, do NOT auto-upgrade tier
     console.warn('[zeffy-webhook] Unknown campaign — full payload:', JSON.stringify(body, null, 2))
-    // Still upgrade to basic membership rather than silently failing
-    await setUserTierByEmail(email, 'member_courses')
-    console.log(`[zeffy-webhook] Unknown campaign fallback: upgraded ${email} to member_courses`)
   }
 
   return NextResponse.json({ ok: true })
