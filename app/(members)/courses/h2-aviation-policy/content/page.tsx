@@ -2,64 +2,51 @@ import { currentUser } from '@clerk/nextjs/server'
 import { hasCourseAccess } from '@/lib/course-access'
 import Link from 'next/link'
 
-const accent = '#5d00f5'
-const accentLight = '#9b6dff'
+const accent = '#d97706'
+const accentLight = '#fbbf24'
 
 const lectures = [
   {
-    id: '1a',
-    title: 'Overview of the H2 Aircraft Certification Course',
-    videoUrl: 'https://www.youtube.com/embed/myMWfHsr39k',
-    slidesUrl: 'https://drive.google.com/file/d/1aje70g7daQQEeFTsNe2_RLHQCmBpUjRb/view',
-  },
-  {
-    id: '1b',
-    title: 'Intro to Regulations and Standards Developments (Focus on US Regulations)',
-    videoUrl: 'https://www.youtube.com/embed/YnIu2NHQK-s',
-    slidesUrl: 'https://drive.google.com/file/d/1YZLAtexpB98RDyE8LgQLDgYrIZmtqTMR/view',
+    id: '1',
+    title: 'What Is Public Policy? (And How It Actually Shapes Industries)',
+    videoUrl: 'https://www.youtube.com/embed/8KiEev5aPCs',
+    slidesUrl: null,
   },
   {
     id: '2',
-    title: 'Certification of Electric and Fuel Cell Propulsion Systems',
-    videoUrl: 'https://www.youtube.com/embed/Gbca7qfNKtc',
-    slidesUrl: 'https://drive.google.com/file/d/1oXEC0SuT2uXNqOXx0CkSWdfA3FyGdUQZ/view',
+    title: 'Understanding Policy Gaps in Hydrogen Aviation',
+    videoUrl: 'https://www.youtube.com/embed/dtKjB7VvKUc',
+    slidesUrl: 'https://drive.google.com/file/d/1wxuBI50wPi7MNFmEnkbgRtyj8v8YBeg5/view?usp=sharing',
   },
   {
-    id: '3a',
-    title: 'Certification Foundations & Regulatory Framework (Focus on Canadian Regulations)',
-    videoUrl: 'https://www.youtube.com/embed/5ct466ooJKw',
-    slidesUrl: 'https://drive.google.com/file/d/1YksbvU6LrbdrKxi58hu_W3I-E59wo2Mw/view',
-  },
-  {
-    id: '3b',
-    title: 'Introduction to Hydrogen Storage and Fuel Supply on Aircraft',
-    videoUrl: 'https://www.youtube.com/embed/6rN7USthQtI',
-    slidesUrl: 'https://drive.google.com/file/d/1iG4nhn-YkTgHq8wWWGkRsxib4A0jmcWg/view',
+    id: '3',
+    title: 'VFS Case Study & FAA Case Study',
+    videoUrl: 'https://www.youtube.com/embed/F9comieSTpU',
+    slidesUrl: null,
   },
   {
     id: '4',
-    title: 'Ground Handling and Operational Certification Requirements for Hydrogen Aircraft – EASA and FAA Perspectives',
-    videoUrl: 'https://www.youtube.com/embed/9iOxDcd-u78',
-    slidesUrl: 'https://drive.google.com/file/d/1HSVeNDp1ZzUVmzctiWh6yx8Sz_xXb8cl/view',
+    title: 'How and When to Engage with a Lobbying Firm',
+    videoUrl: 'https://www.youtube.com/embed/mCLtuY71FTk',
+    slidesUrl: null,
   },
   {
     id: '5',
-    title: 'Policy, Continuous Airworthiness, and MRO Challenges for Hydrogen Aviation Fuel: Building a Safe and Sustainable Hydrogen Future',
-    videoUrl: 'https://www.youtube.com/embed/wdaA59iiA08',
-    slidesUrl: 'https://drive.google.com/file/d/1RQijkd95FY2ZfufYHK6WKOKT9UI6HFzf/view',
+    title: 'Capstone Launch: Contacting Your Members',
+    videoUrl: 'https://www.youtube.com/embed/MfxBoAFEkjA',
+    slidesUrl: null,
   },
   {
     id: '6',
-    title: 'Standardization & Future Policy Directions for Hydrogen in Aviation',
-    videoUrl: 'https://www.youtube.com/embed/AlQKadS8I04',
-    slidesUrl: 'https://drive.google.com/file/d/1g_xjpFn4UMi6rbKUNdEvQ2BKxas5QOt8/view',
+    title: 'Lecture 6',
+    videoUrl: null,
+    slidesUrl: null,
   },
 ]
 
 export default async function CourseContentPage() {
   const user = await currentUser()
-
-  const hasAccess = user ? await hasCourseAccess(user.id, 'h2-aircraft-certification') : false
+  const hasAccess = user ? await hasCourseAccess(user.id, 'h2-aviation-policy') : false
 
   if (!hasAccess) {
     return (
@@ -67,10 +54,10 @@ export default async function CourseContentPage() {
         <div className="text-5xl mb-6">🔒</div>
         <h1 className="text-2xl font-bold mb-3">Course Access Required</h1>
         <p className="text-white/50 mb-8 leading-relaxed">
-          This content is available to paid HYSKY members. Upgrade your membership to access the full course.
+          This content is available to enrolled students. Purchase the course to access all lectures.
         </p>
         <a
-          href="https://www.zeffy.com/en-US/ticketing/h2-aircraft-certification-course"
+          href="https://www.zeffy.com/embed/ticketing/h2-aviation-policy-and-power"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 text-white font-bold px-8 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-sm"
@@ -79,7 +66,7 @@ export default async function CourseContentPage() {
           Enroll Now →
         </a>
         <div className="mt-4">
-          <Link href="/courses/h2-aircraft-certification" className="text-white/30 hover:text-white/60 text-sm transition-colors">
+          <Link href="/courses/h2-aviation-policy" className="text-white/30 hover:text-white/60 text-sm transition-colors">
             ← Back to course overview
           </Link>
         </div>
@@ -90,7 +77,7 @@ export default async function CourseContentPage() {
   return (
     <div className="text-white max-w-4xl">
       <Link
-        href="/courses/h2-aircraft-certification"
+        href="/courses/h2-aviation-policy"
         className="inline-flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-8 transition-colors"
       >
         ← Back to Course Overview
@@ -106,28 +93,31 @@ export default async function CourseContentPage() {
             className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-4"
             style={{ backgroundColor: `${accent}25`, color: accentLight }}
           >
-            ✈️ Certification Course
+            🏛️ Policy Course
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">H2 Aircraft Certification Course</h1>
-          <p className="text-white/50 text-sm">8 lectures · 12 classroom hours · Certificate of Completion</p>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">H2 Aviation Policy &amp; Power</h1>
+          <p className="text-white/50 text-sm">6 lectures · 12 classroom hours · Certificate of Completion</p>
         </div>
       </div>
 
       <div className="space-y-5">
         {lectures.map((lecture) => (
           <div key={lecture.id} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-            {/* Lecture header */}
             <div className="flex items-center gap-4 p-6 pb-4">
               <div
                 className="shrink-0 px-2.5 py-1 rounded-lg text-xs font-bold text-white"
-                style={{ backgroundColor: accent }}
+                style={{ backgroundColor: lecture.videoUrl ? accent : '#ffffff15' }}
               >
                 {lecture.id}
               </div>
-              <h2 className="font-semibold text-white text-sm leading-snug">{lecture.title}</h2>
+              <h2 className={`font-semibold text-sm leading-snug ${lecture.videoUrl ? 'text-white' : 'text-white/35'}`}>
+                {lecture.title}
+                {!lecture.videoUrl && (
+                  <span className="ml-2 text-xs px-2 py-0.5 rounded-full border border-white/15 text-white/35">Upcoming</span>
+                )}
+              </h2>
             </div>
 
-            {/* Video */}
             {lecture.videoUrl ? (
               <div className="mx-6 mb-4 rounded-xl overflow-hidden aspect-video bg-black">
                 <iframe
@@ -143,7 +133,6 @@ export default async function CourseContentPage() {
               </div>
             )}
 
-            {/* Slides */}
             <div className="px-6 pb-5">
               {lecture.slidesUrl ? (
                 <a
@@ -151,12 +140,12 @@ export default async function CourseContentPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-xl border transition-colors hover:bg-white/8"
-                  style={{ borderColor: '#00D4D4', color: '#00D4D4' }}
+                  style={{ borderColor: accentLight, color: accentLight }}
                 >
                   ↓ Download Slides
                 </a>
               ) : (
-                <span className="text-white/20 text-xs">Slides coming soon</span>
+                lecture.videoUrl && <span className="text-white/20 text-xs">No slides for this lecture</span>
               )}
             </div>
           </div>

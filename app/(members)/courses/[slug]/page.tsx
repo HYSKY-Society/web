@@ -180,37 +180,6 @@ export default async function CoursePage({ params }: { params: { slug: string } 
                       <span className="ml-2 text-xs px-2 py-0.5 rounded-full border border-white/15 text-white/35">Upcoming</span>
                     )}
                   </div>
-                  {(lecture.videoUrl || lecture.slidesUrl) && (
-                    <div className="flex gap-3 mt-1.5">
-                      {hasAccess ? (
-                        <>
-                          {lecture.videoUrl && (
-                            <a
-                              href={lecture.videoUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-xs font-medium flex items-center gap-1 transition-opacity hover:opacity-80"
-                              style={{ color: accentLight }}
-                            >
-                              ▶ Watch
-                            </a>
-                          )}
-                          {lecture.slidesUrl && (
-                            <a
-                              href={lecture.slidesUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-xs font-medium flex items-center gap-1 text-white/40 hover:text-white/70 transition-colors"
-                            >
-                              ↓ Slides
-                            </a>
-                          )}
-                        </>
-                      ) : (
-                        <span className="text-xs text-white/25 flex items-center gap-1">🔒 Enroll to watch</span>
-                      )}
-                    </div>
-                  )}
                 </div>
               </div>
             ))}

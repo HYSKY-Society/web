@@ -56,6 +56,24 @@ export async function POST(req: NextRequest) {
       console.warn(`[zeffy-webhook] Course purchase for unknown user ${email} — they must sign up first`)
     }
 
+  } else if (description.includes('safety')) {
+    const user = await getUserByEmail(email)
+    if (user) {
+      await addCoursePurchase(user.id, 'h2-safety-for-aviation')
+      console.log(`[zeffy-webhook] Course purchase: h2-safety-for-aviation for ${email}`)
+    } else {
+      console.warn(`[zeffy-webhook] Course purchase for unknown user ${email} — they must sign up first`)
+    }
+
+  } else if (description.includes('policy')) {
+    const user = await getUserByEmail(email)
+    if (user) {
+      await addCoursePurchase(user.id, 'h2-aviation-policy')
+      console.log(`[zeffy-webhook] Course purchase: h2-aviation-policy for ${email}`)
+    } else {
+      console.warn(`[zeffy-webhook] Course purchase for unknown user ${email} — they must sign up first`)
+    }
+
   } else if (description.includes('flying hy') || description.includes('flying-hy')) {
     const user = await getUserByEmail(email)
     if (user) {
