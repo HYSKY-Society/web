@@ -23,6 +23,7 @@ export default async function MembersLayout({ children }: { children: React.Reac
   ])
 
   const sidebarData: SidebarData = {
+    myId:                 user.id,
     tier,
     displayName:          profile?.displayName ?? null,
     email:                primaryEmail,

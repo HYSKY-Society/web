@@ -115,12 +115,11 @@ export default function AppSidebar({
           </div>
         )}
         <SidebarItem href="/members" icon="👥" label="Members Directory" onClick={onClose} collapsed={collapsed} />
-        <SidebarItem href="/network"  icon="🌐" label="Network"           onClick={onClose} collapsed={collapsed} />
 
         {/* ── Community ─────────────────────────────────────────── */}
         <SidebarSection label="Community" collapsed={collapsed} />
-        <SidebarItem href="/messages" icon="✉️" label="Messages"      onClick={onClose} collapsed={collapsed} />
-        <SidebarItem href="/chat"     icon="🗣️" label="Group Chat"    onClick={onClose} collapsed={collapsed} />
+        <SidebarItem href="/network"  icon="🌐" label="Network"       onClick={onClose} collapsed={collapsed} />
+        <SidebarItem href="/chat"     icon="👥" label="Groups"        onClick={onClose} collapsed={collapsed} />
         <SidebarItem href="/forum"    icon="📋" label="Forum"         onClick={onClose} collapsed={collapsed} />
 
         {/* ── Sponsors ──────────────────────────────────────────── */}

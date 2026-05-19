@@ -22,8 +22,8 @@ export default async function ChatPage() {
   return (
     <div className="text-white max-w-2xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-1">Community Chat</h1>
-        <p className="text-white/40 text-sm">Real-time group channels for HYSKY members.</p>
+        <h1 className="text-2xl font-bold mb-1">Groups</h1>
+        <p className="text-white/40 text-sm">HYSKY-curated group channels for members.</p>
       </div>
 
       <div className="space-y-2">
