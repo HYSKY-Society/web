@@ -31,6 +31,7 @@ export default async function PublicShell({ children }: { children: React.ReactN
     <AppShell
       noPadding
       sidebarData={{
+        myId:                user.id,
         tier,
         displayName:         profile?.displayName ?? null,
         email:               primaryEmail,
