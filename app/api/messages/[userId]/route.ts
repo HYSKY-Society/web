@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { directMessages } from '@/lib/schema'
 import { and, or, eq, asc } from 'drizzle-orm'
+import { pusherServer, dmChannelName } from '@/lib/pusher'
 
 export async function GET(_req: NextRequest, { params }: { params: { userId: string } }) {
   const { userId: myId } = auth()
@@ -39,6 +40,13 @@ export async function POST(req: NextRequest, { params }: { params: { userId: str
       .insert(directMessages)
       .values({ fromUserId: myId, toUserId: params.userId, content: content.trim() })
       .returning()
+
+    await pusherServer.trigger(
+      dmChannelName(myId, params.userId),
+      'new-message',
+      msg,
+    ).catch(() => { /* non-fatal if Pusher env not yet set */ })
+
     return NextResponse.json(msg)
   } catch {
     return NextResponse.json({ error: 'Failed to send' }, { status: 500 })

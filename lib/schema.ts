@@ -159,6 +159,43 @@ export const directMessages = pgTable('direct_messages', {
   createdAt:  timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+export const chatChannels = pgTable('chat_channels', {
+  id:          text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name:        text('name').notNull(),
+  slug:        text('slug').notNull().unique(),
+  description: text('description'),
+  icon:        text('icon').notNull().default('💬'),
+  createdAt:   timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const chatMessages = pgTable('chat_messages', {
+  id:        text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  channelId: text('channel_id').notNull().references(() => chatChannels.id, { onDelete: 'cascade' }),
+  userId:    text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  content:   text('content').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const forumThreads = pgTable('forum_threads', {
+  id:         text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  title:      text('title').notNull(),
+  content:    text('content').notNull(),
+  authorId:   text('author_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  category:   text('category').notNull().default('general'),
+  isPinned:   boolean('is_pinned').notNull().default(false),
+  replyCount: integer('reply_count').notNull().default(0),
+  createdAt:  timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt:  timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const forumReplies = pgTable('forum_replies', {
+  id:        text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  threadId:  text('thread_id').notNull().references(() => forumThreads.id, { onDelete: 'cascade' }),
+  authorId:  text('author_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  content:   text('content').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export type User = typeof users.$inferSelect
 export type UserProfile = typeof userProfiles.$inferSelect
 export type DiscountCode = typeof discountCodes.$inferSelect
@@ -170,4 +207,8 @@ export type PodcastEpisode = typeof podcastEpisodes.$inferSelect
 export type PendingTier = typeof pendingTiers.$inferSelect
 export type DirectMessage = typeof directMessages.$inferSelect
 export type NewsSubscription = typeof newsSubscriptions.$inferSelect
-export type NewsArticleView = typeof newsArticleViews.$inferSelect
+export type NewsArticleView  = typeof newsArticleViews.$inferSelect
+export type ChatChannel      = typeof chatChannels.$inferSelect
+export type ChatMessage      = typeof chatMessages.$inferSelect
+export type ForumThread      = typeof forumThreads.$inferSelect
+export type ForumReply       = typeof forumReplies.$inferSelect

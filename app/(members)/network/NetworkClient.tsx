@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { getPusher } from '@/lib/pusher-client'
 
 type OnlineUser = {
   id: string
@@ -80,13 +81,19 @@ export default function NetworkClient({ myId }: { myId: string }) {
     return () => clearInterval(interval)
   }, [pingPresence])
 
-  // Poll messages when chat is open
+  // Load messages + subscribe to Pusher when chat is open
   useEffect(() => {
     if (!chatWith) return
     fetchMessages(chatWith.id)
-    const interval = setInterval(() => fetchMessages(chatWith.id), 4_000)
-    return () => clearInterval(interval)
-  }, [chatWith, fetchMessages])
+
+    const channelName = `private-dm-${[myId, chatWith.id].sort().join('-')}`
+    const pusher = getPusher()
+    const ch = pusher.subscribe(channelName)
+    ch.bind('new-message', (msg: Message) => {
+      setMessages(prev => prev.some(m => m.id === msg.id) ? prev : [...prev, msg])
+    })
+    return () => { pusher.unsubscribe(channelName) }
+  }, [chatWith, fetchMessages, myId])
 
   // Scroll to bottom on new messages
   useEffect(() => {
