@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { pusherServer } from '@/lib/pusher'
 import { getProfile } from '@/lib/members'
+import { db } from '@/lib/db'
+import { users } from '@/lib/schema'
+import { eq } from 'drizzle-orm'
 
 export async function POST(req: NextRequest) {
   const { userId } = auth()
@@ -9,21 +12,27 @@ export async function POST(req: NextRequest) {
 
   const body = await req.text()
   const params = new URLSearchParams(body)
-  const socketId   = params.get('socket_id')!
+  const socketId    = params.get('socket_id')!
   const channelName = params.get('channel_name')!
 
-  if (!channelName.startsWith('private-dm-') && !channelName.startsWith('presence-chat-')) {
+  const allowed = ['private-dm-', 'presence-chat-', 'presence-online']
+  if (!allowed.some(prefix => channelName.startsWith(prefix))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
   let authData: object
   if (channelName.startsWith('presence-')) {
-    const profile = await getProfile(userId)
+    const [profile, userRow] = await Promise.all([
+      getProfile(userId),
+      db.query.users.findFirst({ where: eq(users.id, userId) }),
+    ])
+    const emailFallback = userRow?.email?.split('@')[0] ?? 'Member'
     authData = pusherServer.authorizeChannel(socketId, channelName, {
       user_id: userId,
       user_info: {
-        displayName: profile?.displayName ?? 'Member',
-        avatarUrl:   profile?.avatarUrl ?? null,
+        displayName: profile?.displayName ?? emailFallback,
+        headline:    profile?.headline    ?? null,
+        avatarUrl:   profile?.avatarUrl   ?? null,
       },
     })
   } else {

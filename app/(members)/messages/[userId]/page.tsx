@@ -1,6 +1,6 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { directMessages, userProfiles } from '@/lib/schema'
+import { directMessages, users } from '@/lib/schema'
 import { and, or, eq, asc } from 'drizzle-orm'
 import { getProfile } from '@/lib/members'
 import { notFound } from 'next/navigation'
@@ -11,8 +11,14 @@ export default async function DMConversationPage({ params }: { params: { userId:
   const myId = clerkUser!.id
   const otherId = params.userId
 
-  const otherProfile = await getProfile(otherId)
-  if (!otherProfile) notFound()
+  const [otherProfile, otherUser] = await Promise.all([
+    getProfile(otherId),
+    db.query.users.findFirst({ where: eq(users.id, otherId) }),
+  ])
+  if (!otherUser) notFound()
+
+  const otherName   = otherProfile?.displayName ?? otherUser!.email.split('@')[0]
+  const otherAvatar = otherProfile?.avatarUrl   ?? null
 
   const messages = await db
     .select()
@@ -30,8 +36,8 @@ export default async function DMConversationPage({ params }: { params: { userId:
     <DMChatClient
       myId={myId}
       otherId={otherId}
-      otherName={otherProfile.displayName ?? 'Member'}
-      otherAvatar={otherProfile.avatarUrl ?? null}
+      otherName={otherName}
+      otherAvatar={otherAvatar}
       initialMessages={messages.map(m => ({
         id:         m.id,
         fromUserId: m.fromUserId,
