@@ -39,7 +39,7 @@ const lectures = [
   {
     id: '6',
     title: 'Lecture 6',
-    videoUrl: null,
+    videoUrl: 'https://www.youtube.com/embed/5yxZ1MPhhuk',
     slidesUrl: null,
   },
 ]
