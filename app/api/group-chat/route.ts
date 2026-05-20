@@ -25,10 +25,13 @@ export async function POST(req: Request) {
   if (!name?.trim()) return Response.json({ error: 'Name required' }, { status: 400 })
 
   const id = crypto.randomUUID()
-  await db.transaction(async (tx) => {
-    await tx.insert(groupChats).values({ id, name: name.trim(), createdBy: userId })
-    await tx.insert(groupChatMembers).values({ groupId: id, userId })
-  })
+  try {
+    await db.insert(groupChats).values({ id, name: name.trim(), createdBy: userId })
+    await db.insert(groupChatMembers).values({ groupId: id, userId })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    return Response.json({ error: msg }, { status: 500 })
+  }
 
   return Response.json({ id, name: name.trim(), createdBy: userId })
 }

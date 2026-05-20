@@ -1,30 +1,12 @@
 import { currentUser, clerkClient } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import { users, pendingTiers } from '@/lib/schema'
 import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
 import InviteAllButton from './InviteAllButton'
 import RevokeAllButton from './RevokeAllButton'
-
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://connect.hysky.org'
-
-async function inviteUser(formData: FormData) {
-  'use server'
-  const email = formData.get('email') as string
-  if (!email) return
-  try {
-    await clerkClient.invitations.createInvitation({
-      emailAddress: email,
-      redirectUrl: APP_URL + '/feed',
-      notify: true,
-    })
-  } catch (_) {
-    // already invited or already has an account — silently continue
-  }
-  revalidatePath('/admin/migration')
-}
+import SendInviteButton from './SendInviteButton'
 
 type RowStatus = 'active' | 'invited' | 'needs_invite'
 
@@ -182,15 +164,10 @@ export default async function MigrationPage() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       {row.status !== 'active' && (
-                        <form action={inviteUser} className="inline">
-                          <input type="hidden" name="email" value={row.email} />
-                          <button
-                            type="submit"
-                            className="px-3 py-1 rounded-lg text-xs font-medium bg-white/8 hover:bg-[#5d00f5]/30 hover:text-white text-white/60 transition-colors border border-white/10"
-                          >
-                            {row.status === 'invited' ? 'Resend' : 'Send Invite'}
-                          </button>
-                        </form>
+                        <SendInviteButton
+                          email={row.email}
+                          label={row.status === 'invited' ? 'Resend' : 'Send Invite'}
+                        />
                       )}
                     </td>
                   </tr>
