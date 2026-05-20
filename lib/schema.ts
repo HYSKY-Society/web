@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, integer, boolean } from 'drizzle-orm/pg-core'
+import { pgTable, text, timestamp, integer, boolean, primaryKey } from 'drizzle-orm/pg-core'
 
 export const users = pgTable('users', {
   id: text('id').primaryKey(), // Clerk user ID
@@ -196,6 +196,33 @@ export const forumReplies = pgTable('forum_replies', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+export const feedPosts = pgTable('feed_posts', {
+  id:           text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  authorId:     text('author_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  content:      text('content').notNull(),
+  repostOfId:   text('repost_of_id'),
+  likeCount:    integer('like_count').notNull().default(0),
+  replyCount:   integer('reply_count').notNull().default(0),
+  repostCount:  integer('repost_count').notNull().default(0),
+  createdAt:    timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const feedPostLikes = pgTable('feed_post_likes', {
+  userId:    text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  postId:    text('post_id').notNull().references(() => feedPosts.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  primaryKey({ columns: [t.userId, t.postId] }),
+])
+
+export const feedPostReplies = pgTable('feed_post_replies', {
+  id:        text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  postId:    text('post_id').notNull().references(() => feedPosts.id, { onDelete: 'cascade' }),
+  authorId:  text('author_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  content:   text('content').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export type User = typeof users.$inferSelect
 export type UserProfile = typeof userProfiles.$inferSelect
 export type DiscountCode = typeof discountCodes.$inferSelect
@@ -212,3 +239,6 @@ export type ChatChannel      = typeof chatChannels.$inferSelect
 export type ChatMessage      = typeof chatMessages.$inferSelect
 export type ForumThread      = typeof forumThreads.$inferSelect
 export type ForumReply       = typeof forumReplies.$inferSelect
+export type FeedPost         = typeof feedPosts.$inferSelect
+export type FeedPostLike     = typeof feedPostLikes.$inferSelect
+export type FeedPostReply    = typeof feedPostReplies.$inferSelect

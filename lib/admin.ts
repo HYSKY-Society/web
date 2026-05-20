@@ -19,4 +19,5 @@ export const ADMIN_NAV = [
   { href: '/admin/sponsors',     label: 'Sponsors' },
   { href: '/admin/hysky-monthly',label: 'HYSKY Monthly' },
   { href: '/admin/podcast',      label: 'Podcast' },
+  { href: '/admin/migration',    label: 'Migration' },
 ]

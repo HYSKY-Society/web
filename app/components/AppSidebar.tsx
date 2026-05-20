@@ -160,6 +160,7 @@ export default function AppSidebar({
             <SidebarItem href="/admin/codes"         icon="🏷" label="Discount Codes"  onClick={onClose} collapsed={collapsed} />
             <SidebarItem href="/admin/flying-hy"     icon="✈️" label="FLYING HY"       onClick={onClose} collapsed={collapsed} />
             <SidebarItem href="/admin/press"         icon="📰" label="Press"           onClick={onClose} collapsed={collapsed} />
+            <SidebarItem href="/admin/migration"     icon="🔑" label="Migration"       onClick={onClose} collapsed={collapsed} />
           </>
         )}
       </nav>
