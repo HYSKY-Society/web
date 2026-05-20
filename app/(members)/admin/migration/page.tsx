@@ -30,15 +30,23 @@ async function inviteAll(formData: FormData) {
   const emails: string[] = JSON.parse(emailsJson || '[]')
   if (!emails.length) return
 
-  await Promise.allSettled(
-    emails.map((email) =>
-      clerkClient.invitations.createInvitation({
-        emailAddress: email,
-        redirectUrl: APP_URL + '/feed',
-        notify: true,
-      })
+  // Send in batches of 10 with 400ms between batches to stay under Clerk rate limits
+  const BATCH = 10
+  const DELAY = 400
+  for (let i = 0; i < emails.length; i += BATCH) {
+    await Promise.allSettled(
+      emails.slice(i, i + BATCH).map((email) =>
+        clerkClient.invitations.createInvitation({
+          emailAddress: email,
+          redirectUrl: APP_URL + '/feed',
+          notify: true,
+        })
+      )
     )
-  )
+    if (i + BATCH < emails.length) {
+      await new Promise<void>((resolve) => setTimeout(resolve, DELAY))
+    }
+  }
   revalidatePath('/admin/migration')
 }
 
@@ -64,17 +72,24 @@ export default async function MigrationPage() {
 
   if (!getAdminEmails().includes(userEmail)) redirect('/dashboard')
 
-  const [pendingRows, activeUsers, invitationsRes] = await Promise.all([
+  const [pendingRows, activeUsers] = await Promise.all([
     db.select().from(pendingTiers),
     db.select({ email: users.email }).from(users),
-    clerkClient.invitations.getInvitationList({ limit: 500 }),
   ])
+
+  // Wrap separately — Clerk may be rate-limited right after a bulk invite
+  let invitationsRes: { data: { status: string; emailAddress: string }[] } = { data: [] }
+  try {
+    invitationsRes = await clerkClient.invitations.getInvitationList({ limit: 500 })
+  } catch {
+    // Rate limited or API error — invitation status will show as unknown this render
+  }
 
   const activeEmails = new Set(activeUsers.map((u) => u.email.toLowerCase()))
   const invitedEmails = new Set(
     (invitationsRes.data ?? [])
-      .filter((i: { status: string }) => i.status === 'pending')
-      .map((i: { emailAddress: string }) => i.emailAddress.toLowerCase())
+      .filter((i) => i.status === 'pending')
+      .map((i) => i.emailAddress.toLowerCase())
   )
 
   const rows = pendingRows
