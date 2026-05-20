@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { saveProfile } from './actions'
 import type { UserProfile } from '@/lib/schema'
 
@@ -39,11 +39,39 @@ export default function ProfileForm({ profile, clerkName, clerkEmail }: {
   clerkName: string
   clerkEmail: string
 }) {
-  const [status, setStatus] = useState<{ error?: string; success?: boolean }>({})
-  const [pending, setPending] = useState(false)
+  const [status,      setStatus]      = useState<{ error?: string; success?: boolean }>({})
+  const [pending,     setPending]     = useState(false)
+  const [avatarUrl,   setAvatarUrl]   = useState<string>(profile?.avatarUrl ?? '')
+  const [uploading,   setUploading]   = useState(false)
+  const [uploadError, setUploadError] = useState<string>('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const initials = (clerkName || clerkEmail || 'M')
+    .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    setUploadError('')
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch('/api/feed/upload', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Upload failed')
+      setAvatarUrl(data.url)
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Upload failed')
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
 
   async function handleAction(formData: FormData) {
     setPending(true)
+    formData.set('avatarUrl', avatarUrl)
     try {
       const result = await saveProfile({}, formData)
       setStatus(result)
@@ -66,6 +94,61 @@ export default function ProfileForm({ profile, clerkName, clerkEmail }: {
         </div>
       )}
 
+      {/* Avatar upload */}
+      <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
+        <p className="text-xs text-white/50 uppercase tracking-wider font-semibold mb-4">Profile Photo</p>
+        <div className="flex items-center gap-5">
+          {/* Avatar preview */}
+          <div
+            className="relative w-20 h-20 rounded-full overflow-hidden shrink-0 flex items-center justify-center font-black text-2xl text-white select-none"
+            style={{ background: avatarUrl ? undefined : '#5d00f520', border: '2px solid #5d00f540' }}
+          >
+            {avatarUrl
+              ? <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+              : initials
+            }
+            {uploading && (
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="px-4 py-2 rounded-lg text-sm font-medium border border-white/15 text-white/70 hover:text-white hover:border-[#5d00f5]/60 hover:bg-[#5d00f5]/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              {uploading ? 'Uploading…' : 'Upload Photo'}
+            </button>
+            {avatarUrl && !uploading && (
+              <button
+                type="button"
+                onClick={() => setAvatarUrl('')}
+                className="px-4 py-2 rounded-lg text-sm font-medium border border-white/8 text-white/35 hover:text-red-400 hover:border-red-500/30 transition-colors"
+              >
+                Remove Photo
+              </button>
+            )}
+            {uploadError && (
+              <p className="text-xs text-red-400">{uploadError}</p>
+            )}
+            {!uploadError && (
+              <p className="text-xs text-white/25">JPG, PNG, WebP — max 4 MB</p>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Read-only Clerk fields */}
       <div className="bg-white/3 border border-white/8 rounded-2xl p-5 space-y-4">
         <p className="text-xs text-white/30 uppercase tracking-wider font-semibold mb-2">Account (managed by Clerk)</p>
@@ -79,7 +162,7 @@ export default function ProfileForm({ profile, clerkName, clerkEmail }: {
             <div className="bg-white/3 border border-white/8 rounded-xl px-4 py-3 text-sm text-white/50">{clerkEmail}</div>
           </div>
         </div>
-        <p className="text-white/25 text-xs">To update your name, photo, or email, use the account button in the top-right corner.</p>
+        <p className="text-white/25 text-xs">To update your name or email, use the account button in the top-right corner.</p>
       </div>
 
       {/* Identity */}
@@ -130,7 +213,7 @@ export default function ProfileForm({ profile, clerkName, clerkEmail }: {
       <div className="flex items-center gap-4">
         <button
           type="submit"
-          disabled={pending}
+          disabled={pending || uploading}
           className="bg-[#5d00f5] hover:bg-[#7c2fff] disabled:opacity-50 text-white font-semibold px-6 py-2.5 rounded-full text-sm transition-colors"
         >
           {pending ? 'Saving…' : 'Save Profile'}

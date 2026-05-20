@@ -27,6 +27,7 @@ export async function saveProfile(
     website:     str('website'),
     linkedinUrl: str('linkedinUrl'),
     twitterUrl:  str('twitterUrl'),
+    avatarUrl:   str('avatarUrl'),
     isVisible:   bool('isVisible'),
   })
 
