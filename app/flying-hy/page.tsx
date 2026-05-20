@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { db } from '@/lib/db'
 import { flyingHySpeakers, flyingHyAgenda } from '@/lib/schema'
 import { eq, asc } from 'drizzle-orm'
@@ -49,14 +48,14 @@ export default async function FlyingHyPage() {
 
   return (
     <PublicShell>
-      {/* ── HERO ── */}
+      {/* ── HERO — always dark, atmospheric ── */}
       <section
-        className="relative min-h-[80vh] flex flex-col justify-center overflow-hidden"
+        className="relative min-h-[80vh] flex flex-col justify-center overflow-hidden section-dark"
         style={{
           background: `
             radial-gradient(ellipse 70% 60% at 60% 40%, rgba(93,0,245,.35), transparent),
             radial-gradient(ellipse 50% 50% at 20% 70%, rgba(0,212,212,.15), transparent),
-            #04030a
+            var(--bg-page-deep)
           `,
         }}
       >
@@ -121,7 +120,8 @@ export default async function FlyingHyPage() {
             { stat: '1 Day', label: 'Intensive Program', icon: '📅' },
             { stat: 'Global', label: 'Virtual Access', icon: '🌍' },
           ].map(({ stat, label, icon }) => (
-            <div key={stat} className="rounded-2xl p-6 text-center" style={{ background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)' }}>
+            <div key={stat} className="rounded-2xl p-6 text-center"
+              style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}>
               <div className="text-3xl mb-2">{icon}</div>
               <div className="text-3xl font-black text-white mb-1">{stat}</div>
               <div className="text-white/40 text-sm">{label}</div>
@@ -130,7 +130,7 @@ export default async function FlyingHyPage() {
         </div>
       </section>
 
-      <div className="h-px mx-6 lg:mx-8" style={{ background: 'rgba(255,255,255,.07)' }} />
+      <div className="h-px mx-6 lg:mx-8" style={{ background: 'var(--border-muted)' }} />
 
       {/* ── SPEAKERS ── */}
       <section id="speakers" className="scroll-mt-[110px] max-w-5xl mx-auto px-6 lg:px-8 py-20">
@@ -141,7 +141,8 @@ export default async function FlyingHyPage() {
         {speakers.length > 0 ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {speakers.map(s => (
-              <div key={s.id} className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)' }}>
+              <div key={s.id} className="rounded-2xl p-6"
+                style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}>
                 {s.avatarUrl ? (
                   <img src={s.avatarUrl} alt={s.name} className="w-16 h-16 rounded-full object-cover mb-4" />
                 ) : (
@@ -160,7 +161,8 @@ export default async function FlyingHyPage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl p-12 text-center" style={{ background: 'rgba(255,255,255,.03)', border: '1px solid rgba(255,255,255,.07)' }}>
+          <div className="rounded-2xl p-12 text-center"
+            style={{ background: 'var(--surface-dim)', border: '1px solid var(--border-muted)' }}>
             <div className="text-4xl mb-4">🎤</div>
             <p className="text-white/40 text-lg font-semibold mb-1">Speakers to be announced</p>
             <p className="text-white/25 text-sm">Follow HYSKY Society on social media for speaker announcements.</p>
@@ -168,7 +170,7 @@ export default async function FlyingHyPage() {
         )}
       </section>
 
-      <div className="h-px mx-6 lg:mx-8" style={{ background: 'rgba(255,255,255,.07)' }} />
+      <div className="h-px mx-6 lg:mx-8" style={{ background: 'var(--border-muted)' }} />
 
       {/* ── AGENDA ── */}
       <section id="agenda" className="scroll-mt-[110px] max-w-5xl mx-auto px-6 lg:px-8 py-20">
@@ -179,7 +181,8 @@ export default async function FlyingHyPage() {
         {agenda.length > 0 ? (
           <div className="space-y-3">
             {agenda.map((item, i) => (
-              <div key={item.id} className="flex gap-4 rounded-xl p-5" style={{ background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.07)' }}>
+              <div key={item.id} className="flex gap-4 rounded-xl p-5"
+                style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}>
                 <div className="shrink-0 w-24 text-right">
                   <span className="text-[#13dce8] text-xs font-bold">{item.timeSlot ?? `Session ${i + 1}`}</span>
                 </div>
@@ -187,8 +190,10 @@ export default async function FlyingHyPage() {
                   <div className="flex items-center gap-2 mb-1">
                     <p className="font-semibold text-white text-sm">{item.title}</p>
                     {item.sessionType !== 'session' && (
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide"
-                        style={{ background: item.sessionType === 'keynote' ? 'rgba(93,0,245,.25)' : 'rgba(255,255,255,.08)', color: item.sessionType === 'keynote' ? '#9b6dff' : 'rgba(255,255,255,.4)' }}>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+                        item.sessionType === 'keynote' ? 'text-[#9b6dff]' : 'text-white/40'
+                      }`}
+                        style={{ background: item.sessionType === 'keynote' ? 'rgba(93,0,245,.25)' : 'var(--surface-subtle)' }}>
                         {item.sessionType}
                       </span>
                     )}
@@ -200,7 +205,8 @@ export default async function FlyingHyPage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl p-12 text-center" style={{ background: 'rgba(255,255,255,.03)', border: '1px solid rgba(255,255,255,.07)' }}>
+          <div className="rounded-2xl p-12 text-center"
+            style={{ background: 'var(--surface-dim)', border: '1px solid var(--border-muted)' }}>
             <div className="text-4xl mb-4">📋</div>
             <p className="text-white/40 text-lg font-semibold mb-1">Agenda coming soon</p>
             <p className="text-white/25 text-sm">The full day agenda will be published ahead of the event.</p>
@@ -208,7 +214,7 @@ export default async function FlyingHyPage() {
         )}
       </section>
 
-      <div className="h-px mx-6 lg:mx-8" style={{ background: 'rgba(255,255,255,.07)' }} />
+      <div className="h-px mx-6 lg:mx-8" style={{ background: 'var(--border-muted)' }} />
 
       {/* ── SPONSORS ── */}
       <section id="sponsors" className="scroll-mt-[110px] max-w-5xl mx-auto px-6 lg:px-8 py-20">
@@ -224,7 +230,8 @@ export default async function FlyingHyPage() {
             { tier: 'Attendee Sponsor', desc: 'Brand visibility in event materials and virtual backdrop.', color: '#9b6dff' },
             { tier: 'Presenting Sponsor', desc: 'Opening remarks slot, prominent branding, and dedicated feature in post-event communications.', color: '#13dce8' },
           ].map(({ tier, desc, color }) => (
-            <div key={tier} className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,.04)', border: `1px solid ${color}30` }}>
+            <div key={tier} className="rounded-2xl p-6"
+              style={{ background: 'var(--surface-subtle)', border: `1px solid ${color}30` }}>
               <p className="font-bold text-white mb-2">{tier}</p>
               <p className="text-white/45 text-sm leading-relaxed mb-4">{desc}</p>
             </div>
@@ -235,7 +242,8 @@ export default async function FlyingHyPage() {
             label="Become a Sponsor →"
             options={[{ label: 'Sponsor', icon: '🏆', embedUrl: ZEFFY.flyingHySponsor }]}
             title="FLYING HY 2026 — Sponsorship"
-            className="inline-flex items-center gap-2 text-white font-bold px-8 py-3.5 rounded-xl transition-all hover:scale-[1.02] bg-[#5d00f5] shadow-[0_0_30px_rgba(93,0,245,.4)]"
+            className="inline-flex items-center gap-2 font-bold px-8 py-3.5 rounded-xl transition-all hover:scale-[1.02] bg-[#5d00f5] shadow-[0_0_30px_rgba(93,0,245,.4)]"
+            style={{ color: '#fff' } as React.CSSProperties}
           />
           <a href="mailto:admin@hysky.org?subject=FLYING HY 2026 Sponsorship"
             className="inline-flex items-center gap-2 text-white/60 hover:text-white font-semibold px-7 py-3.5 rounded-xl border border-white/15 hover:border-white/30 transition-colors">
@@ -244,7 +252,7 @@ export default async function FlyingHyPage() {
         </div>
       </section>
 
-      <div className="h-px mx-6 lg:mx-8" style={{ background: 'rgba(255,255,255,.07)' }} />
+      <div className="h-px mx-6 lg:mx-8" style={{ background: 'var(--border-muted)' }} />
 
       {/* ── FAQ ── */}
       <section id="faq" className="scroll-mt-[110px] max-w-5xl mx-auto px-6 lg:px-8 py-20">
@@ -254,7 +262,8 @@ export default async function FlyingHyPage() {
         </h2>
         <div className="space-y-4">
           {faqs.map(({ q, a }) => (
-            <div key={q} className="rounded-xl p-6" style={{ background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)' }}>
+            <div key={q} className="rounded-xl p-6"
+              style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}>
               <p className="font-bold text-white mb-2">{q}</p>
               <p className="text-white/50 text-sm leading-relaxed">{a}</p>
             </div>
@@ -268,7 +277,7 @@ export default async function FlyingHyPage() {
           style={{ background: 'linear-gradient(135deg, rgba(93,0,245,.3), rgba(0,212,212,.1))', border: '1px solid rgba(93,0,245,.4)' }}>
           <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl opacity-20" style={{ background: '#5d00f5' }} />
           <div className="relative">
-            <h2 className="font-black uppercase text-3xl sm:text-4xl mb-3">Reserve Your Seat</h2>
+            <h2 className="font-black uppercase text-3xl sm:text-4xl mb-3 text-white">Reserve Your Seat</h2>
             <p className="text-white/50 mb-8 max-w-md mx-auto">Join the engineers, regulators, and pioneers shaping the future of hydrogen aviation.</p>
             <EventRegisterButton
               label="Get Your Ticket →"
@@ -282,13 +291,13 @@ export default async function FlyingHyPage() {
 
       {/* ── PREVIOUS EDITIONS ── */}
       <section className="max-w-5xl mx-auto px-6 lg:px-8 pb-20">
-        <div className="h-px mb-12" style={{ background: 'rgba(255,255,255,.07)' }} />
+        <div className="h-px mb-12" style={{ background: 'var(--border-muted)' }} />
         <div className="text-[#9b6dff] text-xs font-bold uppercase tracking-[2.5px] mb-6">Previous Editions</div>
         <div className="flex flex-wrap gap-4">
           {previousEditions.map(({ year, href }) => (
             <a key={year} href={href} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-3 px-6 py-3 rounded-xl font-semibold text-sm transition-all hover:scale-[1.02]"
-              style={{ background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.1)', color: 'rgba(255,255,255,.6)' }}>
+              className="flex items-center gap-3 px-6 py-3 rounded-xl font-semibold text-sm text-white/60 hover:text-white transition-all hover:scale-[1.02]"
+              style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-soft)' }}>
               ✈️ FLYING HY {year}
             </a>
           ))}

@@ -28,7 +28,7 @@ export default function PublicSidebar({
   return (
     <aside
       className={`fixed top-[60px] left-0 bottom-0 w-[260px] z-40 flex flex-col transition-transform duration-300 ease-in-out ${open ? 'translate-x-0' : '-translate-x-full'}`}
-      style={{ background: '#060510', borderRight: '1px solid rgba(255,255,255,.07)' }}
+      style={{ background: 'var(--bg-sidebar)', borderRight: '1px solid var(--border-muted)' }}
     >
       <nav className="flex-1 overflow-y-auto py-2 space-y-0.5 px-1">
         {NAV.map(({ href, label, icon, sub, newTab }) => {
@@ -75,7 +75,8 @@ export default function PublicSidebar({
         {isLoggedIn ? (
           <Link
             href="/feed"
-            className="flex items-center justify-center gap-2 w-full text-sm font-bold py-2.5 px-4 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] text-white transition-colors"
+            className="flex items-center justify-center gap-2 w-full text-sm font-bold py-2.5 px-4 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] transition-colors"
+              style={{ color: '#fff' }}
           >
             Go to Feed →
           </Link>
@@ -87,7 +88,7 @@ export default function PublicSidebar({
               </button>
             </SignInButton>
             <SignUpButton mode="modal">
-              <button className="w-full text-sm font-bold py-2 px-4 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] text-white transition-colors">
+              <button className="w-full text-sm font-bold py-2 px-4 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] transition-colors" style={{ color: '#fff' }}>
                 Join Free
               </button>
             </SignUpButton>
