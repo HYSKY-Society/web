@@ -200,6 +200,7 @@ export const feedPosts = pgTable('feed_posts', {
   id:           text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   authorId:     text('author_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   content:      text('content').notNull(),
+  imageUrls:    text('image_urls').notNull().default('[]'),
   repostOfId:   text('repost_of_id'),
   likeCount:    integer('like_count').notNull().default(0),
   replyCount:   integer('reply_count').notNull().default(0),

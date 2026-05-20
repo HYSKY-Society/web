@@ -11,6 +11,7 @@
   "dependencies": {
     "@clerk/nextjs": "^5.7.5",
     "@neondatabase/serverless": "^1.1.0",
+    "@vercel/blob": "^2.4.0",
     "drizzle-orm": "^0.45.2",
     "next": "^14.2.18",
     "pusher": "^5.3.3",

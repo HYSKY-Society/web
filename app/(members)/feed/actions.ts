@@ -10,9 +10,11 @@ export async function createPost(formData: FormData) {
   if (!user) return
 
   const content = (formData.get('content') as string | null)?.trim() ?? ''
-  if (!content || content.length > 3000) return
+  const imageUrls = (formData.get('imageUrls') as string | null) ?? '[]'
+  if (!content && imageUrls === '[]') return
+  if (content.length > 3000) return
 
-  await db.insert(feedPosts).values({ authorId: user.id, content })
+  await db.insert(feedPosts).values({ authorId: user.id, content, imageUrls })
   revalidatePath('/feed')
 }
 

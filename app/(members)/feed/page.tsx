@@ -137,6 +137,7 @@ export default async function FeedPage() {
       .select({
         id:             feedPosts.id,
         content:        feedPosts.content,
+        imageUrls:      feedPosts.imageUrls,
         repostOfId:     feedPosts.repostOfId,
         likeCount:      feedPosts.likeCount,
         replyCount:     feedPosts.replyCount,
@@ -206,6 +207,7 @@ export default async function FeedPage() {
         .select({
           id:             feedPosts.id,
           content:        feedPosts.content,
+          imageUrls:      feedPosts.imageUrls,
           createdAt:      feedPosts.createdAt,
           authorName:     userProfiles.displayName,
           authorAvatar:   userProfiles.avatarUrl,
@@ -231,12 +233,17 @@ export default async function FeedPage() {
     })
   }
 
+  function parseImageUrls(raw: string | null | undefined): string[] {
+    try { return JSON.parse(raw ?? '[]') } catch { return [] }
+  }
+
   // Build PostData array
   const posts: PostData[] = rawPosts.map((p) => {
     const orig = p.repostOfId ? originalMap.get(p.repostOfId) : undefined
     return {
       id:          p.id,
       content:     p.content,
+      imageUrls:   parseImageUrls(p.imageUrls),
       repostOfId:  p.repostOfId,
       likeCount:   p.likeCount,
       replyCount:  p.replyCount,
@@ -249,6 +256,7 @@ export default async function FeedPage() {
         ? {
             id:        orig.id,
             content:   orig.content,
+            imageUrls: parseImageUrls(orig.imageUrls),
             createdAt: orig.createdAt,
             author:    authorFromRow(orig),
           }

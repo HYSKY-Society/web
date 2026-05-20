@@ -1,5 +1,5 @@
 'use client'
-import { useState, useTransition } from 'react'
+import { Fragment, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toggleLike, createReply, repostPost } from './actions'
 
@@ -20,6 +20,7 @@ export type ReplyData = {
 export type PostData = {
   id: string
   content: string
+  imageUrls: string[]
   repostOfId: string | null
   likeCount: number
   replyCount: number
@@ -31,36 +32,129 @@ export type PostData = {
   originalPost?: {
     id: string
     content: string
+    imageUrls: string[]
     author: PostAuthor
     createdAt: Date
   } | null
 }
 
+// ── Markdown renderer ────────────────────────────────────────────────────────
+
+const INLINE = /(\*\*[^*\n]+\*\*|\*[^*\n]+\*|__[^_\n]+__|https?:\/\/[^\s]+)/g
+
+function renderLine(line: string) {
+  const nodes: React.ReactNode[] = []
+  let last = 0
+  let m: RegExpExecArray | null
+  let key = 0
+  INLINE.lastIndex = 0
+  while ((m = INLINE.exec(line)) !== null) {
+    if (m.index > last) nodes.push(line.slice(last, m.index))
+    const t = m[0]
+    if (t.startsWith('**'))
+      nodes.push(<strong key={key++} className="font-semibold text-white">{t.slice(2, -2)}</strong>)
+    else if (t.startsWith('__'))
+      nodes.push(<u key={key++}>{t.slice(2, -2)}</u>)
+    else if (t.startsWith('*'))
+      nodes.push(<em key={key++}>{t.slice(1, -1)}</em>)
+    else
+      nodes.push(
+        <a key={key++} href={t} target="_blank" rel="noopener noreferrer"
+           className="text-[#9b6dff] hover:underline break-all">
+          {t}
+        </a>
+      )
+    last = m.index + t.length
+  }
+  if (last < line.length) nodes.push(line.slice(last))
+  return nodes
+}
+
+function RichContent({ text }: { text: string }) {
+  if (!text) return null
+  return (
+    <p className="text-sm text-white/85 leading-relaxed whitespace-pre-wrap">
+      {text.split('\n').map((line, i, arr) => (
+        <Fragment key={i}>
+          {renderLine(line)}
+          {i < arr.length - 1 && <br />}
+        </Fragment>
+      ))}
+    </p>
+  )
+}
+
+// ── Image gallery ────────────────────────────────────────────────────────────
+
+function ImageGallery({ urls }: { urls: string[] }) {
+  if (!urls.length) return null
+  const [lightbox, setLightbox] = useState<string | null>(null)
+  const cols = urls.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
+  return (
+    <>
+      <div className={`grid gap-1 rounded-xl overflow-hidden ${cols} mt-3 mb-1`}>
+        {urls.map((url, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => setLightbox(url)}
+            className={`block overflow-hidden bg-black/20 ${
+              urls.length === 3 && i === 0 ? 'row-span-2' : ''
+            }`}
+            style={{ aspectRatio: urls.length === 1 ? '16/9' : '1/1' }}
+          >
+            <img src={url} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+          </button>
+        ))}
+      </div>
+
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          onClick={() => setLightbox(null)}
+        >
+          <img
+            src={lightbox}
+            alt=""
+            className="max-w-full max-h-full rounded-xl object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button
+            className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center text-white/70 hover:text-white"
+            style={{ background: 'rgba(0,0,0,.5)' }}
+            onClick={() => setLightbox(null)}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+    </>
+  )
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
 function Avatar({ author }: { author: PostAuthor }) {
   return (
     <div className="shrink-0 w-9 h-9 rounded-full overflow-hidden bg-[#5d00f5]/30 flex items-center justify-center">
-      {author.avatar ? (
-        <img src={author.avatar} alt="" className="w-full h-full object-cover" />
-      ) : (
-        <span className="text-sm font-bold text-[#9b6dff]">
-          {(author.name ?? author.email)[0].toUpperCase()}
-        </span>
-      )}
+      {author.avatar
+        ? <img src={author.avatar} alt="" className="w-full h-full object-cover" />
+        : <span className="text-sm font-bold text-[#9b6dff]">{(author.name ?? author.email)[0].toUpperCase()}</span>
+      }
     </div>
   )
 }
 
 function timeAgo(date: Date): string {
-  const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000)
-  if (seconds < 60) return 'just now'
-  const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.floor(hours / 24)
-  if (days < 7) return `${days}d ago`
+  const s = Math.floor((Date.now() - new Date(date).getTime()) / 1000)
+  if (s < 60) return 'just now'
+  const m = Math.floor(s / 60); if (m < 60) return `${m}m ago`
+  const h = Math.floor(m / 60); if (h < 24) return `${h}h ago`
+  const d = Math.floor(h / 24); if (d < 7)  return `${d}d ago`
   return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
+
+// ── Card ─────────────────────────────────────────────────────────────────────
 
 export default function FeedPostCard({ post }: { post: PostData }) {
   const [liked, setLiked] = useState(post.isLiked)
@@ -69,25 +163,28 @@ export default function FeedPostCard({ post }: { post: PostData }) {
   const [showReplyForm, setShowReplyForm] = useState(false)
   const [showReplies, setShowReplies] = useState(false)
   const [replyText, setReplyText] = useState('')
-  const [replyPending, startReplyTransition] = useTransition()
-  const [likePending, startLikeTransition] = useTransition()
-  const [repostPending, startRepostTransition] = useTransition()
+  const [replyPending, startReply] = useTransition()
+  const [likePending, startLike] = useTransition()
+  const [repostPending, startRepost] = useTransition()
   const [copied, setCopied] = useState(false)
   const [showRepostConfirm, setShowRepostConfirm] = useState(false)
   const router = useRouter()
 
+  const isRepost = !!post.repostOfId
+  const displayPost = isRepost && post.originalPost ? post.originalPost : post
+  const displayAuthor = displayPost.author
+
   const handleLike = () => {
-    startLikeTransition(async () => {
-      const newLiked = !liked
-      setLiked(newLiked)
-      setLikeCount((c) => (newLiked ? c + 1 : Math.max(c - 1, 0)))
+    startLike(async () => {
+      const next = !liked
+      setLiked(next)
+      setLikeCount((c) => next ? c + 1 : Math.max(c - 1, 0))
       await toggleLike(post.id)
     })
   }
 
-  const handleReply = async () => {
-    if (!replyText.trim()) return
-    startReplyTransition(async () => {
+  const handleReply = () => {
+    startReply(async () => {
       await createReply(post.id, replyText)
       setReplyText('')
       setShowReplyForm(false)
@@ -96,7 +193,7 @@ export default function FeedPostCard({ post }: { post: PostData }) {
   }
 
   const handleRepost = () => {
-    startRepostTransition(async () => {
+    startRepost(async () => {
       await repostPost(post.id)
       setRepostCount((c) => c + 1)
       setShowRepostConfirm(false)
@@ -105,14 +202,10 @@ export default function FeedPostCard({ post }: { post: PostData }) {
   }
 
   const handleShare = () => {
-    const url = `${window.location.origin}/feed#post-${post.id}`
-    navigator.clipboard.writeText(url).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    })
+    navigator.clipboard.writeText(`${window.location.origin}/feed#post-${post.id}`)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
-
-  const isRepost = !!post.repostOfId
 
   return (
     <article
@@ -123,7 +216,7 @@ export default function FeedPostCard({ post }: { post: PostData }) {
       {/* Repost header */}
       {isRepost && (
         <div className="flex items-center gap-1.5 text-xs text-white/35 mb-3">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M17 1l4 4-4 4" /><path d="M3 11V9a4 4 0 014-4h14" />
             <path d="M7 23l-4-4 4-4" /><path d="M21 13v2a4 4 0 01-4 4H3" />
           </svg>
@@ -133,35 +226,30 @@ export default function FeedPostCard({ post }: { post: PostData }) {
 
       {/* Author row */}
       <div className="flex items-start gap-3 mb-3">
-        <Avatar author={isRepost && post.originalPost ? post.originalPost.author : post.author} />
+        <Avatar author={displayAuthor} />
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-baseline gap-2 flex-wrap">
             <span className="text-sm font-semibold text-white">
-              {(isRepost && post.originalPost ? post.originalPost.author : post.author).name
-                ?? (isRepost && post.originalPost ? post.originalPost.author : post.author).email}
+              {displayAuthor.name ?? displayAuthor.email}
             </span>
-            {(isRepost && post.originalPost ? post.originalPost.author : post.author).headline && (
-              <span className="text-xs text-white/35 truncate hidden sm:block">
-                · {(isRepost && post.originalPost ? post.originalPost.author : post.author).headline}
-              </span>
+            {displayAuthor.headline && (
+              <span className="text-xs text-white/35 truncate hidden sm:block">· {displayAuthor.headline}</span>
             )}
           </div>
-          <span className="text-xs text-white/30">
-            {timeAgo(isRepost && post.originalPost ? post.originalPost.createdAt : post.createdAt)}
-          </span>
+          <span className="text-xs text-white/30">{timeAgo(displayPost.createdAt)}</span>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="text-sm text-white/85 leading-relaxed whitespace-pre-wrap mb-4">
-        {isRepost && post.originalPost ? post.originalPost.content : post.content}
-      </div>
+      {/* Content + images */}
+      <RichContent text={displayPost.content} />
+      <ImageGallery urls={displayPost.imageUrls} />
 
       {/* Divider */}
-      <div className="mb-3" style={{ borderTop: '1px solid var(--border-muted)' }} />
+      <div className="mt-3 mb-3" style={{ borderTop: '1px solid var(--border-muted)' }} />
 
       {/* Action bar */}
       <div className="flex items-center gap-1">
+
         {/* Like */}
         <button
           onClick={handleLike}
@@ -194,9 +282,7 @@ export default function FeedPostCard({ post }: { post: PostData }) {
         <div className="relative">
           <button
             onClick={() => setShowRepostConfirm((v) => !v)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-              repostPending ? 'text-emerald-400' : 'text-white/45 hover:text-white hover:bg-white/6'
-            }`}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/45 hover:text-white hover:bg-white/6 transition-colors"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M17 1l4 4-4 4" /><path d="M3 11V9a4 4 0 014-4h14" />
@@ -216,17 +302,13 @@ export default function FeedPostCard({ post }: { post: PostData }) {
                   onClick={() => setShowRepostConfirm(false)}
                   className="flex-1 text-xs py-1 rounded-lg text-white/50 hover:text-white transition-colors"
                   style={{ border: '1px solid var(--border-muted)' }}
-                >
-                  Cancel
-                </button>
+                >Cancel</button>
                 <button
                   onClick={handleRepost}
                   disabled={repostPending}
                   className="flex-1 text-xs py-1 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] transition-colors"
                   style={{ color: '#fff' }}
-                >
-                  Repost
-                </button>
+                >Repost</button>
               </div>
             </div>
           )}
@@ -283,12 +365,12 @@ export default function FeedPostCard({ post }: { post: PostData }) {
                   <Avatar author={r.author} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-xs font-semibold text-white">
-                        {r.author.name ?? r.author.email}
-                      </span>
+                      <span className="text-xs font-semibold text-white">{r.author.name ?? r.author.email}</span>
                       <span className="text-[10px] text-white/30">{timeAgo(r.createdAt)}</span>
                     </div>
-                    <p className="text-xs text-white/75 mt-0.5 leading-relaxed">{r.content}</p>
+                    <div className="text-xs text-white/75 mt-0.5 leading-relaxed">
+                      <RichContent text={r.content} />
+                    </div>
                   </div>
                 </div>
               ))}
