@@ -6,6 +6,7 @@ import { db } from '@/lib/db'
 import { users, pendingTiers } from '@/lib/schema'
 import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
 import InviteAllButton from './InviteAllButton'
+import RevokeAllButton from './RevokeAllButton'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://connect.hysky.org'
 
@@ -134,6 +135,13 @@ export default async function MigrationPage() {
           </div>
         ))}
       </div>
+
+      {/* Revoke pending invitations (one-time cleanup) */}
+      {invitedCount > 0 && (
+        <div className="mb-4">
+          <RevokeAllButton count={invitedCount} />
+        </div>
+      )}
 
       {/* Bulk invite — client component handles chunked requests + progress bar */}
       <InviteAllButton emails={needsInviteEmails} />
