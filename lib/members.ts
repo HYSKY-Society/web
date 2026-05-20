@@ -34,6 +34,15 @@ export async function ensureUser(clerkId: string, email: string): Promise<Tier> 
 
   await db.insert(users).values({ id: clerkId, email: normalizedEmail, tier }).onConflictDoNothing()
 
+  // Verify the insert actually landed — the email unique constraint causes
+  // onConflictDoNothing to silently skip when the same email exists with a
+  // different Clerk ID (e.g. after switching dev → prod instance).
+  const inserted = await getUserByClerkId(clerkId)
+  if (!inserted) {
+    const byEmail = await getUserByEmail(normalizedEmail)
+    return (byEmail?.tier as Tier) ?? tier
+  }
+
   if (pending) {
     const courses = JSON.parse(pending.courseSlugs) as string[]
     const events  = JSON.parse(pending.eventSlugs)  as string[]
