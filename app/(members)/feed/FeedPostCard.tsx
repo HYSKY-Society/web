@@ -1,9 +1,11 @@
 'use client'
 import { Fragment, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { toggleLike, createReply, repostPost } from './actions'
 
 export type PostAuthor = {
+  id: string
   name: string | null
   avatar: string | null
   headline: string | null
@@ -132,14 +134,86 @@ function ImageGallery({ urls }: { urls: string[] }) {
   )
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Author helpers ────────────────────────────────────────────────────────────
+
+function emailToName(email: string): string {
+  return email
+    .split('@')[0]
+    .replace(/[._-]/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+function authorDisplayName(author: PostAuthor): string {
+  return author.name || emailToName(author.email)
+}
+
+// ── Author hover card ─────────────────────────────────────────────────────────
+
+function AuthorHoverCard({ author, size = 'sm' }: { author: PostAuthor; size?: 'xs' | 'sm' }) {
+  const [show, setShow] = useState(false)
+  const name = authorDisplayName(author)
+
+  return (
+    <span
+      className="relative inline-block"
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+    >
+      <Link
+        href={`/members/${author.id}`}
+        className={`${size === 'sm' ? 'text-sm' : 'text-xs'} font-semibold text-white hover:text-[#9b6dff] transition-colors`}
+      >
+        {name}
+      </Link>
+      {show && (
+        <div
+          className="absolute left-0 top-full mt-1.5 z-30 rounded-2xl p-4 shadow-2xl"
+          style={{ background: 'var(--bg-panel)', border: '1px solid var(--border-dim)', width: '240px' }}
+        >
+          <div className="flex items-center gap-3 mb-3">
+            <div className="shrink-0 w-12 h-12 rounded-full overflow-hidden bg-[#5d00f5]/30 flex items-center justify-center">
+              {author.avatar
+                ? <img src={author.avatar} alt="" className="w-full h-full object-cover" />
+                : <span className="text-lg font-bold text-[#9b6dff]">{name[0].toUpperCase()}</span>
+              }
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-white leading-snug truncate">{name}</p>
+              {author.headline && (
+                <p className="text-xs text-white/45 leading-snug mt-0.5">{author.headline}</p>
+              )}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Link
+              href={`/members/${author.id}`}
+              className="flex-1 text-center text-xs py-1.5 rounded-lg font-medium text-white/60 hover:text-white transition-colors"
+              style={{ border: '1px solid var(--border-muted)' }}
+            >
+              View Profile
+            </Link>
+            <Link
+              href={`/messages/${author.id}`}
+              className="flex-1 text-center text-xs py-1.5 rounded-lg font-medium bg-[#5d00f5] hover:bg-[#7b33ff] transition-colors"
+              style={{ color: '#fff' }}
+            >
+              Message
+            </Link>
+          </div>
+        </div>
+      )}
+    </span>
+  )
+}
+
+// ── Avatar ────────────────────────────────────────────────────────────────────
 
 function Avatar({ author }: { author: PostAuthor }) {
   return (
     <div className="shrink-0 w-9 h-9 rounded-full overflow-hidden bg-[#5d00f5]/30 flex items-center justify-center">
       {author.avatar
         ? <img src={author.avatar} alt="" className="w-full h-full object-cover" />
-        : <span className="text-sm font-bold text-[#9b6dff]">{(author.name ?? author.email)[0].toUpperCase()}</span>
+        : <span className="text-sm font-bold text-[#9b6dff]">{authorDisplayName(author)[0].toUpperCase()}</span>
       }
     </div>
   )
@@ -220,7 +294,7 @@ export default function FeedPostCard({ post }: { post: PostData }) {
             <path d="M17 1l4 4-4 4" /><path d="M3 11V9a4 4 0 014-4h14" />
             <path d="M7 23l-4-4 4-4" /><path d="M21 13v2a4 4 0 01-4 4H3" />
           </svg>
-          <span>{post.author.name ?? post.author.email} reposted</span>
+          <span>{authorDisplayName(post.author)} reposted</span>
         </div>
       )}
 
@@ -229,9 +303,7 @@ export default function FeedPostCard({ post }: { post: PostData }) {
         <Avatar author={displayAuthor} />
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2 flex-wrap">
-            <span className="text-sm font-semibold text-white">
-              {displayAuthor.name ?? displayAuthor.email}
-            </span>
+            <AuthorHoverCard author={displayAuthor} />
             {displayAuthor.headline && (
               <span className="text-xs text-white/35 truncate hidden sm:block">· {displayAuthor.headline}</span>
             )}
@@ -365,7 +437,7 @@ export default function FeedPostCard({ post }: { post: PostData }) {
                   <Avatar author={r.author} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-xs font-semibold text-white">{r.author.name ?? r.author.email}</span>
+                      <AuthorHoverCard author={r.author} size="xs" />
                       <span className="text-[10px] text-white/30">{timeAgo(r.createdAt)}</span>
                     </div>
                     <div className="text-xs text-white/75 mt-0.5 leading-relaxed">

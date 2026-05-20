@@ -18,12 +18,14 @@ export const revalidate = 60
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function authorFromRow(row: {
-  authorName: string | null
-  authorAvatar: string | null
+  authorId:       string
+  authorName:     string | null
+  authorAvatar:   string | null
   authorHeadline: string | null
-  authorEmail: string | null
+  authorEmail:    string | null
 }): PostAuthor {
   return {
+    id:       row.authorId,
     name:     row.authorName,
     avatar:   row.authorAvatar,
     headline: row.authorHeadline,
@@ -188,6 +190,7 @@ export default async function FeedPage() {
           postId:       feedPostReplies.postId,
           content:      feedPostReplies.content,
           createdAt:    feedPostReplies.createdAt,
+          authorId:     feedPostReplies.authorId,
           authorName:   userProfiles.displayName,
           authorAvatar: userProfiles.avatarUrl,
           authorHeadline: userProfiles.headline,
@@ -209,6 +212,7 @@ export default async function FeedPage() {
           content:        feedPosts.content,
           imageUrls:      feedPosts.imageUrls,
           createdAt:      feedPosts.createdAt,
+          authorId:       feedPosts.authorId,
           authorName:     userProfiles.displayName,
           authorAvatar:   userProfiles.avatarUrl,
           authorHeadline: userProfiles.headline,

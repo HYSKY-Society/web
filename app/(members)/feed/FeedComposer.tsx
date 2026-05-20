@@ -12,10 +12,10 @@ export default function FeedComposer({ avatarUrl, displayName }: Props) {
   const [content, setContent] = useState('')
   const [images, setImages] = useState<string[]>([])
   const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const [inputKey, setInputKey] = useState(0)   // remount file input after each pick
   const [isPending, startTransition] = useTransition()
-  const formRef = useRef<HTMLFormElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const MAX = 3000
 
@@ -37,10 +37,12 @@ export default function FeedComposer({ avatarUrl, displayName }: Props) {
   // ── Image upload ──────────────────────────────────────────────────────────
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
-    e.target.value = ''
+    // Remount the input so the same file can be picked again next time
+    setInputKey((k) => k + 1)
     if (!files.length) return
     const slots = 4 - images.length
     if (!slots) return
+    setUploadError(null)
     setUploading(true)
     try {
       for (const file of files.slice(0, slots)) {
@@ -50,21 +52,26 @@ export default function FeedComposer({ avatarUrl, displayName }: Props) {
         if (res.ok) {
           const { url } = await res.json()
           setImages((prev) => [...prev, url])
+        } else {
+          const body = await res.json().catch(() => ({}))
+          setUploadError(body.error ?? `Upload failed (${res.status})`)
         }
       }
+    } catch {
+      setUploadError('Upload failed — check your connection')
     } finally {
       setUploading(false)
     }
   }
 
   // ── Submit ────────────────────────────────────────────────────────────────
+  // imageUrls come via the hidden <input> element below — React keeps it in sync
   function action(formData: FormData) {
-    formData.set('imageUrls', JSON.stringify(images))
     startTransition(async () => {
       await createPost(formData)
       setContent('')
       setImages([])
-      formRef.current?.reset()
+      setUploadError(null)
       router.refresh()
     })
   }
@@ -85,15 +92,17 @@ export default function FeedComposer({ avatarUrl, displayName }: Props) {
           }
         </div>
 
-        <form ref={formRef} action={action} className="flex-1 flex flex-col gap-2 min-w-0">
+        <form action={action} className="flex-1 flex flex-col gap-2 min-w-0">
+          {/* Hidden input — React keeps value in sync with images state */}
+          <input type="hidden" name="imageUrls" value={JSON.stringify(images)} />
 
           {/* Formatting toolbar */}
           <div className="flex items-center gap-0.5">
-            {[
-              { label: 'B', title: 'Bold',      marker: '**', cls: 'font-bold' },
-              { label: 'I', title: 'Italic',     marker: '*',  cls: 'italic' },
-              { label: 'U', title: 'Underline',  marker: '__', cls: 'underline' },
-            ].map(({ label, title, marker, cls }) => (
+            {([
+              { label: 'B', title: 'Bold (**)',      marker: '**', cls: 'font-bold' },
+              { label: 'I', title: 'Italic (*)',     marker: '*',  cls: 'italic' },
+              { label: 'U', title: 'Underline (__)', marker: '__', cls: 'underline' },
+            ] as const).map(({ label, title, marker, cls }) => (
               <button
                 key={label}
                 type="button"
@@ -107,31 +116,36 @@ export default function FeedComposer({ avatarUrl, displayName }: Props) {
 
             <div className="w-px h-4 mx-1" style={{ background: 'var(--border-muted)' }} />
 
-            {/* Image button */}
-            <button
-              type="button"
-              title="Add image (max 4)"
-              disabled={images.length >= 4}
-              onClick={() => fileInputRef.current?.click()}
-              className="w-7 h-7 flex items-center justify-center rounded text-white/40 hover:text-white hover:bg-white/8 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            {/* Image picker */}
+            <label
+              title={images.length >= 4 ? 'Max 4 images' : 'Add image'}
+              className={`w-7 h-7 flex items-center justify-center rounded transition-colors cursor-pointer ${
+                images.length >= 4
+                  ? 'text-white/20 cursor-not-allowed'
+                  : 'text-white/40 hover:text-white hover:bg-white/8'
+              }`}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="3" y="3" width="18" height="18" rx="2" />
                 <circle cx="8.5" cy="8.5" r="1.5" />
                 <polyline points="21 15 16 10 5 21" />
               </svg>
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={handleImageSelect}
-            />
+              <input
+                key={inputKey}
+                type="file"
+                accept="image/*"
+                multiple
+                disabled={images.length >= 4}
+                className="hidden"
+                onChange={handleImageSelect}
+              />
+            </label>
 
             {uploading && (
-              <span className="ml-1 text-xs text-white/30 animate-pulse">Uploading…</span>
+              <span className="ml-2 text-xs text-white/35 animate-pulse">Uploading…</span>
+            )}
+            {uploadError && (
+              <span className="ml-2 text-xs text-red-400">{uploadError}</span>
             )}
           </div>
 
@@ -152,12 +166,12 @@ export default function FeedComposer({ avatarUrl, displayName }: Props) {
           {images.length > 0 && (
             <div className={`grid gap-1.5 ${images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
               {images.map((url, i) => (
-                <div key={i} className="relative rounded-xl overflow-hidden aspect-video bg-black/20">
+                <div key={url} className="relative rounded-xl overflow-hidden aspect-video bg-black/20">
                   <img src={url} alt="" className="w-full h-full object-cover" />
                   <button
                     type="button"
                     onClick={() => setImages((prev) => prev.filter((_, j) => j !== i))}
-                    className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white transition-colors"
+                    className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
                     style={{ background: 'rgba(0,0,0,.55)' }}
                   >
                     ×
