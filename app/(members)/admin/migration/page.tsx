@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import { users, pendingTiers } from '@/lib/schema'
 import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
+import InviteAllButton from './InviteAllButton'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://connect.hysky.org'
 
@@ -20,32 +21,6 @@ async function inviteUser(formData: FormData) {
     })
   } catch (_) {
     // already invited or already has an account — silently continue
-  }
-  revalidatePath('/admin/migration')
-}
-
-async function inviteAll(formData: FormData) {
-  'use server'
-  const emailsJson = formData.get('emails') as string
-  const emails: string[] = JSON.parse(emailsJson || '[]')
-  if (!emails.length) return
-
-  // Send in batches of 10 with 400ms between batches to stay under Clerk rate limits
-  const BATCH = 10
-  const DELAY = 400
-  for (let i = 0; i < emails.length; i += BATCH) {
-    await Promise.allSettled(
-      emails.slice(i, i + BATCH).map((email) =>
-        clerkClient.invitations.createInvitation({
-          emailAddress: email,
-          redirectUrl: APP_URL + '/feed',
-          notify: true,
-        })
-      )
-    )
-    if (i + BATCH < emails.length) {
-      await new Promise<void>((resolve) => setTimeout(resolve, DELAY))
-    }
   }
   revalidatePath('/admin/migration')
 }
@@ -117,10 +92,10 @@ export default async function MigrationPage() {
     .map((r) => r.email)
 
   const stats = [
-    { label: 'Migrated Members', value: rows.length,        color: 'text-[#5d00f5]' },
-    { label: 'Needs Invite',     value: needsInviteCount,   color: 'text-white/60' },
-    { label: 'Invited',          value: invitedCount,        color: 'text-amber-400' },
-    { label: 'Active',           value: activeCount,         color: 'text-emerald-400' },
+    { label: 'Migrated Members', value: rows.length,      color: 'text-[#5d00f5]' },
+    { label: 'Needs Invite',     value: needsInviteCount, color: 'text-white/60' },
+    { label: 'Invited',          value: invitedCount,     color: 'text-amber-400' },
+    { label: 'Active',           value: activeCount,      color: 'text-emerald-400' },
   ]
 
   return (
@@ -160,23 +135,8 @@ export default async function MigrationPage() {
         ))}
       </div>
 
-      {/* Bulk invite */}
-      <div className="flex items-center gap-4 mb-6">
-        <form action={inviteAll}>
-          <input type="hidden" name="emails" value={JSON.stringify(needsInviteEmails)} />
-          <button
-            type="submit"
-            disabled={needsInviteCount === 0}
-            className="px-5 py-2.5 rounded-lg text-sm font-semibold bg-[#5d00f5] hover:bg-[#7b33ff] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-            style={{ color: '#fff' }}
-          >
-            Invite All Pending ({needsInviteCount})
-          </button>
-        </form>
-        <p className="text-white/30 text-xs">
-          Sends a Clerk sign-up email to every member that hasn&apos;t been invited yet.
-        </p>
-      </div>
+      {/* Bulk invite — client component handles chunked requests + progress bar */}
+      <InviteAllButton emails={needsInviteEmails} />
 
       {/* Table */}
       {rows.length === 0 ? (
