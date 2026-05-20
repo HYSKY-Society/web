@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useChatCtx } from './ChatProvider'
 import DMWindow from './DMWindow'
 import GMWindow from './GMWindow'
@@ -35,13 +36,26 @@ function OnlineRow({
   onToggleGroupMenu: () => void
   onAddToGroup: (groupId: string) => void
 }) {
-  const [hovered, setHovered] = useState(false)
+  const [hovered, setHovered]   = useState(false)
+  const plusBtnRef              = useRef<HTMLButtonElement>(null)
+  const btnRectRef              = useRef<DOMRect | null>(null)
+  const portalRef               = useRef<HTMLDivElement>(null)
+
+  // Stop mousedown from bubbling to document so ChatBar's outside-click handler
+  // doesn't close the menu when clicking inside the portal.
+  useEffect(() => {
+    const el = portalRef.current
+    if (!el || !groupMenuOpen) return
+    const stop = (e: MouseEvent) => e.stopPropagation()
+    el.addEventListener('mousedown', stop)
+    return () => el.removeEventListener('mousedown', stop)
+  }, [groupMenuOpen])
 
   return (
     <div
       className="relative flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-white/6 transition-colors"
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => { setHovered(false) }}
+      onMouseLeave={() => setHovered(false)}
     >
       <button
         className="flex items-center gap-3 flex-1 min-w-0 text-left"
@@ -57,29 +71,50 @@ function OnlineRow({
         </div>
       </button>
 
-      {/* Add to group button */}
+      {/* Add to group button — portal used so the dropdown escapes overflow:hidden ancestors */}
       {(hovered || groupMenuOpen) && (
-        <div className="relative shrink-0">
+        <div className="shrink-0">
           <button
-            onClick={e => { e.stopPropagation(); onToggleGroupMenu() }}
+            ref={plusBtnRef}
+            onClick={e => {
+              e.stopPropagation()
+              if (!groupMenuOpen) {
+                btnRectRef.current = plusBtnRef.current?.getBoundingClientRect() ?? null
+              }
+              onToggleGroupMenu()
+            }}
             title="Add to group"
-            className="w-6 h-6 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-[#5d00f5]/40 transition-colors text-base leading-none"
+            className="w-7 h-7 rounded-full flex items-center justify-center text-white font-bold text-lg leading-none bg-[#5d00f5] hover:bg-[#7b33ff] transition-colors"
           >
             +
           </button>
-          {groupMenuOpen && (
+
+          {groupMenuOpen && btnRectRef.current && createPortal(
             <div
-              className="absolute right-0 bottom-full mb-1 rounded-xl py-1.5 shadow-2xl z-[500]"
-              style={{ background: 'var(--bg-panel)', border: '1px solid var(--border-dim)', minWidth: 160 }}
+              ref={portalRef}
+              style={{
+                position:     'fixed',
+                right:        window.innerWidth - btnRectRef.current.right,
+                bottom:       window.innerHeight - btnRectRef.current.top + 6,
+                zIndex:       99999,
+                background:   'var(--bg-panel)',
+                border:       '1px solid var(--border-dim)',
+                minWidth:     172,
+                borderRadius: 12,
+                padding:      '6px 0',
+                boxShadow:    '0 12px 40px rgba(0,0,0,0.6)',
+              }}
             >
               {myGroups.length > 0 && (
                 <>
-                  <p className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/25">Add to group</p>
+                  <p className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/25">
+                    Add to group
+                  </p>
                   {myGroups.map(g => (
                     <button
                       key={g.id}
                       onClick={() => onAddToGroup(g.id)}
-                      className="w-full text-left px-3 py-1.5 text-xs text-white/70 hover:text-white hover:bg-white/6 transition-colors truncate"
+                      className="w-full text-left px-3 py-2 text-xs text-white/70 hover:text-white hover:bg-white/8 transition-colors truncate"
                     >
                       {g.name}
                     </button>
@@ -89,11 +124,12 @@ function OnlineRow({
               )}
               <button
                 onClick={() => onAddToGroup('new')}
-                className="w-full text-left px-3 py-1.5 text-xs text-[#9b6dff] hover:bg-white/6 transition-colors"
+                className="w-full text-left px-3 py-2 text-xs text-[#9b6dff] hover:bg-white/8 transition-colors font-medium"
               >
                 + New Group
               </button>
-            </div>
+            </div>,
+            document.body
           )}
         </div>
       )}
@@ -106,15 +142,15 @@ function OnlineRow({
 function MemberPips({ members }: { members: GroupMember[] }) {
   const show = members.slice(0, 4)
   return (
-    <div className="flex items-center gap-0.5 mt-0.5 flex-wrap">
+    <div className="flex items-center gap-1 mt-1 flex-wrap">
       {show.map(m => {
         const initial = (m.displayName ?? 'M')[0].toUpperCase()
         return (
           <div
             key={m.userId}
             title={m.displayName ?? 'Member'}
-            className="w-4 h-4 rounded-full overflow-hidden flex items-center justify-center shrink-0"
-            style={{ background: m.avatarUrl ? undefined : '#5d00f520', border: '1px solid #5d00f540', fontSize: 7 }}
+            className="w-5 h-5 rounded-full overflow-hidden flex items-center justify-center shrink-0"
+            style={{ background: m.avatarUrl ? undefined : '#5d00f530', border: '1px solid #5d00f560', fontSize: 9 }}
           >
             {m.avatarUrl
               ? <img src={m.avatarUrl} alt="" className="w-full h-full object-cover" />
@@ -124,9 +160,9 @@ function MemberPips({ members }: { members: GroupMember[] }) {
         )
       })}
       {members.length > 4 && (
-        <span className="text-[10px] text-white/30">+{members.length - 4}</span>
+        <span className="text-[10px] text-white/35">+{members.length - 4}</span>
       )}
-      <span className="text-[10px] text-white/30 ml-0.5">
+      <span className="text-[10px] text-white/35 ml-0.5">
         {members.length} member{members.length !== 1 ? 's' : ''}
       </span>
     </div>
@@ -203,7 +239,7 @@ export default function ChatBar() {
   const [groupMenuFor, setGroupMenuFor] = useState<string | null>(null)
   const panelRef = useRef<HTMLDivElement>(null)
 
-  // Close group menu on outside click
+  // Close group menu when clicking outside the popup panel
   useEffect(() => {
     if (!groupMenuFor) return
     const handler = (e: MouseEvent) => {
@@ -246,6 +282,8 @@ export default function ChatBar() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ memberId: userId }),
       })
+      // Refresh so the new group shows the added member
+      await fetchGroups()
       openGM(group.id, group.name)
       setTab('gm')
     } else {
@@ -254,6 +292,7 @@ export default function ChatBar() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ memberId: userId }),
       })
+      await fetchGroups()
     }
   }
 
@@ -283,9 +322,7 @@ export default function ChatBar() {
 
   const handleNewGroup = async () => {
     const group = await createGroup('New Group')
-    if (group) {
-      setMyGroups(prev => prev.map(g => g.id === group.id ? g : g))
-    }
+    if (group) openGM(group.id, group.name)
   }
 
   const hasOthersOnline = online.length >= 1
@@ -329,15 +366,18 @@ export default function ChatBar() {
           <DMWindow key={w.id} userId={w.id} name={w.name} avatar={w.avatar} />
         ))}
 
-        {/* GM windows */}
-        {gmWindows.map(w => (
-          <GMWindow key={w.id} groupId={w.id} name={w.name} />
-        ))}
+        {/* GM windows — pass member data from myGroups so the window can show who's in the chat */}
+        {gmWindows.map(w => {
+          const groupData = myGroups.find(g => g.id === w.id)
+          return (
+            <GMWindow key={w.id} groupId={w.id} name={w.name} members={groupData?.members ?? []} />
+          )
+        })}
 
         {/* Popup + button */}
         <div className="relative shrink-0">
 
-          {/* Popup — floats above button */}
+          {/* Popup — floats above button, no overflow-hidden so nothing clips children */}
           {panelOpen && (
             <div
               ref={panelRef}

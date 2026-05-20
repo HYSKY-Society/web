@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useChatCtx } from './ChatProvider'
 import { getPusher } from '@/lib/pusher-client'
 
+type GroupMember = { userId: string; displayName: string | null; avatarUrl: string | null }
+
 type GMsg = {
   id: string
   groupId: string
@@ -14,19 +16,31 @@ type GMsg = {
   createdAt: string
 }
 
-function Avatar({ name, url, size = 26 }: { name: string; url: string | null; size?: number }) {
-  const initials = (name || 'G').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
+function MemberAvatar({ member }: { member: GroupMember }) {
+  const initial = (member.displayName ?? 'M')[0].toUpperCase()
   return (
     <div
-      style={{ width: size, height: size, background: url ? undefined : '#5d00f520', border: '1px solid #5d00f550', fontSize: size * 0.38 }}
-      className="rounded-full overflow-hidden flex items-center justify-center shrink-0 font-bold text-white select-none"
+      title={member.displayName ?? 'Member'}
+      className="w-5 h-5 rounded-full overflow-hidden flex items-center justify-center shrink-0"
+      style={{ background: member.avatarUrl ? undefined : '#5d00f530', border: '1px solid #5d00f560', fontSize: 9 }}
     >
-      {url ? <img src={url} alt={name} className="w-full h-full object-cover" /> : initials}
+      {member.avatarUrl
+        ? <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" />
+        : <span className="font-bold text-white">{initial}</span>
+      }
     </div>
   )
 }
 
-export default function GMWindow({ groupId, name }: { groupId: string; name: string }) {
+export default function GMWindow({
+  groupId,
+  name,
+  members = [],
+}: {
+  groupId: string
+  name: string
+  members?: GroupMember[]
+}) {
   const { myId, gmWindows, closeGM, toggleMinGM, markReadGM } = useChatCtx()
   const win = gmWindows.find(w => w.id === groupId)
   const [messages, setMessages]   = useState<GMsg[]>([])
@@ -128,41 +142,62 @@ export default function GMWindow({ groupId, name }: { groupId: string; name: str
   return (
     <div
       className="flex flex-col rounded-t-xl overflow-hidden shrink-0"
-      style={{ width: 300, height: 380, background: 'var(--bg-panel)', border: '1px solid var(--border-dim)', borderBottom: 'none' }}
+      style={{ width: 300, height: 400, background: 'var(--bg-panel)', border: '1px solid var(--border-dim)', borderBottom: 'none' }}
     >
       {/* Header */}
       <div
-        className="shrink-0 flex items-center gap-2 px-3 py-2.5 border-b border-white/8 cursor-pointer select-none hover:bg-white/4 transition-colors"
+        className="shrink-0 border-b border-white/8 cursor-pointer select-none hover:bg-white/4 transition-colors"
         onClick={() => toggleMinGM(groupId)}
       >
-        <span className="text-base">👥</span>
-        {editing ? (
-          <input
-            autoFocus
-            value={editVal}
-            onChange={e => setEditVal(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') saveRename(); if (e.key === 'Escape') setEditing(false) }}
-            onBlur={saveRename}
+        {/* Title row */}
+        <div className="flex items-center gap-2 px-3 pt-2.5 pb-1.5">
+          <span className="text-base">👥</span>
+          {editing ? (
+            <input
+              autoFocus
+              value={editVal}
+              onChange={e => setEditVal(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') saveRename(); if (e.key === 'Escape') setEditing(false) }}
+              onBlur={saveRename}
+              onClick={e => e.stopPropagation()}
+              className="flex-1 bg-white/10 rounded px-1.5 py-0.5 text-sm font-semibold text-white outline-none focus:ring-1 focus:ring-[#5d00f5]/60"
+            />
+          ) : (
+            <span className="flex-1 text-sm font-semibold text-white truncate">{groupName}</span>
+          )}
+          <button
+            title="Rename"
+            onClick={e => { e.stopPropagation(); setEditVal(groupName); setEditing(v => !v) }}
+            className="w-5 h-5 flex items-center justify-center text-white/25 hover:text-white transition-colors text-xs"
+          >
+            ✏️
+          </button>
+          <button
+            title="Close"
+            onClick={e => { e.stopPropagation(); closeGM(groupId) }}
+            className="w-5 h-5 flex items-center justify-center text-white/25 hover:text-white transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Members row */}
+        {members.length > 0 && (
+          <div
+            className="flex items-center gap-1 px-3 pb-2"
             onClick={e => e.stopPropagation()}
-            className="flex-1 bg-white/10 rounded px-1.5 py-0.5 text-sm font-semibold text-white outline-none focus:ring-1 focus:ring-[#5d00f5]/60"
-          />
-        ) : (
-          <span className="flex-1 text-sm font-semibold text-white truncate">{groupName}</span>
+          >
+            {members.slice(0, 6).map(m => (
+              <MemberAvatar key={m.userId} member={m} />
+            ))}
+            {members.length > 6 && (
+              <span className="text-[10px] text-white/35">+{members.length - 6}</span>
+            )}
+            <span className="text-[10px] text-white/35 ml-0.5">
+              {members.length} member{members.length !== 1 ? 's' : ''}
+            </span>
+          </div>
         )}
-        <button
-          title="Rename"
-          onClick={e => { e.stopPropagation(); setEditVal(groupName); setEditing(v => !v) }}
-          className="w-5 h-5 flex items-center justify-center text-white/25 hover:text-white transition-colors text-xs"
-        >
-          ✏️
-        </button>
-        <button
-          title="Close"
-          onClick={e => { e.stopPropagation(); closeGM(groupId) }}
-          className="w-5 h-5 flex items-center justify-center text-white/25 hover:text-white transition-colors"
-        >
-          ✕
-        </button>
       </div>
 
       {/* Messages */}
@@ -171,7 +206,7 @@ export default function GMWindow({ groupId, name }: { groupId: string; name: str
           <p className="text-center text-[11px] text-white/20 mt-10">No messages yet — say hello!</p>
         )}
         {messages.map((msg, i) => {
-          const isMine = msg.fromUserId === myId
+          const isMine  = msg.fromUserId === myId
           const prevMsg = messages[i - 1]
           const showName = !isMine && msg.fromUserId !== prevMsg?.fromUserId
           return (
