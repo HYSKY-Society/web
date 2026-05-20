@@ -6,7 +6,7 @@ import { db } from '@/lib/db'
 import { users, pendingTiers } from '@/lib/schema'
 import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.hysky.org'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://connect.hysky.org'
 
 async function inviteUser(formData: FormData) {
   'use server'
