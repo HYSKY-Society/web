@@ -6,7 +6,8 @@ import DMWindow from './DMWindow'
 import GMWindow from './GMWindow'
 import type { OnlineUser } from './ChatProvider'
 
-type MyGroup = { id: string; name: string; createdBy: string }
+type GroupMember = { userId: string; displayName: string | null; avatarUrl: string | null }
+type MyGroup = { id: string; name: string; createdBy: string; members: GroupMember[] }
 
 // ── Tiny helpers ──────────────────────────────────────────────────────────────
 
@@ -68,7 +69,7 @@ function OnlineRow({
           </button>
           {groupMenuOpen && (
             <div
-              className="absolute right-0 bottom-full mb-1 rounded-xl py-1.5 shadow-2xl z-10"
+              className="absolute right-0 bottom-full mb-1 rounded-xl py-1.5 shadow-2xl z-[500]"
               style={{ background: 'var(--bg-panel)', border: '1px solid var(--border-dim)', minWidth: 160 }}
             >
               {myGroups.length > 0 && (
@@ -102,6 +103,36 @@ function OnlineRow({
 
 // ── Group row (GM tab) ────────────────────────────────────────────────────────
 
+function MemberPips({ members }: { members: GroupMember[] }) {
+  const show = members.slice(0, 4)
+  return (
+    <div className="flex items-center gap-0.5 mt-0.5 flex-wrap">
+      {show.map(m => {
+        const initial = (m.displayName ?? 'M')[0].toUpperCase()
+        return (
+          <div
+            key={m.userId}
+            title={m.displayName ?? 'Member'}
+            className="w-4 h-4 rounded-full overflow-hidden flex items-center justify-center shrink-0"
+            style={{ background: m.avatarUrl ? undefined : '#5d00f520', border: '1px solid #5d00f540', fontSize: 7 }}
+          >
+            {m.avatarUrl
+              ? <img src={m.avatarUrl} alt="" className="w-full h-full object-cover" />
+              : <span className="font-bold text-white">{initial}</span>
+            }
+          </div>
+        )
+      })}
+      {members.length > 4 && (
+        <span className="text-[10px] text-white/30">+{members.length - 4}</span>
+      )}
+      <span className="text-[10px] text-white/30 ml-0.5">
+        {members.length} member{members.length !== 1 ? 's' : ''}
+      </span>
+    </div>
+  )
+}
+
 function GroupRow({
   group, myId, onOpen, onRename, onDelete,
 }: {
@@ -111,7 +142,7 @@ function GroupRow({
   onRename: (name: string) => void
   onDelete: () => void
 }) {
-  const [editing, setEditing] = useState(group.id === '__new__')
+  const [editing, setEditing] = useState(false)
   const [val, setVal]         = useState(group.name)
 
   const save = () => {
@@ -121,23 +152,26 @@ function GroupRow({
   }
 
   return (
-    <div className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-white/6 group/row transition-colors">
-      <span className="text-base shrink-0">👥</span>
-      {editing ? (
-        <input
-          autoFocus
-          value={val}
-          onChange={e => setVal(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEditing(false) }}
-          onBlur={save}
-          className="flex-1 bg-white/10 rounded px-2 py-0.5 text-sm text-white outline-none focus:ring-1 focus:ring-[#5d00f5]/60 min-w-0"
-        />
-      ) : (
-        <button onClick={onOpen} className="flex-1 min-w-0 text-left text-sm font-medium text-white truncate">
-          {group.name}
-        </button>
-      )}
-      <div className="flex items-center gap-0.5 opacity-0 group-hover/row:opacity-100 transition-opacity shrink-0">
+    <div className="flex items-start gap-2 px-2 py-2 rounded-lg hover:bg-white/6 group/row transition-colors">
+      <span className="text-base shrink-0 mt-0.5">👥</span>
+      <div className="flex-1 min-w-0">
+        {editing ? (
+          <input
+            autoFocus
+            value={val}
+            onChange={e => setVal(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEditing(false) }}
+            onBlur={save}
+            className="w-full bg-white/10 rounded px-2 py-0.5 text-sm text-white outline-none focus:ring-1 focus:ring-[#5d00f5]/60"
+          />
+        ) : (
+          <button onClick={onOpen} className="w-full text-left text-sm font-medium text-white truncate block">
+            {group.name}
+          </button>
+        )}
+        {group.members.length > 0 && <MemberPips members={group.members} />}
+      </div>
+      <div className="flex items-center gap-0.5 opacity-0 group-hover/row:opacity-100 transition-opacity shrink-0 mt-0.5">
         <button
           onClick={() => { setVal(group.name); setEditing(v => !v) }}
           className="w-6 h-6 flex items-center justify-center text-white/35 hover:text-white transition-colors text-xs"
@@ -307,7 +341,7 @@ export default function ChatBar() {
           {panelOpen && (
             <div
               ref={panelRef}
-              className="absolute bottom-full right-0 mb-3 rounded-2xl overflow-hidden shadow-2xl flex flex-col"
+              className="absolute bottom-full right-0 mb-3 rounded-2xl shadow-2xl flex flex-col"
               style={{ width: 280, height: 380, background: 'var(--bg-panel)', border: '1px solid var(--border-dim)' }}
             >
               {/* Tabs */}
