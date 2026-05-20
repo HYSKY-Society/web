@@ -196,6 +196,27 @@ export const forumReplies = pgTable('forum_replies', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+export const groupChats = pgTable('group_chats', {
+  id:        text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name:      text('name').notNull(),
+  createdBy: text('created_by').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const groupChatMembers = pgTable('group_chat_members', {
+  groupId:  text('group_id').notNull().references(() => groupChats.id, { onDelete: 'cascade' }),
+  userId:   text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  joinedAt: timestamp('joined_at', { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [primaryKey({ columns: [t.groupId, t.userId] })])
+
+export const groupMessages = pgTable('group_messages', {
+  id:         text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  groupId:    text('group_id').notNull().references(() => groupChats.id, { onDelete: 'cascade' }),
+  fromUserId: text('from_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  content:    text('content').notNull(),
+  createdAt:  timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export const feedPosts = pgTable('feed_posts', {
   id:           text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   authorId:     text('author_id').notNull().references(() => users.id, { onDelete: 'cascade' }),

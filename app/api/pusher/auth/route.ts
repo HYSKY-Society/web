@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
   const socketId    = params.get('socket_id')!
   const channelName = params.get('channel_name')!
 
-  const allowed = ['private-dm-', 'presence-chat-', 'presence-online', 'private-notify-']
+  const allowed = ['private-dm-', 'presence-chat-', 'presence-online', 'private-notify-', 'private-gm-']
   if (!allowed.some(prefix => channelName.startsWith(prefix))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }

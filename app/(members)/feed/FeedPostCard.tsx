@@ -3,6 +3,7 @@ import { Fragment, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { toggleLike, createReply, repostPost } from './actions'
+import { useChatCtx } from '@/app/components/ChatProvider'
 
 export type PostAuthor = {
   id: string
@@ -153,6 +154,7 @@ function AuthorHoverCard({ author, size = 'sm' }: { author: PostAuthor; size?: '
   const [show, setShow] = useState(false)
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const name = authorDisplayName(author)
+  const { openDM } = useChatCtx()
 
   function enter() {
     if (hideTimer.current) clearTimeout(hideTimer.current)
@@ -203,13 +205,13 @@ function AuthorHoverCard({ author, size = 'sm' }: { author: PostAuthor; size?: '
             >
               View Profile
             </Link>
-            <Link
-              href={`/messages/${author.id}`}
+            <button
+              onClick={() => openDM(author.id, name, author.avatar)}
               className="flex-1 text-center text-xs py-1.5 rounded-lg font-medium bg-[#5d00f5] hover:bg-[#7b33ff] transition-colors"
               style={{ color: '#fff' }}
             >
               Message
-            </Link>
+            </button>
           </div>
         </div>
       )}

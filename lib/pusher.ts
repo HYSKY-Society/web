@@ -15,3 +15,7 @@ export function dmChannelName(a: string, b: string) {
 export function chatChannelName(channelId: string) {
   return `presence-chat-${channelId}`
 }
+
+export function gmChannelName(groupId: string) {
+  return `private-gm-${groupId}`
+}
