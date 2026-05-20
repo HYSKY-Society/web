@@ -4,21 +4,32 @@ import Link from 'next/link'
 import { db } from '@/lib/db'
 import { users, pendingTiers } from '@/lib/schema'
 import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
-import InviteAllButton from './InviteAllButton'
+import CreateAllButton from './CreateAllButton'
+import CreateUserButton from './CreateUserButton'
 import RevokeAllButton from './RevokeAllButton'
-import SendInviteButton from './SendInviteButton'
 
-type RowStatus = 'active' | 'invited' | 'needs_invite'
+type RowStatus = 'active' | 'created' | 'invited' | 'needs_invite'
 
 const STATUS_LABEL: Record<RowStatus, string> = {
   active:       'Active',
+  created:      'Account Created',
   invited:      'Invited',
-  needs_invite: 'Needs Invite',
+  needs_invite: 'Needs Account',
 }
 const STATUS_COLOR: Record<RowStatus, string> = {
   active:       'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+  created:      'bg-blue-500/15 text-blue-400 border-blue-500/30',
   invited:      'bg-amber-500/15 text-amber-400 border-amber-500/30',
   needs_invite: 'bg-white/6 text-white/50 border-white/10',
+}
+
+function splitName(full: string | null): { firstName?: string; lastName?: string } {
+  if (!full?.trim()) return {}
+  const parts = full.trim().split(/\s+/)
+  return {
+    firstName: parts[0],
+    lastName:  parts.slice(1).join(' ') || undefined,
+  }
 }
 
 export default async function MigrationPage() {
@@ -35,13 +46,28 @@ export default async function MigrationPage() {
     db.select({ email: users.email }).from(users),
   ])
 
-  // Wrap separately — Clerk may be rate-limited right after a bulk invite
+  // Fetch pending invitations (legacy — may have some from before the create-accounts flow)
   let invitationsRes: { data: { status: string; emailAddress: string }[] } = { data: [] }
   try {
     invitationsRes = await clerkClient.invitations.getInvitationList({ limit: 500 })
-  } catch {
-    // Rate limited or API error — invitation status will show as unknown this render
-  }
+  } catch { /* ignore — invitation status shows as unknown */ }
+
+  // Fetch all Clerk user emails to detect accounts that exist but haven't logged in yet
+  const clerkUserEmails = new Set<string>()
+  try {
+    let offset = 0
+    const pageSize = 500
+    while (true) {
+      const { data, totalCount } = await clerkClient.users.getUserList({ limit: pageSize, offset })
+      for (const u of data) {
+        for (const addr of u.emailAddresses) {
+          clerkUserEmails.add(addr.emailAddress.toLowerCase())
+        }
+      }
+      offset += data.length
+      if (offset >= totalCount) break
+    }
+  } catch { /* ignore — created status won't show this render */ }
 
   const activeEmails = new Set(activeUsers.map((u) => u.email.toLowerCase()))
   const invitedEmails = new Set(
@@ -55,30 +81,32 @@ export default async function MigrationPage() {
       email:  p.email,
       name:   p.name,
       tier:   p.tier,
-      status: (activeEmails.has(p.email.toLowerCase())
-        ? 'active'
-        : invitedEmails.has(p.email.toLowerCase())
-          ? 'invited'
-          : 'needs_invite') as RowStatus,
+      status: (
+        activeEmails.has(p.email.toLowerCase())      ? 'active' :
+        clerkUserEmails.has(p.email.toLowerCase())   ? 'created' :
+        invitedEmails.has(p.email.toLowerCase())     ? 'invited' :
+        'needs_invite'
+      ) as RowStatus,
     }))
     .sort((a, b) => {
-      const o: Record<RowStatus, number> = { needs_invite: 0, invited: 1, active: 2 }
+      const o: Record<RowStatus, number> = { needs_invite: 0, invited: 1, created: 2, active: 3 }
       return o[a.status] - o[b.status]
     })
 
-  const needsInviteCount = rows.filter((r) => r.status === 'needs_invite').length
-  const invitedCount     = rows.filter((r) => r.status === 'invited').length
-  const activeCount      = rows.filter((r) => r.status === 'active').length
+  const needsAccountCount = rows.filter((r) => r.status === 'needs_invite').length
+  const invitedCount      = rows.filter((r) => r.status === 'invited').length
+  const createdCount      = rows.filter((r) => r.status === 'created').length
+  const activeCount       = rows.filter((r) => r.status === 'active').length
 
-  const needsInviteEmails = rows
+  const needsAccountUsers = rows
     .filter((r) => r.status === 'needs_invite')
-    .map((r) => r.email)
+    .map((r) => ({ email: r.email, ...splitName(r.name) }))
 
   const stats = [
-    { label: 'Migrated Members', value: rows.length,      color: 'text-[#5d00f5]' },
-    { label: 'Needs Invite',     value: needsInviteCount, color: 'text-white/60' },
-    { label: 'Invited',          value: invitedCount,     color: 'text-amber-400' },
-    { label: 'Active',           value: activeCount,      color: 'text-emerald-400' },
+    { label: 'Migrated Members',  value: rows.length,        color: 'text-[#5d00f5]' },
+    { label: 'Needs Account',     value: needsAccountCount,  color: 'text-white/60' },
+    { label: 'Account Created',   value: createdCount,       color: 'text-blue-400' },
+    { label: 'Active',            value: activeCount,        color: 'text-emerald-400' },
   ]
 
   return (
@@ -86,7 +114,8 @@ export default async function MigrationPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-1.5">Member Migration</h1>
         <p className="text-white/40 text-sm">
-          Send Clerk sign-up invitations to migrated Mighty Networks members.
+          Create passwordless Clerk accounts for migrated Mighty Networks members.
+          Members sign in via magic link or use &quot;Forgot Password&quot; to set a password.
         </p>
       </div>
 
@@ -118,15 +147,15 @@ export default async function MigrationPage() {
         ))}
       </div>
 
-      {/* Revoke pending invitations (one-time cleanup) */}
+      {/* Revoke any lingering pending invitations */}
       {invitedCount > 0 && (
         <div className="mb-4">
           <RevokeAllButton count={invitedCount} />
         </div>
       )}
 
-      {/* Bulk invite — client component handles chunked requests + progress bar */}
-      <InviteAllButton emails={needsInviteEmails} />
+      {/* Bulk create accounts */}
+      <CreateAllButton users={needsAccountUsers} />
 
       {/* Table */}
       {rows.length === 0 ? (
@@ -147,31 +176,35 @@ export default async function MigrationPage() {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((row, i) => (
-                  <tr
-                    key={row.email}
-                    className={`border-b border-white/5 last:border-0 ${i % 2 === 0 ? '' : 'bg-white/[0.02]'}`}
-                  >
-                    <td className="px-4 py-3 text-white/80 font-mono text-xs">{row.email}</td>
-                    <td className="px-4 py-3 text-white/55">{row.name || <span className="text-white/20">—</span>}</td>
-                    <td className="px-4 py-3">
-                      <span className="text-xs text-white/40">{row.tier}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${STATUS_COLOR[row.status]}`}>
-                        {STATUS_LABEL[row.status]}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {row.status !== 'active' && (
-                        <SendInviteButton
-                          email={row.email}
-                          label={row.status === 'invited' ? 'Resend' : 'Send Invite'}
-                        />
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                {rows.map((row, i) => {
+                  const { firstName, lastName } = splitName(row.name)
+                  return (
+                    <tr
+                      key={row.email}
+                      className={`border-b border-white/5 last:border-0 ${i % 2 === 0 ? '' : 'bg-white/[0.02]'}`}
+                    >
+                      <td className="px-4 py-3 text-white/80 font-mono text-xs">{row.email}</td>
+                      <td className="px-4 py-3 text-white/55">{row.name || <span className="text-white/20">—</span>}</td>
+                      <td className="px-4 py-3">
+                        <span className="text-xs text-white/40">{row.tier}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${STATUS_COLOR[row.status]}`}>
+                          {STATUS_LABEL[row.status]}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {(row.status === 'needs_invite' || row.status === 'invited') && (
+                          <CreateUserButton
+                            email={row.email}
+                            firstName={firstName}
+                            lastName={lastName}
+                          />
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
