@@ -1,5 +1,5 @@
 'use client'
-import { Fragment, useState, useTransition } from 'react'
+import { Fragment, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { toggleLike, createReply, repostPost } from './actions'
@@ -151,13 +151,22 @@ function authorDisplayName(author: PostAuthor): string {
 
 function AuthorHoverCard({ author, size = 'sm' }: { author: PostAuthor; size?: 'xs' | 'sm' }) {
   const [show, setShow] = useState(false)
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const name = authorDisplayName(author)
+
+  function enter() {
+    if (hideTimer.current) clearTimeout(hideTimer.current)
+    setShow(true)
+  }
+  function leave() {
+    hideTimer.current = setTimeout(() => setShow(false), 120)
+  }
 
   return (
     <span
       className="relative inline-block"
-      onMouseEnter={() => setShow(true)}
-      onMouseLeave={() => setShow(false)}
+      onMouseEnter={enter}
+      onMouseLeave={leave}
     >
       <Link
         href={`/members/${author.id}`}
@@ -169,6 +178,8 @@ function AuthorHoverCard({ author, size = 'sm' }: { author: PostAuthor; size?: '
         <div
           className="absolute left-0 top-full mt-1.5 z-30 rounded-2xl p-4 shadow-2xl"
           style={{ background: 'var(--bg-panel)', border: '1px solid var(--border-dim)', width: '240px' }}
+          onMouseEnter={enter}
+          onMouseLeave={leave}
         >
           <div className="flex items-center gap-3 mb-3">
             <div className="shrink-0 w-12 h-12 rounded-full overflow-hidden bg-[#5d00f5]/30 flex items-center justify-center">
