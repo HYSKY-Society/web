@@ -37,13 +37,13 @@ export default async function AboutPage() {
     <PublicShell>
       <ScrollAnimations />
 
-      {/* ── HERO ──────────────────────────────────────────────────────────── */}
-      <header className="relative min-h-screen flex flex-col justify-between">
+      {/* ── HERO — always dark, atmospheric ───────────────────────────────── */}
+      <header className="relative min-h-screen flex flex-col justify-between section-dark">
         <div className="absolute inset-0 z-0" style={{
           background: `
             radial-gradient(ellipse 60% 60% at 70% 40%, rgba(93,0,245,.28), transparent),
             radial-gradient(ellipse 40% 40% at 20% 70%, rgba(19,220,232,.12), transparent),
-            #04030a
+            var(--bg-page-deep)
           `
         }}>
           <div className="absolute inset-0" style={{
@@ -102,7 +102,7 @@ export default async function AboutPage() {
               HYSKY Society is a 501(c)(3) nonprofit committed to decarbonizing aviation and aerospace with hydrogen. Our mission is simple: if it defies gravity and uses hydrogen as fuel, it&apos;s part of our vision for sustainable flight.
             </p>
           </div>
-          <div className="lg:border-l lg:pl-16" style={{ borderColor: 'rgba(255,255,255,.08)' }}>
+          <div className="lg:border-l lg:pl-16" style={{ borderColor: 'var(--border-muted)' }}>
             <div className="text-[#13dce8] text-xs font-bold uppercase tracking-[2.5px] mb-5">Vision</div>
             <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-6" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
               Where We&apos;re <span style={{ color: '#13dce8' }}>Going</span>
@@ -114,7 +114,7 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <div className="h-px mx-[6%]" style={{ background: 'rgba(255,255,255,.08)' }} />
+      <div className="h-px mx-[6%]" style={{ background: 'var(--border-muted)' }} />
 
       {/* ── WHO WE ARE ────────────────────────────────────────────────────── */}
       <section className="px-[6%] py-28">
@@ -132,23 +132,28 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <div className="h-px mx-[6%]" style={{ background: 'rgba(255,255,255,.08)' }} />
+      <div className="h-px mx-[6%]" style={{ background: 'var(--border-muted)' }} />
 
       {/* ── PROGRAMS ──────────────────────────────────────────────────────── */}
       <section id="programs" className="px-[6%] py-28">
         <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-12" style={{ fontSize: 'clamp(2.4rem, 5vw, 5rem)' }}>
           Core <span style={{ color: '#5d00f5' }}>Programs</span>
         </h2>
-        <div className="fade-up grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.08)' }}>
+        <div className="fade-up grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-2xl overflow-hidden"
+          style={{ background: 'var(--border-muted)', border: '1px solid var(--border-muted)' }}>
           {programs.map((p) =>
             p.href ? (
-              <Link key={p.title} href={p.href} className="p-9 bg-[#04030a] transition-colors hover:bg-[#5d00f5]/[.08] group cursor-pointer">
+              <Link key={p.title} href={p.href}
+                className="p-9 transition-colors hover:bg-[#5d00f5]/[.08] group cursor-pointer"
+                style={{ backgroundColor: 'var(--bg-card)' }}>
                 <div className="text-[#5d00f5] text-xs font-bold uppercase tracking-[2px] mb-3">{p.tag}</div>
                 <h3 className="text-xl font-black mb-2 group-hover:text-[#13dce8] transition-colors">{p.title}</h3>
                 <p className="text-white/45 text-sm leading-relaxed">{p.desc}</p>
               </Link>
             ) : (
-              <div key={p.title} className="p-9 bg-[#04030a] transition-colors hover:bg-[#5d00f5]/[.08]">
+              <div key={p.title}
+                className="p-9 transition-colors hover:bg-[#5d00f5]/[.08]"
+                style={{ backgroundColor: 'var(--bg-card)' }}>
                 <div className="text-[#5d00f5] text-xs font-bold uppercase tracking-[2px] mb-3">{p.tag}</div>
                 <h3 className="text-xl font-black mb-2">{p.title}</h3>
                 <p className="text-white/45 text-sm leading-relaxed">{p.desc}</p>
@@ -158,7 +163,7 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <div className="h-px mx-[6%]" style={{ background: 'rgba(255,255,255,.08)' }} />
+      <div className="h-px mx-[6%]" style={{ background: 'var(--border-muted)' }} />
 
       {/* ── COMMUNITY ─────────────────────────────────────────────────────── */}
       <section id="connect" className="px-[6%] py-28">
@@ -170,7 +175,7 @@ export default async function AboutPage() {
               <span style={{ color: '#5d00f5' }}>it belongs here.</span>
             </p>
           </div>
-          <div className="lg:border-l lg:pl-16" style={{ borderColor: 'rgba(255,255,255,.08)' }}>
+          <div className="lg:border-l lg:pl-16" style={{ borderColor: 'var(--border-muted)' }}>
             <p className="text-white/50 text-lg leading-relaxed mb-8">
               From UAVs and eVTOLs to fixed-wing aircraft, rotorcraft, WIG craft, spacecraft, fuel cells, storage systems, refueling infrastructure, and hydrogen production — HYSKY is where the ecosystem meets.
             </p>
@@ -185,7 +190,7 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <div className="h-px mx-[6%]" style={{ background: 'rgba(255,255,255,.08)' }} />
+      <div className="h-px mx-[6%]" style={{ background: 'var(--border-muted)' }} />
 
       {/* ── AUDIENCE ──────────────────────────────────────────────────────── */}
       <section id="audience" className="px-[6%] py-28">
@@ -196,15 +201,17 @@ export default async function AboutPage() {
         <p className="text-white/50 text-lg leading-relaxed max-w-[560px] mb-12">
           If you are building, funding, regulating, researching, fueling, certifying, operating, or simply trying to understand hydrogen aviation — this is your place.
         </p>
-        <div className="fade-up grid sm:grid-cols-2 gap-px rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.08)' }}>
+        <div className="fade-up grid sm:grid-cols-2 gap-px rounded-2xl overflow-hidden"
+          style={{ background: 'var(--border-muted)', border: '1px solid var(--border-muted)' }}>
           {audience.map((a) => (
             <div
               key={a.text}
-              className={`flex items-center gap-4 px-7 py-6 text-sm font-medium transition-all cursor-default bg-[#04030a] ${
+              className={`flex items-center gap-4 px-7 py-6 text-sm font-medium transition-all cursor-default ${
                 a.highlight
                   ? 'audience-you text-[#13dce8] font-bold'
                   : 'text-white/45 hover:text-white hover:bg-[#5d00f5]/[.06]'
               }`}
+              style={{ backgroundColor: 'var(--bg-card)' }}
             >
               <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${a.highlight ? 'bg-[#13dce8]' : 'bg-[#5d00f5]'}`} />
               {a.text}
@@ -215,7 +222,7 @@ export default async function AboutPage() {
 
       {/* ── SOCIALS ───────────────────────────────────────────────────────── */}
       <section className="px-[6%] py-20">
-        <div className="h-px mb-20" style={{ background: 'rgba(255,255,255,.08)' }} />
+        <div className="h-px mb-20" style={{ background: 'var(--border-muted)' }} />
         <div className="text-[#5d00f5] text-xs font-bold uppercase tracking-[2.5px] mb-8">Follow Along</div>
         <div className="flex flex-wrap gap-4">
           {socials.map(s => (
@@ -224,8 +231,8 @@ export default async function AboutPage() {
               href={s.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 px-5 py-3 rounded-xl font-semibold text-sm transition-all hover:scale-[1.03]"
-              style={{ background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.1)', color: 'rgba(255,255,255,.65)' }}
+              className="flex items-center gap-3 px-5 py-3 rounded-xl font-semibold text-sm text-white/60 hover:text-white transition-all hover:scale-[1.03]"
+              style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-soft)' }}
             >
               <span className="text-xs font-black text-white/35">{s.icon}</span>
               {s.label}
@@ -264,7 +271,7 @@ export default async function AboutPage() {
       </section>
 
       {/* ── FOOTER ────────────────────────────────────────────────────────── */}
-      <footer style={{ borderTop: '1px solid rgba(255,255,255,.08)' }}>
+      <footer style={{ borderTop: '1px solid var(--border-muted)' }}>
         <div className="flex flex-wrap justify-between items-center gap-6 px-[6%] py-10">
           <Image src="/logo-new.png" alt="HYSKY Society" height={30} width={120} className="object-contain opacity-70" />
           <p className="text-white/35 text-sm max-w-sm leading-relaxed">
