@@ -39,6 +39,8 @@ export default function ChatBar() {
   const { online, windows, toasts, totalUnread, openDM, dismissToast } = useChatCtx()
   const [panelOpen, setPanelOpen] = useState(false)
 
+  const hasOthersOnline = online.length >= 1
+
   const handleOpen = (user: OnlineUser) => {
     openDM(user.id, user.displayName ?? 'Member', user.avatarUrl ?? null)
     setPanelOpen(false)
@@ -52,7 +54,7 @@ export default function ChatBar() {
           <div
             key={toast.id}
             className="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl cursor-pointer max-w-xs"
-            style={{ background: '#0d0a1f', border: '1px solid rgba(255,255,255,.14)' }}
+            style={{ background: 'var(--bg-panel)', border: '1px solid var(--border-dim)' }}
             onClick={() => { openDM(toast.fromId, toast.fromName, toast.fromAvatar); dismissToast(toast.id) }}
           >
             <Avatar name={toast.fromName} url={toast.fromAvatar} size={36} />
@@ -82,7 +84,7 @@ export default function ChatBar() {
         {panelOpen && (
           <div
             className="w-72 rounded-t-xl flex flex-col overflow-hidden"
-            style={{ height: 400, background: '#0d0a1f', border: '1px solid rgba(255,255,255,.14)', borderBottom: 'none' }}
+            style={{ height: 400, background: 'var(--bg-panel)', border: '1px solid var(--border-dim)', borderBottom: 'none' }}
           >
             <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-white/8">
               <span className="text-sm font-bold text-white">Messaging</span>
@@ -116,8 +118,16 @@ export default function ChatBar() {
           style={{ background: '#5d00f5', boxShadow: '0 8px 32px #5d00f540' }}
         >
           💬
+          {/* Online status indicator */}
+          <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
+            hasOthersOnline ? 'bg-green-500' : 'bg-white/25'
+          }`} />
+          {/* Unread badge */}
           {totalUnread > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
+            <span
+              className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-[9px] font-bold flex items-center justify-center"
+              style={{ color: '#fff' }}
+            >
               {totalUnread > 9 ? '9+' : totalUnread}
             </span>
           )}

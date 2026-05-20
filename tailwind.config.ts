@@ -9,6 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        white: 'rgb(var(--color-white) / <alpha-value>)',
         hysky: {
           dark: '#04080F',
           navy: '#0B3D91',

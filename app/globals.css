@@ -2,12 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── CSS custom properties ──────────────────────────────────────────── */
 :root {
   color-scheme: dark;
+  /* White is remapped via Tailwind config to rgb(var(--color-white) / alpha) */
+  --color-white:  255 255 255;
+  --bg-page:      #04080F;
+  --bg-sidebar:   #060510;
+  --bg-topbar:    rgba(4,8,15,.92);
+  --bg-panel:     #0d0a1f;
+  --bg-card:      #0a0818;
+  --border-muted: rgba(255,255,255,.07);
+  --border-soft:  rgba(255,255,255,.10);
+  --border-dim:   rgba(255,255,255,.14);
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --color-white:  10 12 30;
+  --bg-page:      #f0f3fa;
+  --bg-sidebar:   #e8ecf6;
+  --bg-topbar:    rgba(240,243,250,.92);
+  --bg-panel:     #ffffff;
+  --bg-card:      #f4f6fc;
+  --border-muted: rgba(10,12,30,.08);
+  --border-soft:  rgba(10,12,30,.11);
+  --border-dim:   rgba(10,12,30,.14);
 }
 
 body {
-  background-color: #04080F;
+  background-color: var(--bg-page);
+}
+
+/* Invert white logo to dark in light mode */
+[data-theme='light'] .logo-topbar {
+  filter: invert(1);
 }
 
 .btn-teal-glow {

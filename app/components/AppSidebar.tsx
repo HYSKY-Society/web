@@ -8,6 +8,7 @@ import { events as allEvents } from '@/lib/events'
 import { TIER_LABELS } from '@/lib/tiers'
 import type { Tier } from '@/lib/tiers'
 import type { SidebarData } from './AppShell'
+import { useChatCtx } from './ChatProvider'
 
 function SidebarSection({ label, collapsed }: { label: string; collapsed: boolean }) {
   if (collapsed) return <div className="h-3" />
@@ -19,10 +20,11 @@ function SidebarSection({ label, collapsed }: { label: string; collapsed: boolea
 }
 
 function SidebarItem({
-  href, icon, label, onClick, sub, collapsed,
+  href, icon, label, onClick, sub, collapsed, statusDot,
 }: {
   href: string; icon: string; label: string
   onClick: () => void; sub?: boolean; collapsed: boolean
+  statusDot?: boolean  // true = green (online), false = silver (offline)
 }) {
   const pathname = usePathname()
   const active = pathname === href || (href.length > 1 && pathname.startsWith(href + '/'))
@@ -34,7 +36,7 @@ function SidebarItem({
         onClick={onClick}
         className={`flex items-center rounded-lg text-sm transition-colors ${
           collapsed
-            ? 'justify-center w-10 h-10 mx-auto'
+            ? 'justify-center w-10 h-10 mx-auto relative'
             : `gap-2.5 px-3 py-1.5 ${sub ? 'ml-2' : ''}`
         } ${
           active
@@ -43,7 +45,21 @@ function SidebarItem({
         }`}
       >
         <span className="text-base leading-none shrink-0">{icon}</span>
+
+        {/* Collapsed mode: status dot absolute top-right of the icon button */}
+        {collapsed && statusDot !== undefined && (
+          <span className={`absolute top-0.5 right-0.5 w-2 h-2 rounded-full border border-white ${
+            statusDot ? 'bg-green-500' : 'bg-white/25'
+          }`} />
+        )}
+
+        {/* Expanded mode: label + status dot at end of row */}
         {!collapsed && <span className="truncate">{label}</span>}
+        {!collapsed && statusDot !== undefined && (
+          <span className={`ml-auto w-2.5 h-2.5 rounded-full border-2 border-white shrink-0 ${
+            statusDot ? 'bg-green-500' : 'bg-white/25'
+          }`} />
+        )}
       </Link>
 
       {/* Tooltip — only in collapsed mode; nav is overflow-visible when collapsed */}
@@ -72,6 +88,9 @@ export default function AppSidebar({
   const enrolledEvents  = allEvents.filter(e => data.enrolledEventSlugs.includes(e.slug))
   const tierLabel = TIER_LABELS[data.tier as Tier] ?? data.tier
 
+  const { online } = useChatCtx()
+  const hasOthersOnline = online.length >= 1
+
   return (
     <aside
       className={`fixed top-[60px] left-0 bottom-0 z-40 flex flex-col transition-all duration-300 ease-in-out
@@ -79,7 +98,7 @@ export default function AppSidebar({
         lg:translate-x-0
         ${collapsed ? 'lg:w-[60px]' : 'lg:w-[260px]'}
         w-[260px]`}
-      style={{ background: '#060510', borderRight: '1px solid rgba(255,255,255,.07)' }}
+      style={{ background: 'var(--bg-sidebar)', borderRight: '1px solid var(--border-muted)' }}
     >
       {/* overflow-visible when collapsed so tooltips can escape the container */}
       <nav className={`flex-1 py-2 space-y-0.5 ${collapsed ? 'overflow-visible' : 'overflow-y-auto'}`}>
@@ -118,9 +137,9 @@ export default function AppSidebar({
 
         {/* ── Community ─────────────────────────────────────────── */}
         <SidebarSection label="Community" collapsed={collapsed} />
-        <SidebarItem href="/network"  icon="🌐" label="Network"       onClick={onClose} collapsed={collapsed} />
-        <SidebarItem href="/chat"     icon="👥" label="Groups"        onClick={onClose} collapsed={collapsed} />
-        <SidebarItem href="/forum"    icon="📋" label="Forum"         onClick={onClose} collapsed={collapsed} />
+        <SidebarItem href="/network"  icon="🌐" label="Network"  onClick={onClose} collapsed={collapsed} statusDot={hasOthersOnline} />
+        <SidebarItem href="/chat"     icon="👥" label="Groups"   onClick={onClose} collapsed={collapsed} />
+        <SidebarItem href="/forum"    icon="📋" label="Forum"    onClick={onClose} collapsed={collapsed} />
 
         {/* ── Sponsors ──────────────────────────────────────────── */}
         <SidebarSection label="Sponsors" collapsed={collapsed} />

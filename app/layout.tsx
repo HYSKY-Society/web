@@ -13,7 +13,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="en" data-theme="dark" suppressHydrationWarning>
+        <head>
+          {/* Anti-FOUC: apply saved theme before first paint */}
+          <script dangerouslySetInnerHTML={{ __html:
+            `(function(){var t=localStorage.getItem('theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');})()`
+          }} />
+        </head>
         <body className={inter.className}>{children}</body>
       </html>
     </ClerkProvider>

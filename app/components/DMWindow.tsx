@@ -92,12 +92,15 @@ export default function DMWindow({ userId, name, avatar }: { userId: string; nam
       <button
         onClick={() => toggleMin(userId)}
         className="relative flex items-center gap-2 h-10 px-3 rounded-t-xl text-sm font-semibold text-white transition-colors hover:bg-white/5"
-        style={{ background: '#0d0a1f', border: '1px solid rgba(255,255,255,.12)', borderBottom: 'none', maxWidth: 192 }}
+        style={{ background: 'var(--bg-panel)', border: '1px solid var(--border-dim)', borderBottom: 'none', maxWidth: 192 }}
       >
         <Avatar name={name} url={avatar} size={22} />
         <span className="truncate max-w-[100px]">{name}</span>
         {unread > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-[#5d00f5] text-white text-[9px] font-bold flex items-center justify-center">
+          <span
+            className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-[#5d00f5] text-[9px] font-bold flex items-center justify-center"
+            style={{ color: '#fff' }}
+          >
             {unread > 9 ? '9+' : unread}
           </span>
         )}
@@ -109,7 +112,7 @@ export default function DMWindow({ userId, name, avatar }: { userId: string; nam
   return (
     <div
       className="flex flex-col rounded-t-xl overflow-hidden w-[276px] shrink-0"
-      style={{ height: 380, background: '#080614', border: '1px solid rgba(255,255,255,.14)', borderBottom: 'none' }}
+      style={{ height: 380, background: 'var(--bg-panel)', border: '1px solid var(--border-dim)', borderBottom: 'none' }}
     >
       {/* Header — click to minimize */}
       <div
@@ -139,9 +142,10 @@ export default function DMWindow({ userId, name, avatar }: { userId: string; nam
               <div
                 className={`max-w-[84%] text-[12px] px-3 py-1.5 rounded-2xl leading-relaxed ${
                   isMine
-                    ? 'bg-[#5d00f5] text-white rounded-br-sm'
+                    ? 'bg-[#5d00f5] rounded-br-sm'
                     : 'bg-white/8 text-white/85 rounded-bl-sm'
                 }`}
+                style={isMine ? { color: '#fff' } : undefined}
               >
                 {msg.content}
               </div>
@@ -170,7 +174,12 @@ export default function DMWindow({ userId, name, avatar }: { userId: string; nam
             className="shrink-0 w-6 h-6 rounded-lg flex items-center justify-center disabled:opacity-25 transition-colors"
             style={{ background: input.trim() ? '#5d00f5' : 'transparent' }}
           >
-            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-3 h-3"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              style={{ color: '#fff' }}
+            >
               <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
             </svg>
           </button>
