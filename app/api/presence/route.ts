@@ -27,11 +27,14 @@ export async function POST() {
   return NextResponse.json(await getOnlineUsers(userId))
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const { userId } = auth()
   if (!userId) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
 
-  return NextResponse.json(await getOnlineUsers(userId))
+  const { searchParams } = new URL(request.url)
+  const all = searchParams.get('all') === 'true'
+
+  return NextResponse.json(all ? await getAllUsers(userId) : await getOnlineUsers(userId))
 }
 
 async function getOnlineUsers(excludeUserId: string) {
@@ -49,6 +52,26 @@ async function getOnlineUsers(excludeUserId: string) {
       .innerJoin(users, eq(userProfiles.userId, users.id))
       .where(
         sql`${userProfiles.lastSeenAt} >= ${since} AND ${userProfiles.userId} != ${excludeUserId} AND ${userProfiles.isVisible} = true`
+      )
+    return rows
+  } catch {
+    return []
+  }
+}
+
+async function getAllUsers(excludeUserId: string) {
+  try {
+    const rows = await db
+      .select({
+        id:          users.id,
+        displayName: userProfiles.displayName,
+        headline:    userProfiles.headline,
+        avatarUrl:   userProfiles.avatarUrl,
+      })
+      .from(userProfiles)
+      .innerJoin(users, eq(userProfiles.userId, users.id))
+      .where(
+        sql`${userProfiles.userId} != ${excludeUserId} AND ${userProfiles.isVisible} = true`
       )
     return rows
   } catch {
