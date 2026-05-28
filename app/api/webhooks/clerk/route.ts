@@ -3,6 +3,7 @@ import { Webhook } from 'svix'
 import type { WebhookEvent } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { users } from '@/lib/schema'
+import { upsertProfile } from '@/lib/members'
 
 export async function POST(req: NextRequest) {
   const secret = process.env.CLERK_WEBHOOK_SECRET
@@ -43,6 +44,10 @@ export async function POST(req: NextRequest) {
         email: primaryEmail.toLowerCase().trim(),
         tier: 'free',
       }).onConflictDoNothing()
+
+      const displayName = [evt.data.first_name, evt.data.last_name].filter(Boolean).join(' ').trim() || null
+      const avatarUrl   = evt.data.image_url || null
+      await upsertProfile(evt.data.id, { displayName, avatarUrl })
     }
   }
 
