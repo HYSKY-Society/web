@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Webhook } from 'svix'
 import type { WebhookEvent } from '@clerk/nextjs/server'
+import { eq } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import { users } from '@/lib/schema'
-import { upsertProfile } from '@/lib/members'
+import { getProfile, upsertProfile, type ProfileData } from '@/lib/members'
 
 export async function POST(req: NextRequest) {
   const secret = process.env.CLERK_WEBHOOK_SECRET
@@ -48,6 +49,30 @@ export async function POST(req: NextRequest) {
       const displayName = [evt.data.first_name, evt.data.last_name].filter(Boolean).join(' ').trim() || null
       const avatarUrl   = evt.data.image_url || null
       await upsertProfile(evt.data.id, { displayName, avatarUrl })
+    }
+  }
+
+  if (evt.type === 'user.updated') {
+    const primaryEmail = evt.data.email_addresses?.find(
+      (e) => e.id === evt.data.primary_email_address_id
+    )?.email_address
+
+    // Keep email in sync
+    if (primaryEmail) {
+      await db.update(users)
+        .set({ email: primaryEmail.toLowerCase().trim() })
+        .where(eq(users.id, evt.data.id))
+    }
+
+    // Fill in any null profile fields from Clerk without overwriting user-set data
+    const existing = await getProfile(evt.data.id)
+    const clerkName      = [evt.data.first_name, evt.data.last_name].filter(Boolean).join(' ').trim() || null
+    const clerkAvatarUrl = evt.data.image_url || null
+    const updates: ProfileData = {}
+    if (!existing?.displayName && clerkName)      updates.displayName = clerkName
+    if (!existing?.avatarUrl   && clerkAvatarUrl) updates.avatarUrl   = clerkAvatarUrl
+    if (Object.keys(updates).length > 0) {
+      await upsertProfile(evt.data.id, updates)
     }
   }
 

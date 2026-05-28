@@ -24,12 +24,14 @@ export default async function MembersLayout({ children }: { children: React.Reac
     getUserEventSlugs(user.id),
   ])
 
-  // Backfill: seed Neon profile from Clerk for users who have never saved one
-  if (!profile) {
-    await upsertProfile(user.id, {
-      displayName: clerkName || null,
-      avatarUrl:   user.imageUrl || null,
-    })
+  // Backfill: fill in any null profile fields from Clerk without overwriting user-set data
+  const needsName   = !profile?.displayName && !!clerkName
+  const needsAvatar = !profile?.avatarUrl   && !!user.imageUrl
+  if (!profile || needsName || needsAvatar) {
+    const updates: Record<string, string | null> = {}
+    if (needsName)   updates.displayName = clerkName
+    if (needsAvatar) updates.avatarUrl   = user.imageUrl
+    await upsertProfile(user.id, updates)
   }
 
   const sidebarData: SidebarData = {
