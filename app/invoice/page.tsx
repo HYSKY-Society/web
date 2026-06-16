@@ -74,7 +74,7 @@ function InvoiceContent() {
           <div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/hysky-logo.png"
+              src="/logo-purple.png"
               alt="HYSKY Society"
               className="h-12 mb-2"
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
