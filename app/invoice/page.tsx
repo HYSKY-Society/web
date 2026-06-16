@@ -75,10 +75,11 @@ function InvoiceContent() {
           <div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/logo-new.png"
+              src="/logo-purple.png"
               alt="HYSKY Society"
-              className="h-14 w-auto"
+              className="h-14 w-auto mb-1"
             />
+            <div className="text-xs text-gray-500">hysky@hysky.org · hysky.org</div>
           </div>
           <div className="text-right">
             <div className="text-3xl font-extrabold tracking-tight" style={{ color: BRAND }}>INVOICE</div>
