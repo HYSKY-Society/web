@@ -3,11 +3,12 @@
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 
+const BRAND = '#3f11fa'
+
 function pad(n: number) { return String(n).padStart(2, '0') }
 
 function invoiceNumber(orderId: string | null, name: string, date: string): string {
   if (orderId) return `INV-${orderId.toUpperCase().slice(0, 8)}`
-  // deterministic fallback: YYYYMMDD + initials
   const initials = name.split(' ').map(w => w[0] ?? '').join('').toUpperCase().slice(0, 3)
   const d = date.replace(/-/g, '').slice(0, 8)
   return `INV-${d}-${initials}`
@@ -29,21 +30,20 @@ function formatAmount(amount: string, currency: string): string {
 function InvoiceContent() {
   const params = useSearchParams()
 
-  const name      = params.get('name')      ?? ''
-  const org       = params.get('org')       ?? ''
-  const email     = params.get('email')     ?? ''
-  const billing   = params.get('billing')   ?? ''       // alternative billing email
-  const amount    = params.get('amount')    ?? '0'
-  const currency  = params.get('currency')  ?? 'USD'
-  const date      = params.get('date')      ?? new Date().toISOString().slice(0,10)
-  const event     = params.get('event')     ?? 'Event Registration'
-  const orderId   = params.get('orderId')   ?? null
+  const name      = params.get('name')        ?? ''
+  const org       = params.get('org')         ?? ''
+  const email     = params.get('email')       ?? ''
+  const billing   = params.get('billing')     ?? ''
+  const amount    = params.get('amount')      ?? '0'
+  const currency  = params.get('currency')    ?? 'USD'
+  const date      = params.get('date')        ?? new Date().toISOString().slice(0,10)
+  const event     = params.get('event')       ?? 'Event Registration'
+  const orderId   = params.get('orderId')     ?? null
   const invDate   = params.get('invoiceDate') ?? new Date().toISOString().slice(0,10)
 
   const invNum = invoiceNumber(orderId, name, date)
 
-  const missing = !name && !email
-  if (missing) {
+  if (!name && !email) {
     return (
       <div className="flex items-center justify-center min-h-screen text-gray-500 text-sm">
         No invoice data found. Please use the link provided in your registration email.
@@ -57,7 +57,8 @@ function InvoiceContent() {
       <div className="print:hidden flex justify-end p-4 border-b border-gray-200 bg-gray-50">
         <button
           onClick={() => window.print()}
-          className="flex items-center gap-2 px-5 py-2.5 bg-indigo-700 text-white text-sm font-semibold rounded-lg hover:bg-indigo-800 transition-colors"
+          style={{ backgroundColor: BRAND }}
+          className="flex items-center gap-2 px-5 py-2.5 text-white text-sm font-semibold rounded-lg transition-opacity hover:opacity-90"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a1 1 0 001-1v-4a1 1 0 00-1-1H9a1 1 0 00-1 1v4a1 1 0 001 1zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -76,13 +77,12 @@ function InvoiceContent() {
             <img
               src="/logo-new.png"
               alt="HYSKY Society"
-              className="h-14 w-auto mb-1"
+              className="h-14 w-auto"
             />
-            <div className="text-xs text-gray-500">admin@hysky.org · hysky.org</div>
           </div>
           <div className="text-right">
-            <div className="text-3xl font-extrabold text-indigo-900 tracking-tight">INVOICE</div>
-            <div className="text-sm text-gray-600 mt-1">{invNum}</div>
+            <div className="text-3xl font-extrabold tracking-tight" style={{ color: BRAND }}>INVOICE</div>
+            <div className="text-sm text-gray-500 mt-1">{invNum}</div>
           </div>
         </div>
 
@@ -109,8 +109,8 @@ function InvoiceContent() {
         {/* Bill To */}
         <div className="mb-8">
           <div className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Bill To</div>
-          {name    && <div className="text-gray-900 font-semibold text-base">{name}</div>}
-          {org     && <div className="text-gray-700 text-sm">{org}</div>}
+          {name               && <div className="text-gray-900 font-semibold text-base">{name}</div>}
+          {org                && <div className="text-gray-700 text-sm">{org}</div>}
           {(billing || email) && <div className="text-gray-600 text-sm">{billing || email}</div>}
         </div>
 
@@ -136,7 +136,7 @@ function InvoiceContent() {
           <tfoot>
             <tr>
               <td colSpan={2} className="pt-4 text-right text-xs font-semibold text-gray-400 uppercase tracking-widest">Total</td>
-              <td className="pt-4 text-right text-lg font-bold text-indigo-900">{formatAmount(amount, currency)}</td>
+              <td className="pt-4 text-right text-lg font-bold" style={{ color: BRAND }}>{formatAmount(amount, currency)}</td>
             </tr>
             <tr>
               <td colSpan={2} className="pt-1 text-right text-xs text-gray-400">Payment Received</td>
@@ -152,13 +152,13 @@ function InvoiceContent() {
         {/* Payment note */}
         <div className="bg-gray-50 rounded-lg p-4 text-xs text-gray-500 mb-8 print:bg-transparent print:border print:border-gray-200">
           Payment was processed securely via Zeffy on {formatDate(date)}. This invoice serves as your official receipt.
-          HYSKY Society is a 501(c)(6) trade association. EIN on file — contact admin@hysky.org for tax documentation.
+          HYSKY Society is a 501(c)(6) trade association. EIN on file — contact hysky@hysky.org for tax documentation.
         </div>
 
         {/* Footer */}
         <div className="border-t border-gray-200 pt-6 text-xs text-gray-400 text-center">
-          HYSKY Society · admin@hysky.org · hysky.org<br/>
-          Questions? Email admin@hysky.org
+          HYSKY Society · hysky@hysky.org · hysky.org<br/>
+          Questions? Email hysky@hysky.org
         </div>
 
       </div>
