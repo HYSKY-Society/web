@@ -49,6 +49,11 @@ body {
   filter: invert(1);
 }
 
+@media print {
+  body { background-color: #ffffff !important; color: #111827 !important; }
+  @page { margin: 0.75in; size: letter portrait; }
+}
+
 .btn-teal-glow {
   color: #ffffff;
   background-color: #5d00f5;
