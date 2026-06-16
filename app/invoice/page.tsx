@@ -74,13 +74,11 @@ function InvoiceContent() {
           <div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/logo-purple.png"
+              src="/logo-new.png"
               alt="HYSKY Society"
-              className="h-12 mb-2"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+              className="h-14 w-auto mb-1"
             />
-            <div className="text-xl font-bold text-indigo-900 tracking-tight">HYSKY Society</div>
-            <div className="text-xs text-gray-500 mt-0.5">admin@hysky.org · hysky.org</div>
+            <div className="text-xs text-gray-500">admin@hysky.org · hysky.org</div>
           </div>
           <div className="text-right">
             <div className="text-3xl font-extrabold text-indigo-900 tracking-tight">INVOICE</div>
