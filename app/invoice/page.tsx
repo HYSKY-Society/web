@@ -152,13 +152,13 @@ function InvoiceContent() {
 
         {/* Payment note */}
         <div className="bg-gray-50 rounded-lg p-4 text-xs text-gray-500 mb-8 print:bg-transparent print:border print:border-gray-200">
-          Payment was processed securely via Zeffy on {formatDate(date)}. This invoice serves as your official receipt.
-          HYSKY Society is a 501(c)(6) trade association. EIN on file — contact hysky@hysky.org for tax documentation.
+          Payment was processed securely via Zeffy on {formatDate(date)}. 
+          HYSKY Society is a 501(c)(3) charitable nonprofit association. EIN 88-2447859 
         </div>
 
         {/* Footer */}
         <div className="border-t border-gray-200 pt-6 text-xs text-gray-400 text-center">
-          HYSKY Society · hysky@hysky.org · hysky.org<br/>
+          HYSKY Society · hysky.org<br/>
           Questions? Email hysky@hysky.org
         </div>
 
