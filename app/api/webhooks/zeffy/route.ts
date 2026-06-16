@@ -9,7 +9,6 @@ import type { Tier } from '@/lib/members'
 // { type: "payment.completed", data: { description, campaign_type, items[], buyer: { email } } }
 // No built-in signing — authenticate via ?secret= query param.
 
-const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'invoices@hysky.org'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://connect.hysky.org'
 
@@ -72,6 +71,7 @@ export async function POST(req: NextRequest) {
 
   // ── Send invoice email ─────────────────────────────────────────────────────
   if (process.env.RESEND_API_KEY) {
+    const resend = new Resend(process.env.RESEND_API_KEY)
     await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
