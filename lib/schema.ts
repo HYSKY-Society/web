@@ -261,6 +261,20 @@ export type ChatChannel      = typeof chatChannels.$inferSelect
 export type ChatMessage      = typeof chatMessages.$inferSelect
 export type ForumThread      = typeof forumThreads.$inferSelect
 export type ForumReply       = typeof forumReplies.$inferSelect
+export const zeffyInvoices = pgTable('zeffy_invoices', {
+  token:       text('token').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  email:       text('email').notNull(),
+  name:        text('name').notNull(),
+  org:         text('org'),
+  amount:      text('amount').notNull(),
+  currency:    text('currency').notNull().default('USD'),
+  eventName:   text('event_name').notNull(),
+  paidAt:      timestamp('paid_at', { withTimezone: true }).notNull(),
+  zeffyOrderId: text('zeffy_order_id'),
+  createdAt:   timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export type FeedPost         = typeof feedPosts.$inferSelect
 export type FeedPostLike     = typeof feedPostLikes.$inferSelect
 export type FeedPostReply    = typeof feedPostReplies.$inferSelect
+export type ZeffyInvoice     = typeof zeffyInvoices.$inferSelect
