@@ -15,6 +15,7 @@ const isPublicRoute = createRouteMatcher([
   '/news(.*)',
   '/flying-hy(.*)',
   '/sponsors',
+  '/invoice(.*)',
   '/api/webhooks(.*)',
   '/api/oembed',
   '/api/presence',
