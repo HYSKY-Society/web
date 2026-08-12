@@ -1,5 +1,5 @@
 import { db } from './db'
-import { users, newsSubscriptions, newsArticleViews } from './schema'
+import { users, newsSubscriptions, newsArticleViews, pendingNewsSubscriptions } from './schema'
 import { eq, and, gte, count } from 'drizzle-orm'
 
 export type NewsTier = 'free' | 'complimentary' | 'monthly' | 'annual'
@@ -25,6 +25,71 @@ export const TIER_DESCRIPTIONS: Record<NewsTier, string> = {
   annual:        'Unlimited articles + archive',
 }
 
+function addSubscriptionPeriod(tier: 'monthly' | 'annual', from: Date): Date {
+  const expiresAt = new Date(from)
+  if (tier === 'monthly') {
+    expiresAt.setUTCDate(expiresAt.getUTCDate() + 30)
+  } else {
+    expiresAt.setUTCDate(expiresAt.getUTCDate() + 365)
+  }
+  return expiresAt
+}
+
+// Grants news access from a successful Zeffy payment. If the buyer has not
+// created a Clerk account yet, the entitlement waits safely under their email.
+export async function grantNewsSubscriptionByEmail(
+  email: string,
+  tier: 'monthly' | 'annual',
+  paidAt = new Date()
+): Promise<void> {
+  const normalizedEmail = email.toLowerCase().trim()
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.email, normalizedEmail))
+
+  if (user) {
+    const [existing] = await db
+      .select({ tier: newsSubscriptions.tier, expiresAt: newsSubscriptions.expiresAt })
+      .from(newsSubscriptions)
+      .where(eq(newsSubscriptions.userId, user.id))
+
+    const startFrom =
+      existing?.tier === tier && existing.expiresAt && existing.expiresAt > paidAt
+        ? existing.expiresAt
+        : paidAt
+    const expiresAt = addSubscriptionPeriod(tier, startFrom)
+
+    await db
+      .insert(newsSubscriptions)
+      .values({ userId: user.id, tier, expiresAt })
+      .onConflictDoUpdate({
+        target: newsSubscriptions.userId,
+        set: { tier, expiresAt, updatedAt: new Date() },
+      })
+    return
+  }
+
+  const [pending] = await db
+    .select({ tier: pendingNewsSubscriptions.tier, expiresAt: pendingNewsSubscriptions.expiresAt })
+    .from(pendingNewsSubscriptions)
+    .where(eq(pendingNewsSubscriptions.email, normalizedEmail))
+
+  const startFrom =
+    pending?.tier === tier && pending.expiresAt > paidAt
+      ? pending.expiresAt
+      : paidAt
+  const expiresAt = addSubscriptionPeriod(tier, startFrom)
+
+  await db
+    .insert(pendingNewsSubscriptions)
+    .values({ email: normalizedEmail, tier, expiresAt })
+    .onConflictDoUpdate({
+      target: pendingNewsSubscriptions.email,
+      set: { tier, expiresAt, updatedAt: new Date() },
+    })
+}
+
 // Returns the user's current news tier, creating or synchronizing a record if needed.
 // Paid HYSKY Connect VIP members receive complimentary unlimited news access.
 export async function ensureNewsUser(userId: string): Promise<NewsTier> {
@@ -35,12 +100,44 @@ export async function ensureNewsUser(userId: string): Promise<NewsTier> {
         .from(newsSubscriptions)
         .where(eq(newsSubscriptions.userId, userId)),
       db
-        .select({ tier: users.tier })
+        .select({ tier: users.tier, email: users.email })
         .from(users)
         .where(eq(users.id, userId)),
     ])
 
     const isVipConnectMember = webUser?.tier === 'member_full'
+
+    // Attach a Zeffy purchase made before the buyer's first Clerk sign-in.
+    if (webUser?.email) {
+      const [pending] = await db
+        .select()
+        .from(pendingNewsSubscriptions)
+        .where(eq(pendingNewsSubscriptions.email, webUser.email))
+
+      if (pending && pending.expiresAt >= new Date()) {
+        await db.transaction(async tx => {
+          await tx
+            .insert(newsSubscriptions)
+            .values({
+              userId,
+              tier: pending.tier,
+              expiresAt: pending.expiresAt,
+            })
+            .onConflictDoUpdate({
+              target: newsSubscriptions.userId,
+              set: {
+                tier: pending.tier,
+                expiresAt: pending.expiresAt,
+                updatedAt: new Date(),
+              },
+            })
+          await tx
+            .delete(pendingNewsSubscriptions)
+            .where(eq(pendingNewsSubscriptions.email, webUser.email))
+        })
+        return pending.tier as NewsTier
+      }
+    }
 
     if (existing) {
       const isPaidNewsTier = existing.tier === 'monthly' || existing.tier === 'annual'
