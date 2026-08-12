@@ -14,6 +14,24 @@ import { canReadArticle, recordArticleView, TIER_LABELS, TIER_DESCRIPTIONS } fro
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] })
 const NEWS_ORIGIN = 'https://news.hysky.org'
 
+const ARTICLE_IMAGE_OVERRIDES: Record<string, {
+  src: string
+  alt: string
+  credit: string
+  sourceUrl: string
+  license: string
+  licenseUrl: string
+}> = {
+  'hydrogen-aviations-airport-problem-who-is-building-the-infrastructure': {
+    src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Wasserstoff_Tankstelle_Stuttgart_Flughafen.jpg/1920px-Wasserstoff_Tankstelle_Stuttgart_Flughafen.jpg',
+    alt: 'Hydrogen fueling station at Stuttgart Airport in Germany',
+    credit: '5R-MFT / Wikimedia Commons',
+    sourceUrl: 'https://commons.wikimedia.org/wiki/File:Wasserstoff_Tankstelle_Stuttgart_Flughafen.jpg',
+    license: 'CC BY-SA 4.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
+  },
+}
+
 async function getPost(slug: string) {
   try {
     const [post] = await db.select().from(pressPosts)
@@ -35,14 +53,15 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const canonical = `${NEWS_ORIGIN}/${post.slug}`
   const title = post.seoTitle || post.title
   const description = post.seoDescription || post.excerpt || undefined
-  const image = absoluteImageUrl(post.coverImageUrl)
+  const imageOverride = ARTICLE_IMAGE_OVERRIDES[post.slug]
+  const image = absoluteImageUrl(imageOverride?.src || post.coverImageUrl)
   return {
     title,
     description,
     keywords: post.keywords?.split(',').map(keyword => keyword.trim()).filter(Boolean),
     alternates: { canonical },
     robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 } },
-    openGraph: { type: 'article', url: canonical, title, description, publishedTime: post.publishedAt.toISOString(), modifiedTime: post.updatedAt.toISOString(), authors: [post.author], images: image ? [{ url: image, alt: post.imageAltText || post.title }] : undefined },
+    openGraph: { type: 'article', url: canonical, title, description, publishedTime: post.publishedAt.toISOString(), modifiedTime: post.updatedAt.toISOString(), authors: [post.author], images: image ? [{ url: image, alt: imageOverride?.alt || post.imageAltText || post.title }] : undefined },
     twitter: { card: 'summary_large_image', title, description, images: image ? [image] : undefined },
   }
 }
@@ -71,6 +90,7 @@ function articleBlocks(body: string): ReactNode[] {
 export default async function NewsPostPage({ params }: { params: { slug: string } }) {
   const post = await getPost(params.slug)
   if (!post) notFound()
+  const imageOverride = ARTICLE_IMAGE_OVERRIDES[post.slug]
 
   const { userId } = auth()
   const blocks = articleBlocks(post.content || post.excerpt || '')
@@ -85,7 +105,7 @@ export default async function NewsPostPage({ params }: { params: { slug: string 
   }
   const previewCount = gated ? Math.min(3, blocks.length) : blocks.length
   const canonical = `${NEWS_ORIGIN}/${post.slug}`
-  const image = absoluteImageUrl(post.coverImageUrl)
+  const image = absoluteImageUrl(imageOverride?.src || post.coverImageUrl)
   const structuredData = {
     '@context': 'https://schema.org', '@type': 'NewsArticle', mainEntityOfPage: canonical,
     headline: post.title, description: post.seoDescription || post.excerpt, image: image ? [image] : undefined,
@@ -106,7 +126,12 @@ export default async function NewsPostPage({ params }: { params: { slug: string 
         <h1 style={{ fontWeight: 850, fontSize: 'clamp(2rem, 5vw, 3.45rem)', color: '#17131f', lineHeight: 1.04, margin: '0 0 22px', letterSpacing: '-0.045em' }}>{post.title}</h1>
         {post.excerpt && <p style={{ color: '#5e5866', fontSize: 'clamp(1.05rem, 2.4vw, 1.22rem)', lineHeight: 1.58, margin: '0 0 24px', maxWidth: 720 }}>{post.excerpt}</p>}
         <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, paddingBottom: 25, marginBottom: 34, borderBottom: '1px solid #ece8f1', fontSize: '0.78rem', color: '#8c8593' }}><span style={{ fontWeight: 700, color: '#4a4450' }}>{post.author}</span><span>Â·</span><span>{new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>{post.readTimeMinutes && <><span>Â·</span><span>{post.readTimeMinutes} min read</span></>}</div>
-        {post.coverImageUrl && <Image src={post.coverImageUrl} alt={post.imageAltText || post.title} width={1672} height={939} priority unoptimized={post.coverImageUrl.startsWith('http')} style={{ width: '100%', height: 'auto', borderRadius: 18, objectFit: 'cover', marginBottom: 38, maxHeight: 430 }} />}
+        {(imageOverride || post.coverImageUrl) && <figure style={{ margin: '0 0 38px' }}>
+          <Image src={imageOverride?.src || post.coverImageUrl!} alt={imageOverride?.alt || post.imageAltText || post.title} width={1920} height={1081} priority unoptimized={(imageOverride?.src || post.coverImageUrl!).startsWith('http')} style={{ width: '100%', height: 'auto', borderRadius: 18, objectFit: 'cover', maxHeight: 430 }} />
+          {imageOverride && <figcaption style={{ color: '#817989', fontSize: '0.72rem', lineHeight: 1.5, marginTop: 9 }}>
+            Hydrogen fueling station at Stuttgart Airport. Photo: <a href={imageOverride.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#5D00F5' }}>{imageOverride.credit}</a>, licensed under <a href={imageOverride.licenseUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#5D00F5' }}>{imageOverride.license}</a>. Cropped for presentation.
+          </figcaption>}
+        </figure>}
         <div className={gated ? 'paywall' : undefined} style={{ fontSize: '1.04rem', color: '#332e38', lineHeight: 1.82, display: 'flex', flexDirection: 'column', gap: 22 }}>{blocks.slice(0, previewCount)}</div>
         {gated && <div style={{ marginTop: 0, position: 'relative' }}><div style={{ height: 130, background: 'linear-gradient(to bottom, rgba(255,255,255,0), #fff)', marginBottom: -62, position: 'relative', zIndex: 1 }} /><div style={{ position: 'relative', zIndex: 2, border: '1px solid #e6dff0', borderRadius: 22, padding: '38px 30px', textAlign: 'center', background: '#fff', boxShadow: '0 16px 50px rgba(61,20,105,.09)' }}>
           {!userId ? <><div aria-hidden style={{ fontSize: '1.45rem', marginBottom: 12 }}>ðŸ”’</div><h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#17131f', margin: '0 0 8px' }}>Sign in to keep reading</h2><p style={{ color: '#756d7d', fontSize: '0.92rem', margin: '0 auto 26px', lineHeight: 1.6, maxWidth: 520 }}>A free HySky account includes one article each month. VIP Connect members and HySky News subscribers get unlimited access.</p><div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}><Link href="/sign-in" style={{ padding: '11px 25px', border: '1.5px solid #ded7e5', borderRadius: 10, fontWeight: 700, fontSize: '0.9rem', color: '#332e38', textDecoration: 'none' }}>Log in or create account</Link><Link href="/news/subscribe" style={{ padding: '11px 25px', background: '#5D00F5', borderRadius: 10, fontWeight: 750, fontSize: '0.9rem', color: '#fff', textDecoration: 'none' }}>See subscription options</Link></div></> : <><div aria-hidden style={{ fontSize: '1.45rem', marginBottom: 12 }}>ðŸ“°</div><h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#17131f', margin: '0 0 8px' }}>You&apos;ve read your {tierInfo?.limit} free article{tierInfo?.limit === 1 ? '' : 's'} this month</h2><p style={{ color: '#756d7d', fontSize: '0.92rem', margin: '0 auto 8px', lineHeight: 1.6, maxWidth: 520 }}>Your <strong>{tierInfo ? TIER_LABELS[tierInfo.tier as keyof typeof TIER_LABELS] : ''}</strong> plan includes {tierInfo ? TIER_DESCRIPTIONS[tierInfo.tier as keyof typeof TIER_DESCRIPTIONS] : ''}.</p><p style={{ color: '#a39ca8', fontSize: '0.82rem', marginBottom: 26 }}>Your quota resets on the first of next month.</p><Link href="/news/subscribe" style={{ display: 'inline-block', padding: '11px 28px', background: '#5D00F5', borderRadius: 10, fontWeight: 750, fontSize: '0.95rem', color: '#fff', textDecoration: 'none' }}>Upgrade for unlimited access</Link></>}
