@@ -24,12 +24,12 @@ export default async function NewsSubscribePage() {
     },
     {
       key:         'complimentary' as const,
-      label:       'Complimentary',
+      label:       'VIP Connect',
       price:       '$0',
       per:         '',
-      description: '5 articles per month. Automatically granted to all HYSKY Society members.',
-      cta:         currentTier === 'complimentary' ? 'Your current plan' : 'Sign in with HYSKY account',
-      ctaHref:     currentTier === 'complimentary' ? null : '/sign-in',
+      description: 'Unlimited articles + full archive. Included with an active paid HYSKY Connect VIP membership.',
+      cta:         currentTier === 'complimentary' ? 'Your current plan' : 'Included with VIP Connect',
+      ctaHref:     null,
       highlight:   false,
     },
     {
@@ -143,7 +143,7 @@ export default async function NewsSubscribePage() {
                       fontSize: '0.82rem', color: '#aaa',
                     }}>
                       {tier.key === 'complimentary'
-                        ? 'Auto-granted to HYSKY members'
+                        ? 'Included with VIP Connect'
                         : 'Coming soon'}
                     </div>
                   )}
@@ -160,12 +160,12 @@ export default async function NewsSubscribePage() {
           </h2>
           {[
             {
-              q: 'What is the Complimentary tier?',
-              a: 'Any existing HYSKY Society member (free or paid) automatically receives 5 free articles per month on HYSKY News — no additional payment needed.',
+              q: 'What is the VIP Connect tier?',
+              a: 'Active paid HYSKY Connect VIP members automatically receive unlimited HYSKY News access — no additional news subscription is needed.',
             },
             {
               q: 'Does my HYSKY web login work here?',
-              a: 'Yes. If you sign in with the same email or OAuth account you use on hysky.org, we\'ll recognize you as a HYSKY member and apply the Complimentary tier.',
+              a: 'Yes. Sign in with the same account you use for HYSKY Connect. If that account has an active paid VIP membership, we\'ll automatically apply unlimited VIP Connect news access.',
             },
             {
               q: 'What counts as an "article"?',
