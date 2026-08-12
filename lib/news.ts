@@ -6,53 +6,62 @@ export type NewsTier = 'free' | 'complimentary' | 'monthly' | 'annual'
 
 export const TIER_LIMITS: Record<NewsTier, number | null> = {
   free:          1,
-  complimentary: 5,
+  complimentary: null,
   monthly:       null,
   annual:        null,
 }
 
 export const TIER_LABELS: Record<NewsTier, string> = {
   free:          'Free',
-  complimentary: 'Complimentary',
+  complimentary: 'VIP Connect',
   monthly:       'Monthly',
   annual:        'Annual',
 }
 
 export const TIER_DESCRIPTIONS: Record<NewsTier, string> = {
   free:          '1 article per month',
-  complimentary: '5 articles per month',
+  complimentary: 'Unlimited articles + archive',
   monthly:       'Unlimited articles + archive',
   annual:        'Unlimited articles + archive',
 }
 
-// Returns the user's current news tier, creating a subscription record if needed.
-// HYSKY web members automatically receive the complimentary tier.
+// Returns the user's current news tier, creating or synchronizing a record if needed.
+// Paid HYSKY Connect VIP members receive complimentary unlimited news access.
 export async function ensureNewsUser(userId: string): Promise<NewsTier> {
   try {
-    const [existing] = await db
-      .select()
-      .from(newsSubscriptions)
-      .where(eq(newsSubscriptions.userId, userId))
+    const [[existing], [webUser]] = await Promise.all([
+      db
+        .select()
+        .from(newsSubscriptions)
+        .where(eq(newsSubscriptions.userId, userId)),
+      db
+        .select({ tier: users.tier })
+        .from(users)
+        .where(eq(users.id, userId)),
+    ])
+
+    const isVipConnectMember = webUser?.tier === 'member_full'
 
     if (existing) {
-      // Paid tiers expire — downgrade to free if past expiry
-      if (existing.expiresAt && existing.expiresAt < new Date()) {
+      const isPaidNewsTier = existing.tier === 'monthly' || existing.tier === 'annual'
+      const paidNewsAccessIsActive =
+        isPaidNewsTier && (!existing.expiresAt || existing.expiresAt >= new Date())
+
+      // A standalone paid news subscription takes precedence over Connect access.
+      if (paidNewsAccessIsActive) return existing.tier as NewsTier
+
+      // Keep complimentary access aligned with the member's current VIP status.
+      const tier: NewsTier = isVipConnectMember ? 'complimentary' : 'free'
+      if (existing.tier !== tier || existing.expiresAt) {
         await db
           .update(newsSubscriptions)
-          .set({ tier: 'free', expiresAt: null, updatedAt: new Date() })
+          .set({ tier, expiresAt: null, updatedAt: new Date() })
           .where(eq(newsSubscriptions.userId, userId))
-        return 'free'
       }
-      return existing.tier as NewsTier
+      return tier
     }
 
-    // First visit — check if they are a HYSKY web member
-    const [webUser] = await db
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.id, userId))
-
-    const tier: NewsTier = webUser ? 'complimentary' : 'free'
+    const tier: NewsTier = isVipConnectMember ? 'complimentary' : 'free'
     await db
       .insert(newsSubscriptions)
       .values({ userId, tier })
