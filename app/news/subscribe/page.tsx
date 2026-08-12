@@ -50,7 +50,7 @@ export default async function NewsSubscribePage() {
       label:       'Annual',
       price:       '$149',
       per:         '/ year',
-      description: 'Unlimited articles + full archive. Best value — save $31 vs monthly.',
+      description: 'Unlimited articles + full archive. Best value â€” save $31 vs monthly.',
       cta:         currentTier === 'annual' ? 'Your current plan' : 'Subscribe annually',
       ctaHref:     currentTier === 'annual' ? null : ZEFFY_SUBSCRIPTION_URL,
       highlight:   false,
@@ -124,7 +124,7 @@ export default async function NewsSubscribePage() {
                       border: '1px solid #e0e0e0', borderRadius: 10,
                       fontSize: '0.85rem', fontWeight: 600, color: '#aaa',
                     }}>
-                      ✓ Current plan
+                      âœ“ Current plan
                     </div>
                   ) : tier.ctaHref ? (
                     <Link href={tier.ctaHref} style={{
@@ -162,7 +162,7 @@ export default async function NewsSubscribePage() {
           {[
             {
               q: 'What is the VIP Connect tier?',
-              a: 'Active paid HySky Connect VIP members automatically receive unlimited HySky News access — no additional news subscription is needed.',
+              a: 'Active paid HySky Connect VIP members automatically receive unlimited HySky News access â€” no additional news subscription is needed.',
             },
             {
               q: 'Does my HySky web login work here?',
@@ -186,7 +186,7 @@ export default async function NewsSubscribePage() {
 
         <div style={{ textAlign: 'center', marginTop: 48 }}>
           <Link href="/news" style={{ color: '#5D00F5', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
-            ← Back to HySky News
+            <span aria-hidden="true">{'\u2190\u00A0'}</span>Back to HySky News
           </Link>
         </div>
 
@@ -194,3 +194,4 @@ export default async function NewsSubscribePage() {
     </NewsShell>
   )
 }
+
