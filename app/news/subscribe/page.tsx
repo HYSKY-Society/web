@@ -3,9 +3,7 @@ import Link from 'next/link'
 import NewsShell from '@/app/components/NewsShell'
 import { ensureNewsUser, TIER_LABELS, TIER_DESCRIPTIONS } from '@/lib/news'
 
-// TODO: replace with real Zeffy embed slugs once created
-const ZEFFY_MONTHLY_SLUG = ''
-const ZEFFY_ANNUAL_SLUG  = ''
+const ZEFFY_SUBSCRIPTION_URL = 'https://www.zeffy.com/en-US/ticketing/hysky-subscription'
 
 export default async function NewsSubscribePage() {
   const { userId } = auth()
@@ -39,7 +37,7 @@ export default async function NewsSubscribePage() {
       per:         '/ month',
       description: 'Unlimited articles + full archive access. Cancel any time.',
       cta:         currentTier === 'monthly' ? 'Your current plan' : 'Subscribe monthly',
-      ctaHref:     currentTier === 'monthly' ? null : (ZEFFY_MONTHLY_SLUG ? `/events/news-monthly` : null),
+      ctaHref:     currentTier === 'monthly' ? null : ZEFFY_SUBSCRIPTION_URL,
       highlight:   true,
     },
     {
@@ -49,7 +47,7 @@ export default async function NewsSubscribePage() {
       per:         '/ year',
       description: 'Unlimited articles + full archive. Best value — save $31 vs monthly.',
       cta:         currentTier === 'annual' ? 'Your current plan' : 'Subscribe annually',
-      ctaHref:     currentTier === 'annual' ? null : (ZEFFY_ANNUAL_SLUG ? `/events/news-annual` : null),
+      ctaHref:     currentTier === 'annual' ? null : ZEFFY_SUBSCRIPTION_URL,
       highlight:   false,
     },
   ]
