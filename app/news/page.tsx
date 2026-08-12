@@ -3,6 +3,9 @@ import { db } from '@/lib/db'
 import { pressPosts } from '@/lib/schema'
 import { eq, desc } from 'drizzle-orm'
 import NewsShell from '@/app/components/NewsShell'
+import { Space_Grotesk } from 'next/font/google'
+
+const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] })
 
 export const revalidate = 3600
 
@@ -35,7 +38,7 @@ export default async function NewsPage() {
       </div>
 
       {/* Hero */}
-      <div style={{ maxWidth: '860px', margin: '0 auto', padding: '48px 40px 24px', textAlign: 'center' }}>
+      <div className={spaceGrotesk.className} style={{ maxWidth: '860px', margin: '0 auto', padding: '48px 40px 24px', textAlign: 'center' }}>
         <div style={{
           display: 'inline-block', background: 'rgba(93,0,245,0.07)',
           border: '1px solid rgba(93,0,245,0.2)', color: '#5D00F5',
@@ -58,7 +61,7 @@ export default async function NewsPage() {
       </div>
 
       {/* Article list */}
-      <div style={{ maxWidth: '860px', margin: '0 auto', padding: '32px 40px 80px' }}>
+      <div className={spaceGrotesk.className} style={{ maxWidth: '860px', margin: '0 auto', padding: '32px 40px 80px' }}>
         {posts.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 0', color: '#bbb' }}>
             <p style={{ fontSize: '1.1rem' }}>News posts coming soon.</p>
