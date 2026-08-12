@@ -56,7 +56,7 @@ export default async function NewsPage() {
           You Won&apos;t Find <span style={{ color: '#5D00F5' }}>Anywhere Else</span>
         </h1>
         <p style={{ fontSize: '1rem', color: '#666', maxWidth: '560px', margin: '0 auto 0', lineHeight: 1.65 }}>
-          HYSKY News covers <strong style={{ color: '#111' }}>hydrogen propulsion, eVTOL, and advanced air mobility</strong> — written for the people building and flying the future.
+          HySky News covers <strong style={{ color: '#111' }}>hydrogen propulsion, eVTOL, and advanced air mobility</strong> — written for the people building and flying the future.
         </p>
       </div>
 
@@ -71,7 +71,7 @@ export default async function NewsPage() {
             {posts.map((post, idx) => (
               <Link
                 key={post.id}
-                href={`/news/${post.slug}`}
+                href={`https://news.hysky.org/${post.slug}`}
                 style={{
                   display: 'flex', gap: '20px', alignItems: 'flex-start',
                   padding: '24px 0', borderBottom: '1px solid #e8e8e8',
