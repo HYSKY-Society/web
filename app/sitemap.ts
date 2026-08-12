@@ -5,6 +5,9 @@ import { desc, eq } from 'drizzle-orm'
 
 const ORIGIN = 'https://news.hysky.org'
 
+// Keep the article list current even when the database schema changes between builds.
+export const dynamic = 'force-dynamic'
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base: MetadataRoute.Sitemap = [
     { url: ORIGIN, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
