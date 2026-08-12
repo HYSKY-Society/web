@@ -61,9 +61,9 @@ export default async function NewsPage() {
       </div>
 
       {/* Article list */}
-      <div className={spaceGrotesk.className} style={{ maxWidth: '860px', margin: '0 auto', padding: '32px 40px 80px' }}>
+      <div style={{ maxWidth: '860px', margin: '0 auto', padding: '32px 40px 80px' }}>
         {posts.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: '#bbb' }}>
+          <div className={spaceGrotesk.className} style={{ textAlign: 'center', padding: '60px 0', color: '#bbb' }}>
             <p style={{ fontSize: '1.1rem' }}>News posts coming soon.</p>
           </div>
         ) : (
