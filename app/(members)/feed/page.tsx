@@ -374,7 +374,7 @@ export default async function FeedPage() {
               { href: '/hysky-monthly', label: '📅 HYSKY Monthly' },
               { href: '/podcast', label: '🎙 HYSKY Pod' },
               { href: '/members', label: '👥 Members Directory' },
-              { href: 'https://hysky.news', label: '📰 HYSKY News', newTab: true },
+              { href: 'https://news.hysky.org', label: '📰 HySky News', newTab: false },
             ].map(({ href, label, newTab }) => (
               <Link
                 key={href}
