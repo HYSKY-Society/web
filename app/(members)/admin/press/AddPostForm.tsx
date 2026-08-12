@@ -122,7 +122,7 @@ export default function AddPostForm() {
       <div className="rounded-xl border border-white/10 p-4 text-xs text-white/55 space-y-1.5">
         <p className="font-bold text-white/80">SEO publishing checks</p>
         <p>â€¢ Use a focus keyword naturally in the headline or at least one ## heading.</p>
-        <p>â€¢ Include an original/approved image with descriptive alt text.</p>
+        <p>â€¢ Prefer a relevant real photograph with reuse rights; record its photographer, source link, license, and descriptive alt text.</p>
         <p>â€¢ Include at least two useful internal or authoritative links with descriptive labels.</p>
         <p>â€¢ â€œHySkyâ€ casing is standardized automatically.</p>
       </div>
