@@ -186,7 +186,7 @@ export default async function NewsSubscribePage() {
 
         <div style={{ textAlign: 'center', marginTop: 48 }}>
           <Link href="/news" style={{ color: '#5D00F5', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
-            <span aria-hidden="true">&larr;&nbsp;</span>Back to HySky News
+            <span aria-hidden="true">{'\u2190\u00A0'}</span>Back to HySky News
           </Link>
         </div>
 
