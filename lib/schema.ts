@@ -100,6 +100,7 @@ export const pressPosts = pgTable('press_posts', {
   slug:            text('slug').notNull().unique(),
   title:           text('title').notNull(),
   author:          text('author').notNull().default('HySky News'),
+  category:        text('category').notNull().default('News Analysis'),
   excerpt:         text('excerpt'),
   content:         text('content'),
   coverImageUrl:   text('cover_image_url'),
@@ -176,7 +177,7 @@ export const chatChannels = pgTable('chat_channels', {
   name:        text('name').notNull(),
   slug:        text('slug').notNull().unique(),
   description: text('description'),
-  icon:        text('icon').notNull().default('💬'),
+  icon:        text('icon').notNull().default('ðŸ’¬'),
   createdAt:   timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
@@ -290,3 +291,4 @@ export type FeedPost         = typeof feedPosts.$inferSelect
 export type FeedPostLike     = typeof feedPostLikes.$inferSelect
 export type FeedPostReply    = typeof feedPostReplies.$inferSelect
 export type ZeffyInvoice     = typeof zeffyInvoices.$inferSelect
+

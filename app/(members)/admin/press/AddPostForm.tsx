@@ -10,6 +10,7 @@ function slugify(t: string) {
 export default function AddPostForm() {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('HySky News')
+  const [category, setCategory] = useState('News Analysis')
   const [excerpt, setExcerpt] = useState('')
   const [content, setContent] = useState('')
   const [coverImageUrl, setCoverImageUrl] = useState('')
@@ -35,6 +36,7 @@ export default function AddPostForm() {
         slug: slugify(title),
         title: title.trim(),
         author: author.trim() || 'HySky News',
+        category: category.trim() || 'News Analysis',
         excerpt: excerpt.trim() || null,
         content: content.trim(),
         coverImageUrl: coverImageUrl.trim() || null,
@@ -61,7 +63,7 @@ export default function AddPostForm() {
     <form onSubmit={submit} className="space-y-5 rounded-2xl p-6" style={{ background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.09)' }}>
       <div>
         <h3 className="font-bold text-white text-lg">Write an article</h3>
-        <p className="text-white/35 text-xs mt-1">Formatting: ## section heading · ### subheading · - list item · [label](https://url) link.</p>
+        <p className="text-white/35 text-xs mt-1">Formatting: ## section heading Â· ### subheading Â· - list item Â· [label](https://url) link.</p>
       </div>
       {error && <p className="text-red-400 text-sm">{error}</p>}
       {success && <p className="text-emerald-400 text-sm">{success}</p>}
@@ -73,6 +75,10 @@ export default function AddPostForm() {
         <div>
           <label className="block text-xs text-white/45 mb-1.5">Byline</label>
           <input value={author} onChange={e => setAuthor(e.target.value)} className={fieldClass} placeholder="HySky News" />
+        </div>
+        <div>
+          <label className="block text-xs text-white/45 mb-1.5">Article category</label>
+          <input value={category} onChange={e => setCategory(e.target.value)} className={fieldClass} placeholder="Infrastructure Watch" />
         </div>
         <div>
           <label className="block text-xs text-white/45 mb-1.5">Publication date *</label>
@@ -105,7 +111,7 @@ export default function AddPostForm() {
           </div>
           <div className="sm:col-span-2">
             <label className="block text-xs text-white/45 mb-1.5">SEO description *</label>
-            <textarea value={seoDescription} onChange={e => setSeoDescription(e.target.value)} rows={2} className={fieldClass + ' resize-none'} placeholder="A clear 140–160 character summary for search results" />
+            <textarea value={seoDescription} onChange={e => setSeoDescription(e.target.value)} rows={2} className={fieldClass + ' resize-none'} placeholder="A clear 140â€“160 character summary for search results" />
           </div>
         </div>
         <div className="sm:col-span-2">
@@ -115,18 +121,19 @@ export default function AddPostForm() {
       </div>
       <div className="rounded-xl border border-white/10 p-4 text-xs text-white/55 space-y-1.5">
         <p className="font-bold text-white/80">SEO publishing checks</p>
-        <p>• Use a focus keyword naturally in the headline or at least one ## heading.</p>
-        <p>• Include an original/approved image with descriptive alt text.</p>
-        <p>• Include at least two useful internal or authoritative links with descriptive labels.</p>
-        <p>• “HySky” casing is standardized automatically.</p>
+        <p>â€¢ Use a focus keyword naturally in the headline or at least one ## heading.</p>
+        <p>â€¢ Include an original/approved image with descriptive alt text.</p>
+        <p>â€¢ Include at least two useful internal or authoritative links with descriptive labels.</p>
+        <p>â€¢ â€œHySkyâ€ casing is standardized automatically.</p>
       </div>
       <label className="flex items-center gap-3 text-sm text-white/70 cursor-pointer">
         <input type="checkbox" checked={publishNow} onChange={e => setPublishNow(e.target.checked)} className="accent-[#5D00F5] w-4 h-4" />
         Publish immediately (uncheck to save as a draft)
       </label>
       <button type="submit" disabled={loading} className="px-6 py-2.5 rounded-lg text-sm font-bold text-white disabled:opacity-50" style={{ background: '#5D00F5' }}>
-        {loading ? 'Saving…' : publishNow ? 'Publish article' : 'Save draft'}
+        {loading ? 'Savingâ€¦' : publishNow ? 'Publish article' : 'Save draft'}
       </button>
     </form>
   )
 }
+
