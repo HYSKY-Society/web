@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { zeffyInvoices } from '@/lib/schema'
 import { setUserTierByEmail, getUserByEmail, addCoursePurchase, addEventPurchase } from '@/lib/members'
 import type { Tier } from '@/lib/members'
+import { grantNewsSubscriptionByEmail } from '@/lib/news'
 
 // Zeffy webhook payload: PaymentCompletedEvent
 // { type: "payment.completed", data: { description, campaign_type, items[], buyer: { email } } }
@@ -104,9 +105,27 @@ export async function POST(req: NextRequest) {
   // ── Existing membership / course / event routing ───────────────────────────
   const description  = eventName.toLowerCase()
   const items        = (data?.items as Array<Record<string, unknown>>) ?? []
+  const itemText = items
+    .map(item => `${String(item.name ?? '')} ${String(item.title ?? '')} ${String(item.description ?? '')}`)
+    .join(' ')
+    .toLowerCase()
   const firstItemDesc = ((items[0]?.description as string) ?? '').toLowerCase()
+  const purchaseText = `${description} ${itemText}`
+  const isNewsPurchase =
+    purchaseText.includes('hysky news') ||
+    purchaseText.includes('hysky subscription')
+  const newsTier =
+    purchaseText.includes('annual') || purchaseText.includes('yearly')
+      ? 'annual'
+      : purchaseText.includes('monthly')
+        ? 'monthly'
+        : null
 
-  if (description.includes('membership')) {
+  if (isNewsPurchase && newsTier) {
+    await grantNewsSubscriptionByEmail(email, newsTier, paidAt)
+    console.log(`[zeffy-webhook] News: granted ${email} ${newsTier} access`)
+
+  } else if (description.includes('membership')) {
     let tier: Tier = 'member_courses'
     if (firstItemDesc.includes('full') || firstItemDesc.includes('visibility') || firstItemDesc.includes('sponsor')) {
       tier = 'member_full'

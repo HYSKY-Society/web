@@ -111,7 +111,7 @@ export default async function NewsPostPage({ params }: { params: { slug: string 
                     Sign in to keep reading
                   </h2>
                   <p style={{ color: '#777', fontSize: '0.9rem', marginBottom: 28, lineHeight: 1.6 }}>
-                    HYSKY members get 5 free articles per month. New to HYSKY News? Start with 1 free article.
+                    Create a free HYSKY account to read 1 article per month. VIP Connect members and news subscribers get unlimited access.
                   </p>
                   <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
                     <Link href="/sign-in" style={{
@@ -151,7 +151,7 @@ export default async function NewsPostPage({ params }: { params: { slug: string 
               <div style={{ marginTop: 32, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                 {([
                   { tier: 'Free', limit: '1 article/mo', price: 'Free', highlight: false },
-                  { tier: 'Complimentary', limit: '5 articles/mo', price: 'Free for members', highlight: false },
+                  { tier: 'VIP Connect', limit: 'Unlimited', price: 'Included with VIP', highlight: false },
                   { tier: 'Monthly', limit: 'Unlimited', price: '$15/mo', highlight: true },
                   { tier: 'Annual', limit: 'Unlimited', price: '$149/yr', highlight: true },
                 ] as const).map(t => (

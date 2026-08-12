@@ -1,58 +1,159 @@
 import { db } from './db'
-import { users, newsSubscriptions, newsArticleViews } from './schema'
+import { users, newsSubscriptions, newsArticleViews, pendingNewsSubscriptions } from './schema'
 import { eq, and, gte, count } from 'drizzle-orm'
 
 export type NewsTier = 'free' | 'complimentary' | 'monthly' | 'annual'
 
 export const TIER_LIMITS: Record<NewsTier, number | null> = {
   free:          1,
-  complimentary: 5,
+  complimentary: null,
   monthly:       null,
   annual:        null,
 }
 
 export const TIER_LABELS: Record<NewsTier, string> = {
   free:          'Free',
-  complimentary: 'Complimentary',
+  complimentary: 'VIP Connect',
   monthly:       'Monthly',
   annual:        'Annual',
 }
 
 export const TIER_DESCRIPTIONS: Record<NewsTier, string> = {
   free:          '1 article per month',
-  complimentary: '5 articles per month',
+  complimentary: 'Unlimited articles + archive',
   monthly:       'Unlimited articles + archive',
   annual:        'Unlimited articles + archive',
 }
 
-// Returns the user's current news tier, creating a subscription record if needed.
-// HYSKY web members automatically receive the complimentary tier.
+function addSubscriptionPeriod(tier: 'monthly' | 'annual', from: Date): Date {
+  const expiresAt = new Date(from)
+  if (tier === 'monthly') {
+    expiresAt.setUTCDate(expiresAt.getUTCDate() + 30)
+  } else {
+    expiresAt.setUTCDate(expiresAt.getUTCDate() + 365)
+  }
+  return expiresAt
+}
+
+// Grants news access from a successful Zeffy payment. If the buyer has not
+// created a Clerk account yet, the entitlement waits safely under their email.
+export async function grantNewsSubscriptionByEmail(
+  email: string,
+  tier: 'monthly' | 'annual',
+  paidAt = new Date()
+): Promise<void> {
+  const normalizedEmail = email.toLowerCase().trim()
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.email, normalizedEmail))
+
+  if (user) {
+    const [existing] = await db
+      .select({ tier: newsSubscriptions.tier, expiresAt: newsSubscriptions.expiresAt })
+      .from(newsSubscriptions)
+      .where(eq(newsSubscriptions.userId, user.id))
+
+    const expiresAt = addSubscriptionPeriod(tier, paidAt)
+    if (existing?.expiresAt && existing.expiresAt >= expiresAt) return
+
+    await db
+      .insert(newsSubscriptions)
+      .values({ userId: user.id, tier, expiresAt })
+      .onConflictDoUpdate({
+        target: newsSubscriptions.userId,
+        set: { tier, expiresAt, updatedAt: new Date() },
+      })
+    return
+  }
+
+  const [pending] = await db
+    .select({ tier: pendingNewsSubscriptions.tier, expiresAt: pendingNewsSubscriptions.expiresAt })
+    .from(pendingNewsSubscriptions)
+    .where(eq(pendingNewsSubscriptions.email, normalizedEmail))
+
+  const expiresAt = addSubscriptionPeriod(tier, paidAt)
+  if (pending?.expiresAt && pending.expiresAt >= expiresAt) return
+
+  await db
+    .insert(pendingNewsSubscriptions)
+    .values({ email: normalizedEmail, tier, expiresAt })
+    .onConflictDoUpdate({
+      target: pendingNewsSubscriptions.email,
+      set: { tier, expiresAt, updatedAt: new Date() },
+    })
+}
+
+// Returns the user's current news tier, creating or synchronizing a record if needed.
+// Paid HYSKY Connect VIP members receive complimentary unlimited news access.
 export async function ensureNewsUser(userId: string): Promise<NewsTier> {
   try {
-    const [existing] = await db
-      .select()
-      .from(newsSubscriptions)
-      .where(eq(newsSubscriptions.userId, userId))
+    const [[existing], [webUser]] = await Promise.all([
+      db
+        .select()
+        .from(newsSubscriptions)
+        .where(eq(newsSubscriptions.userId, userId)),
+      db
+        .select({ tier: users.tier, email: users.email })
+        .from(users)
+        .where(eq(users.id, userId)),
+    ])
 
-    if (existing) {
-      // Paid tiers expire — downgrade to free if past expiry
-      if (existing.expiresAt && existing.expiresAt < new Date()) {
-        await db
-          .update(newsSubscriptions)
-          .set({ tier: 'free', expiresAt: null, updatedAt: new Date() })
-          .where(eq(newsSubscriptions.userId, userId))
-        return 'free'
+    const isVipConnectMember = webUser?.tier === 'member_full'
+
+    // Attach a Zeffy purchase made before the buyer's first Clerk sign-in.
+    const webUserEmail = webUser?.email
+    if (webUserEmail) {
+      const [pending] = await db
+        .select()
+        .from(pendingNewsSubscriptions)
+        .where(eq(pendingNewsSubscriptions.email, webUserEmail))
+
+      if (pending && pending.expiresAt >= new Date()) {
+        await db.transaction(async tx => {
+          await tx
+            .insert(newsSubscriptions)
+            .values({
+              userId,
+              tier: pending.tier,
+              expiresAt: pending.expiresAt,
+            })
+            .onConflictDoUpdate({
+              target: newsSubscriptions.userId,
+              set: {
+                tier: pending.tier,
+                expiresAt: pending.expiresAt,
+                updatedAt: new Date(),
+              },
+            })
+          await tx
+            .delete(pendingNewsSubscriptions)
+            .where(eq(pendingNewsSubscriptions.email, webUserEmail))
+        })
+        return pending.tier as NewsTier
       }
-      return existing.tier as NewsTier
     }
 
-    // First visit — check if they are a HYSKY web member
-    const [webUser] = await db
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.id, userId))
+    if (existing) {
+      const isPaidNewsTier = existing.tier === 'monthly' || existing.tier === 'annual'
+      const paidNewsAccessIsActive =
+        isPaidNewsTier && (!existing.expiresAt || existing.expiresAt >= new Date())
 
-    const tier: NewsTier = webUser ? 'complimentary' : 'free'
+      // A standalone paid news subscription takes precedence over Connect access.
+      if (paidNewsAccessIsActive) return existing.tier as NewsTier
+
+      // Keep complimentary access aligned with the member's current VIP status.
+      const tier: NewsTier = isVipConnectMember ? 'complimentary' : 'free'
+      if (existing.tier !== tier || existing.expiresAt) {
+        await db
+          .update(newsSubscriptions)
+          .set({ tier, expiresAt: null, updatedAt: new Date() })
+          .where(eq(newsSubscriptions.userId, userId))
+      }
+      return tier
+    }
+
+    const tier: NewsTier = isVipConnectMember ? 'complimentary' : 'free'
     await db
       .insert(newsSubscriptions)
       .values({ userId, tier })
