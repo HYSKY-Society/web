@@ -1,9 +1,11 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { db } from '@/lib/db'
 import { pressPosts } from '@/lib/schema'
 import { eq, desc } from 'drizzle-orm'
 import NewsShell from '@/app/components/NewsShell'
 import { Space_Grotesk } from 'next/font/google'
+import { getNewsImage } from '@/lib/news-images'
 
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] })
 
@@ -68,7 +70,9 @@ export default async function NewsPage() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', borderTop: '1px solid #e8e8e8' }}>
-            {posts.map((post, idx) => (
+            {posts.map((post) => {
+              const imageInfo = getNewsImage(post.slug, post.coverImageUrl, post.imageAltText, post.title)
+              return (
               <Link
                 key={post.id}
                 href={`https://news.hysky.org/${post.slug}`}
@@ -88,6 +92,12 @@ export default async function NewsPage() {
                   </div>
                 </div>
 
+                {imageInfo && (
+                  <div style={{ flexShrink: 0, width: 'clamp(86px, 15vw, 126px)', height: 78, borderRadius: 12, overflow: 'hidden', background: '#f1eef5' }}>
+                    <Image src={imageInfo.src} alt={imageInfo.alt} width={252} height={156} unoptimized={imageInfo.src.startsWith('http')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                )}
+
                 {/* Content */}
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: '0.72rem', color: '#aaa', marginBottom: 6, display: 'flex', gap: 8 }}>
@@ -104,7 +114,8 @@ export default async function NewsPage() {
                   )}
                 </div>
               </Link>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>
