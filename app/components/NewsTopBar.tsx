@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { SignInButton, SignUpButton, UserButton } from '@clerk/nextjs'
+import { SignInButton, UserButton } from '@clerk/nextjs'
 import type { NewsTier } from '@/lib/news'
 
 const TIER_LABELS: Record<string, string> = {
@@ -77,15 +77,14 @@ export default function NewsTopBar({
               Log In
             </button>
           </SignInButton>
-          <SignUpButton mode="modal">
-            <button style={{
-              fontSize: '0.875rem', fontWeight: 700, color: '#fff',
-              background: '#5D00F5', border: 'none',
-              borderRadius: 8, padding: '7px 18px', cursor: 'pointer',
-            }}>
-              Subscribe
-            </button>
-          </SignUpButton>
+          <Link href="/news/subscribe" style={{
+            fontSize: '0.875rem', fontWeight: 700, color: '#fff',
+            background: '#5D00F5', border: 'none',
+            borderRadius: 8, padding: '7px 18px',
+            textDecoration: 'none',
+          }}>
+            Subscribe
+          </Link>
         </div>
       ) : (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
