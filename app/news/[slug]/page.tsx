@@ -1,11 +1,56 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
+import { Space_Grotesk } from 'next/font/google'
+import type { ReactNode } from 'react'
 import { db } from '@/lib/db'
 import { pressPosts } from '@/lib/schema'
 import { eq, and } from 'drizzle-orm'
 import NewsShell from '@/app/components/NewsShell'
 import { canReadArticle, recordArticleView, TIER_LABELS, TIER_DESCRIPTIONS } from '@/lib/news'
+
+const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] })
+
+function inlineMarkdown(text: string): ReactNode[] {
+  const parts = text.split(/(\[[^\]]+\]\(https?:\/\/[^)]+\))/g)
+  return parts.map((part, index) => {
+    const match = part.match(/^\[([^\]]+)\]\((https?:\/\/[^)]+)\)$/)
+    if (!match) return part
+    return (
+      <a key={index} href={match[2]} target="_blank" rel="noreferrer"
+        style={{ color: '#5D00F5', fontWeight: 650, textDecorationThickness: 1, textUnderlineOffset: 3 }}>
+        {match[1]}
+      </a>
+    )
+  })
+}
+
+function articleBlocks(body: string): ReactNode[] {
+  return body.split(/\n\s*\n/).map(block => block.trim()).filter(Boolean).map((block, index) => {
+    if (block.startsWith('### ')) {
+      return <h3 key={index} style={{ color: '#17131f', fontSize: '1.12rem', fontWeight: 750, lineHeight: 1.35, marginTop: 12 }}>{inlineMarkdown(block.slice(4))}</h3>
+    }
+    if (block.startsWith('## ')) {
+      return <h2 key={index} style={{ color: '#17131f', fontSize: 'clamp(1.3rem, 3vw, 1.65rem)', fontWeight: 800, lineHeight: 1.25, letterSpacing: '-0.02em', marginTop: 22 }}>{inlineMarkdown(block.slice(3))}</h2>
+    }
+    const lines = block.split('\n').map(line => line.trim()).filter(Boolean)
+    if (lines.length && lines.every(line => line.startsWith('- '))) {
+      return (
+        <ul key={index} style={{ margin: 0, paddingLeft: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {lines.map((line, itemIndex) => <li key={itemIndex}>{inlineMarkdown(line.slice(2))}</li>)}
+        </ul>
+      )
+    }
+    if (block.startsWith('> ')) {
+      return (
+        <blockquote key={index} style={{ margin: '10px 0', padding: '4px 0 4px 22px', borderLeft: '4px solid #5D00F5', color: '#4c3d5f', fontSize: '1.08rem', fontWeight: 600 }}>
+          {inlineMarkdown(block.replace(/^> /, '').replace(/\n> /g, ' '))}
+        </blockquote>
+      )
+    }
+    return <p key={index} style={{ margin: 0 }}>{inlineMarkdown(lines.join(' '))}</p>
+  })
+}
 
 export default async function NewsPostPage({ params }: { params: { slug: string } }) {
   let post: typeof pressPosts.$inferSelect | undefined
@@ -17,169 +62,96 @@ export default async function NewsPostPage({ params }: { params: { slug: string 
   if (!post) notFound()
 
   const { userId } = auth()
-  const body = post.content || post.excerpt || ''
-  const paragraphs = body.split('\n\n').filter(Boolean)
+  const blocks = articleBlocks(post.content || post.excerpt || '')
 
-  // Gate check
   let gated = false
   let tierInfo: { tier: string; viewsThisMonth: number; limit: number | null } | null = null
 
   if (!userId) {
-    // Not logged in — show preview only
     gated = true
   } else {
     const result = await canReadArticle(userId, post.id)
     tierInfo = { tier: result.tier, viewsThisMonth: result.viewsThisMonth, limit: result.limit }
-    if (result.allowed) {
-      await recordArticleView(userId, post.id)
-    } else {
-      gated = true
-    }
+    if (result.allowed) await recordArticleView(userId, post.id)
+    else gated = true
   }
 
-  // How many paragraphs to show before the gate
-  const previewCount = gated ? Math.min(2, paragraphs.length) : paragraphs.length
+  const previewCount = gated ? Math.min(3, blocks.length) : blocks.length
 
   return (
     <NewsShell>
-      <div style={{ maxWidth: '740px', margin: '0 auto', padding: '40px 32px 80px' }}>
-
-        <Link href="/news" style={{
-          display: 'inline-flex', alignItems: 'center', gap: 4,
-          color: '#5D00F5', fontSize: '0.85rem', fontWeight: 600,
-          textDecoration: 'none', marginBottom: 36,
-        }}>
+      <article className={spaceGrotesk.className} style={{ maxWidth: 780, margin: '0 auto', padding: '42px 28px 88px' }}>
+        <Link href="/news" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: '#5D00F5', fontSize: '0.86rem', fontWeight: 700, textDecoration: 'none', marginBottom: 34 }}>
           ← HYSKY News
         </Link>
 
-        {/* Meta */}
-        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 16, fontSize: '0.75rem', color: '#aaa' }}>
-          <span style={{ fontWeight: 600, color: '#666' }}>{post.author}</span>
-          <span>·</span>
+        <div style={{ color: '#5D00F5', fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 13 }}>
+          Standards Watch
+        </div>
+        <h1 style={{ fontWeight: 850, fontSize: 'clamp(2rem, 5vw, 3.45rem)', color: '#17131f', lineHeight: 1.04, margin: '0 0 22px', letterSpacing: '-0.045em' }}>
+          {post.title}
+        </h1>
+        {post.excerpt && (
+          <p style={{ color: '#5e5866', fontSize: 'clamp(1.05rem, 2.4vw, 1.22rem)', lineHeight: 1.58, margin: '0 0 24px', maxWidth: 720 }}>
+            {post.excerpt}
+          </p>
+        )}
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, paddingBottom: 25, marginBottom: 34, borderBottom: '1px solid #ece8f1', fontSize: '0.78rem', color: '#8c8593' }}>
+          <span style={{ fontWeight: 700, color: '#4a4450' }}>{post.author}</span><span>·</span>
           <span>{new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
           {post.readTimeMinutes && <><span>·</span><span>{post.readTimeMinutes} min read</span></>}
         </div>
 
-        {/* Title */}
-        <h1 style={{
-          fontWeight: 900, fontSize: 'clamp(1.75rem, 4vw, 2.6rem)',
-          color: '#111', lineHeight: 1.12, marginBottom: 32,
-          letterSpacing: '-0.03em',
-        }}>
-          {post.title}
-        </h1>
-
-        {/* Cover image */}
         {post.coverImageUrl && (
-          <img
-            src={post.coverImageUrl}
-            alt={post.title}
-            style={{ width: '100%', borderRadius: 14, objectFit: 'cover', marginBottom: 32, maxHeight: 380 }}
-          />
+          <img src={post.coverImageUrl} alt="" style={{ width: '100%', borderRadius: 18, objectFit: 'cover', marginBottom: 38, maxHeight: 430 }} />
         )}
 
-        {/* Body — full or preview */}
-        <div style={{ fontSize: '1.05rem', color: '#333', lineHeight: 1.82, display: 'flex', flexDirection: 'column', gap: 22 }}>
-          {paragraphs.slice(0, previewCount).map((para, i) => (
-            <p key={i}>{para}</p>
-          ))}
+        <div style={{ fontSize: '1.04rem', color: '#332e38', lineHeight: 1.82, display: 'flex', flexDirection: 'column', gap: 22 }}>
+          {blocks.slice(0, previewCount)}
         </div>
 
-        {/* Paywall */}
         {gated && (
           <div style={{ marginTop: 0, position: 'relative' }}>
-            {/* Fade-out over the last visible paragraph */}
-            <div style={{
-              height: 120,
-              background: 'linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1))',
-              marginBottom: -60,
-              position: 'relative', zIndex: 1,
-            }} />
-
-            {/* Gate card */}
-            <div style={{
-              position: 'relative', zIndex: 2,
-              border: '1.5px solid #e0e0e0', borderRadius: 20,
-              padding: '36px 32px', textAlign: 'center',
-              background: '#fff',
-              boxShadow: '0 4px 32px rgba(0,0,0,0.06)',
-            }}>
+            <div style={{ height: 130, background: 'linear-gradient(to bottom, rgba(255,255,255,0), #fff)', marginBottom: -62, position: 'relative', zIndex: 1 }} />
+            <div style={{ position: 'relative', zIndex: 2, border: '1px solid #e6dff0', borderRadius: 22, padding: '38px 30px', textAlign: 'center', background: '#fff', boxShadow: '0 16px 50px rgba(61,20,105,.09)' }}>
               {!userId ? (
                 <>
-                  <div style={{ fontSize: '1.5rem', marginBottom: 12 }}>🔒</div>
-                  <h2 style={{ fontWeight: 800, fontSize: '1.2rem', color: '#111', marginBottom: 8 }}>
-                    Sign in to keep reading
-                  </h2>
-                  <p style={{ color: '#777', fontSize: '0.9rem', marginBottom: 28, lineHeight: 1.6 }}>
-                    Create a free HYSKY account to read 1 article per month. VIP Connect members and news subscribers get unlimited access.
+                  <div aria-hidden style={{ fontSize: '1.45rem', marginBottom: 12 }}>🔒</div>
+                  <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#17131f', margin: '0 0 8px' }}>Sign in to keep reading</h2>
+                  <p style={{ color: '#756d7d', fontSize: '0.92rem', margin: '0 auto 26px', lineHeight: 1.6, maxWidth: 520 }}>
+                    A free HYSKY account includes one article each month. VIP Connect members and HYSKY News subscribers get unlimited access.
                   </p>
                   <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-                    <Link href="/sign-in" style={{
-                      padding: '10px 24px', border: '1.5px solid #ddd', borderRadius: 10,
-                      fontWeight: 600, fontSize: '0.9rem', color: '#333', textDecoration: 'none',
-                    }}>Log In</Link>
-                    <Link href="/news/subscribe" style={{
-                      padding: '10px 24px', background: '#5D00F5', borderRadius: 10,
-                      fontWeight: 700, fontSize: '0.9rem', color: '#fff', textDecoration: 'none',
-                    }}>Subscribe</Link>
+                    <Link href="/sign-in" style={{ padding: '11px 25px', border: '1.5px solid #ded7e5', borderRadius: 10, fontWeight: 700, fontSize: '0.9rem', color: '#332e38', textDecoration: 'none' }}>Log in or create account</Link>
+                    <Link href="/news/subscribe" style={{ padding: '11px 25px', background: '#5D00F5', borderRadius: 10, fontWeight: 750, fontSize: '0.9rem', color: '#fff', textDecoration: 'none' }}>See subscription options</Link>
                   </div>
                 </>
               ) : (
                 <>
-                  <div style={{ fontSize: '1.5rem', marginBottom: 12 }}>📰</div>
-                  <h2 style={{ fontWeight: 800, fontSize: '1.2rem', color: '#111', marginBottom: 8 }}>
-                    You've used all {tierInfo?.limit} article{tierInfo?.limit === 1 ? '' : 's'} this month
+                  <div aria-hidden style={{ fontSize: '1.45rem', marginBottom: 12 }}>📰</div>
+                  <h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#17131f', margin: '0 0 8px' }}>
+                    You&apos;ve read your {tierInfo?.limit} free article{tierInfo?.limit === 1 ? '' : 's'} this month
                   </h2>
-                  <p style={{ color: '#777', fontSize: '0.9rem', marginBottom: 8, lineHeight: 1.6 }}>
-                    Your <strong>{tierInfo ? TIER_LABELS[tierInfo.tier as keyof typeof TIER_LABELS] : ''}</strong> plan
-                    includes {tierInfo ? TIER_DESCRIPTIONS[tierInfo.tier as keyof typeof TIER_DESCRIPTIONS] : ''}.
+                  <p style={{ color: '#756d7d', fontSize: '0.92rem', margin: '0 auto 8px', lineHeight: 1.6, maxWidth: 520 }}>
+                    Your <strong>{tierInfo ? TIER_LABELS[tierInfo.tier as keyof typeof TIER_LABELS] : ''}</strong> plan includes {tierInfo ? TIER_DESCRIPTIONS[tierInfo.tier as keyof typeof TIER_DESCRIPTIONS] : ''}.
                   </p>
-                  <p style={{ color: '#aaa', fontSize: '0.82rem', marginBottom: 28 }}>
-                    Your quota resets on the 1st of next month.
-                  </p>
-                  <Link href="/news/subscribe" style={{
-                    display: 'inline-block', padding: '11px 28px',
-                    background: '#5D00F5', borderRadius: 10,
-                    fontWeight: 700, fontSize: '0.95rem', color: '#fff', textDecoration: 'none',
-                  }}>
-                    Upgrade for unlimited access
-                  </Link>
+                  <p style={{ color: '#a39ca8', fontSize: '0.82rem', marginBottom: 26 }}>Your quota resets on the first of next month.</p>
+                  <Link href="/news/subscribe" style={{ display: 'inline-block', padding: '11px 28px', background: '#5D00F5', borderRadius: 10, fontWeight: 750, fontSize: '0.95rem', color: '#fff', textDecoration: 'none' }}>Upgrade for unlimited access</Link>
                 </>
               )}
-
-              {/* Tier comparison mini-table */}
-              <div style={{ marginTop: 32, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-                {([
-                  { tier: 'Free', limit: '1 article/mo', price: 'Free', highlight: false },
-                  { tier: 'VIP Connect', limit: 'Unlimited', price: 'Included with VIP', highlight: false },
-                  { tier: 'Monthly', limit: 'Unlimited', price: '$15/mo', highlight: true },
-                  { tier: 'Annual', limit: 'Unlimited', price: '$149/yr', highlight: true },
-                ] as const).map(t => (
-                  <div key={t.tier} style={{
-                    border: t.highlight ? '1.5px solid #5D00F5' : '1px solid #eee',
-                    borderRadius: 12, padding: '12px 8px', textAlign: 'center',
-                    background: t.highlight ? 'rgba(93,0,245,0.04)' : '#fafafa',
-                  }}>
-                    <div style={{ fontSize: '0.72rem', fontWeight: 700, color: t.highlight ? '#5D00F5' : '#555', marginBottom: 4 }}>{t.tier}</div>
-                    <div style={{ fontSize: '0.7rem', color: '#888', marginBottom: 6 }}>{t.limit}</div>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111' }}>{t.price}</div>
-                  </div>
-                ))}
+              <div style={{ marginTop: 30, paddingTop: 22, borderTop: '1px solid #eee9f3', color: '#8c8593', fontSize: '0.78rem' }}>
+                Free: 1 article/month · VIP Connect, Monthly & Annual: unlimited
               </div>
             </div>
           </div>
         )}
 
-        {/* Footer nav (full-access only) */}
         {!gated && (
-          <div style={{ marginTop: 60, paddingTop: 32, borderTop: '1px solid #e8e8e8' }}>
-            <Link href="/news" style={{ color: '#5D00F5', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
-              ← More from HYSKY News
-            </Link>
+          <div style={{ marginTop: 60, paddingTop: 30, borderTop: '1px solid #ece8f1' }}>
+            <Link href="/news" style={{ color: '#5D00F5', fontSize: '0.875rem', fontWeight: 700, textDecoration: 'none' }}>← More from HYSKY News</Link>
           </div>
         )}
-
-      </div>
+      </article>
     </NewsShell>
   )
 }
