@@ -7,7 +7,7 @@ import type { NewsTier } from '@/lib/news'
 
 const TIER_LABELS: Record<string, string> = {
   free:          'Free',
-  complimentary: 'Complimentary',
+  complimentary: 'VIP Connect',
   monthly:       'Monthly',
   annual:        'Annual',
 }
