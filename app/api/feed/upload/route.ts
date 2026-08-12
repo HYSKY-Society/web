@@ -1,5 +1,7 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { put } from '@vercel/blob'
+import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
+import { isAdmin } from '@/lib/admin'
 
 export async function POST(req: Request) {
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
@@ -8,6 +10,11 @@ export async function POST(req: Request) {
 
   const user = await currentUser()
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const email = user.emailAddresses.find((entry) => entry.id === user.primaryEmailAddressId)?.emailAddress ?? ''
+  const tier = await getUserTier(user.id)
+  if (!hasVipCommunityAccess(tier) && !isAdmin(email)) {
+    return Response.json({ error: 'VIP Connect is required to post' }, { status: 403 })
+  }
 
   const form = await req.formData()
   const file = form.get('file') as File | null

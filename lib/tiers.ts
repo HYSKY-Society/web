@@ -18,6 +18,12 @@ export function isPaidTier(tier: Tier): boolean {
   return PAID_TIERS.includes(tier)
 }
 
+// Community privileges are intentionally narrower than paid course/event access.
+// Only a full (VIP) Connect membership unlocks posting, DMs, and full profiles.
+export function hasVipCommunityAccess(tier: string): boolean {
+  return tier === 'member_full'
+}
+
 // Safe to use in client components — no server deps
 export type MemberListItem = {
   id:          string

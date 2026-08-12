@@ -5,6 +5,7 @@ import AppTopBar from './AppTopBar'
 import AppSidebar from './AppSidebar'
 import { ChatProvider } from './ChatProvider'
 import ChatBar from './ChatBar'
+import { hasVipCommunityAccess } from '@/lib/tiers'
 
 export type SidebarData = {
   myId:                 string
@@ -65,7 +66,7 @@ export default function AppShell({ sidebarData, children, noPadding }: { sidebar
           )}
         </main>
 
-        <ChatBar />
+        {(hasVipCommunityAccess(sidebarData.tier) || sidebarData.isAdmin) && <ChatBar />}
       </div>
     </ChatProvider>
   )

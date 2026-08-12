@@ -150,11 +150,27 @@ function authorDisplayName(author: PostAuthor): string {
 
 // ── Author hover card ─────────────────────────────────────────────────────────
 
-function AuthorHoverCard({ author, size = 'sm' }: { author: PostAuthor; size?: 'xs' | 'sm' }) {
+function AuthorHoverCard({
+  author,
+  size = 'sm',
+  canUseVipCommunity,
+}: {
+  author: PostAuthor
+  size?: 'xs' | 'sm'
+  canUseVipCommunity: boolean
+}) {
   const [show, setShow] = useState(false)
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const name = authorDisplayName(author)
   const { openDM } = useChatCtx()
+
+  if (!canUseVipCommunity) {
+    return (
+      <span className={`${size === 'sm' ? 'text-sm' : 'text-xs'} font-semibold text-white`}>
+        {name}
+      </span>
+    )
+  }
 
   function enter() {
     if (hideTimer.current) clearTimeout(hideTimer.current)
@@ -243,7 +259,13 @@ function timeAgo(date: Date): string {
 
 // ── Card ─────────────────────────────────────────────────────────────────────
 
-export default function FeedPostCard({ post }: { post: PostData }) {
+export default function FeedPostCard({
+  post,
+  canUseVipCommunity,
+}: {
+  post: PostData
+  canUseVipCommunity: boolean
+}) {
   const [liked, setLiked] = useState(post.isLiked)
   const [likeCount, setLikeCount] = useState(post.likeCount)
   const [repostCount, setRepostCount] = useState(post.repostCount)
@@ -316,7 +338,7 @@ export default function FeedPostCard({ post }: { post: PostData }) {
         <Avatar author={displayAuthor} />
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2 flex-wrap">
-            <AuthorHoverCard author={displayAuthor} />
+            <AuthorHoverCard author={displayAuthor} canUseVipCommunity={canUseVipCommunity} />
             {displayAuthor.headline && (
               <span className="text-xs text-white/35 truncate hidden sm:block">· {displayAuthor.headline}</span>
             )}
@@ -363,8 +385,8 @@ export default function FeedPostCard({ post }: { post: PostData }) {
           <span className="hidden sm:inline">Reply</span>
         </button>
 
-        {/* Repost */}
-        <div className="relative">
+        {/* Repost — publishing is a VIP community feature */}
+        {canUseVipCommunity && <div className="relative">
           <button
             onClick={() => setShowRepostConfirm((v) => !v)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/45 hover:text-white hover:bg-white/6 transition-colors"
@@ -397,7 +419,7 @@ export default function FeedPostCard({ post }: { post: PostData }) {
               </div>
             </div>
           )}
-        </div>
+        </div>}
 
         {/* Share */}
         <button
@@ -450,7 +472,7 @@ export default function FeedPostCard({ post }: { post: PostData }) {
                   <Avatar author={r.author} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2">
-                      <AuthorHoverCard author={r.author} size="xs" />
+                      <AuthorHoverCard author={r.author} size="xs" canUseVipCommunity={canUseVipCommunity} />
                       <span className="text-[10px] text-white/30">{timeAgo(r.createdAt)}</span>
                     </div>
                     <div className="text-xs text-white/75 mt-0.5 leading-relaxed">

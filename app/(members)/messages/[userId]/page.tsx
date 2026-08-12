@@ -2,13 +2,18 @@ import { currentUser } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { directMessages, users } from '@/lib/schema'
 import { and, or, eq, asc } from 'drizzle-orm'
-import { getProfile } from '@/lib/members'
-import { notFound } from 'next/navigation'
+import { getProfile, getUserTier, hasVipCommunityAccess } from '@/lib/members'
+import { notFound, redirect } from 'next/navigation'
+import { isAdmin } from '@/lib/admin'
 import DMChatClient from './DMChatClient'
 
 export default async function DMConversationPage({ params }: { params: { userId: string } }) {
   const clerkUser = await currentUser()
   const myId = clerkUser!.id
+  const email = clerkUser!.emailAddresses.find((entry) => entry.id === clerkUser!.primaryEmailAddressId)?.emailAddress ?? ''
+  const tier = await getUserTier(myId)
+  if (!hasVipCommunityAccess(tier) && !isAdmin(email)) redirect('/messages')
+
   const otherId = params.userId
 
   const [otherProfile, otherUser] = await Promise.all([

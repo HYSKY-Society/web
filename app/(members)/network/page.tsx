@@ -1,6 +1,15 @@
 import NetworkClient from './NetworkClient'
+import { currentUser } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
+import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
+import { isAdmin } from '@/lib/admin'
 
-export default function NetworkPage() {
+export default async function NetworkPage() {
+  const user = await currentUser()
+  const email = user!.emailAddresses.find((entry) => entry.id === user!.primaryEmailAddressId)?.emailAddress ?? ''
+  const tier = await getUserTier(user!.id)
+  if (!hasVipCommunityAccess(tier) && !isAdmin(email)) redirect('/messages')
+
   return (
     <div className="text-white">
       <div className="mb-8">
