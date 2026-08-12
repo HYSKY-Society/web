@@ -54,11 +54,8 @@ export async function grantNewsSubscriptionByEmail(
       .from(newsSubscriptions)
       .where(eq(newsSubscriptions.userId, user.id))
 
-    const startFrom =
-      existing?.tier === tier && existing.expiresAt && existing.expiresAt > paidAt
-        ? existing.expiresAt
-        : paidAt
-    const expiresAt = addSubscriptionPeriod(tier, startFrom)
+    const expiresAt = addSubscriptionPeriod(tier, paidAt)
+    if (existing?.expiresAt && existing.expiresAt >= expiresAt) return
 
     await db
       .insert(newsSubscriptions)
@@ -75,11 +72,8 @@ export async function grantNewsSubscriptionByEmail(
     .from(pendingNewsSubscriptions)
     .where(eq(pendingNewsSubscriptions.email, normalizedEmail))
 
-  const startFrom =
-    pending?.tier === tier && pending.expiresAt > paidAt
-      ? pending.expiresAt
-      : paidAt
-  const expiresAt = addSubscriptionPeriod(tier, startFrom)
+  const expiresAt = addSubscriptionPeriod(tier, paidAt)
+  if (pending?.expiresAt && pending.expiresAt >= expiresAt) return
 
   await db
     .insert(pendingNewsSubscriptions)
