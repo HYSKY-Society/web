@@ -26,7 +26,7 @@ async function getPost(slug: string) {
   }
 }
 
-function absoluteImageUrl(src: string | null) {
+function absoluteImageUrl(src: string | null | undefined) {
   if (!src) return undefined
   return src.startsWith('http') ? src : `${NEWS_ORIGIN}${src.startsWith('/') ? '' : '/'}${src}`
 }
