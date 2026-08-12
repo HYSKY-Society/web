@@ -135,6 +135,13 @@ export const flyingHyAgenda = pgTable('flying_hy_agenda', {
   createdAt:    timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+export const pendingNewsSubscriptions = pgTable('pending_news_subscriptions', {
+  email:     text('email').primaryKey(),
+  tier:      text('tier').notNull(), // monthly | annual
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export const newsSubscriptions = pgTable('news_subscriptions', {
   userId:    text('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
   tier:      text('tier').notNull().default('free'), // free | complimentary (paid VIP Connect) | monthly | annual
