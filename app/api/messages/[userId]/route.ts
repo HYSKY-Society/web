@@ -1,12 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { currentUser } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { directMessages, userProfiles } from '@/lib/schema'
 import { and, or, eq, asc } from 'drizzle-orm'
 import { pusherServer, dmChannelName } from '@/lib/pusher'
+import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
+import { isAdmin } from '@/lib/admin'
+
+async function getAuthorizedUserId(): Promise<string | null> {
+  const user = await currentUser()
+  if (!user) return null
+  const email = user.emailAddresses.find((entry) => entry.id === user.primaryEmailAddressId)?.emailAddress ?? ''
+  const tier = await getUserTier(user.id)
+  return hasVipCommunityAccess(tier) || isAdmin(email) ? user.id : null
+}
 
 export async function GET(_req: NextRequest, { params }: { params: { userId: string } }) {
-  const { userId: myId } = auth()
+  const myId = await getAuthorizedUserId()
   if (!myId) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
 
   const otherId = params.userId
@@ -29,7 +39,7 @@ export async function GET(_req: NextRequest, { params }: { params: { userId: str
 }
 
 export async function POST(req: NextRequest, { params }: { params: { userId: string } }) {
-  const { userId: myId } = auth()
+  const myId = await getAuthorizedUserId()
   if (!myId) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
 
   const toUserId = params.userId

@@ -3,12 +3,10 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { UserButton } from '@clerk/nextjs'
-import { courses as allCourses } from '@/lib/courses'
-import { events as allEvents } from '@/lib/events'
 import { TIER_LABELS } from '@/lib/tiers'
+import { hasVipCommunityAccess } from '@/lib/tiers'
 import type { Tier } from '@/lib/tiers'
 import type { SidebarData } from './AppShell'
-import { useChatCtx } from './ChatProvider'
 
 function SidebarSection({ label, collapsed }: { label: string; collapsed: boolean }) {
   if (collapsed) return <div className="h-3" />
@@ -20,11 +18,11 @@ function SidebarSection({ label, collapsed }: { label: string; collapsed: boolea
 }
 
 function SidebarItem({
-  href, icon, label, onClick, sub, collapsed, statusDot,
+  href, icon, label, onClick, sub, collapsed, locked,
 }: {
   href: string; icon: string; label: string
   onClick: () => void; sub?: boolean; collapsed: boolean
-  statusDot?: boolean  // true = green (online), false = silver (offline)
+  locked?: boolean
 }) {
   const pathname = usePathname()
   const active = pathname === href || (href.length > 1 && pathname.startsWith(href + '/'))
@@ -42,24 +40,11 @@ function SidebarItem({
           active
             ? 'bg-[#5d00f5]/20 text-white'
             : 'text-white/55 hover:text-white hover:bg-white/6'
-        }`}
+        } ${locked ? 'opacity-55' : ''}`}
       >
         <span className="text-base leading-none shrink-0">{icon}</span>
-
-        {/* Collapsed mode: status dot absolute top-right of the icon button */}
-        {collapsed && statusDot !== undefined && (
-          <span className={`absolute top-0.5 right-0.5 w-2 h-2 rounded-full border border-white ${
-            statusDot ? 'bg-green-500' : 'bg-white/25'
-          }`} />
-        )}
-
-        {/* Expanded mode: label + status dot at end of row */}
         {!collapsed && <span className="truncate">{label}</span>}
-        {!collapsed && statusDot !== undefined && (
-          <span className={`ml-auto w-2.5 h-2.5 rounded-full border-2 border-white shrink-0 ${
-            statusDot ? 'bg-green-500' : 'bg-white/25'
-          }`} />
-        )}
+        {!collapsed && locked && <span className="ml-auto text-[10px] text-white/35">VIP</span>}
       </Link>
 
       {/* Tooltip — only in collapsed mode; nav is overflow-visible when collapsed */}
@@ -74,22 +59,13 @@ function SidebarItem({
   )
 }
 
-function EmptyNote({ text, collapsed }: { text: string; collapsed: boolean }) {
-  if (collapsed) return null
-  return <p className="px-3 py-1 text-xs text-white/20 italic">{text}</p>
-}
-
 export default function AppSidebar({
   data, open, collapsed, onClose,
 }: {
   data: SidebarData; open: boolean; collapsed: boolean; onClose: () => void
 }) {
-  const enrolledCourses = allCourses.filter(c => data.enrolledCourseSlugs.includes(c.slug))
-  const enrolledEvents  = allEvents.filter(e => data.enrolledEventSlugs.includes(e.slug))
   const tierLabel = TIER_LABELS[data.tier as Tier] ?? data.tier
-
-  const { online } = useChatCtx()
-  const hasOthersOnline = online.length >= 1
+  const canUseVipCommunity = hasVipCommunityAccess(data.tier) || data.isAdmin
 
   return (
     <aside
@@ -103,28 +79,24 @@ export default function AppSidebar({
       {/* overflow-visible when collapsed so tooltips can escape the container */}
       <nav className={`flex-1 py-2 space-y-0.5 ${collapsed ? 'overflow-visible' : 'overflow-y-auto'}`}>
 
-        {/* ── My Events ─────────────────────────────────────────── */}
-        <SidebarSection label="My Events" collapsed={collapsed} />
-        <SidebarItem href="/calendar" icon="📅" label="Calendar" onClick={onClose} collapsed={collapsed} />
-        {!collapsed && (enrolledEvents.length > 0
-          ? enrolledEvents.map(e => (
-              <SidebarItem key={e.slug} href={`/dashboard/events/${e.slug}`} icon="•" label={e.title} onClick={onClose} sub collapsed={collapsed} />
-            ))
-          : <EmptyNote text="No events subscribed to" collapsed={collapsed} />
-        )}
+        <SidebarSection label="Connect" collapsed={collapsed} />
+        <SidebarItem href="/feed" icon="🏠" label="Home Feed" onClick={onClose} collapsed={collapsed} />
+        <SidebarItem href="/members" icon="👥" label="Members" onClick={onClose} collapsed={collapsed} />
+        <SidebarItem
+          href={canUseVipCommunity ? '/network' : '/messages'}
+          icon={canUseVipCommunity ? '💬' : '🔒'}
+          label="Messages"
+          onClick={onClose}
+          collapsed={collapsed}
+          locked={!canUseVipCommunity}
+        />
 
-        {/* ── Courses ───────────────────────────────────────────── */}
-        <SidebarSection label="Courses" collapsed={collapsed} />
-        {!collapsed && (enrolledCourses.length > 0
-          ? enrolledCourses.map(c => (
-              <SidebarItem key={c.slug} href={`/courses/${c.slug}`} icon="📚" label={c.title} onClick={onClose} collapsed={collapsed} />
-            ))
-          : <EmptyNote text="No courses enrolled in" collapsed={collapsed} />
-        )}
-        <SidebarItem href="/courses" icon="➕" label="Browse courses" onClick={onClose} collapsed={collapsed} />
+        <SidebarSection label="Discover" collapsed={collapsed} />
+        <SidebarItem href="/courses" icon="📚" label="Browse Courses" onClick={onClose} collapsed={collapsed} />
+        <SidebarItem href="/events" icon="📅" label="Events" onClick={onClose} collapsed={collapsed} />
+        <SidebarItem href="https://news.hysky.org" icon="📰" label="HySky News" onClick={onClose} collapsed={collapsed} />
 
-        {/* ── Members Hub ───────────────────────────────────────── */}
-        <SidebarSection label="Members Hub" collapsed={collapsed} />
+        <SidebarSection label="Membership" collapsed={collapsed} />
         {!collapsed && (
           <div className="px-3 py-1.5 flex items-center gap-2.5">
             <span className="text-base leading-none">🪪</span>
@@ -133,34 +105,13 @@ export default function AppSidebar({
             </span>
           </div>
         )}
-        <SidebarItem href="/members" icon="👥" label="Members Directory" onClick={onClose} collapsed={collapsed} />
-
-        {/* ── Community ─────────────────────────────────────────── */}
-        <SidebarSection label="Community" collapsed={collapsed} />
-        <SidebarItem href="/network"  icon="🌐" label="Network"  onClick={onClose} collapsed={collapsed} statusDot={hasOthersOnline} />
-        <SidebarItem href="/chat"     icon="👥" label="Groups"   onClick={onClose} collapsed={collapsed} />
-        <SidebarItem href="/forum"    icon="📋" label="Forum"    onClick={onClose} collapsed={collapsed} />
-
-        {/* ── Sponsors ──────────────────────────────────────────── */}
-        <SidebarSection label="Sponsors" collapsed={collapsed} />
-        <SidebarItem href="/sponsors" icon="💼" label="View Sponsors" onClick={onClose} collapsed={collapsed} />
-
-        {/* ── Profile ───────────────────────────────────────────── */}
-        <SidebarSection label="Account" collapsed={collapsed} />
         <SidebarItem href="/profile" icon="👤" label="My Profile" onClick={onClose} collapsed={collapsed} />
 
         {/* ── Admin ─────────────────────────────────────────────── */}
         {data.isAdmin && (
           <>
             <SidebarSection label="Admin" collapsed={collapsed} />
-            <SidebarItem href="/admin/users"         icon="👥" label="Manage Members"  onClick={onClose} collapsed={collapsed} />
-            <SidebarItem href="/admin/hysky-monthly" icon="📅" label="Manage Events"   onClick={onClose} collapsed={collapsed} />
-            <SidebarItem href="/admin/podcast"       icon="🎙" label="Manage Podcast"  onClick={onClose} collapsed={collapsed} />
-            <SidebarItem href="/admin/sponsors"      icon="💼" label="Manage Sponsors" onClick={onClose} collapsed={collapsed} />
-            <SidebarItem href="/admin/codes"         icon="🏷" label="Discount Codes"  onClick={onClose} collapsed={collapsed} />
-            <SidebarItem href="/admin/flying-hy"     icon="✈️" label="FLYING HY"       onClick={onClose} collapsed={collapsed} />
-            <SidebarItem href="/admin/press"         icon="📰" label="Press"           onClick={onClose} collapsed={collapsed} />
-            <SidebarItem href="/admin/migration"     icon="🔑" label="Migration"       onClick={onClose} collapsed={collapsed} />
+            <SidebarItem href="/admin" icon="⚙️" label="Admin Dashboard" onClick={onClose} collapsed={collapsed} />
           </>
         )}
       </nav>

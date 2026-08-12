@@ -10,6 +10,8 @@ import Link from 'next/link'
 import { events as allEvents } from '@/lib/events'
 import { courses as allCourses } from '@/lib/courses'
 import { getRecentBlogPosts, type WixPost } from '@/lib/wix'
+import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
+import { isAdmin } from '@/lib/admin'
 import FeedComposer from './FeedComposer'
 import FeedPostCard, { type PostData, type PostAuthor, type ReplyData } from './FeedPostCard'
 
@@ -133,8 +135,11 @@ export default async function FeedPage() {
   if (!clerkUser) redirect('/sign-in')
 
   const now = new Date()
+  const clerkEmail = clerkUser.emailAddresses.find((e) => e.id === clerkUser.primaryEmailAddressId)?.emailAddress ?? ''
+  const viewerTier = await getUserTier(clerkUser.id)
+  const canUseVipCommunity = hasVipCommunityAccess(viewerTier) || isAdmin(clerkEmail)
 
-  const [rawPosts, myLikesRes, myProfile, upcomingSessions, blogPosts] = await Promise.all([
+  const [rawPosts, myLikesRes, myProfile, upcomingSessions, _blogPosts] = await Promise.all([
     db
       .select({
         id:             feedPosts.id,
@@ -273,18 +278,14 @@ export default async function FeedPage() {
     | { kind: 'post'; post: PostData; date: Date }
     | { kind: 'blog'; post: WixPost; date: Date }
 
-  const feedItems: FeedItem[] = [
-    ...posts.map((p) => ({ kind: 'post' as const, post: p, date: new Date(p.createdAt) })),
-    ...blogPosts.map((b) => ({
-      kind: 'blog' as const,
-      post: b,
-      date: b.firstPublishedDate ? new Date(b.firstPublishedDate) : new Date(0),
-    })),
-  ].sort((a, b) => b.date.getTime() - a.date.getTime())
+  const feedItems: FeedItem[] = posts.map((p) => ({
+    kind: 'post' as const,
+    post: p,
+    date: new Date(p.createdAt),
+  }))
 
   const upcomingEvents = allEvents.filter((e) => new Date(e.date) >= now)
   const profile = myProfile[0]
-  const clerkEmail = clerkUser.emailAddresses.find((e) => e.id === clerkUser.primaryEmailAddressId)?.emailAddress ?? ''
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-6 max-w-5xl">
@@ -292,11 +293,36 @@ export default async function FeedPage() {
       {/* ── Main feed column ─────────────────────────────────────── */}
       <div className="space-y-4 min-w-0">
 
+        <div className="mb-1">
+          <h1 className="text-2xl font-black text-white">Community Feed</h1>
+          <p className="text-sm text-white/40 mt-1">Updates and conversations from the HySky community.</p>
+        </div>
+
         {/* Post composer */}
-        <FeedComposer
-          avatarUrl={profile?.avatarUrl}
-          displayName={profile?.displayName ?? clerkEmail}
-        />
+        {canUseVipCommunity ? (
+          <FeedComposer
+            avatarUrl={profile?.avatarUrl}
+            displayName={profile?.displayName ?? clerkEmail}
+          />
+        ) : (
+          <div
+            className="rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between"
+            style={{ background: 'rgba(93,0,245,.08)', border: '1px solid rgba(155,109,255,.22)' }}
+          >
+            <div>
+              <p className="text-sm font-semibold text-white">Want to share an update?</p>
+              <p className="text-xs text-white/45 mt-1">Posting and direct messages are included with VIP Connect.</p>
+            </div>
+            <a
+              href="https://www.zeffy.com/en-US/ticketing/hysky-societys-membership"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 text-xs font-semibold px-4 py-2 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] text-white transition-colors"
+            >
+              Explore VIP
+            </a>
+          </div>
+        )}
 
         {/* Feed items */}
         {feedItems.length === 0 ? (
@@ -311,7 +337,7 @@ export default async function FeedPage() {
         ) : (
           feedItems.map((item) =>
             item.kind === 'post'
-              ? <FeedPostCard key={item.post.id} post={item.post} />
+              ? <FeedPostCard key={item.post.id} post={item.post} canUseVipCommunity={canUseVipCommunity} />
               : <BlogPostCard key={item.post.id} post={item.post} />
           )
         )}
@@ -367,13 +393,11 @@ export default async function FeedPage() {
         </SidebarCard>
 
         {/* Quick links */}
-        <SidebarCard title="Explore">
+        <SidebarCard title="Quick Links">
           <div className="px-4 pb-4 space-y-1">
             {[
-              { href: '/flying-hy', label: '✈️ FLYING HY 2026' },
-              { href: '/hysky-monthly', label: '📅 HYSKY Monthly' },
-              { href: '/podcast', label: '🎙 HYSKY Pod' },
-              { href: '/members', label: '👥 Members Directory' },
+              { href: '/members', label: '👥 Browse Members' },
+              { href: '/events', label: '📅 Browse Events' },
               { href: 'https://news.hysky.org', label: '📰 HySky News', newTab: false },
             ].map(({ href, label, newTab }) => (
               <Link

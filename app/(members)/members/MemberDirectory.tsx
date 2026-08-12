@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { type Tier, type MemberListItem, TIER_LABELS, isPaidTier } from '@/lib/tiers'
+import { type Tier, type MemberListItem, TIER_LABELS } from '@/lib/tiers'
 
 function initials(name: string | null): string {
   if (!name) return '?'
@@ -39,10 +39,10 @@ function TierChip({ tier }: { tier: string }) {
 
 export default function MemberDirectory({
   members,
-  viewerTier,
+  canAccessProfiles,
 }: {
   members: MemberListItem[]
-  viewerTier: Tier
+  canAccessProfiles: boolean
 }) {
   const [query, setQuery] = useState('')
 
@@ -58,8 +58,6 @@ export default function MemberDirectory({
         )
       })
     : members
-
-  const canInteract = isPaidTier(viewerTier)
 
   return (
     <div>
@@ -80,11 +78,11 @@ export default function MemberDirectory({
         )}
       </div>
 
-      {!canInteract && (
+      {!canAccessProfiles && (
         <div className="mb-6 flex items-center gap-3 bg-[#5d00f5]/8 border border-[#5d00f5]/20 rounded-xl px-4 py-3 text-sm text-white/60">
           <span className="text-[#9b6dff]">🔒</span>
-          Full profiles and contact details are available for paid members.{' '}
-          <Link href="/sign-up" className="text-[#9b6dff] hover:underline ml-1">Upgrade →</Link>
+          Full profiles and direct messages are available with VIP Connect.{' '}
+          <a href="https://www.zeffy.com/en-US/ticketing/hysky-societys-membership" target="_blank" rel="noopener noreferrer" className="text-[#9b6dff] hover:underline ml-1">Explore VIP →</a>
         </div>
       )}
 
@@ -95,7 +93,7 @@ export default function MemberDirectory({
         {filtered.map(m => {
           const name = m.displayName || 'HYSKY Member'
           const card = (
-            <div className={`group bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col gap-3 transition-all ${canInteract && !m.isPending ? 'hover:border-[#5d00f5]/40 hover:bg-white/8 cursor-pointer' : 'opacity-80'}`}>
+            <div className={`group bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col gap-3 transition-all ${canAccessProfiles && !m.isPending ? 'hover:border-[#5d00f5]/40 hover:bg-white/8 cursor-pointer' : 'opacity-80'}`}>
               <div className="flex items-start gap-3">
                 <Avatar name={name} url={m.avatarUrl} size={48} />
                 <div className="min-w-0 flex-1">
@@ -124,7 +122,7 @@ export default function MemberDirectory({
                 <TierChip tier={m.tier} />
                 {m.isPending ? (
                   <span className="text-white/20 text-xs">Pending sign-in</span>
-                ) : canInteract ? (
+                ) : canAccessProfiles ? (
                   <span className="text-[#9b6dff] text-xs group-hover:underline">View profile →</span>
                 ) : (
                   <span className="text-white/20 text-xs">🔒 Paid only</span>
@@ -133,7 +131,7 @@ export default function MemberDirectory({
             </div>
           )
 
-          return canInteract && !m.isPending ? (
+          return canAccessProfiles && !m.isPending ? (
             <Link key={m.id} href={`/members/${m.id}`}>{card}</Link>
           ) : (
             <div key={m.id}>{card}</div>

@@ -4,7 +4,7 @@ import { eq, and, or, isNull, count, notInArray } from 'drizzle-orm'
 
 // Re-export from client-safe tiers module so server code imports one place
 export type { Tier, MemberListItem } from './tiers'
-export { TIER_LABELS, TIERS_WITH_COURSES, TIERS_WITH_EVENTS, PAID_TIERS, isPaidTier } from './tiers'
+export { TIER_LABELS, TIERS_WITH_COURSES, TIERS_WITH_EVENTS, PAID_TIERS, isPaidTier, hasVipCommunityAccess } from './tiers'
 import type { Tier, MemberListItem } from './tiers'
 import { TIERS_WITH_COURSES, TIERS_WITH_EVENTS } from './tiers'
 

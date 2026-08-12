@@ -150,11 +150,27 @@ function authorDisplayName(author: PostAuthor): string {
 
 // ── Author hover card ─────────────────────────────────────────────────────────
 
-function AuthorHoverCard({ author, size = 'sm' }: { author: PostAuthor; size?: 'xs' | 'sm' }) {
+function AuthorHoverCard({
+  author,
+  size = 'sm',
+  canUseVipCommunity,
+}: {
+  author: PostAuthor
+  size?: 'xs' | 'sm'
+  canUseVipCommunity: boolean
+}) {
   const [show, setShow] = useState(false)
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const name = authorDisplayName(author)
   const { openDM } = useChatCtx()
+
+  if (!canUseVipCommunity) {
+    return (
+      <span className={`${size === 'sm' ? 'text-sm' : 'text-xs'} font-semibold text-white`}>
+        {name}
+      </span>
+    )
+  }
 
   function enter() {
     if (hideTimer.current) clearTimeout(hideTimer.current)
@@ -243,7 +259,13 @@ function timeAgo(date: Date): string {
 
 // ── Card ─────────────────────────────────────────────────────────────────────
 
-export default function FeedPostCard({ post }: { post: PostData }) {
+export default function FeedPostCard({
+  post,
+  canUseVipCommunity,
+}: {
+  post: PostData
+  canUseVipCommunity: boolean
+}) {
   const [liked, setLiked] = useState(post.isLiked)
   const [likeCount, setLikeCount] = useState(post.likeCount)
   const [repostCount, setRepostCount] = useState(post.repostCount)
@@ -316,7 +338,7 @@ export default function FeedPostCard({ post }: { post: PostData }) {
         <Avatar author={displayAuthor} />
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2 flex-wrap">
-            <AuthorHoverCard author={displayAuthor} />
+            <AuthorHoverCard author={displayAuthor} canUseVipCommunity={canUseVipCommunity} />
             {displayAuthor.headline && (
               <span className="text-xs text-white/35 truncate hidden sm:block">· {displayAuthor.headline}</span>
             )}
@@ -363,8 +385,8 @@ export default function FeedPostCard({ post }: { post: PostData }) {
           <span className="hidden sm:inline">Reply</span>
         </button>
 
-        {/* Repost */}
-        <div className="relative">
+        {/* Repost — publishing is a VIP community feature */}
+        {canUseVipCommunity && <div className="relative">
           <button
             onClick={() => setShowRepostConfirm((v) => !v)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/45 hover:text-white hover:bg-white/6 transition-colors"
@@ -377,92 +399,15 @@ export default function FeedPostCard({ post }: { post: PostData }) {
             <span className="hidden sm:inline">Repost</span>
           </button>
           {showRepostConfirm && (
-            <div
-              className="absolute bottom-full left-0 mb-2 z-20 rounded-xl p-3 shadow-xl"
-              style={{ background: 'var(--bg-panel)', border: '1px solid var(--border-dim)', width: '160px' }}
-            >
-              <p className="text-xs text-white/60 mb-2">Share to your feed?</p>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setShowRepostConfirm(false)}
-                  className="flex-1 text-xs py-1 rounded-lg text-white/50 hover:text-white transition-colors"
-                  style={{ border: '1px solid var(--border-muted)' }}
-                >Cancel</button>
-                <button
-                  onClick={handleRepost}
-                  disabled={repostPending}
-                  className="flex-1 text-xs py-1 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] transition-colors"
-                  style={{ color: '#fff' }}
-                >Repost</button>
-              </div>
+ �����$z{-���jםplayName || data.email}
+              </p>
+              {data.displayName && (
+                <p className="text-xs text-white/35 truncate">{data.email}</p>
+              )}
             </div>
-          )}
-        </div>
-
-        {/* Share */}
-        <button
-          onClick={handleShare}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/45 hover:text-white hover:bg-white/6 transition-colors ml-auto"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-          </svg>
-          <span>{copied ? 'Copied!' : 'Share'}</span>
-        </button>
+          </div>
+        )}
       </div>
-
-      {/* Reply form */}
-      {showReplyForm && (
-        <div className="mt-3 flex gap-2">
-          <textarea
-            value={replyText}
-            onChange={(e) => setReplyText(e.target.value)}
-            placeholder="Write a reply…"
-            rows={2}
-            className="flex-1 resize-none rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-[#5d00f5]/60"
-            style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}
-          />
-          <button
-            onClick={handleReply}
-            disabled={!replyText.trim() || replyPending}
-            className="self-end px-3 py-2 rounded-lg text-xs font-semibold bg-[#5d00f5] hover:bg-[#7b33ff] disabled:opacity-40 transition-colors"
-            style={{ color: '#fff' }}
-          >
-            {replyPending ? '…' : 'Reply'}
-          </button>
-        </div>
-      )}
-
-      {/* Replies */}
-      {post.replies.length > 0 && (
-        <div className="mt-3">
-          <button
-            onClick={() => setShowReplies((v) => !v)}
-            className="text-xs text-white/35 hover:text-white/60 transition-colors mb-2"
-          >
-            {showReplies ? 'Hide' : 'View'} {post.replies.length} {post.replies.length === 1 ? 'reply' : 'replies'}
-          </button>
-          {showReplies && (
-            <div className="space-y-2 pl-3" style={{ borderLeft: '2px solid var(--border-muted)' }}>
-              {post.replies.map((r) => (
-                <div key={r.id} className="flex gap-2">
-                  <Avatar author={r.author} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-baseline gap-2">
-                      <AuthorHoverCard author={r.author} size="xs" />
-                      <span className="text-[10px] text-white/30">{timeAgo(r.createdAt)}</span>
-                    </div>
-                    <div className="text-xs text-white/75 mt-0.5 leading-relaxed">
-                      <RichContent text={r.content} />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </article>
+    </aside>
   )
 }

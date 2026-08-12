@@ -10,12 +10,9 @@ type NavItem = { href: string; label: string; authOnly?: boolean; newTab?: boole
 
 const ALL_NAV: NavItem[] = [
   { href: '/feed',          label: 'Feed',          authOnly: true },
-  { href: '/about',         label: 'About Us' },
+  { href: '/members',       label: 'Members',       authOnly: true },
   { href: '/courses',       label: 'Courses' },
   { href: '/events',        label: 'Events' },
-  { href: '/flying-hy',     label: 'FLYING HY' },
-  { href: '/hysky-monthly', label: 'HYSKY Monthly' },
-  { href: '/podcast',       label: 'Podcast' },
   { href: 'https://news.hysky.org', label: 'News' },
 ]
 

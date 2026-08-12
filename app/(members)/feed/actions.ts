@@ -4,10 +4,18 @@ import { db } from '@/lib/db'
 import { feedPosts, feedPostLikes, feedPostReplies } from '@/lib/schema'
 import { eq, and, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
+import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
+import { isAdmin } from '@/lib/admin'
+
+async function canPublish(user: NonNullable<Awaited<ReturnType<typeof currentUser>>>): Promise<boolean> {
+  const email = user.emailAddresses.find((entry) => entry.id === user.primaryEmailAddressId)?.emailAddress ?? ''
+  const tier = await getUserTier(user.id)
+  return hasVipCommunityAccess(tier) || isAdmin(email)
+}
 
 export async function createPost(formData: FormData) {
   const user = await currentUser()
-  if (!user) return
+  if (!user || !await canPublish(user)) return
 
   const content = (formData.get('content') as string | null)?.trim() ?? ''
   const imageUrls = (formData.get('imageUrls') as string | null) ?? '[]'
@@ -60,7 +68,7 @@ export async function createReply(postId: string, content: string) {
 
 export async function repostPost(originalPostId: string) {
   const user = await currentUser()
-  if (!user) return
+  if (!user || !await canPublish(user)) return
 
   await db.insert(feedPosts).values({ authorId: user.id, content: '', repostOfId: originalPostId })
   await db.update(feedPosts)
