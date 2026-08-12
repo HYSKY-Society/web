@@ -53,7 +53,7 @@ export default function AddPostForm() {
     <form onSubmit={submit} className="space-y-5 rounded-2xl p-6" style={{ background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.09)' }}>
       <div>
         <h3 className="font-bold text-white text-lg">Write an article</h3>
-        <p className="text-white/35 text-xs mt-1">Use ## for section headings, ### for subheadings, - for lists, and [label](https://url) for links.</p>
+        <p className="text-white/35 text-xs mt-1">Formatting: ## section heading · ### subheading · - list item · [label](https://url) link.</p>
       </div>
       {error && <p className="text-red-400 text-sm">{error}</p>}
       {success && <p className="text-emerald-400 text-sm">{success}</p>}
