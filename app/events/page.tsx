@@ -87,9 +87,14 @@ export default function EventsPage() {
                 <span>💻 Zoom</span>
               </div>
             </div>
-            <span className="shrink-0 inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-xl border border-white/20 text-white/40">
-              Link Coming Soon
-            </span>
+            <a
+              href={ZEFFY.membership}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 inline-flex items-center gap-2 text-sm font-bold px-6 py-3 rounded-xl bg-[#5d00f5] text-white hover:bg-[#7130f7] transition-colors"
+            >
+              Upgrade →
+            </a>
           </div>
         </div>
 
