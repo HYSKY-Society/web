@@ -17,7 +17,7 @@ const NAV = [
   ]},
   { href: '/hysky-monthly', label: 'HYSKY Monthly', icon: '🎬' },
   { href: '/podcast',       label: 'Podcast',       icon: '🎙' },
-  { href: 'https://hysky.news', label: 'News', icon: '📰', newTab: true },
+  { href: 'https://news.hysky.org', label: 'News', icon: '📰', newTab: false },
 ]
 
 export default function PublicSidebar({
