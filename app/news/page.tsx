@@ -14,7 +14,7 @@ export default async function NewsPage() {
   try {
     posts = await db.select().from(pressPosts)
       .where(eq(pressPosts.isPublished, true))
-      .orderBy(desc(pressPosts.publishedAt))
+      .orderBy(desc(pressPosts.publishedAt), desc(pressPosts.createdAt))
   } catch { /* table not yet migrated */ }
 
   return (
