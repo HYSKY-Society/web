@@ -8,6 +8,7 @@ export async function addPressPost(data: {
   slug: string
   title: string
   author: string
+  category: string
   excerpt: string | null
   content: string
   coverImageUrl: string | null
@@ -43,6 +44,7 @@ export async function addPressPost(data: {
     slug: data.slug,
     title: normalized.title,
     author: normalized.author || 'HySky News',
+    category: data.category || 'News Analysis',
     excerpt: normalized.excerpt,
     content: normalized.content,
     coverImageUrl: data.coverImageUrl,
@@ -57,3 +59,4 @@ export async function addPressPost(data: {
   revalidatePath('/news')
   revalidatePath('/admin/press')
 }
+
