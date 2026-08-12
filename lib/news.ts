@@ -102,11 +102,12 @@ export async function ensureNewsUser(userId: string): Promise<NewsTier> {
     const isVipConnectMember = webUser?.tier === 'member_full'
 
     // Attach a Zeffy purchase made before the buyer's first Clerk sign-in.
-    if (webUser?.email) {
+    const webUserEmail = webUser?.email
+    if (webUserEmail) {
       const [pending] = await db
         .select()
         .from(pendingNewsSubscriptions)
-        .where(eq(pendingNewsSubscriptions.email, webUser.email))
+        .where(eq(pendingNewsSubscriptions.email, webUserEmail))
 
       if (pending && pending.expiresAt >= new Date()) {
         await db.transaction(async tx => {
@@ -127,7 +128,7 @@ export async function ensureNewsUser(userId: string): Promise<NewsTier> {
             })
           await tx
             .delete(pendingNewsSubscriptions)
-            .where(eq(pendingNewsSubscriptions.email, webUser.email))
+            .where(eq(pendingNewsSubscriptions.email, webUserEmail))
         })
         return pending.tier as NewsTier
       }
