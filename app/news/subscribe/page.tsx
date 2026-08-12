@@ -1,9 +1,14 @@
 import { auth } from '@clerk/nextjs/server'
 import Link from 'next/link'
 import NewsShell from '@/app/components/NewsShell'
-import { ensureNewsUser, TIER_LABELS, TIER_DESCRIPTIONS } from '@/lib/news'
+import { ensureNewsUser } from '@/lib/news'
+import { Space_Grotesk } from 'next/font/google'
 
 const ZEFFY_SUBSCRIPTION_URL = 'https://www.zeffy.com/en-US/ticketing/hysky-subscription'
+const HYSKY_CONNECT_URL = 'https://connect.hysky.org/'
+const HYSKY_CONNECT_SIGNUP_URL = 'https://connect.hysky.org/sign-up'
+
+const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] })
 
 export default async function NewsSubscribePage() {
   const { userId } = auth()
@@ -16,8 +21,8 @@ export default async function NewsSubscribePage() {
       price:       '$0',
       per:         '',
       description: '1 article per month. No credit card required.',
-      cta:         'Current plan',
-      ctaHref:     null,
+      cta:         userId ? 'Take me to the articles' : 'Create a free account',
+      ctaHref:     userId ? '/news' : HYSKY_CONNECT_SIGNUP_URL,
       highlight:   false,
     },
     {
@@ -26,8 +31,8 @@ export default async function NewsSubscribePage() {
       price:       '$0',
       per:         '',
       description: 'Unlimited articles + full archive. Included with an active paid HYSKY Connect VIP membership.',
-      cta:         currentTier === 'complimentary' ? 'Your current plan' : 'Included with VIP Connect',
-      ctaHref:     null,
+      cta:         currentTier === 'complimentary' ? 'Your current plan' : 'Explore VIP Connect',
+      ctaHref:     currentTier === 'complimentary' ? null : HYSKY_CONNECT_URL,
       highlight:   false,
     },
     {
@@ -54,7 +59,7 @@ export default async function NewsSubscribePage() {
 
   return (
     <NewsShell>
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '56px 32px 80px' }}>
+      <div className={spaceGrotesk.className} style={{ maxWidth: '900px', margin: '0 auto', padding: '56px 32px 80px' }}>
 
         <div style={{ textAlign: 'center', marginBottom: 52 }}>
           <div style={{
@@ -113,7 +118,7 @@ export default async function NewsSubscribePage() {
                 </div>
 
                 <div style={{ marginTop: 'auto' }}>
-                  {isCurrent ? (
+                  {isCurrent && tier.key !== 'free' ? (
                     <div style={{
                       textAlign: 'center', padding: '10px',
                       border: '1px solid #e0e0e0', borderRadius: 10,
@@ -140,9 +145,7 @@ export default async function NewsSubscribePage() {
                       border: '1px solid #e8e8e8', borderRadius: 10,
                       fontSize: '0.82rem', color: '#aaa',
                     }}>
-                      {tier.key === 'complimentary'
-                        ? 'Included with VIP Connect'
-                        : 'Coming soon'}
+                      {tier.cta}
                     </div>
                   )}
                 </div>
