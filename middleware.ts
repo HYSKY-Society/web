@@ -13,6 +13,8 @@ const isPublicRoute = createRouteMatcher([
   '/hysky-monthly',
   '/podcast',
   '/news(.*)',
+  '/robots.txt',
+  '/sitemap.xml',
   '/flying-hy(.*)',
   '/sponsors',
   '/invoice(.*)',
@@ -36,7 +38,8 @@ export default clerkMiddleware((auth, request) => {
   // Rewrite news-host root and non-/news paths so they resolve to /news/* routes.
   if (isNewsHost) {
     const url = request.nextUrl.clone()
-    if (!url.pathname.startsWith('/news') && !url.pathname.startsWith('/api') && !url.pathname.startsWith('/_next')) {
+    const isSeoFile = url.pathname === '/robots.txt' || url.pathname === '/sitemap.xml'
+    if (!isSeoFile && !url.pathname.startsWith('/news') && !url.pathname.startsWith('/api') && !url.pathname.startsWith('/_next')) {
       url.pathname = url.pathname === '/' ? '/news' : `/news${url.pathname}`
       return NextResponse.rewrite(url)
     }

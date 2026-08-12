@@ -30,7 +30,7 @@ export default async function NewsSubscribePage() {
       label:       'VIP Connect',
       price:       '$0',
       per:         '',
-      description: 'Unlimited articles + full archive. Included with an active paid HYSKY Connect VIP membership.',
+      description: 'Unlimited articles + full archive. Included with an active paid HySky Connect VIP membership.',
       cta:         currentTier === 'complimentary' ? 'Your current plan' : 'Explore VIP Connect',
       ctaHref:     currentTier === 'complimentary' ? null : HYSKY_CONNECT_URL,
       highlight:   false,
@@ -69,7 +69,7 @@ export default async function NewsSubscribePage() {
             textTransform: 'uppercase' as const, padding: '5px 14px',
             borderRadius: 100, marginBottom: 18,
           }}>
-            HYSKY News
+            HySky News
           </div>
           <h1 style={{ fontWeight: 900, fontSize: 'clamp(2rem, 5vw, 3rem)', color: '#111', letterSpacing: '-0.03em', marginBottom: 14 }}>
             Choose your plan
@@ -162,11 +162,11 @@ export default async function NewsSubscribePage() {
           {[
             {
               q: 'What is the VIP Connect tier?',
-              a: 'Active paid HYSKY Connect VIP members automatically receive unlimited HYSKY News access — no additional news subscription is needed.',
+              a: 'Active paid HySky Connect VIP members automatically receive unlimited HySky News access — no additional news subscription is needed.',
             },
             {
-              q: 'Does my HYSKY web login work here?',
-              a: 'Yes. Sign in with the same account you use for HYSKY Connect. If that account has an active paid VIP membership, we\'ll automatically apply unlimited VIP Connect news access.',
+              q: 'Does my HySky web login work here?',
+              a: 'Yes. Sign in with the same account you use for HySky Connect. If that account has an active paid VIP membership, we\'ll automatically apply unlimited VIP Connect news access.',
             },
             {
               q: 'What counts as an "article"?',
@@ -186,7 +186,7 @@ export default async function NewsSubscribePage() {
 
         <div style={{ textAlign: 'center', marginTop: 48 }}>
           <Link href="/news" style={{ color: '#5D00F5', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
-            ← Back to HYSKY News
+            ← Back to HySky News
           </Link>
         </div>
 

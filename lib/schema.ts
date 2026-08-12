@@ -99,14 +99,19 @@ export const pressPosts = pgTable('press_posts', {
   id:              text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   slug:            text('slug').notNull().unique(),
   title:           text('title').notNull(),
-  author:          text('author').notNull().default('HYSKY Society'),
+  author:          text('author').notNull().default('HySky News'),
   excerpt:         text('excerpt'),
   content:         text('content'),
   coverImageUrl:   text('cover_image_url'),
+  imageAltText:    text('image_alt_text'),
+  seoTitle:        text('seo_title'),
+  seoDescription:  text('seo_description'),
+  keywords:        text('keywords'),
   publishedAt:     timestamp('published_at', { withTimezone: true }).notNull(),
   readTimeMinutes: integer('read_time_minutes'),
   isPublished:     boolean('is_published').notNull().default(true),
   createdAt:       timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt:       timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
 export const flyingHySpeakers = pgTable('flying_hy_speakers', {
