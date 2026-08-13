@@ -138,14 +138,6 @@ export default function EventsPage() {
               >
                 View Course &amp; Register →
               </a>
-              <a
-                href="https://www.hysky.org/post/sustainable-aviation-fuel-saf-aircraft-design-course-for-aerospace-engineers-by-aiaa-hysky-soc"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 text-sm font-semibold px-5 py-3 rounded-xl border border-white/15 text-white/60 hover:text-white hover:border-white/30 transition-colors"
-              >
-                Read Announcement
-              </a>
             </div>
           </div>
         </div>
