@@ -339,7 +339,7 @@ Participants will gain clarity on the roles of NASA, FAA, DOE, DOT, DoD, and Con
     slug: 'advanced-sustainable-aviation-fuels-and-aircraft-design',
     title: 'Advanced Sustainable Aviation Fuels and Aircraft Design',
     tagline: 'A five-week joint AIAA and HySky Society course covering sustainable aviation fuels, hydrogen, hybrid-electric aircraft design, certification, safety, and airport infrastructure.',
-    image: '/events/aiaa-saf-aircraft-design-course.jpg',
+    image: '/courses/saf-aircraft-design-course.jpg',
     imageAlt: 'AIAA and HySky Advanced Sustainable Aviation Fuels and Aircraft Design online short course',
     externalLink: 'https://aiaa.org/courses/advanced-sustainable-aviation-fuels-and-aircraft-design/',
     buyLink: 'https://aiaa.org/courses/advanced-sustainable-aviation-fuels-and-aircraft-design/',
