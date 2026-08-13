@@ -37,12 +37,13 @@ function Field({
   )
 }
 
-export default function ProfileForm({ profile, contacts, clerkName, clerkEmail, canEditLinks }: {
+export default function ProfileForm({ profile, contacts, clerkName, clerkEmail, canEditLinks, directoryHref = '/members' }: {
   profile: UserProfile | null
   contacts: ProfileContact | null
   clerkName: string
   clerkEmail: string
   canEditLinks: boolean
+  directoryHref?: string
 }) {
   const { openUserProfile } = useClerk()
   const [status,      setStatus]      = useState<{ error?: string; success?: boolean }>({})
@@ -267,7 +268,7 @@ export default function ProfileForm({ profile, contacts, clerkName, clerkEmail, 
         >
           {pending ? 'Saving…' : 'Save Profile'}
         </button>
-        <a href="/members" className="text-sm text-white/40 hover:text-white transition-colors">View in directory →</a>
+        <a href={directoryHref} className="text-sm text-white/40 hover:text-white transition-colors">View in directory →</a>
       </div>
     </form>
   )

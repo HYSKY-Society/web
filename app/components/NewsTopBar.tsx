@@ -1,9 +1,12 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { SignInButton, UserButton } from '@clerk/nextjs'
 import type { NewsTier } from '@/lib/news'
+import type { ProfileContact, UserProfile } from '@/lib/schema'
+import ProfileForm from '@/app/(members)/profile/ProfileForm'
 
 function ProfileIcon() {
   return (
@@ -32,15 +35,39 @@ export default function NewsTopBar({
   isLoggedIn,
   tier,
   isVipMember,
+  profile,
+  contacts,
+  clerkName,
+  clerkEmail,
 }: {
   isLoggedIn: boolean
   tier?: NewsTier
   isVipMember: boolean
+  profile: UserProfile | null
+  contacts: ProfileContact | null
+  clerkName: string
+  clerkEmail: string
 }) {
+  const [profileOpen, setProfileOpen] = useState(false)
   const visibleTier: NewsTier | undefined = isVipMember ? 'complimentary' : tier
   const hasStandaloneNewsPlan = !isVipMember && (tier === 'monthly' || tier === 'annual')
 
+  useEffect(() => {
+    if (!profileOpen) return
+    const previousOverflow = document.body.style.overflow
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setProfileOpen(false)
+    }
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [profileOpen])
+
   return (
+    <>
     <header style={{
       position: 'sticky', top: 0, zIndex: 50,
       background: '#fff',
@@ -125,10 +152,10 @@ export default function NewsTopBar({
           ) : null}
           <UserButton>
             <UserButton.MenuItems>
-              <UserButton.Link
+              <UserButton.Action
                 label="My Profile"
                 labelIcon={<ProfileIcon />}
-                href="https://connect.hysky.org/profile"
+                onClick={() => setProfileOpen(true)}
               />
               <UserButton.Action label="manageAccount" />
               <UserButton.Action label="signOut" />
@@ -137,5 +164,41 @@ export default function NewsTopBar({
         </div>
       )}
     </header>
+
+    {profileOpen && isLoggedIn ? (
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="news-profile-title"
+        onMouseDown={(event) => {
+          if (event.target === event.currentTarget) setProfileOpen(false)
+        }}
+        className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/70 px-3 py-6 sm:px-6 sm:py-10"
+      >
+        <div className="relative w-full max-w-3xl rounded-2xl border border-white/10 bg-[#0d0914] p-5 text-white shadow-2xl sm:p-8">
+          <button
+            type="button"
+            onClick={() => setProfileOpen(false)}
+            aria-label="Close profile editor"
+            className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-xl text-white/55 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            ×
+          </button>
+          <div className="mb-7 pr-12">
+            <h2 id="news-profile-title" className="text-2xl font-bold">My Profile</h2>
+            <p className="mt-1 text-sm text-white/40">Update how you appear across HySky.</p>
+          </div>
+          <ProfileForm
+            profile={profile}
+            contacts={contacts}
+            clerkName={clerkName}
+            clerkEmail={clerkEmail}
+            canEditLinks={isVipMember}
+            directoryHref="https://connect.hysky.org/members"
+          />
+        </div>
+      </div>
+    ) : null}
+    </>
   )
 }
