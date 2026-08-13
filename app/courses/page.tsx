@@ -49,7 +49,7 @@ export default function CoursesPage() {
                 <p className="text-white/45 text-sm leading-relaxed mb-5">{course.tagline}</p>
                 <div
                   className="flex items-center gap-1 text-sm font-medium transition-colors"
-                  style={{ color: course.accent }}
+                  style={{ color: course.accent === '#5d00f5' ? course.accentLight : course.accent }}
                 >
                   View course{' '}
                   <span className="group-hover:translate-x-1 transition-transform inline-block">→</span>
