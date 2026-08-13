@@ -372,6 +372,56 @@ Participants will gain clarity on the roles of NASA, FAA, DOE, DOT, DoD, and Con
     instructors: [],
     ceus: 'See AIAA course page',
   },
+  {
+    slug: 'advanced-hydrogen-aerospace-technologies-and-design',
+    title: 'Advanced Hydrogen Aerospace Technologies and Design',
+    tagline: 'A 20-hour on-demand AIAA and HySky Society course covering hydrogen fundamentals, fixed-wing and eVTOL design, and airport infrastructure.',
+    image: '/courses/advanced-hydrogen-aerospace-technologies-design.jpg',
+    imageAlt: 'Advanced hydrogen aerospace aircraft illuminated against a black background',
+    externalLink: 'https://aiaa.mycrowdwisdom.com/diweb/catalog/item?id=14691996',
+    buyLink: 'https://aiaa.mycrowdwisdom.com/diweb/catalog/item?id=14691996',
+    badge: '⚡ Aerospace Technology',
+    accent: '#00D4D4',
+    accentLight: '#33ffff',
+    highlights: [
+      { icon: '▶️', label: 'Format', value: 'On Demand' },
+      { icon: '🕐', label: 'Total Hours', value: '20 Hours' },
+      { icon: '🧩', label: 'Topics', value: '4 Parts' },
+      { icon: '📜', label: 'Certificate', value: 'AIAA Certificate' },
+    ],
+    keyFeatures: [
+      'Joint AIAA and HySky Society on-demand short course',
+      'Stream 20 hours of course recordings anytime',
+      'Covers hydrogen and cryogenic fundamentals',
+      'Explores fixed-wing, eVTOL, and airport infrastructure design',
+      'AIAA Certificate of Completion included',
+    ],
+    overview: 'This on-demand short course presents hydrogen aerospace technology in the context of fixed-wing and eVTOL aircraft design. It covers hydrogen and cryogenic fundamentals, aircraft powertrain and integration decisions, infrastructure, airport compatibility, safety, and regulatory considerations.',
+    objectives: [
+      'Understand hydrogen and cryogenic fundamentals for aerospace applications',
+      'Evaluate hydrogen powertrains for fixed-wing aircraft',
+      'Explore hydrogen fuel-cell and hybrid-electric eVTOL design',
+      'Understand airport compatibility and hydrogen infrastructure requirements',
+    ],
+    audience: [
+      'Aerospace engineers interested in electric and hybrid-electric propulsion',
+      'Electrical and mechanical engineers working with hydrogen propulsion systems',
+      'Professionals developing zero-carbon VTOL aircraft, UAS, and launch vehicles',
+    ],
+    fees: [
+      { label: 'AIAA Member Price', price: '$945 USD' },
+      { label: 'Non-Member Price', price: '$1,145 USD' },
+      { label: 'AIAA Student Member Price', price: '$495 USD' },
+    ],
+    outline: [
+      { title: 'Hydrogen and Cryogenic Fundamentals', points: ['4 hours'] },
+      { title: 'Hydrogen for Fixed-Wing Design', points: ['6 hours'] },
+      { title: 'Hydrogen-Powered eVTOL Design', points: ['8 hours'] },
+      { title: 'Airport Compatibility and Hydrogen Infrastructure', points: ['2 hours'] },
+    ],
+    instructors: [],
+    ceus: '20 hours / AIAA Certificate of Completion',
+  },
 ]
 
 export function getCourse(slug: string): Course | undefined {
