@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
-import { Inter } from 'next/font/google'
+import { Space_Grotesk } from 'next/font/google'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'] })
+const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'HYSKY Society — Members',
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider appearance={{ variables: { fontFamily: spaceGrotesk.style.fontFamily } }}>
       <html lang="en" data-theme="dark" suppressHydrationWarning>
         <head>
           {/* Anti-FOUC: apply saved theme before first paint */}
@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             `(function(){var t=localStorage.getItem('theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');})()`
           }} />
         </head>
-        <body className={inter.className}>{children}</body>
+        <body className={spaceGrotesk.className}>{children}</body>
       </html>
     </ClerkProvider>
   )
