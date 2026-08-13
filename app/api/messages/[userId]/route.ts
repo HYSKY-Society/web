@@ -5,20 +5,18 @@ import { directMessages, userProfiles } from '@/lib/schema'
 import { and, or, eq, asc } from 'drizzle-orm'
 import { pusherServer, dmChannelName } from '@/lib/pusher'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
-import { isAdmin } from '@/lib/admin'
 import { createNotification, markDirectMessageNotificationsRead } from '@/lib/notifications'
 
 async function getAuthorizedUserId(): Promise<string | null> {
   const user = await currentUser()
   if (!user) return null
-  const email = user.emailAddresses.find((entry) => entry.id === user.primaryEmailAddressId)?.emailAddress ?? ''
   const tier = await getUserTier(user.id)
-  return hasVipCommunityAccess(tier) || isAdmin(email) ? user.id : null
+  return hasVipCommunityAccess(tier) ? user.id : null
 }
 
 export async function GET(_req: NextRequest, { params }: { params: { userId: string } }) {
   const myId = await getAuthorizedUserId()
-  if (!myId) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
+  if (!myId) return NextResponse.json({ error: 'VIP membership required' }, { status: 403 })
 
   const otherId = params.userId
 
@@ -42,7 +40,7 @@ export async function GET(_req: NextRequest, { params }: { params: { userId: str
 
 export async function POST(req: NextRequest, { params }: { params: { userId: string } }) {
   const myId = await getAuthorizedUserId()
-  if (!myId) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
+  if (!myId) return NextResponse.json({ error: 'VIP membership required' }, { status: 403 })
 
   const toUserId = params.userId
   const { content } = await req.json() as { content?: string }

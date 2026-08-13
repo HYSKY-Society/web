@@ -2,7 +2,6 @@ import { currentUser } from '@clerk/nextjs/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getMemberProfile, getUserTier, hasVipCommunityAccess, TIER_LABELS, Tier } from '@/lib/members'
-import { isAdmin } from '@/lib/admin'
 import MessageMemberButton from './MessageMemberButton'
 
 function Avatar({ name, url }: { name: string | null; url: string | null }) {
@@ -37,10 +36,9 @@ function TierBadge({ tier }: { tier: string }) {
 export default async function MemberProfilePage({ params }: { params: { id: string } }) {
   const user = await currentUser()
   const userId = user!.id
-  const email = user!.emailAddresses.find((entry) => entry.id === user!.primaryEmailAddressId)?.emailAddress ?? ''
   const viewerTier = await getUserTier(userId)
 
-  const canUseVipCommunity = hasVipCommunityAccess(viewerTier) || isAdmin(email)
+  const canUseVipCommunity = hasVipCommunityAccess(viewerTier)
 
   const member = await getMemberProfile(params.id)
   if (!member) notFound()
