@@ -173,9 +173,9 @@ export default function NewsTopBar({
         onMouseDown={(event) => {
           if (event.target === event.currentTarget) setProfileOpen(false)
         }}
-        className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/70 px-3 py-6 sm:px-6 sm:py-10"
+        className="news-profile-backdrop fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto px-3 py-6 sm:px-6 sm:py-10"
       >
-        <div className="relative w-full max-w-3xl rounded-2xl border border-white/10 bg-[#0d0914] p-5 text-white shadow-2xl sm:p-8">
+        <div className="relative w-full max-w-3xl rounded-2xl border border-white/10 bg-[var(--bg-panel)] p-5 text-white shadow-2xl sm:p-8">
           <button
             type="button"
             onClick={() => setProfileOpen(false)}
