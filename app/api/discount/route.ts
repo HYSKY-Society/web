@@ -40,10 +40,10 @@ export async function POST(req: NextRequest) {
   }
 
   if (member.tier === 'member_full') {
-    return NextResponse.json({ message: 'Already a full member' }, { status: 200 })
+    return NextResponse.json({ message: 'Already a VIP Member' }, { status: 200 })
   }
 
-  // Discount codes grant full membership — upgrade and decrement in one transaction
+  // Discount codes grant VIP membership — upgrade and decrement in one transaction
   await db.transaction(async (tx) => {
     await tx.update(users).set({ tier: 'member_full' }).where(eq(users.id, userId))
 
