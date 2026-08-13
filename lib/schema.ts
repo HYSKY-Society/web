@@ -258,6 +258,17 @@ export const feedPostReplies = pgTable('feed_post_replies', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+export const notifications = pgTable('notifications', {
+  id:        text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId:    text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  actorId:   text('actor_id').references(() => users.id, { onDelete: 'set null' }),
+  type:      text('type').notNull(), // post | like | reply | dm
+  entityId:  text('entity_id'),
+  href:      text('href'),
+  readAt:    timestamp('read_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export type User = typeof users.$inferSelect
 export type UserProfile = typeof userProfiles.$inferSelect
 export type DiscountCode = typeof discountCodes.$inferSelect
@@ -287,6 +298,7 @@ export const zeffyInvoices = pgTable('zeffy_invoices', {
   createdAt:   timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+export type Notification     = typeof notifications.$inferSelect
 export type FeedPost         = typeof feedPosts.$inferSelect
 export type FeedPostLike     = typeof feedPostLikes.$inferSelect
 export type FeedPostReply    = typeof feedPostReplies.$inferSelect

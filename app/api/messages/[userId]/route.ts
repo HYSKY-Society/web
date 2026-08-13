@@ -6,6 +6,7 @@ import { and, or, eq, asc } from 'drizzle-orm'
 import { pusherServer, dmChannelName } from '@/lib/pusher'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
 import { isAdmin } from '@/lib/admin'
+import { createNotification, markDirectMessageNotificationsRead } from '@/lib/notifications'
 
 async function getAuthorizedUserId(): Promise<string | null> {
   const user = await currentUser()
@@ -32,6 +33,7 @@ export async function GET(_req: NextRequest, { params }: { params: { userId: str
         )
       )
       .orderBy(asc(directMessages.createdAt))
+    await markDirectMessageNotificationsRead(myId, otherId).catch(() => {})
     return NextResponse.json(msgs)
   } catch {
     return NextResponse.json([])
@@ -58,6 +60,13 @@ export async function POST(req: NextRequest, { params }: { params: { userId: str
     })
     const fromName   = senderProfile?.displayName ?? 'Member'
     const fromAvatar = senderProfile?.avatarUrl   ?? null
+
+    await createNotification({
+      userId: toUserId,
+      actorId: myId,
+      type: 'dm',
+      entityId: msg.id,
+    }).catch(() => {})
 
     // Deliver to DM channel (both parties receive new message)
     await pusherServer.trigger(

@@ -40,7 +40,7 @@ export default function AppShell({ sidebarData, children, noPadding }: { sidebar
   return (
     <ChatProvider myId={sidebarData.myId}>
       <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-page)' }}>
-        <AppTopBar onMenuClick={handleMenuClick} />
+        <AppTopBar onMenuClick={handleMenuClick} myId={sidebarData.myId} />
 
         <AppSidebar
           data={sidebarData}

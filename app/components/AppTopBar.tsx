@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { SignInButton, SignUpButton } from '@clerk/nextjs'
 import ThemeToggle from './ThemeToggle'
+import NotificationBell from './NotificationBell'
 
 type NavItem = { href: string; label: string; authOnly?: boolean; newTab?: boolean }
 
@@ -16,7 +17,7 @@ const ALL_NAV: NavItem[] = [
   { href: 'https://news.hysky.org', label: 'News' },
 ]
 
-export default function AppTopBar({ onMenuClick, isLoggedIn = true }: { onMenuClick: () => void; isLoggedIn?: boolean }) {
+export default function AppTopBar({ onMenuClick, isLoggedIn = true, myId }: { onMenuClick: () => void; isLoggedIn?: boolean; myId?: string }) {
   const pathname = usePathname()
   const NAV = ALL_NAV.filter(n => !n.authOnly || isLoggedIn)
 
@@ -69,6 +70,7 @@ export default function AppTopBar({ onMenuClick, isLoggedIn = true }: { onMenuCl
 
       {/* Right side: theme toggle + optional auth buttons */}
       <div className="flex items-center gap-1 ml-auto">
+        {myId && <NotificationBell myId={myId} />}
         <ThemeToggle />
         {!isLoggedIn && (
           <>

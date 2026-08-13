@@ -36,7 +36,7 @@ export default function DMWindow({ userId, name, avatar }: { userId: string; nam
     if (minimized || loaded) return
     fetch(`/api/messages/${userId}`)
       .then(r => r.ok ? r.json() : [])
-      .then(msgs => { setMessages(msgs); setLoaded(true) })
+      .then(msgs => { setMessages(msgs); setLoaded(true); window.dispatchEvent(new Event('notifications:refresh')) })
       .catch(() => { setLoaded(true) })
   }, [userId, minimized, loaded])
 

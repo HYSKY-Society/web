@@ -2,6 +2,7 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { feedPosts, feedPostLikes, feedPostReplies } from '@/lib/schema'
+import { createNotification, notifyNewPost, removeNotification } from '@/lib/notifications'
 import { eq, and, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
@@ -22,13 +23,21 @@ export async function createPost(formData: FormData) {
   if (!content && imageUrls === '[]') return
   if (content.length > 3000) return
 
-  await db.insert(feedPosts).values({ authorId: user.id, content, imageUrls })
+  const [post] = await db.insert(feedPosts)
+    .values({ authorId: user.id, content, imageUrls })
+    .returning({ id: feedPosts.id })
+  await notifyNewPost(user.id, post.id).catch(() => {})
   revalidatePath('/feed')
 }
 
 export async function toggleLike(postId: string): Promise<{ liked: boolean }> {
   const user = await currentUser()
   if (!user) return { liked: false }
+
+  const [post] = await db.select({ authorId: feedPosts.authorId })
+    .from(feedPosts)
+    .where(eq(feedPosts.id, postId))
+    .limit(1)
 
   const existing = await db
     .select()
@@ -42,12 +51,14 @@ export async function toggleLike(postId: string): Promise<{ liked: boolean }> {
     await db.update(feedPosts)
       .set({ likeCount: sql`greatest(${feedPosts.likeCount} - 1, 0)` })
       .where(eq(feedPosts.id, postId))
+    if (post) await removeNotification({ userId: post.authorId, actorId: user.id, type: 'like', entityId: postId }).catch(() => {})
     return { liked: false }
   } else {
     await db.insert(feedPostLikes).values({ userId: user.id, postId })
     await db.update(feedPosts)
       .set({ likeCount: sql`${feedPosts.likeCount} + 1` })
       .where(eq(feedPosts.id, postId))
+    if (post) await createNotification({ userId: post.authorId, actorId: user.id, type: 'like', entityId: postId, href: `/feed#post-${postId}` }).catch(() => {})
     return { liked: true }
   }
 }
@@ -59,10 +70,16 @@ export async function createReply(postId: string, content: string) {
   const trimmed = content.trim()
   if (!trimmed || trimmed.length > 1000) return
 
+  const [post] = await db.select({ authorId: feedPosts.authorId })
+    .from(feedPosts)
+    .where(eq(feedPosts.id, postId))
+    .limit(1)
+
   await db.insert(feedPostReplies).values({ postId, authorId: user.id, content: trimmed })
   await db.update(feedPosts)
     .set({ replyCount: sql`${feedPosts.replyCount} + 1` })
     .where(eq(feedPosts.id, postId))
+  if (post) await createNotification({ userId: post.authorId, actorId: user.id, type: 'reply', entityId: postId, href: `/feed#post-${postId}` }).catch(() => {})
   revalidatePath('/feed')
 }
 
