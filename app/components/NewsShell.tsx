@@ -3,14 +3,15 @@ import NewsTopBar from './NewsTopBar'
 import { ensureNewsUser, hasVipConnectMembership, type NewsTier } from '@/lib/news'
 import { getProfile } from '@/lib/members'
 import { getProfileContacts } from '@/lib/profile-contacts'
+import type { ProfileContact, UserProfile } from '@/lib/schema'
 
 export default async function NewsShell({ children }: { children: React.ReactNode }) {
   const { userId } = auth()
 
   let tier: NewsTier | undefined
   let isVipMember = false
-  let profile = null
-  let contacts = null
+  let profile: UserProfile | null = null
+  let contacts: ProfileContact | null = null
   let clerkName = ''
   let clerkEmail = ''
 
