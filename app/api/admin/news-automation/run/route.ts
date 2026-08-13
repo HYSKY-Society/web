@@ -23,7 +23,10 @@ export async function POST() {
     const text = await response.text()
     let payload: unknown = text
     try { payload = JSON.parse(text) } catch { /* keep Azure plain-text errors */ }
-    if (!response.ok) return Response.json({ error: 'Azure run failed.', details: payload }, { status: 502 })
+    if (!response.ok) {
+      const detail = typeof payload === 'string' ? payload : JSON.stringify(payload)
+      return Response.json({ error: `Azure run failed (${response.status}): ${detail}` }, { status: 502 })
+    }
     return Response.json(payload)
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : 'Could not reach Azure.' }, { status: 502 })
