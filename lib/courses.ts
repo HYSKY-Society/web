@@ -344,8 +344,8 @@ Participants will gain clarity on the roles of NASA, FAA, DOE, DOT, DoD, and Con
     externalLink: 'https://aiaa.org/courses/advanced-sustainable-aviation-fuels-and-aircraft-design/',
     buyLink: 'https://aiaa.org/courses/advanced-sustainable-aviation-fuels-and-aircraft-design/',
     badge: '🌱 Sustainable Aviation',
-    accent: '#00D4D4',
-    accentLight: '#33ffff',
+    accent: '#5d00f5',
+    accentLight: '#9b6dff',
     highlights: [
       { icon: '⏱️', label: 'Duration', value: '5 Weeks' },
       { icon: '🕐', label: 'Total Hours', value: '20 Hours' },
