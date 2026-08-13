@@ -40,7 +40,7 @@ export function parseAutomatedDraft(body: unknown): AutomatedNewsDraft {
   if (!Array.isArray(row.keywords) || row.keywords.length === 0 || row.keywords.some(v => typeof v !== 'string')) {
     throw new Error('keywords must be a non-empty string array.')
   }
-  if (!Array.isArray(row.sources) || row.sources.length < 2) throw new Error('At least two sources are required.')
+  if (!Array.isArray(row.sources) || row.sources.length < 1) throw new Error('At least one source is required.')
   const sources = row.sources.map((value) => {
     if (!value || typeof value !== 'object') throw new Error('Each source must be an object.')
     const source = value as Record<string, unknown>
@@ -51,7 +51,7 @@ export function parseAutomatedDraft(body: unknown): AutomatedNewsDraft {
   })
   const content = normalizeHySky((row.content as string).trim())
   const linkCount = (content.match(/\[[^\]]+\]\(https?:\/\/[^)]+\)/g) || []).length
-  if (linkCount < 2) throw new Error('The article must contain at least two authoritative links.')
+  if (linkCount < 1) throw new Error('The article must contain at least one authoritative link.')
   const title = normalizeHySky((row.title as string).trim())
   const h2s = [...content.matchAll(/^##\s+(.+)$/gm)].map(match => match[1]).join(' ')
   const keywords = (row.keywords as string[]).map(value => normalizeHySky(value.trim())).filter(Boolean)
