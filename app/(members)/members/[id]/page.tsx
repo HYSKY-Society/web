@@ -1,5 +1,5 @@
 import { currentUser } from '@clerk/nextjs/server'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getMemberProfile, getUserTier, hasVipCommunityAccess, TIER_LABELS, Tier } from '@/lib/members'
 import { isAdmin } from '@/lib/admin'
@@ -40,9 +40,7 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
   const email = user!.emailAddresses.find((entry) => entry.id === user!.primaryEmailAddressId)?.emailAddress ?? ''
   const viewerTier = await getUserTier(userId)
 
-  if (!hasVipCommunityAccess(viewerTier) && !isAdmin(email)) {
-    redirect('/members')
-  }
+  const canUseVipCommunity = hasVipCommunityAccess(viewerTier) || isAdmin(email)
 
   const member = await getMemberProfile(params.id)
   if (!member) notFound()
@@ -99,13 +97,14 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
               memberId={member.id}
               name={name}
               avatarUrl={member.avatarUrl}
+              canMessage={canUseVipCommunity}
             />
           )}
         </div>
       </div>
 
       {/* Bio */}
-      {member.bio && (
+      {canUseVipCommunity && member.bio && (
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
           <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">About</h2>
           <p className="text-white/75 leading-relaxed whitespace-pre-wrap">{member.bio}</p>
@@ -113,7 +112,7 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
       )}
 
       {/* Contact / Links */}
-      {(member.linkedinUrl || member.twitterUrl || member.website || member.email) && (
+      {canUseVipCommunity && (member.linkedinUrl || member.twitterUrl || member.website || member.email) && (
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
           <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-4">Contact & Links</h2>
           <div className="flex flex-col gap-3">
