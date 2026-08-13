@@ -27,13 +27,13 @@ export default function CoursesPage() {
               />
               <div className="relative">
                 {course.image && (
-                  <div className="-mx-7 -mt-7 mb-5 overflow-hidden border-b border-white/10 bg-black/20">
+                  <div className="-mx-7 -mt-7 mb-5 h-36 overflow-hidden border-b border-white/10 bg-black/20 sm:h-40">
                     <Image
                       src={course.image}
                       alt={course.imageAlt ?? course.title}
                       width={1920}
                       height={1080}
-                      className="w-full aspect-video object-cover"
+                      className="h-full w-full object-cover"
                     />
                   </div>
                 )}
