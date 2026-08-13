@@ -26,7 +26,10 @@ export default function UpgradeChatButton() {
       </div>
       <ZeffyModal
         isOpen={open}
-        onClose={() => setOpen(false)}
+        onClose={() => {
+          setOpen(false)
+          window.dispatchEvent(new Event('vip-access:check'))
+        }}
         title="Upgrade to HySky VIP"
         options={[{ label: 'VIP Membership', icon: '👥', embedUrl: ZEFFY.membership }]}
       />

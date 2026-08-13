@@ -6,6 +6,7 @@ import AppSidebar from './AppSidebar'
 import { ChatProvider } from './ChatProvider'
 import ChatBar from './ChatBar'
 import UpgradeChatButton from './UpgradeChatButton'
+import VipAccessRefresh from './VipAccessRefresh'
 import { hasVipCommunityAccess } from '@/lib/tiers'
 
 export type SidebarData = {
@@ -42,6 +43,7 @@ export default function AppShell({ sidebarData, children, noPadding }: { sidebar
 
   return (
     <ChatProvider myId={sidebarData.myId}>
+      <VipAccessRefresh initialCanUseVipCommunity={canUseVipCommunity} />
       <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-page)' }}>
         <AppTopBar onMenuClick={handleMenuClick} myId={sidebarData.myId} />
 

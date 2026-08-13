@@ -44,7 +44,10 @@ export default function MessageMemberButton({
       {!canMessage && (
         <ZeffyModal
           isOpen={membershipOpen}
-          onClose={() => setMembershipOpen(false)}
+          onClose={() => {
+            setMembershipOpen(false)
+            window.dispatchEvent(new Event('vip-access:check'))
+          }}
           title="Upgrade to HySky VIP"
           options={[{ label: 'VIP Membership', icon: '👥', embedUrl: ZEFFY.membership }]}
         />
