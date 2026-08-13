@@ -10,7 +10,7 @@ export default function PublicShellClient({
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="min-h-screen overflow-x-hidden" style={{ backgroundColor: 'var(--bg-page)', fontFamily: 'Arial, Helvetica, sans-serif' }}>
+    <div className="min-h-screen overflow-x-hidden" style={{ backgroundColor: 'var(--bg-page)' }}>
       <AppTopBar onMenuClick={() => setSidebarOpen(true)} isLoggedIn={isLoggedIn} />
       <PublicSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} isLoggedIn={isLoggedIn} />
       {sidebarOpen && (
