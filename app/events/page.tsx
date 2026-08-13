@@ -96,6 +96,45 @@ export default function EventsPage() {
           </div>
         </div>
 
+        {/* AIAA + HySky Sustainable Aviation Course */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-6">
+          <div className="flex items-start justify-between flex-wrap gap-4">
+            <div>
+              <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-[#00D4D4]/15 text-[#00D4D4]">
+                🎓 AIAA + HySky Online Course
+              </div>
+              <h2 className="text-xl font-bold mb-1">Advanced Sustainable Aviation Fuels and Aircraft Design</h2>
+              <p className="text-white/45 text-sm leading-relaxed max-w-xl mb-3">
+                A five-week joint AIAA and HySky Society course covering sustainable aviation fuels, hydrogen, hybrid-electric aircraft design, certification, safety, and airport infrastructure.
+              </p>
+              <div className="flex flex-wrap gap-4 text-white/45 text-sm">
+                <span>📅 September 22 – October 22, 2026</span>
+                <span>🕐 Tuesdays &amp; Thursdays, 1:00 – 3:00 PM ET</span>
+                <span>💻 Online</span>
+              </div>
+            </div>
+            <div className="shrink-0 flex flex-col sm:flex-row gap-2">
+              <a
+                href="https://aiaa.org/courses/advanced-sustainable-aviation-fuels-and-aircraft-design/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 text-sm font-semibold px-6 py-3 rounded-xl border transition-colors hover:bg-white/8"
+                style={{ borderColor: '#00D4D4', color: '#00D4D4' }}
+              >
+                View Course &amp; Register →
+              </a>
+              <a
+                href="https://www.hysky.org/post/sustainable-aviation-fuel-saf-aircraft-design-course-for-aerospace-engineers-by-aiaa-hysky-soc"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 text-sm font-semibold px-5 py-3 rounded-xl border border-white/15 text-white/60 hover:text-white hover:border-white/30 transition-colors"
+              >
+                Read Announcement
+              </a>
+            </div>
+          </div>
+        </div>
+
         {/* HYSKY Monthly Webinar Series */}
         <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
           <div className="flex items-start justify-between flex-wrap gap-4 mb-6">
