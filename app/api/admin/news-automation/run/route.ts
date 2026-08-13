@@ -1,0 +1,24 @@
+import { currentUser } from '@clerk/nextjs/server'
+import { isAdmin } from '@/lib/admin'
+
+export const runtime = 'nodejs'
+export const maxDuration = 300
+
+export async function POST() {
+  const user = await currentUser()
+  if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const email = user.emailAddresses.find(e => e.id === user.primaryEmailAddressId)?.emailAddress ?? ''
+  if (!isAdmin(email)) return Response.json({ error: 'Forbidden' }, { status: 403 })
+  const url = process.env.NEWS_AUTOMATION_RUN_URL
+  if (!url) return Response.json({ error: 'Manual-run connection is not configured.' }, { status: 503 })
+  try {
+    const response = await fetch(url, { method: 'POST', cache: 'no-store' })
+    const text = await response.text()
+    let payload: unknown = text
+    try { payload = JSON.parse(text) } catch { /* keep Azure plain-text errors */ }
+    if (!response.ok) return Response.json({ error: 'Azure run failed.', details: payload }, { status: 502 })
+    return Response.json(payload)
+  } catch (error) {
+    return Response.json({ error: error instanceof Error ? error.message : 'Could not reach Azure.' }, { status: 502 })
+  }
+}
