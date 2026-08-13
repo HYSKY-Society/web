@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { courses } from '@/lib/courses'
 import PublicShell from '@/app/components/PublicShell'
@@ -23,6 +24,17 @@ export default function CoursesPage() {
                 style={{ backgroundColor: course.accent }}
               />
               <div className="relative">
+                {course.image && (
+                  <div className="-mx-7 -mt-7 mb-5 overflow-hidden border-b border-white/10 bg-black/20">
+                    <Image
+                      src={course.image}
+                      alt={course.imageAlt ?? course.title}
+                      width={1920}
+                      height={1080}
+                      className="w-full aspect-video object-cover"
+                    />
+                  </div>
+                )}
                 <div
                   className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider mb-4 px-2.5 py-1 rounded-full"
                   style={{ backgroundColor: `${course.accent}25`, color: course.accentLight }}
