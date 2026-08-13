@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { Space_Grotesk } from 'next/font/google'
 import type { ReactNode } from 'react'
@@ -9,7 +9,7 @@ import { db } from '@/lib/db'
 import { pressPosts } from '@/lib/schema'
 import { eq, and } from 'drizzle-orm'
 import NewsShell from '@/app/components/NewsShell'
-import { canReadArticle, recordArticleView, TIER_LABELS, TIER_DESCRIPTIONS } from '@/lib/news'
+import { canReadArticle, recordArticleView } from '@/lib/news'
 import { getNewsImage } from '@/lib/news-images'
 
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] })
@@ -77,17 +77,13 @@ export default async function NewsPostPage({ params }: { params: { slug: string 
   const imageInfo = getNewsImage(post.slug, post.coverImageUrl, post.imageAltText, post.title)
 
   const { userId } = auth()
+  if (!userId) redirect('/news/subscribe')
+
+  const access = await canReadArticle(userId, post.id)
+  if (!access.allowed) redirect('/news/subscribe')
+
+  await recordArticleView(userId, post.id)
   const blocks = articleBlocks(post.content || post.excerpt || '')
-  let gated = false
-  let tierInfo: { tier: string; viewsThisMonth: number; limit: number | null } | null = null
-  if (!userId) gated = true
-  else {
-    const result = await canReadArticle(userId, post.id)
-    tierInfo = { tier: result.tier, viewsThisMonth: result.viewsThisMonth, limit: result.limit }
-    if (result.allowed) await recordArticleView(userId, post.id)
-    else gated = true
-  }
-  const previewCount = gated ? 0 : blocks.length
   const canonical = `${NEWS_ORIGIN}/${post.slug}`
   const image = absoluteImageUrl(imageInfo?.src)
   const structuredData = {
@@ -116,11 +112,8 @@ export default async function NewsPostPage({ params }: { params: { slug: string 
             {imageInfo.caption} Photo: <a href={imageInfo.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#5D00F5' }}>{imageInfo.credit}</a>, licensed under <a href={imageInfo.licenseUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#5D00F5' }}>{imageInfo.license}</a>.{imageInfo.modified ? ' Cropped for presentation.' : ''}
           </figcaption>}
         </figure>}
-        <div className={gated ? 'paywall' : undefined} style={{ fontSize: '1.04rem', color: '#332e38', lineHeight: 1.82, display: 'flex', flexDirection: 'column', gap: 22 }}>{blocks.slice(0, previewCount)}</div>
-        {gated && <div style={{ marginTop: 0, position: 'relative' }}><div style={{ height: 130, background: 'linear-gradient(to bottom, rgba(255,255,255,0), #fff)', marginBottom: -62, position: 'relative', zIndex: 1 }} /><div style={{ position: 'relative', zIndex: 2, border: '1px solid #e6dff0', borderRadius: 22, padding: '38px 30px', textAlign: 'center', background: '#fff', boxShadow: '0 16px 50px rgba(61,20,105,.09)' }}>
-          {!userId ? <><div aria-hidden style={{ fontSize: '1.45rem', marginBottom: 12 }}>ðŸ”’</div><h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#17131f', margin: '0 0 8px' }}>Subscribe to read this article</h2><p style={{ color: '#756d7d', fontSize: '0.92rem', margin: '0 auto 26px', lineHeight: 1.6, maxWidth: 520 }}>Article previews are free. VIP members and HySky News subscribers get unlimited article and archive access.</p><div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}><Link href="/sign-in" style={{ padding: '11px 25px', border: '1.5px solid #ded7e5', borderRadius: 10, fontWeight: 700, fontSize: '0.9rem', color: '#332e38', textDecoration: 'none' }}>Sign in</Link><Link href="/news/subscribe" style={{ padding: '11px 25px', background: '#5D00F5', borderRadius: 10, fontWeight: 750, fontSize: '0.9rem', color: '#fff', textDecoration: 'none' }}>View upgrade options</Link></div></> : <><div aria-hidden style={{ fontSize: '1.45rem', marginBottom: 12 }}>ðŸ“°</div><h2 style={{ fontWeight: 800, fontSize: '1.25rem', color: '#17131f', margin: '0 0 8px' }}>Upgrade to read this HySky News article</h2><p style={{ color: '#756d7d', fontSize: '0.92rem', margin: '0 auto 8px', lineHeight: 1.6, maxWidth: 520 }}>Your <strong>{tierInfo ? TIER_LABELS[tierInfo.tier as keyof typeof TIER_LABELS] : ''}</strong> plan includes {tierInfo ? TIER_DESCRIPTIONS[tierInfo.tier as keyof typeof TIER_DESCRIPTIONS] : ''}.</p><p style={{ color: '#a39ca8', fontSize: '0.82rem', marginBottom: 26 }}>Choose a HySky News subscription or VIP membership for unlimited access.</p><Link href="/news/subscribe" style={{ display: 'inline-block', padding: '11px 28px', background: '#5D00F5', borderRadius: 10, fontWeight: 750, fontSize: '0.95rem', color: '#fff', textDecoration: 'none' }}>Upgrade for unlimited access</Link></>}
-          <div style={{ marginTop: 30, paddingTop: 22, borderTop: '1px solid #eee9f3', color: '#8c8593', fontSize: '0.78rem' }}>Free: previews only Â· VIP Member, News Monthly & News Annual: unlimited</div></div></div>}
-        {!gated && <div style={{ marginTop: 60, paddingTop: 30, borderTop: '1px solid #ece8f1' }}><Link href={NEWS_ORIGIN} style={{ color: '#5D00F5', fontSize: '0.875rem', fontWeight: 700, textDecoration: 'none' }}><span aria-hidden="true">{'\u2190\u00A0'}</span>More from HySky News</Link></div>}
+        <div style={{ fontSize: '1.04rem', color: '#332e38', lineHeight: 1.82, display: 'flex', flexDirection: 'column', gap: 22 }}>{blocks}</div>
+        <div style={{ marginTop: 60, paddingTop: 30, borderTop: '1px solid #ece8f1' }}><Link href={NEWS_ORIGIN} style={{ color: '#5D00F5', fontSize: '0.875rem', fontWeight: 700, textDecoration: 'none' }}><span aria-hidden="true">{'\u2190\u00A0'}</span>More from HySky News</Link></div>
       </article>
     </NewsShell>
   )
