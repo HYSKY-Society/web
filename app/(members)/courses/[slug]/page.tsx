@@ -34,7 +34,7 @@ export default async function CoursePage({ params }: { params: { slug: string } 
       {/* Hero */}
       <div className="relative overflow-hidden rounded-3xl bg-white/5 border border-white/10 p-8 sm:p-12 mb-6">
         <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full blur-3xl opacity-15" style={{ backgroundColor: accent }} />
-        <div className="absolute -bottom-24 -left-24 w-64 h-64 rounded-full blur-3xl opacity-8" style={{ backgroundColor: accent }} />
+        <div className="absolute -bottom-24 -left-24 w-64 h-64 rounded-full blur-3xl opacity-[0.04]" style={{ backgroundColor: accent }} />
         <div className="relative">
           <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-5" style={{ backgroundColor: `${accent}25`, color: accentLight }}>
             {badgeLabel}
