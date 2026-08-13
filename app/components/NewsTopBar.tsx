@@ -5,6 +5,15 @@ import Image from 'next/image'
 import { SignInButton, UserButton } from '@clerk/nextjs'
 import type { NewsTier } from '@/lib/news'
 
+function ProfileIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M5.5 20c.7-4 3-6 6.5-6s5.8 2 6.5 6" />
+    </svg>
+  )
+}
+
 const TIER_LABELS: Record<string, string> = {
   free:          'Free',
   complimentary: 'VIP',
@@ -114,7 +123,17 @@ export default function NewsTopBar({
               Upgrade
             </Link>
           ) : null}
-          <UserButton />
+          <UserButton>
+            <UserButton.MenuItems>
+              <UserButton.Link
+                label="My Profile"
+                labelIcon={<ProfileIcon />}
+                href="https://connect.hysky.org/profile"
+              />
+              <UserButton.Action label="manageAccount" />
+              <UserButton.Action label="signOut" />
+            </UserButton.MenuItems>
+          </UserButton>
         </div>
       )}
     </header>
