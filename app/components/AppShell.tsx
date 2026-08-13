@@ -13,6 +13,7 @@ export type SidebarData = {
   myId:                 string
   tier:                 string
   displayName:          string | null
+  avatarUrl:            string | null
   email:                string
   enrolledCourseSlugs:  string[]
   enrolledEventSlugs:   string[]

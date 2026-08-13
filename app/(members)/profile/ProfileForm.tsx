@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { useClerk } from '@clerk/nextjs'
 import { saveProfile } from './actions'
 import type { ProfileContact, UserProfile } from '@/lib/schema'
 import { ZeffyModal } from '@/components/ZeffyModal'
@@ -43,6 +44,7 @@ export default function ProfileForm({ profile, contacts, clerkName, clerkEmail, 
   clerkEmail: string
   canEditLinks: boolean
 }) {
+  const { openUserProfile } = useClerk()
   const [status,      setStatus]      = useState<{ error?: string; success?: boolean }>({})
   const [pending,     setPending]     = useState(false)
   const [avatarUrl,   setAvatarUrl]   = useState<string>(profile?.avatarUrl ?? '')
@@ -167,7 +169,16 @@ export default function ProfileForm({ profile, contacts, clerkName, clerkEmail, 
             <div className="bg-white/3 border border-white/8 rounded-xl px-4 py-3 text-sm text-white/50">{clerkEmail}</div>
           </div>
         </div>
-        <p className="text-white/25 text-xs">To update your name or email, use the account button in the top-right corner.</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-white/25 text-xs">To update your name, email, password, or security settings, open your Clerk account.</p>
+          <button
+            type="button"
+            onClick={() => openUserProfile()}
+            className="rounded-lg border border-white/12 px-3 py-1.5 text-xs font-medium text-white/55 transition-colors hover:border-[#5d00f5]/50 hover:bg-[#5d00f5]/10 hover:text-white"
+          >
+            Manage Account
+          </button>
+        </div>
       </div>
 
       {/* Identity */}

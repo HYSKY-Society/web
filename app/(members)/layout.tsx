@@ -38,6 +38,7 @@ export default async function MembersLayout({ children }: { children: React.Reac
     myId:                 user.id,
     tier,
     displayName:          profile?.displayName ?? clerkName ?? null,
+    avatarUrl:            profile?.avatarUrl ?? user.imageUrl ?? null,
     email:                primaryEmail,
     enrolledCourseSlugs:  courseSlugs,
     enrolledEventSlugs:   eventSlugs,

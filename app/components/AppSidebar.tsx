@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { UserButton } from '@clerk/nextjs'
+import { useClerk } from '@clerk/nextjs'
 import { TIER_LABELS } from '@/lib/tiers'
 import { hasVipCommunityAccess } from '@/lib/tiers'
 import type { Tier } from '@/lib/tiers'
@@ -59,6 +59,18 @@ function SidebarItem({
   )
 }
 
+function ProfileAvatar({ avatarUrl, initials }: { avatarUrl: string | null; initials: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#5d00f5]/25 bg-cover bg-center text-xs font-bold text-white ring-1 ring-white/15"
+      style={avatarUrl ? { backgroundImage: `url("${avatarUrl}")` } : undefined}
+    >
+      {avatarUrl ? null : initials}
+    </span>
+  )
+}
+
 export default function AppSidebar({
   data, open, collapsed, onClose,
 }: {
@@ -66,6 +78,9 @@ export default function AppSidebar({
 }) {
   const tierLabel = TIER_LABELS[data.tier as Tier] ?? data.tier
   const canUseVipCommunity = hasVipCommunityAccess(data.tier) || data.isAdmin
+  const { openUserProfile, signOut } = useClerk()
+  const initials = (data.displayName || data.email || 'M')
+    .split(' ').map((part) => part[0]).slice(0, 2).join('').toUpperCase()
 
   return (
     <aside
@@ -116,31 +131,55 @@ export default function AppSidebar({
         )}
       </nav>
 
-      {/* ── Bottom: UserButton ────────────────────────────────────── */}
+      {/* ── Bottom: profile shortcut and account controls ─────────── */}
       <div className={`shrink-0 border-t border-white/8 py-3 ${collapsed ? 'flex justify-center' : 'px-4'}`}>
         {collapsed ? (
-          <UserButton
-            appearance={{
-              variables: { colorPrimary: '#5d00f5' },
-              elements: { userButtonAvatarBox: 'w-9 h-9' },
-            }}
-          />
+          <Link
+            href="/profile"
+            onClick={onClose}
+            aria-label="Edit My Profile"
+            title="My Profile"
+            className="rounded-full transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-[#9b6dff]"
+          >
+            <ProfileAvatar avatarUrl={data.avatarUrl} initials={initials} />
+          </Link>
         ) : (
           <div className="flex items-center gap-3">
-            <UserButton
-              appearance={{
-                variables: { colorPrimary: '#5d00f5' },
-                elements: { userButtonAvatarBox: 'w-9 h-9' },
-              }}
-            />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-white truncate">
+            <Link
+              href="/profile"
+              onClick={onClose}
+              aria-label="Edit My Profile"
+              title="My Profile"
+              className="rounded-full transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-[#9b6dff]"
+            >
+              <ProfileAvatar avatarUrl={data.avatarUrl} initials={initials} />
+            </Link>
+            <Link href="/profile" onClick={onClose} className="min-w-0 flex-1 rounded focus:outline-none focus:ring-2 focus:ring-[#9b6dff]">
+              <p className="truncate text-sm font-medium text-white hover:text-[#bda2ff]">
                 {data.displayName || data.email}
               </p>
-              {data.displayName && (
-                <p className="text-xs text-white/35 truncate">{data.email}</p>
-              )}
-            </div>
+              {data.displayName ? (
+                <p className="truncate text-xs text-white/35">{data.email}</p>
+              ) : null}
+            </Link>
+            <button
+              type="button"
+              onClick={() => openUserProfile()}
+              aria-label="Account settings"
+              title="Account settings"
+              className="rounded-md p-1.5 text-white/35 transition-colors hover:bg-white/8 hover:text-white"
+            >
+              ⚙
+            </button>
+            <button
+              type="button"
+              onClick={() => void signOut({ redirectUrl: '/' })}
+              aria-label="Sign out"
+              title="Sign out"
+              className="rounded-md p-1.5 text-white/35 transition-colors hover:bg-white/8 hover:text-white"
+            >
+              ↪
+            </button>
           </div>
         )}
       </div>
