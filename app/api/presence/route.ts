@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { users, userProfiles } from '@/lib/schema'
-import { eq, gte, sql } from 'drizzle-orm'
+import { desc, eq, sql } from 'drizzle-orm'
 
 const ONLINE_WINDOW_MS = 5 * 60 * 1000 // 5 minutes
 
@@ -67,12 +67,14 @@ async function getAllUsers(excludeUserId: string) {
         displayName: userProfiles.displayName,
         headline:    userProfiles.headline,
         avatarUrl:   userProfiles.avatarUrl,
+        lastSeenAt:  userProfiles.lastSeenAt,
       })
       .from(userProfiles)
       .innerJoin(users, eq(userProfiles.userId, users.id))
       .where(
         sql`${userProfiles.userId} != ${excludeUserId} AND ${userProfiles.isVisible} = true`
       )
+      .orderBy(desc(userProfiles.lastSeenAt))
     return rows
   } catch {
     return []
