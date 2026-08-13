@@ -21,6 +21,7 @@ export default async function CoursePage({ params }: { params: { slug: string } 
 
   const accent = course.accent
   const accentLight = course.accentLight
+  const accentTextClass = accent.toLowerCase() === '#00d4d4' ? 'text-black' : 'text-white'
   const badgeLabel = course.badge
   const embedUrl = COURSE_EMBED_URLS[course.slug] ?? ZEFFY.membership
   const contentPath = `/courses/${course.slug}/content`
@@ -33,9 +34,9 @@ export default async function CoursePage({ params }: { params: { slug: string } 
 
       {/* Hero */}
       <div className="relative overflow-hidden rounded-3xl bg-white/5 border border-white/10 p-8 sm:p-12 mb-6">
-        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full blur-3xl opacity-15" style={{ backgroundColor: accent }} />
-        <div className="absolute -bottom-24 -left-24 w-64 h-64 rounded-full blur-3xl opacity-[0.04]" style={{ backgroundColor: accent }} />
-        <div className="relative">
+        <div className="absolute z-0 pointer-events-none -top-24 -right-24 w-96 h-96 rounded-full blur-3xl opacity-[0.12]" style={{ backgroundColor: accent }} />
+        <div className="absolute z-0 pointer-events-none -bottom-24 -left-24 w-64 h-64 rounded-full blur-3xl opacity-[0.04]" style={{ backgroundColor: accent }} />
+        <div className="relative z-10">
           <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-5" style={{ backgroundColor: `${accent}25`, color: accentLight }}>
             {badgeLabel}
           </div>
@@ -269,7 +270,7 @@ export default async function CoursePage({ params }: { params: { slug: string } 
             <p className="text-white/50 mb-6">Jump back into the course content anytime.</p>
             <Link
               href={contentPath}
-              className="inline-flex items-center gap-2 text-white font-bold px-10 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-base"
+              className={`inline-flex items-center gap-2 ${accentTextClass} font-bold px-10 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-base`}
               style={{ backgroundColor: accent, boxShadow: `0 8px 32px ${accent}50` }}
             >
               Access Course Content →
