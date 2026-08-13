@@ -7,7 +7,7 @@ import type { NewsTier } from '@/lib/news'
 
 const TIER_LABELS: Record<string, string> = {
   free:          'Free',
-  complimentary: 'VIP Connect',
+  complimentary: 'VIP',
   monthly:       'Monthly',
   annual:        'Annual',
 }
@@ -22,11 +22,14 @@ const TIER_COLORS: Record<string, string> = {
 export default function NewsTopBar({
   isLoggedIn,
   tier,
+  isVipMember,
 }: {
   isLoggedIn: boolean
   tier?: NewsTier
+  isVipMember: boolean
 }) {
-  const isPaid = tier === 'monthly' || tier === 'annual'
+  const visibleTier: NewsTier | undefined = isVipMember ? 'complimentary' : tier
+  const hasStandaloneNewsPlan = !isVipMember && (tier === 'monthly' || tier === 'annual')
 
   return (
     <header style={{
@@ -54,15 +57,15 @@ export default function NewsTopBar({
       </div>
 
       {/* Tier badge (logged-in only) */}
-      {isLoggedIn && tier && (
+      {isLoggedIn && visibleTier && (
         <span style={{
           fontSize: '0.7rem', fontWeight: 600,
-          color: TIER_COLORS[tier],
-          border: `1px solid ${TIER_COLORS[tier]}44`,
+          color: TIER_COLORS[visibleTier],
+          border: `1px solid ${TIER_COLORS[visibleTier]}44`,
           borderRadius: 100, padding: '3px 10px',
-          background: `${TIER_COLORS[tier]}0d`,
+          background: `${TIER_COLORS[visibleTier]}0d`,
         }}>
-          {TIER_LABELS[tier]}
+          {TIER_LABELS[visibleTier]}
         </span>
       )}
 
@@ -88,7 +91,16 @@ export default function NewsTopBar({
         </div>
       ) : (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {!isPaid && (
+          {hasStandaloneNewsPlan ? (
+            <Link href="/news/subscribe" style={{
+              fontSize: '0.8rem', fontWeight: 700, color: '#5D00F5',
+              textDecoration: 'none', padding: '6px 14px',
+              border: '1px solid rgba(93,0,245,0.35)',
+              borderRadius: 8,
+            }}>
+              Become a VIP member and save
+            </Link>
+          ) : !isVipMember && tier === 'free' ? (
             <Link href="/news/subscribe" style={{
               fontSize: '0.8rem', fontWeight: 700, color: '#5D00F5',
               textDecoration: 'none', padding: '6px 14px',
@@ -97,7 +109,7 @@ export default function NewsTopBar({
             }}>
               Upgrade
             </Link>
-          )}
+          ) : null}
           <UserButton />
         </div>
       )}

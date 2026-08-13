@@ -20,18 +20,18 @@ export default async function NewsSubscribePage() {
       label:       'Free',
       price:       '$0',
       per:         '',
-      description: '1 article per month. No credit card required.',
+      description: 'Browse article previews. Upgrade to open full articles and the archive.',
       cta:         userId ? 'Take me to the articles' : 'Create a free account',
       ctaHref:     userId ? '/news' : HYSKY_CONNECT_SIGNUP_URL,
       highlight:   false,
     },
     {
       key:         'complimentary' as const,
-      label:       'VIP Connect',
+      label:       'VIP Member',
       price:       '$0',
       per:         '',
       description: 'Unlimited articles + full archive. Included with an active paid HySky Connect VIP membership.',
-      cta:         currentTier === 'complimentary' ? 'Your current plan' : 'Explore VIP Connect',
+      cta:         currentTier === 'complimentary' ? 'Your current plan' : 'Become a VIP member and save',
       ctaHref:     currentTier === 'complimentary' ? null : HYSKY_CONNECT_URL,
       highlight:   false,
     },
@@ -161,20 +161,12 @@ export default async function NewsSubscribePage() {
           </h2>
           {[
             {
-              q: 'What is the VIP Connect tier?',
-              a: 'Active paid HySky Connect VIP members automatically receive unlimited HySky News access â€” no additional news subscription is needed.',
+              q: 'What is a VIP member?',
+              a: 'Active paid HySky VIP members automatically receive unlimited HySky News access â€” no additional news subscription is needed.',
             },
             {
               q: 'Does my HySky web login work here?',
-              a: 'Yes. Sign in with the same account you use for HySky Connect. If that account has an active paid VIP membership, we\'ll automatically apply unlimited VIP Connect news access.',
-            },
-            {
-              q: 'What counts as an "article"?',
-              a: 'Each unique article you read in a calendar month counts as one. Re-reading the same article does not count again.',
-            },
-            {
-              q: 'When does my monthly quota reset?',
-              a: 'On the 1st of every calendar month.',
+              a: 'Yes. Sign in with the same account you use for HySky Connect. If that account has an active paid VIP membership, we\'ll automatically apply unlimited HySky News access.',
             },
           ].map((item, i) => (
             <div key={i} style={{ borderTop: '1px solid #e8e8e8', padding: '20px 0' }}>

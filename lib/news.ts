@@ -84,6 +84,18 @@ export async function grantNewsSubscriptionByEmail(
     })
 }
 
+export async function hasVipConnectMembership(userId: string): Promise<boolean> {
+  try {
+    const [user] = await db
+      .select({ tier: users.tier })
+      .from(users)
+      .where(eq(users.id, userId))
+    return user?.tier === 'member_full'
+  } catch {
+    return false
+  }
+}
+
 // Returns the user's current news tier, creating or synchronizing a record if needed.
 // Paid HYSKY Connect VIP members receive complimentary unlimited news access.
 export async function ensureNewsUser(userId: string): Promise<NewsTier> {
