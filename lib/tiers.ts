@@ -7,7 +7,7 @@ export const TIER_LABELS: Record<Tier, string> = {
   instructor:            'Instructor',
   member_courses:        'Courses Member',
   member_courses_events: 'Courses + Events Member',
-  member_full:           'Full Member',
+  member_full:           'VIP Member',
 }
 
 export const PAID_TIERS: Tier[]         = ['instructor', 'member_courses', 'member_courses_events', 'member_full']
