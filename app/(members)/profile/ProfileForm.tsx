@@ -3,6 +3,8 @@
 import { useState, useRef } from 'react'
 import { saveProfile } from './actions'
 import type { UserProfile } from '@/lib/schema'
+import { ZeffyModal } from '@/components/ZeffyModal'
+import { ZEFFY } from '@/lib/zeffy'
 
 function Field({
   label, name, defaultValue, placeholder, type = 'text', hint,
@@ -34,16 +36,18 @@ function Field({
   )
 }
 
-export default function ProfileForm({ profile, clerkName, clerkEmail }: {
+export default function ProfileForm({ profile, clerkName, clerkEmail, canEditLinks }: {
   profile: UserProfile | null
   clerkName: string
   clerkEmail: string
+  canEditLinks: boolean
 }) {
   const [status,      setStatus]      = useState<{ error?: string; success?: boolean }>({})
   const [pending,     setPending]     = useState(false)
   const [avatarUrl,   setAvatarUrl]   = useState<string>(profile?.avatarUrl ?? '')
   const [uploading,   setUploading]   = useState(false)
   const [uploadError, setUploadError] = useState<string>('')
+  const [membershipOpen, setMembershipOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const initials = (clerkName || clerkEmail || 'M')
@@ -183,13 +187,44 @@ export default function ProfileForm({ profile, clerkName, clerkEmail }: {
         <Field label="Location" name="location" defaultValue={profile?.location} placeholder="e.g. Toulouse, France" />
       </div>
 
-      {/* Links */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
-        <p className="text-xs text-white/50 uppercase tracking-wider font-semibold">Links</p>
-        <Field label="LinkedIn" name="linkedinUrl" defaultValue={profile?.linkedinUrl} placeholder="https://linkedin.com/in/yourhandle" />
-        <Field label="X / Twitter" name="twitterUrl" defaultValue={profile?.twitterUrl} placeholder="https://x.com/yourhandle" />
-        <Field label="Website" name="website" defaultValue={profile?.website} placeholder="https://yoursite.com" />
-      </div>
+      {/* Contact links are a VIP profile feature. Existing values stay stored. */}
+      {canEditLinks ? (
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
+          <p className="text-xs text-white/50 uppercase tracking-wider font-semibold">Contact & Links</p>
+          <Field label="LinkedIn" name="linkedinUrl" defaultValue={profile?.linkedinUrl} placeholder="https://linkedin.com/in/yourhandle" />
+          <Field label="X / Twitter" name="twitterUrl" defaultValue={profile?.twitterUrl} placeholder="https://x.com/yourhandle" />
+          <Field label="Website" name="website" defaultValue={profile?.website} placeholder="https://yoursite.com" />
+        </div>
+      ) : (
+        <div className="rounded-2xl p-5" style={{ background: 'linear-gradient(135deg, rgba(93,0,245,.16), rgba(255,255,255,.03))', border: '1px solid rgba(93,0,245,.35)' }}>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex-1">
+              <p className="text-xs text-[#9b6dff] uppercase tracking-wider font-semibold mb-1">VIP Profile Feature</p>
+              <h2 className="text-base font-semibold text-white">Contact & Links</h2>
+              <p className="text-sm text-white/45 mt-1">Upgrade to add or edit LinkedIn, X/Twitter, and website links on your member profile.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setMembershipOpen(true)}
+              className="shrink-0 bg-[#5d00f5] hover:bg-[#7c2fff] text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors"
+            >
+              Upgrade to VIP
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!canEditLinks && (
+        <ZeffyModal
+          isOpen={membershipOpen}
+          onClose={() => {
+            setMembershipOpen(false)
+            window.dispatchEvent(new Event('vip-access:check'))
+          }}
+          title="Upgrade to HySky VIP"
+          options={[{ label: 'VIP Membership', icon: '👥', embedUrl: ZEFFY.membership }]}
+        />
+      )}
 
       {/* Privacy */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-5">

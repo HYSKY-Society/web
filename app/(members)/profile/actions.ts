@@ -1,7 +1,7 @@
 'use server'
 
 import { auth } from '@clerk/nextjs/server'
-import { upsertProfile } from '@/lib/members'
+import { getUserTier, hasVipCommunityAccess, upsertProfile } from '@/lib/members'
 import { revalidatePath } from 'next/cache'
 
 export async function saveProfile(
@@ -10,6 +10,9 @@ export async function saveProfile(
 ): Promise<{ error?: string; success?: boolean }> {
   const { userId } = auth()
   if (!userId) return { error: 'Not authenticated' }
+
+  const tier = await getUserTier(userId)
+  const canEditLinks = hasVipCommunityAccess(tier)
 
   const str = (key: string) => {
     const v = formData.get(key)
@@ -24,11 +27,13 @@ export async function saveProfile(
     location:    str('location'),
     company:     str('company'),
     jobTitle:    str('jobTitle'),
-    website:     str('website'),
-    linkedinUrl: str('linkedinUrl'),
-    twitterUrl:  str('twitterUrl'),
     avatarUrl:   str('avatarUrl'),
     isVisible:   bool('isVisible'),
+    ...(canEditLinks ? {
+      website:     str('website'),
+      linkedinUrl: str('linkedinUrl'),
+      twitterUrl:  str('twitterUrl'),
+    } : {}),
   })
 
   revalidatePath('/members')

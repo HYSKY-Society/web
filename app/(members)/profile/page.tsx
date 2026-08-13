@@ -1,10 +1,13 @@
 import { currentUser } from '@clerk/nextjs/server'
-import { getProfile } from '@/lib/members'
+import { getProfile, getUserTier, hasVipCommunityAccess } from '@/lib/members'
 import ProfileForm from './ProfileForm'
 
 export default async function ProfilePage() {
   const user = await currentUser()
-  const profile = await getProfile(user!.id)
+  const [profile, tier] = await Promise.all([
+    getProfile(user!.id),
+    getUserTier(user!.id),
+  ])
 
   const clerkName  = [user?.firstName, user?.lastName].filter(Boolean).join(' ')
   const clerkEmail = user?.emailAddresses.find(e => e.id === user.primaryEmailAddressId)?.emailAddress ?? ''
@@ -15,7 +18,12 @@ export default async function ProfilePage() {
         <h1 className="text-3xl font-bold mb-1.5">Edit Profile</h1>
         <p className="text-white/40">Your profile is visible to other members in the directory.</p>
       </div>
-      <ProfileForm profile={profile ?? null} clerkName={clerkName} clerkEmail={clerkEmail} />
+      <ProfileForm
+        profile={profile ?? null}
+        clerkName={clerkName}
+        clerkEmail={clerkEmail}
+        canEditLinks={hasVipCommunityAccess(tier)}
+      />
     </div>
   )
 }
