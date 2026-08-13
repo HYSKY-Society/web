@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getMemberProfile, getUserTier, hasVipCommunityAccess, TIER_LABELS, Tier } from '@/lib/members'
 import { isAdmin } from '@/lib/admin'
+import MessageMemberButton from './MessageMemberButton'
 
 function Avatar({ name, url }: { name: string | null; url: string | null }) {
   const initials = (name ?? '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
@@ -86,13 +87,19 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
               )}
             </div>
           </div>
-          {isOwnProfile && (
+          {isOwnProfile ? (
             <Link
               href="/profile"
               className="shrink-0 text-sm text-[#9b6dff] hover:text-white border border-[#5d00f5]/40 hover:border-[#5d00f5] px-4 py-2 rounded-lg transition-colors"
             >
               Edit Profile
             </Link>
+          ) : (
+            <MessageMemberButton
+              memberId={member.id}
+              name={name}
+              avatarUrl={member.avatarUrl}
+            />
           )}
         </div>
       </div>
