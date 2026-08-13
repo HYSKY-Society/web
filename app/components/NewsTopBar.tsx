@@ -56,17 +56,30 @@ export default function NewsTopBar({
         </Link>
       </div>
 
-      {/* Tier badge (logged-in only) */}
+      {/* Plan pill beside the profile photo */}
       {isLoggedIn && visibleTier && (
-        <span style={{
-          fontSize: '0.7rem', fontWeight: 600,
-          color: TIER_COLORS[visibleTier],
-          border: `1px solid ${TIER_COLORS[visibleTier]}44`,
-          borderRadius: 100, padding: '3px 10px',
-          background: `${TIER_COLORS[visibleTier]}0d`,
-        }}>
-          {TIER_LABELS[visibleTier]}
-        </span>
+        hasStandaloneNewsPlan ? (
+          <Link href="/news/subscribe" style={{
+            fontSize: '0.7rem', fontWeight: 700,
+            color: '#5D00F5',
+            border: '1px solid rgba(93,0,245,0.35)',
+            borderRadius: 100, padding: '4px 11px',
+            background: 'rgba(93,0,245,0.05)',
+            textDecoration: 'none',
+          }}>
+            Become a VIP member and save
+          </Link>
+        ) : (
+          <span style={{
+            fontSize: '0.7rem', fontWeight: 600,
+            color: TIER_COLORS[visibleTier],
+            border: `1px solid ${TIER_COLORS[visibleTier]}44`,
+            borderRadius: 100, padding: '3px 10px',
+            background: `${TIER_COLORS[visibleTier]}0d`,
+          }}>
+            {TIER_LABELS[visibleTier]}
+          </span>
+        )
       )}
 
       {!isLoggedIn ? (
@@ -91,16 +104,7 @@ export default function NewsTopBar({
         </div>
       ) : (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {hasStandaloneNewsPlan ? (
-            <Link href="/news/subscribe" style={{
-              fontSize: '0.8rem', fontWeight: 700, color: '#5D00F5',
-              textDecoration: 'none', padding: '6px 14px',
-              border: '1px solid rgba(93,0,245,0.35)',
-              borderRadius: 8,
-            }}>
-              Become a VIP member and save
-            </Link>
-          ) : !isVipMember && tier === 'free' ? (
+          {!isVipMember && tier === 'free' ? (
             <Link href="/news/subscribe" style={{
               fontSize: '0.8rem', fontWeight: 700, color: '#5D00F5',
               textDecoration: 'none', padding: '6px 14px',
