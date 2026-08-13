@@ -121,7 +121,7 @@ export default async function AdminUsersPage() {
                         <option value="free">Free</option>
                         <option value="member_courses">Member — Courses</option>
                         <option value="member_courses_events">Member — Courses + Events</option>
-                        <option value="member_full">Member — Full</option>
+                        <option value="member_full">VIP Member</option>
                       </select>
                       <button
                         type="submit"
