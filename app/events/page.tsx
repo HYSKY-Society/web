@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { EventRegisterButton } from '@/components/EventRegisterButton'
 import { ZEFFY } from '@/lib/zeffy'
@@ -98,6 +99,20 @@ export default function EventsPage() {
 
         {/* AIAA + HySky Sustainable Aviation Course */}
         <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-6">
+          <a
+            href="https://aiaa.org/courses/advanced-sustainable-aviation-fuels-and-aircraft-design/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block mb-6 overflow-hidden rounded-xl bg-white"
+          >
+            <Image
+              src="/events/aiaa-saf-aircraft-design-course.jpg"
+              alt="AIAA and HySky Advanced Sustainable Aviation Fuels and Aircraft Design online short course"
+              width={1920}
+              height={1080}
+              className="w-full h-auto"
+            />
+          </a>
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
               <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-[#00D4D4]/15 text-[#00D4D4]">
