@@ -14,7 +14,7 @@ const TIER_LABELS: Record<string, string> = {
 
 const TIER_COLORS: Record<string, string> = {
   free:          '#888',
-  complimentary: '#2e7d32',
+  complimentary: '#5D00F5',
   monthly:       '#5D00F5',
   annual:        '#5D00F5',
 }
