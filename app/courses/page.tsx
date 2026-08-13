@@ -16,7 +16,9 @@ export default function CoursesPage() {
           {courses.map((course) => (
             <Link
               key={course.slug}
-              href={`/courses/${course.slug}`}
+              href={course.externalLink ?? `/courses/${course.slug}`}
+              target={course.externalLink ? '_blank' : undefined}
+              rel={course.externalLink ? 'noopener noreferrer' : undefined}
               className="group relative overflow-hidden bg-white/5 border border-white/10 rounded-2xl p-7 transition-all hover:bg-white/8 hover:scale-[1.01] hover:shadow-xl"
             >
               <div

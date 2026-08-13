@@ -28,6 +28,7 @@ export type Course = {
   tagline: string
   image?: string
   imageAlt?: string
+  externalLink?: string
   buyLink: string
   badge: string
   accent: string
@@ -198,6 +199,8 @@ This training is essential for aircraft developers, compliance leads, regulators
     slug: 'h2-safety-for-aviation',
     title: 'H2 Safety for Aviation',
     tagline: 'Essential safety protocols and best practices for hydrogen aviation operations.',
+    image: '/courses/h2-safety-for-aviation.jpg',
+    imageAlt: 'Hydrogen Safety for Aviation online short course with blue hydrogen-themed artwork',
     buyLink: 'https://www.zeffy.com/en-US/ticketing/h2-safety-for-aviation-course',
     badge: '🛡️ Safety',
     accent: '#00D4D4',
@@ -331,6 +334,43 @@ Participants will gain clarity on the roles of NASA, FAA, DOE, DOT, DoD, and Con
     ],
     instructors: [],
     ceus: '12 classroom hours / 1.2 CEU / 12 PDH',
+  },
+  {
+    slug: 'advanced-sustainable-aviation-fuels-and-aircraft-design',
+    title: 'Advanced Sustainable Aviation Fuels and Aircraft Design',
+    tagline: 'A five-week joint AIAA and HySky Society course covering sustainable aviation fuels, hydrogen, hybrid-electric aircraft design, certification, safety, and airport infrastructure.',
+    image: '/events/aiaa-saf-aircraft-design-course.jpg',
+    imageAlt: 'AIAA and HySky Advanced Sustainable Aviation Fuels and Aircraft Design online short course',
+    externalLink: 'https://aiaa.org/courses/advanced-sustainable-aviation-fuels-and-aircraft-design/',
+    buyLink: 'https://aiaa.org/courses/advanced-sustainable-aviation-fuels-and-aircraft-design/',
+    badge: '🌱 Sustainable Aviation',
+    accent: '#00D4D4',
+    accentLight: '#33ffff',
+    highlights: [
+      { icon: '⏱️', label: 'Duration', value: '5 Weeks' },
+      { icon: '🕐', label: 'Total Hours', value: '20 Hours' },
+      { icon: '💻', label: 'Format', value: 'Online' },
+      { icon: '📅', label: 'Dates', value: 'Sep 22 – Oct 22, 2026' },
+    ],
+    keyFeatures: [
+      'Joint AIAA and HySky Society online short course',
+      'Covers sustainable aviation fuels, hydrogen, and hybrid-electric aircraft design',
+      'Includes certification, safety, and airport infrastructure',
+      'Tuesdays and Thursdays, 1:00 – 3:00 PM ET',
+    ],
+    overview: 'This five-week online course connects sustainable aviation fuel strategy with practical aircraft design, certification, safety, hydrogen, hybrid-electric propulsion, and airport infrastructure considerations.',
+    objectives: [],
+    audience: [
+      'Aerospace engineers and aircraft designers',
+      'Sustainable aviation and propulsion professionals',
+      'Certification, safety, and airport infrastructure specialists',
+    ],
+    fees: [
+      { label: 'Registration', price: 'See AIAA course page' },
+    ],
+    outline: [],
+    instructors: [],
+    ceus: 'See AIAA course page',
   },
 ]
 
