@@ -26,6 +26,8 @@ export type Course = {
   slug: string
   title: string
   tagline: string
+  image?: string
+  imageAlt?: string
   buyLink: string
   badge: string
   accent: string
@@ -48,6 +50,8 @@ export const courses: Course[] = [
     slug: 'h2-aircraft-certification',
     title: 'H2 Aircraft Certification Course',
     tagline: 'The first comprehensive course dedicated to certification of hydrogen-powered aircraft — built for industry professionals and regulators.',
+    image: '/courses/h2-aircraft-certification.jpg',
+    imageAlt: 'H2 Aircraft Certification online short course featuring a hydrogen electric aircraft',
     buyLink: 'https://www.zeffy.com/en-US/ticketing/h2-aircraft-certification-course',
     badge: '✈️ Certification',
     accent: '#5d00f5',
@@ -222,6 +226,8 @@ This training is essential for aircraft developers, compliance leads, regulators
     slug: 'h2-aviation-policy',
     title: 'H2 Aviation Policy & Power',
     tagline: 'The first comprehensive course dedicated to federal policy strategy for hydrogen aviation — designed for industry leaders, regulators, and innovators shaping the future of zero-carbon flight.',
+    image: '/courses/h2-aviation-policy-power.jpg',
+    imageAlt: 'H2 Aviation Policy and Power online short course about making hydrogen aviation a federal priority',
     buyLink: 'https://www.zeffy.com/embed/ticketing/h2-aviation-policy-and-power',
     badge: '🏛️ Policy',
     accent: '#d97706',
