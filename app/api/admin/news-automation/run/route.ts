@@ -10,9 +10,15 @@ export async function POST() {
   const email = user.emailAddresses.find(e => e.id === user.primaryEmailAddressId)?.emailAddress ?? ''
   if (!isAdmin(email)) return Response.json({ error: 'Forbidden' }, { status: 403 })
   const url = process.env.NEWS_AUTOMATION_RUN_URL
+  const secret = process.env.NEWS_AUTOMATION_SECRET
   if (!url) return Response.json({ error: 'Manual-run connection is not configured.' }, { status: 503 })
+  if (!secret) return Response.json({ error: 'Manual-run authentication is not configured.' }, { status: 503 })
   try {
-    const response = await fetch(url, { method: 'POST', cache: 'no-store' })
+    const response = await fetch(url, {
+      method: 'POST',
+      cache: 'no-store',
+      headers: { 'x-hysky-automation-secret': secret },
+    })
     const text = await response.text()
     let payload: unknown = text
     try { payload = JSON.parse(text) } catch { /* keep Azure plain-text errors */ }
