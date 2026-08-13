@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/admin'
 export const runtime = 'nodejs'
 export const maxDuration = 300
 
+// This endpoint keeps Azure credentials server-side and is restricted to HySky admins.
 export async function POST() {
   const user = await currentUser()
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
