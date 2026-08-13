@@ -4,9 +4,20 @@ import { pressPosts } from '@/lib/schema'
 import { eq, desc } from 'drizzle-orm'
 import Link from 'next/link'
 import AddPostForm from './AddPostForm'
+import AutomationControls from './AutomationControls'
+import { currentUser } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
+import { isAdmin } from '@/lib/admin'
+
+async function requireAdmin() {
+  const user = await currentUser()
+  const email = user?.emailAddresses.find(e => e.id === user.primaryEmailAddressId)?.emailAddress ?? ''
+  if (!user || !isAdmin(email)) redirect('/not-authorized')
+}
 
 async function deletePost(id: string) {
   'use server'
+  await requireAdmin()
   await db.delete(pressPosts).where(eq(pressPosts.id, id))
   revalidatePath('/admin/press')
   revalidatePath('/press')
@@ -14,12 +25,14 @@ async function deletePost(id: string) {
 
 async function togglePublished(id: string, current: boolean) {
   'use server'
+  await requireAdmin()
   await db.update(pressPosts).set({ isPublished: !current }).where(eq(pressPosts.id, id))
   revalidatePath('/admin/press')
   revalidatePath('/press')
 }
 
 export default async function AdminPressPage() {
+  await requireAdmin()
   let posts: typeof pressPosts.$inferSelect[] = []
   try {
     posts = await db.select().from(pressPosts).orderBy(desc(pressPosts.publishedAt))
@@ -32,6 +45,7 @@ export default async function AdminPressPage() {
         <p className="text-white/40">Add and manage press posts and news articles.</p>
       </div>
 
+      <AutomationControls />
       <AddPostForm />
 
       <div className="mt-10">
@@ -56,7 +70,7 @@ export default async function AdminPressPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <Link href={`/press/${post.slug}`} target="_blank"
+                  <Link href={`/admin/press/${post.id}`}
                     className="text-xs text-white/30 hover:text-white/60 transition-colors px-2 py-1">
                     View ↗
                   </Link>
