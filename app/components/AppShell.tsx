@@ -5,6 +5,7 @@ import AppTopBar from './AppTopBar'
 import AppSidebar from './AppSidebar'
 import { ChatProvider } from './ChatProvider'
 import ChatBar from './ChatBar'
+import UpgradeChatButton from './UpgradeChatButton'
 import { hasVipCommunityAccess } from '@/lib/tiers'
 
 export type SidebarData = {
@@ -37,6 +38,8 @@ export default function AppShell({ sidebarData, children, noPadding }: { sidebar
     }
   }
 
+  const canUseVipCommunity = hasVipCommunityAccess(sidebarData.tier)
+
   return (
     <ChatProvider myId={sidebarData.myId}>
       <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-page)' }}>
@@ -66,7 +69,7 @@ export default function AppShell({ sidebarData, children, noPadding }: { sidebar
           )}
         </main>
 
-        {(hasVipCommunityAccess(sidebarData.tier) || sidebarData.isAdmin) && <ChatBar />}
+        {canUseVipCommunity ? <ChatBar /> : <UpgradeChatButton />}
       </div>
     </ChatProvider>
   )
