@@ -23,9 +23,9 @@ async function ensureProfileContactsTable() {
 
 export async function getProfileContacts(userId: string) {
   await ensureProfileContactsTable()
-  return db.query.profileContacts.findFirst({
+  return (await db.query.profileContacts.findFirst({
     where: eq(profileContacts.userId, userId),
-  }) ?? null
+  })) ?? null
 }
 
 export async function upsertProfileContacts(userId: string, data: {
