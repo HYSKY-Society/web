@@ -34,6 +34,7 @@ export default async function PublicShell({ children }: { children: React.ReactN
         myId:                user.id,
         tier,
         displayName:         profile?.displayName ?? null,
+        avatarUrl:           profile?.avatarUrl ?? user.imageUrl ?? null,
         email:               primaryEmail,
         enrolledCourseSlugs: courseSlugs,
         enrolledEventSlugs:  eventSlugs,
