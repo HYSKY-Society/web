@@ -113,15 +113,25 @@ export default function EventsPage() {
                 <span>💻 Online</span>
               </div>
             </div>
-            <a
-              href="https://aiaa.org/courses/advanced-sustainable-aviation-fuels-and-aircraft-design/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="shrink-0 inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-xl border transition-colors hover:bg-white/8"
-              style={{ borderColor: '#00D4D4', color: '#00D4D4' }}
-            >
-              View Course &amp; Register →
-            </a>
+            <div className="shrink-0 flex flex-col sm:flex-row gap-2">
+              <a
+                href="https://aiaa.org/courses/advanced-sustainable-aviation-fuels-and-aircraft-design/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 text-sm font-semibold px-6 py-3 rounded-xl border transition-colors hover:bg-white/8"
+                style={{ borderColor: '#00D4D4', color: '#00D4D4' }}
+              >
+                View Course &amp; Register →
+              </a>
+              <a
+                href="https://www.hysky.org/post/sustainable-aviation-fuel-saf-aircraft-design-course-for-aerospace-engineers-by-aiaa-hysky-soc"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 text-sm font-semibold px-5 py-3 rounded-xl border border-white/15 text-white/60 hover:text-white hover:border-white/30 transition-colors"
+              >
+                Read Announcement
+              </a>
+            </div>
           </div>
         </div>
 
