@@ -1,4 +1,4 @@
-> Made by ChatGPT Codex â€” updated 2026-08-13 16:26:39 -05:00
+> Made by ChatGPT Codex — updated 2026-08-13 16:26:39 -05:00
 
 # HySky Web Project Handoff
 
@@ -23,7 +23,7 @@ This project owns the HySky member and news websites. It is separate from the sy
 - **News Monthly:** unlimited HySky News and archive access; does not by itself grant VIP Connect benefits.
 - **News Annual:** unlimited HySky News and archive access; does not by itself grant VIP Connect benefits.
 
-The user-facing label is **VIP member**, not â€œFull member.â€ Always spell the brand **HySky**.
+The user-facing label is **VIP member**, not “Full member.” Always spell the brand **HySky**.
 
 ## Website responsibilities
 
