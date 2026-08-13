@@ -8,6 +8,7 @@ export type OnlineUser = {
   displayName: string | null
   headline: string | null
   avatarUrl: string | null
+  lastSeenAt: string | null
 }
 
 export type ChatWindow = {
@@ -66,6 +67,7 @@ function memberToUser(id: string, info: Record<string, unknown>): OnlineUser {
     displayName: (info?.displayName as string) ?? null,
     headline:    (info?.headline    as string) ?? null,
     avatarUrl:   (info?.avatarUrl   as string) ?? null,
+    lastSeenAt:  (info?.lastSeenAt  as string) ?? null,
   }
 }
 
