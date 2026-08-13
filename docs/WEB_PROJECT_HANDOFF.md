@@ -18,7 +18,7 @@ This project owns the HySky member and news websites. It is separate from the sy
 
 ## Membership model
 
-- **Free:** may view the Connect feed, like and comment, browse available courses, and read one HySky News article per calendar month. Posting, direct messages, and complete member profiles require an upgrade. Course details may be browsed, but paid course content remains gated.
+- **Free:** may view the Connect feed, like and comment, browse available courses, and browse HySky News article previews. Opening full News articles requires an upgrade. Posting, direct messages, and complete member profiles require an upgrade. Course details may be browsed, but paid course content remains gated.
 - **VIP member:** paid Connect membership, with the paid community benefits and unlimited HySky News access.
 - **News Monthly:** unlimited HySky News and archive access; does not by itself grant VIP Connect benefits.
 - **News Annual:** unlimited HySky News and archive access; does not by itself grant VIP Connect benefits.

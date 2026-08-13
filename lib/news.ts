@@ -5,7 +5,7 @@ import { eq, and, gte, count } from 'drizzle-orm'
 export type NewsTier = 'free' | 'complimentary' | 'monthly' | 'annual'
 
 export const TIER_LIMITS: Record<NewsTier, number | null> = {
-  free:          1,
+  free:          0,
   complimentary: null,
   monthly:       null,
   annual:        null,
@@ -19,7 +19,7 @@ export const TIER_LABELS: Record<NewsTier, string> = {
 }
 
 export const TIER_DESCRIPTIONS: Record<NewsTier, string> = {
-  free:          '1 article per month',
+  free:          'Preview access only',
   complimentary: 'Unlimited articles + archive',
   monthly:       'Unlimited articles + archive',
   annual:        'Unlimited articles + archive',
@@ -172,13 +172,14 @@ type ReadResult = {
   limit: number | null
 }
 
-// Check if the user can read a specific article this month.
-// Re-reading the same article never costs an extra view.
+// Check whether the user can read a specific article.
+// Free accounts have preview-only access; paid News and VIP Connect tiers are unlimited.
 export async function canReadArticle(userId: string, articleId: string): Promise<ReadResult> {
   const tier = await ensureNewsUser(userId)
   const limit = TIER_LIMITS[tier]
 
   if (limit === null) return { allowed: true, tier, viewsThisMonth: 0, limit }
+  if (limit === 0) return { allowed: false, tier, viewsThisMonth: 0, limit }
 
   const startOfMonth = new Date()
   startOfMonth.setDate(1)
