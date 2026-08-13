@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { saveProfile } from './actions'
-import type { UserProfile } from '@/lib/schema'
+import type { ProfileContact, UserProfile } from '@/lib/schema'
 import { ZeffyModal } from '@/components/ZeffyModal'
 import { ZEFFY } from '@/lib/zeffy'
 
@@ -36,8 +36,9 @@ function Field({
   )
 }
 
-export default function ProfileForm({ profile, clerkName, clerkEmail, canEditLinks }: {
+export default function ProfileForm({ profile, contacts, clerkName, clerkEmail, canEditLinks }: {
   profile: UserProfile | null
+  contacts: ProfileContact | null
   clerkName: string
   clerkEmail: string
   canEditLinks: boolean
@@ -191,6 +192,8 @@ export default function ProfileForm({ profile, clerkName, clerkEmail, canEditLin
       {canEditLinks ? (
         <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
           <p className="text-xs text-white/50 uppercase tracking-wider font-semibold">Contact & Links</p>
+          <Field label="Company Website" name="companyWebsite" defaultValue={contacts?.companyWebsite} placeholder="https://company.com" />
+          <Field label="Phone Number" name="phoneNumber" defaultValue={contacts?.phoneNumber} placeholder="+1 555 123 4567" type="tel" hint="Optional. Visible only to VIP members." />
           <Field label="LinkedIn" name="linkedinUrl" defaultValue={profile?.linkedinUrl} placeholder="https://linkedin.com/in/yourhandle" />
           <Field label="X / Twitter" name="twitterUrl" defaultValue={profile?.twitterUrl} placeholder="https://x.com/yourhandle" />
           <Field label="Website" name="website" defaultValue={profile?.website} placeholder="https://yoursite.com" />
@@ -201,7 +204,7 @@ export default function ProfileForm({ profile, clerkName, clerkEmail, canEditLin
             <div className="flex-1">
               <p className="text-xs text-[#9b6dff] uppercase tracking-wider font-semibold mb-1">VIP Profile Feature</p>
               <h2 className="text-base font-semibold text-white">Contact & Links</h2>
-              <p className="text-sm text-white/45 mt-1">Upgrade to add or edit LinkedIn, X/Twitter, and website links on your member profile.</p>
+              <p className="text-sm text-white/45 mt-1">Upgrade to add or edit company contact information, phone number, LinkedIn, X/Twitter, and website links.</p>
             </div>
             <button
               type="button"

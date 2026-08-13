@@ -95,6 +95,13 @@ export const userProfiles = pgTable('user_profiles', {
   updatedAt:   timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+export const profileContacts = pgTable('profile_contacts', {
+  userId:         text('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  companyWebsite: text('company_website'),
+  phoneNumber:    text('phone_number'),
+  updatedAt:      timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export const pressPosts = pgTable('press_posts', {
   id:              text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   slug:            text('slug').notNull().unique(),
@@ -271,6 +278,7 @@ export const notifications = pgTable('notifications', {
 
 export type User = typeof users.$inferSelect
 export type UserProfile = typeof userProfiles.$inferSelect
+export type ProfileContact = typeof profileContacts.$inferSelect
 export type DiscountCode = typeof discountCodes.$inferSelect
 export type CoursePurchase = typeof coursePurchases.$inferSelect
 export type EventPurchase = typeof eventPurchases.$inferSelect

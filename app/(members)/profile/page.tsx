@@ -1,11 +1,13 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { getProfile, getUserTier, hasVipCommunityAccess } from '@/lib/members'
+import { getProfileContacts } from '@/lib/profile-contacts'
 import ProfileForm from './ProfileForm'
 
 export default async function ProfilePage() {
   const user = await currentUser()
-  const [profile, tier] = await Promise.all([
+  const [profile, contacts, tier] = await Promise.all([
     getProfile(user!.id),
+    getProfileContacts(user!.id),
     getUserTier(user!.id),
   ])
 
@@ -20,6 +22,7 @@ export default async function ProfilePage() {
       </div>
       <ProfileForm
         profile={profile ?? null}
+        contacts={contacts}
         clerkName={clerkName}
         clerkEmail={clerkEmail}
         canEditLinks={hasVipCommunityAccess(tier)}

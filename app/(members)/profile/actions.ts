@@ -3,6 +3,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { getUserTier, hasVipCommunityAccess, upsertProfile } from '@/lib/members'
 import { revalidatePath } from 'next/cache'
+import { upsertProfileContacts } from '@/lib/profile-contacts'
 
 export async function saveProfile(
   _prev: { error?: string; success?: boolean },
@@ -35,6 +36,13 @@ export async function saveProfile(
       twitterUrl:  str('twitterUrl'),
     } : {}),
   })
+
+  if (canEditLinks) {
+    await upsertProfileContacts(userId, {
+      companyWebsite: str('companyWebsite'),
+      phoneNumber: str('phoneNumber'),
+    })
+  }
 
   revalidatePath('/members')
   revalidatePath(`/members/${userId}`)
