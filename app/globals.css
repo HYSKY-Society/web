@@ -22,7 +22,7 @@
 
 [data-theme='light'] {
   color-scheme: light;
-  --color-white:    10 12 30;
+  --color-white:    0 0 0;
   --bg-page:        #f0f3fa;
   --bg-page-deep:   #e8ecf6;
   --bg-sidebar:     #e8ecf6;
@@ -39,6 +39,42 @@
 body {
   background-color: var(--bg-page);
   color: rgb(var(--color-white) / 1);
+}
+
+/* Keep muted interface copy readable against light surfaces. */
+[data-theme='light'] :where(
+  .text-white\/20,
+  .text-white\/25,
+  .text-white\/30,
+  .text-white\/35,
+  .text-white\/40,
+  .text-white\/45,
+  .text-white\/50,
+  .text-white\/55,
+  .text-white\/60,
+  .text-white\/65,
+  .text-white\/70
+) {
+  color: #0a0c1e;
+}
+
+[data-theme='light'] :where(
+  .placeholder-white\/20,
+  .placeholder-white\/25,
+  .placeholder-white\/30,
+  .placeholder-white\/35,
+  .placeholder-white\/40
+)::placeholder {
+  color: rgba(10, 12, 30, .68);
+  opacity: 1;
+}
+
+.news-profile-backdrop {
+  background: rgba(0, 0, 0, .72);
+}
+
+[data-theme='light'] .news-profile-backdrop {
+  background: rgba(16, 20, 32, .3);
 }
 
 /* Preserve dark styling within a section regardless of page theme (hero banners, etc.) */
