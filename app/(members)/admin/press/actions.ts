@@ -3,6 +3,14 @@
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import { pressPosts } from '@/lib/schema'
+import { currentUser } from '@clerk/nextjs/server'
+import { isAdmin } from '@/lib/admin'
+
+async function requireAdmin() {
+  const user = await currentUser()
+  const email = user?.emailAddresses.find(e => e.id === user.primaryEmailAddressId)?.emailAddress ?? ''
+  if (!user || !isAdmin(email)) throw new Error('Forbidden')
+}
 
 export async function addPressPost(data: {
   slug: string
@@ -20,6 +28,7 @@ export async function addPressPost(data: {
   readTimeMinutes: number | null
   isPublished: boolean
 }) {
+  await requireAdmin()
   const normalized = {
     ...data,
     title: data.title.replace(/\bHYSKY\b/g, 'HySky'),
