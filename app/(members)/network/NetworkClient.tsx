@@ -1,107 +1,278 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useChatCtx, OnlineUser } from '@/app/components/ChatProvider'
+import { useChatCtx, type OnlineUser } from '@/app/components/ChatProvider'
 
-function hashCode(s: string) {
-  let h = 0
-  for (let i = 0; i < s.length; i++) h = Math.imul(31, h) + s.charCodeAt(i) | 0
-  return Math.abs(h)
+type Conversation = {
+  userId: string
+  displayName: string
+  headline: string | null
+  avatarUrl: string | null
+  lastMessage: string
+  lastMessageAt: string
+  lastMessageFromMe: boolean
+  unreadCount: number
 }
 
-function Avatar({ name, url, userId, size = 64 }: { name: string; url: string | null; userId: string; size?: number }) {
-  const initials = (name || 'M').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
+function hashCode(value: string) {
+  let hash = 0
+  for (let index = 0; index < value.length; index += 1) {
+    hash = Math.imul(31, hash) + value.charCodeAt(index) | 0
+  }
+  return Math.abs(hash)
+}
+
+function Avatar({
+  name,
+  url,
+  userId,
+  size = 48,
+}: {
+  name: string
+  url: string | null
+  userId: string
+  size?: number
+}) {
+  const initials = (name || 'M')
+    .split(' ')
+    .map((word) => word[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+
   return (
-    <div
-      className="rounded-full overflow-hidden flex items-center justify-center shrink-0 font-bold text-white select-none"
-      style={{ width: size, height: size, background: url ? undefined : `hsl(${hashCode(userId) % 360},55%,35%)`, fontSize: size * 0.32 }}
+    <span
+      aria-hidden="true"
+      className="flex shrink-0 select-none items-center justify-center overflow-hidden rounded-full bg-cover bg-center font-bold text-white"
+      style={{
+        width: size,
+        height: size,
+        backgroundColor: url ? undefined : `hsl(${hashCode(userId) % 360},55%,35%)`,
+        backgroundImage: url ? `url("${url}")` : undefined,
+        fontSize: size * 0.32,
+      }}
     >
-      {url ? <img src={url} alt={name} className="w-full h-full object-cover" /> : initials}
-    </div>
+      {url ? null : initials}
+    </span>
   )
+}
+
+function relativeTime(value: string | null) {
+  if (!value) return 'No recent activity'
+  const date = new Date(value)
+  const seconds = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000))
+  if (seconds < 60) return 'Just now'
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  if (days < 7) return `${days}d ago`
+  return date.toLocaleDateString([], { month: 'short', day: 'numeric' })
+}
+
+function messageTime(value: string) {
+  const date = new Date(value)
+  const today = new Date()
+  if (date.toDateString() === today.toDateString()) {
+    return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+  }
+  return date.toLocaleDateString([], { month: 'short', day: 'numeric' })
 }
 
 export default function NetworkClient() {
   const { online, openDM } = useChatCtx()
   const [allUsers, setAllUsers] = useState<OnlineUser[]>([])
-  const [loading, setLoading] = useState(true)
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [membersLoading, setMembersLoading] = useState(true)
+  const [messagesLoading, setMessagesLoading] = useState(true)
 
-  // Ping presence every 30s to keep lastSeenAt fresh in DB
   useEffect(() => {
-    fetch('/api/presence', { method: 'POST' }).catch(() => {})
-    const interval = setInterval(() => {
+    const updatePresence = () => {
       fetch('/api/presence', { method: 'POST' }).catch(() => {})
-    }, 30_000)
-    return () => clearInterval(interval)
+    }
+    updatePresence()
+    const interval = window.setInterval(updatePresence, 30_000)
+    return () => window.clearInterval(interval)
   }, [])
 
-  // Fetch all visible users once on mount
   useEffect(() => {
-    fetch('/api/presence?all=true')
-      .then(r => r.json())
-      .then(data => { if (Array.isArray(data)) setAllUsers(data) })
-      .catch(() => {})
-      .finally(() => setLoading(false))
+    let active = true
+    const loadMembers = () => {
+      fetch('/api/presence?all=true')
+        .then((response) => response.ok ? response.json() : [])
+        .then((data) => {
+          if (active && Array.isArray(data)) setAllUsers(data)
+        })
+        .catch(() => {})
+        .finally(() => {
+          if (active) setMembersLoading(false)
+        })
+    }
+
+    loadMembers()
+    const interval = window.setInterval(loadMembers, 60_000)
+    return () => {
+      active = false
+      window.clearInterval(interval)
+    }
   }, [])
 
-  const onlineIds = new Set(online.map(u => u.id))
-  const onlineCount = online.length
+  useEffect(() => {
+    let active = true
+    const loadConversations = () => {
+      fetch('/api/messages')
+        .then((response) => response.ok ? response.json() : [])
+        .then((data) => {
+          if (active && Array.isArray(data)) setConversations(data)
+        })
+        .catch(() => {})
+        .finally(() => {
+          if (active) setMessagesLoading(false)
+        })
+    }
 
-  // Online users first, then offline, alphabetically within each group
-  const sorted = [...allUsers].sort((a, b) => {
-    const aOn = onlineIds.has(a.id)
-    const bOn = onlineIds.has(b.id)
-    if (aOn !== bOn) return aOn ? -1 : 1
-    return (a.displayName ?? '').localeCompare(b.displayName ?? '')
+    loadConversations()
+    const interval = window.setInterval(loadConversations, 15_000)
+    window.addEventListener('focus', loadConversations)
+    window.addEventListener('notifications:refresh', loadConversations)
+
+    return () => {
+      active = false
+      window.clearInterval(interval)
+      window.removeEventListener('focus', loadConversations)
+      window.removeEventListener('notifications:refresh', loadConversations)
+    }
+  }, [])
+
+  const onlineById = new Map(online.map((member) => [member.id, member]))
+  const recentlyActive = [...allUsers].sort((first, second) => {
+    const firstOnline = onlineById.has(first.id)
+    const secondOnline = onlineById.has(second.id)
+    if (firstOnline !== secondOnline) return firstOnline ? -1 : 1
+    return new Date(second.lastSeenAt ?? 0).getTime() - new Date(first.lastSeenAt ?? 0).getTime()
   })
 
   return (
-    <div>
-      <div className="flex items-center gap-2 mb-8">
-        <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-        <span className="text-sm text-white/50">
-          {onlineCount === 0
-            ? 'No other members online right now'
-            : `${onlineCount} member${onlineCount === 1 ? '' : 's'} online now`}
-        </span>
-      </div>
+    <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <section aria-labelledby="conversation-heading">
+        <div className="mb-4 flex items-end justify-between gap-4">
+          <div>
+            <h2 id="conversation-heading" className="text-lg font-bold text-white">Recent conversations</h2>
+            <p className="mt-1 text-xs text-white/40">Newest messages appear first.</p>
+          </div>
+          {conversations.length > 0 ? (
+            <span className="text-xs text-white/35">
+              {conversations.length} conversation{conversations.length === 1 ? '' : 's'}
+            </span>
+          ) : null}
+        </div>
 
-      {!loading && sorted.length === 0 ? (
-        <div className="text-center py-20">
-          <div className="text-5xl mb-4">🌐</div>
-          <p className="text-white/25 text-sm">No other members yet.</p>
-        </div>
-      ) : (
-        <div className="flex flex-wrap gap-6">
-          {sorted.map(user => {
-            const isOnline = onlineIds.has(user.id)
-            return (
-              <button
-                key={user.id}
-                onClick={() => openDM(user.id, user.displayName ?? 'Member', user.avatarUrl ?? null)}
-                className="flex flex-col items-center gap-2.5 group"
-              >
-                <div className="relative">
-                  <Avatar name={user.displayName ?? 'M'} url={user.avatarUrl} userId={user.id} size={64} />
-                  <span
-                    className={`absolute bottom-0.5 right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#060510] ${
-                      isOnline ? 'bg-green-400' : 'bg-zinc-500'
-                    }`}
+        <div
+          className="overflow-hidden rounded-2xl"
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-muted)' }}
+        >
+          {messagesLoading ? (
+            <p className="px-5 py-12 text-center text-sm text-white/35">Loading messages…</p>
+          ) : conversations.length === 0 ? (
+            <div className="px-6 py-14 text-center">
+              <div className="mb-3 text-3xl" aria-hidden="true">💬</div>
+              <p className="font-semibold text-white">No messages yet</p>
+              <p className="mt-1 text-sm text-white/40">Choose a recently active member to start a conversation.</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-white/8">
+              {conversations.map((conversation) => (
+                <button
+                  key={conversation.userId}
+                  type="button"
+                  onClick={() => openDM(conversation.userId, conversation.displayName, conversation.avatarUrl)}
+                  aria-label={`Open conversation with ${conversation.displayName}`}
+                  className="flex w-full items-center gap-4 px-4 py-4 text-left transition-colors hover:bg-white/5 sm:px-5"
+                >
+                  <Avatar
+                    name={conversation.displayName}
+                    url={conversation.avatarUrl}
+                    userId={conversation.userId}
+                    size={52}
                   />
-                </div>
-                <div className="text-center">
-                  <p className="text-xs font-medium text-white/60 group-hover:text-white/90 transition-colors max-w-[80px] truncate">
-                    {user.displayName ?? 'Member'}
-                  </p>
-                  {user.headline && (
-                    <p className="text-[10px] text-white/30 max-w-[90px] truncate">{user.headline}</p>
-                  )}
-                </div>
-              </button>
-            )
-          })}
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2">
+                      <span className="truncate text-sm font-bold text-white">{conversation.displayName}</span>
+                      {onlineById.has(conversation.userId) ? (
+                        <span className="h-2 w-2 shrink-0 rounded-full bg-green-400" title="Online now" />
+                      ) : null}
+                    </span>
+                    <span className={`mt-1 block truncate text-sm ${conversation.unreadCount > 0 ? 'font-semibold text-white' : 'text-white/45'}`}>
+                      {conversation.lastMessageFromMe ? 'You: ' : ''}{conversation.lastMessage}
+                    </span>
+                  </span>
+                  <span className="flex shrink-0 flex-col items-end gap-2">
+                    <span className="text-[11px] text-white/35">{messageTime(conversation.lastMessageAt)}</span>
+                    {conversation.unreadCount > 0 ? (
+                      <span className="flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#5d00f5] px-1.5 text-[10px] font-bold text-white">
+                        {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
+                      </span>
+                    ) : null}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </section>
+
+      <aside aria-labelledby="active-members-heading">
+        <div className="mb-4">
+          <h2 id="active-members-heading" className="text-lg font-bold text-white">Recently active members</h2>
+          <p className="mt-1 text-xs text-white/40">Online members are shown first.</p>
+        </div>
+
+        <div
+          className="overflow-hidden rounded-2xl"
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-muted)' }}
+        >
+          {membersLoading ? (
+            <p className="px-5 py-10 text-center text-sm text-white/35">Loading members…</p>
+          ) : recentlyActive.length === 0 ? (
+            <p className="px-5 py-10 text-center text-sm text-white/35">No other members yet.</p>
+          ) : (
+            <div className="max-h-[620px] divide-y divide-white/8 overflow-y-auto">
+              {recentlyActive.map((member) => {
+                const liveMember = onlineById.get(member.id)
+                const name = member.displayName ?? 'Member'
+                const isOnline = Boolean(liveMember)
+                return (
+                  <button
+                    key={member.id}
+                    type="button"
+                    onClick={() => openDM(member.id, name, member.avatarUrl)}
+                    aria-label={`Message ${name}`}
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/5"
+                  >
+                    <span className="relative">
+                      <Avatar name={name} url={member.avatarUrl} userId={member.id} size={42} />
+                      <span
+                        className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 ${isOnline ? 'bg-green-400' : 'bg-zinc-500'}`}
+                        style={{ borderColor: 'var(--bg-card)' }}
+                      />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold text-white">{name}</span>
+                      <span className="block truncate text-xs text-white/40">
+                        {member.headline ?? (isOnline ? 'Online now' : 'HySky member')}
+                      </span>
+                    </span>
+                    <span className={`shrink-0 text-[10px] ${isOnline ? 'font-semibold text-green-400' : 'text-white/30'}`}>
+                      {isOnline ? 'Online' : relativeTime(member.lastSeenAt)}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </aside>
     </div>
   )
 }
