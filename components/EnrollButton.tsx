@@ -24,9 +24,10 @@ export function EnrollButton({
 }: EnrollButtonProps) {
   const [open, setOpen] = useState(false)
 
+  const textColor = accent.toLowerCase() === '#00d4d4' ? 'text-black' : 'text-white'
   const cls = size === 'lg'
-    ? 'inline-flex items-center gap-2 text-white font-bold px-10 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-base'
-    : 'inline-flex items-center gap-2 text-white font-semibold px-6 py-3 rounded-xl transition-all hover:scale-[1.02] text-sm'
+    ? `inline-flex items-center gap-2 ${textColor} font-bold px-10 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-base`
+    : `inline-flex items-center gap-2 ${textColor} font-semibold px-6 py-3 rounded-xl transition-all hover:scale-[1.02] text-sm`
 
   if (hasAccess) {
     return (
