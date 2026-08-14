@@ -370,10 +370,16 @@ export function SequentialCourse({
                 className="h-full w-full bg-white"
                 allow="autoplay"
               />
-              <div
-                className="absolute right-0 top-0 h-24 w-20 bg-[#202124]"
-                aria-hidden="true"
-              />
+              <div className="absolute right-0 top-0 flex h-24 w-20 items-start justify-end bg-[#202124] p-3">
+                <button
+                  type="button"
+                  onClick={() => setSlidesLesson(null)}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-black/50 text-xl text-white/75 transition-colors hover:bg-black hover:text-white"
+                  aria-label="Close slides"
+                >
+                  ×
+                </button>
+              </div>
             </div>
             <div className="border-t border-white/10 px-4 py-2 text-right text-[11px] text-white/35">
               Drag the header to move · resize from the lower-right corner
