@@ -2,8 +2,19 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { courses } from '@/lib/courses'
 import PublicShell from '@/app/components/PublicShell'
+import { currentUser } from '@clerk/nextjs/server'
+import { hasCourseAccess } from '@/lib/course-access'
 
-export default function CoursesPage() {
+export default async function CoursesPage() {
+  const user = await currentUser()
+  const internalCourses = courses.filter((course) => !course.externalLink)
+  const accessEntries = user
+    ? await Promise.all(
+        internalCourses.map(async (course) => [course.slug, await hasCourseAccess(user.id, course.slug)] as const),
+      )
+    : []
+  const courseAccess = Object.fromEntries(accessEntries) as Record<string, boolean>
+
   return (
     <PublicShell>
       <div className="text-white max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
@@ -16,7 +27,7 @@ export default function CoursesPage() {
           {courses.map((course) => (
             <Link
               key={course.slug}
-              href={course.externalLink ?? `/courses/${course.slug}`}
+              href={course.externalLink ?? (courseAccess[course.slug] ? `/courses/${course.slug}/content` : `/courses/${course.slug}`)}
               target={course.externalLink ? '_blank' : undefined}
               rel={course.externalLink ? 'noopener noreferrer' : undefined}
               className="group relative overflow-hidden bg-white/5 border border-white/10 rounded-2xl p-7 transition-all hover:bg-white/8 hover:scale-[1.01] hover:shadow-xl"
