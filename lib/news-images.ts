@@ -31,13 +31,32 @@ const NEWS_IMAGE_OVERRIDES: Record<string, NewsImage> = {
   },
 }
 
+export type NewsImageSource = {
+  credit?: string | null
+  sourceUrl?: string | null
+  license?: string | null
+  licenseUrl?: string | null
+  caption?: string | null
+  modified?: boolean | null
+}
+
 export function getNewsImage(
   slug: string,
   coverImageUrl: string | null,
   imageAltText: string | null,
   title: string,
+  source?: NewsImageSource,
 ): NewsImage | undefined {
-  return NEWS_IMAGE_OVERRIDES[slug] || (coverImageUrl
-    ? { src: coverImageUrl, alt: imageAltText || title }
-    : undefined)
+  if (NEWS_IMAGE_OVERRIDES[slug]) return NEWS_IMAGE_OVERRIDES[slug]
+  if (!coverImageUrl) return undefined
+  return {
+    src: coverImageUrl,
+    alt: imageAltText || title,
+    credit: source?.credit || undefined,
+    sourceUrl: source?.sourceUrl || undefined,
+    license: source?.license || undefined,
+    licenseUrl: source?.licenseUrl || undefined,
+    caption: source?.caption || undefined,
+    modified: source?.modified || undefined,
+  }
 }

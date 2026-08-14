@@ -28,6 +28,12 @@ export default async function EditPressPostPage({ params }: { params: { id: stri
     const keywords = normalizeHySky(String(formData.get('keywords') || '').trim())
     const coverImageUrl = String(formData.get('coverImageUrl') || '').trim()
     const imageAltText = normalizeHySky(String(formData.get('imageAltText') || '').trim())
+    const imageCredit = normalizeHySky(String(formData.get('imageCredit') || '').trim())
+    const imageSourceUrl = String(formData.get('imageSourceUrl') || '').trim()
+    const imageLicense = String(formData.get('imageLicense') || '').trim()
+    const imageLicenseUrl = String(formData.get('imageLicenseUrl') || '').trim()
+    const imageCaption = normalizeHySky(String(formData.get('imageCaption') || '').trim())
+    const imageModified = formData.get('imageModified') === 'on'
     const seoDescription = normalizeHySky(String(formData.get('seoDescription') || '').trim())
     const publish = formData.get('isPublished') === 'on'
     if (!title || !content) throw new Error('Headline and article are required.')
@@ -46,6 +52,9 @@ export default async function EditPressPostPage({ params }: { params: { id: stri
       author: normalizeHySky(String(formData.get('author') || 'HySky News')),
       category: String(formData.get('category') || 'News Analysis'), excerpt, content,
       coverImageUrl: coverImageUrl || null, imageAltText: imageAltText || null,
+      imageCredit: imageCredit || null, imageSourceUrl: imageSourceUrl || null,
+      imageLicense: imageLicense || null, imageLicenseUrl: imageLicenseUrl || null,
+      imageCaption: imageCaption || null, imageModified,
       seoTitle: normalizeHySky(String(formData.get('seoTitle') || title)), seoDescription,
       keywords, readTimeMinutes: Number(formData.get('readTimeMinutes')) || null,
       isPublished: publish, updatedAt: new Date(),
@@ -76,6 +85,16 @@ export default async function EditPressPostPage({ params }: { params: { id: stri
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="text-xs text-white/55">Cover image URL<input name="coverImageUrl" defaultValue={post.coverImageUrl ?? ''} className={`${field} mt-1.5`} /></label>
           <label className="text-xs text-white/55">Image alt text<input name="imageAltText" defaultValue={post.imageAltText ?? ''} className={`${field} mt-1.5`} /></label>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 rounded-xl border border-white/10 p-4">
+          <label className="text-xs text-white/55">Photo credit<input name="imageCredit" defaultValue={post.imageCredit ?? ''} placeholder="e.g. Jane Doe / Wikimedia Commons" className={`${field} mt-1.5`} /></label>
+          <label className="text-xs text-white/55">Image source page URL<input name="imageSourceUrl" defaultValue={post.imageSourceUrl ?? ''} className={`${field} mt-1.5`} /></label>
+          <label className="text-xs text-white/55">License<input name="imageLicense" defaultValue={post.imageLicense ?? ''} placeholder="e.g. CC BY-SA 4.0" className={`${field} mt-1.5`} /></label>
+          <label className="text-xs text-white/55">License URL<input name="imageLicenseUrl" defaultValue={post.imageLicenseUrl ?? ''} className={`${field} mt-1.5`} /></label>
+          <label className="text-xs text-white/55 sm:col-span-2">Image caption<input name="imageCaption" defaultValue={post.imageCaption ?? ''} className={`${field} mt-1.5`} /></label>
+          <label className="flex items-center gap-2 text-xs text-white/55"><input name="imageModified" type="checkbox" defaultChecked={post.imageModified} className="h-4 w-4 accent-[#5D00F5]" /> Image was cropped or modified</label>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
           <label className="text-xs text-white/55">SEO title<input name="seoTitle" defaultValue={post.seoTitle ?? ''} className={`${field} mt-1.5`} /></label>
           <label className="text-xs text-white/55">Keywords<input name="keywords" defaultValue={post.keywords ?? ''} className={`${field} mt-1.5`} /></label>
         </div>

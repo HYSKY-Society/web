@@ -37,7 +37,14 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const canonical = `${NEWS_ORIGIN}/${post.slug}`
   const title = post.seoTitle || post.title
   const description = post.seoDescription || post.excerpt || undefined
-  const imageInfo = getNewsImage(post.slug, post.coverImageUrl, post.imageAltText, post.title)
+  const imageInfo = getNewsImage(post.slug, post.coverImageUrl, post.imageAltText, post.title, {
+    credit: post.imageCredit,
+    sourceUrl: post.imageSourceUrl,
+    license: post.imageLicense,
+    licenseUrl: post.imageLicenseUrl,
+    caption: post.imageCaption,
+    modified: post.imageModified,
+  })
   const image = absoluteImageUrl(imageInfo?.src)
   return {
     title,
@@ -74,7 +81,14 @@ function articleBlocks(body: string): ReactNode[] {
 export default async function NewsPostPage({ params }: { params: { slug: string } }) {
   const post = await getPost(params.slug)
   if (!post) notFound()
-  const imageInfo = getNewsImage(post.slug, post.coverImageUrl, post.imageAltText, post.title)
+  const imageInfo = getNewsImage(post.slug, post.coverImageUrl, post.imageAltText, post.title, {
+    credit: post.imageCredit,
+    sourceUrl: post.imageSourceUrl,
+    license: post.imageLicense,
+    licenseUrl: post.imageLicenseUrl,
+    caption: post.imageCaption,
+    modified: post.imageModified,
+  })
 
   const { userId } = auth()
   if (!userId) redirect('/news/subscribe')

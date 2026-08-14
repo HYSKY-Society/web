@@ -13,7 +13,10 @@ export async function POST(request: Request) {
     const [created] = await db.insert(pressPosts).values({
       slug: draft.slug, title: draft.title, author: 'HySky News', category: 'News Analysis',
       excerpt: draft.excerpt, content: draft.content, coverImageUrl: draft.coverImageUrl,
-      imageAltText: draft.imageAltText, seoTitle: draft.seoTitle, seoDescription: draft.seoDescription,
+      imageAltText: draft.imageAltText, imageCredit: draft.imageCredit, imageSourceUrl: draft.imageSourceUrl,
+      imageLicense: draft.imageLicense, imageLicenseUrl: draft.imageLicenseUrl, imageCaption: draft.imageCaption,
+      imageModified: draft.imageModified ?? false,
+      seoTitle: draft.seoTitle, seoDescription: draft.seoDescription,
       keywords: draft.keywords.join(', '), publishedAt: new Date(), readTimeMinutes: draft.readTimeMinutes,
       isPublished: false,
     }).returning({ id: pressPosts.id, slug: pressPosts.slug })

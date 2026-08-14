@@ -12,6 +12,12 @@ export type AutomatedNewsDraft = {
   sources: Array<{ name: string; url: string }>
   coverImageUrl?: string | null
   imageAltText?: string | null
+  imageCredit?: string | null
+  imageSourceUrl?: string | null
+  imageLicense?: string | null
+  imageLicenseUrl?: string | null
+  imageCaption?: string | null
+  imageModified?: boolean
   readTimeMinutes?: number | null
 }
 
@@ -52,6 +58,12 @@ export function parseAutomatedDraft(body: unknown): AutomatedNewsDraft {
   const content = normalizeHySky((row.content as string).trim())
   const linkCount = (content.match(/\[[^\]]+\]\(https?:\/\/[^)]+\)/g) || []).length
   if (linkCount < 1) throw new Error('The article must contain at least one authoritative link.')
+  const httpUrl = (value: unknown): string | null => {
+    if (typeof value !== 'string' || !value.trim()) return null
+    const url = new URL(value.trim())
+    if (!['http:', 'https:'].includes(url.protocol)) throw new Error('Image URLs must use HTTP or HTTPS.')
+    return url.toString()
+  }
   const title = normalizeHySky((row.title as string).trim())
   const h2s = [...content.matchAll(/^##\s+(.+)$/gm)].map(match => match[1]).join(' ')
   const keywords = (row.keywords as string[]).map(value => normalizeHySky(value.trim())).filter(Boolean)
@@ -71,6 +83,12 @@ export function parseAutomatedDraft(body: unknown): AutomatedNewsDraft {
     sources,
     coverImageUrl: typeof row.coverImageUrl === 'string' ? row.coverImageUrl.trim() || null : null,
     imageAltText: typeof row.imageAltText === 'string' ? normalizeHySky(row.imageAltText.trim()) || null : null,
+    imageCredit: typeof row.imageCredit === 'string' ? normalizeHySky(row.imageCredit.trim()) || null : null,
+    imageSourceUrl: httpUrl(row.imageSourceUrl),
+    imageLicense: typeof row.imageLicense === 'string' ? row.imageLicense.trim() || null : null,
+    imageLicenseUrl: httpUrl(row.imageLicenseUrl),
+    imageCaption: typeof row.imageCaption === 'string' ? normalizeHySky(row.imageCaption.trim()) || null : null,
+    imageModified: row.imageModified === true,
     readTimeMinutes: typeof row.readTimeMinutes === 'number' ? Math.max(1, Math.round(row.readTimeMinutes)) : null,
   }
 }

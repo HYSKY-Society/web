@@ -46,9 +46,8 @@ export default async function AdminPressPage() {
       </div>
 
       <AutomationControls />
-      <AddPostForm />
 
-      <div className="mt-10">
+      <div className="mt-8">
         <h2 className="text-lg font-bold mb-4">All Posts ({posts.length})</h2>
         {posts.length === 0 ? (
           <p className="text-white/30 text-sm">No posts yet.</p>
@@ -92,6 +91,10 @@ export default async function AdminPressPage() {
             ))}
           </div>
         )}
+      </div>
+
+      <div className="mt-10">
+        <AddPostForm />
       </div>
     </div>
   )
