@@ -1,24 +1,25 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { hasCourseAccess } from '@/lib/course-access'
+import { getCompletedLessonIds } from '@/lib/course-progress'
+import { H2_SAFETY_COURSE_SLUG, h2SafetyLessons } from '@/lib/h2-safety-course'
+import { SequentialCourse } from '@/components/SequentialCourse'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 const accent = '#00D4D4'
-const accentLight = '#33ffff'
+const accentLight = '#67e8f9'
 
 export default async function CourseContentPage() {
   const user = await currentUser()
-  const hasAccess = user ? await hasCourseAccess(user.id, 'h2-safety-for-aviation') : false
-
+  const hasAccess = user ? await hasCourseAccess(user.id, H2_SAFETY_COURSE_SLUG) : false
   if (!hasAccess) redirect('/courses/h2-safety-for-aviation')
+
+  const completedLessonIds = await getCompletedLessonIds(user!.id, H2_SAFETY_COURSE_SLUG)
 
   return (
     <div className="text-white max-w-4xl">
-      <Link
-        href="/courses/h2-safety-for-aviation"
-        className="inline-flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-8 transition-colors"
-      >
-        ← Back to Course Overview
+      <Link href="/courses" className="inline-flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-8 transition-colors">
+        ← Back to Courses
       </Link>
 
       <div
@@ -29,22 +30,25 @@ export default async function CourseContentPage() {
         <div className="relative">
           <div
             className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-4"
-            style={{ backgroundColor: `${accent}25`, color: accentLight }}
+            style={{ backgroundColor: `${accent}25`, color: '#000' }}
           >
             🛡️ Safety Course
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">H2 Safety for Aviation</h1>
-          <p className="text-white/50 text-sm">Course content coming soon</p>
+          <p className="text-white/50 text-sm">6 lectures · 12 classroom hours · 1.2 CEU · 12 PDH · Certificate of Completion</p>
         </div>
       </div>
 
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-12 text-center">
-        <div className="text-4xl mb-4">🚧</div>
-        <h2 className="font-bold text-xl mb-3">Content Coming Soon</h2>
-        <p className="text-white/50 text-sm leading-relaxed max-w-md mx-auto">
-          Lecture recordings and materials for H2 Safety for Aviation are being prepared.
-          You&apos;ll be notified by email when content is available.
-        </p>
+      <SequentialCourse
+        courseSlug={H2_SAFETY_COURSE_SLUG}
+        lessons={h2SafetyLessons}
+        initialCompletedLessonIds={completedLessonIds}
+        theme={{ accent, accentHover: '#00b8c4', complete: accentLight }}
+      />
+
+      <div className="mt-8 rounded-2xl p-6 text-center border border-white/10 bg-white/5">
+        <div className="text-white/40 text-xs uppercase tracking-wider mb-1">Upon Completion</div>
+        <div className="text-white font-semibold text-sm">12 classroom hours · 1.2 CEU · 12 PDH · Certificate of Completion</div>
       </div>
     </div>
   )

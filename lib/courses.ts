@@ -198,32 +198,127 @@ This training is essential for aircraft developers, compliance leads, regulators
   {
     slug: 'h2-safety-for-aviation',
     title: 'H2 Safety for Aviation',
-    tagline: 'Essential safety protocols and best practices for hydrogen aviation operations.',
+    tagline: 'The first comprehensive training program focused on the hazards, standards, systems, and emergency practices required for safe hydrogen aviation operations.',
     image: '/courses/h2-safety-for-aviation.jpg',
     imageAlt: 'Hydrogen Safety for Aviation online short course with blue hydrogen-themed artwork',
     buyLink: 'https://www.zeffy.com/en-US/ticketing/h2-safety-for-aviation-course',
     badge: '🛡️ Safety',
     accent: '#00D4D4',
-    accentLight: '#33ffff',
+    accentLight: '#67e8f9',
     highlights: [
-      { icon: '⏱️', label: 'Duration', value: 'TBD' },
-      { icon: '📡', label: 'Format', value: 'Online' },
-      { icon: '🎓', label: 'Level', value: 'All levels' },
+      { icon: '⏱️', label: 'Duration', value: '3 Weeks' },
+      { icon: '🎓', label: 'Classes', value: '6 Classes' },
+      { icon: '🕐', label: 'Total Hours', value: '12 Hours' },
       { icon: '📜', label: 'Certificate', value: 'Included' },
     ],
     keyFeatures: [
-      'Coming soon — details to be announced',
+      'Available on-demand — learn at your own pace',
+      'Six complete lecture recordings with downloadable course slides',
+      'Certificate of Completion from HySky Society',
+      '12 classroom hours / 1.2 CEU / 12 PDH',
+      'Built for aircraft, airport, fueling, and emergency-response teams',
     ],
-    overview: 'Full course details coming soon. Check back for updates.',
-    objectives: [],
-    audience: [],
+    overview: `The H2 Safety for Aviation Short Course provides a complete foundation in the hazards, standards, system behaviors, and emergency practices required for safe hydrogen integration in aviation.
+
+Developed by HySky Society, the curriculum covers hydrogen’s unique physical and chemical properties, codes and standards, detection and ventilation needs, materials and system design, storage and fueling safety, operational considerations, and emergency response strategies.
+
+Students learn to assess and mitigate risks across LH₂, GH₂, fuel-cell systems, distribution networks, hangars, airports, and aircraft—supporting safe deployment of hydrogen-powered aviation.`,
+    objectives: [
+      'Explain hydrogen’s safety-related physical and chemical behavior',
+      'Apply NFPA, ISO, SAE, ICAO, FAA, and EASA standards to hydrogen aviation systems',
+      'Assess hazards associated with LH₂ and GH₂ storage, transfer, and distribution',
+      'Evaluate detection, ventilation, electrical classification, and mitigation technologies',
+      'Integrate hydrogen safety into aircraft, hangars, MRO facilities, fueling areas, and airport operations',
+      'Develop emergency-response strategies for leaks, spills, fires, overpressure events, and system failures',
+      'Understand future standards, R&D needs, and pathways to global policy alignment',
+    ],
+    audience: [
+      'Anyone preparing for or interested in hydrogen aviation safety',
+      'Aircraft developers and safety specialists',
+      'Regulators working across FAA, EASA, ICAO, NFPA, and ISO frameworks',
+      'Airport firefighters, emergency responders, and fueling operators',
+      'Hydrogen producers, compliance and risk managers, and MRO professionals',
+      'Engineers, pilots, and aviation leaders seeking hydrogen safety literacy',
+    ],
     fees: [
-      { label: 'HySky Member Price', price: 'TBD' },
-      { label: 'Non-Member Price', price: 'TBD' },
+      { label: 'Non-Member Price', price: '$500 USD' },
+      { label: 'HySky Connect VIP Member Price', price: '$200 USD' },
+      { label: 'Student Price', price: '$200 USD' },
     ],
-    outline: [],
-    instructors: [],
-    ceus: 'TBD',
+    outline: [
+      {
+        title: 'Week 1 — Hydrogen Hazards, Standards & Codes',
+        points: [
+          'Lecture 1: Introduction to Hydrogen Hazards in Aviation',
+          'Lecture 2: Standards and Codes for Hydrogen Safety',
+          'NFPA, ISO, SAE, ICAO, FAA, and EASA frameworks',
+        ],
+      },
+      {
+        title: 'Week 2 — Flight Operations, Storage & Fueling',
+        points: [
+          'Lecture 3: Prototype Flight Operations: Safety, Risk & Readiness',
+          'Lecture 4: LH₂ & GH₂ Storage, Fueling & Distribution Safety',
+          'Boil-off management, transfer operations, readiness criteria, and safety gates',
+        ],
+      },
+      {
+        title: 'Week 3 — Aircraft, Airport & Emergency Safety',
+        points: [
+          'Lecture 5: Aircraft–Airport Hydrogen Safety Integration: Detection, Ventilation & Risk Controls',
+          'Lecture 6: Aircraft Safety: Jet Fuel vs. Hydrogen',
+          'Leak detection, ventilation, hazard mitigation, and operational risk controls',
+        ],
+      },
+    ],
+    lectures: [
+      { title: 'Lecture 1: Introduction to Hydrogen Hazards in Aviation' },
+      { title: 'Lecture 2: Standards and Codes for Hydrogen Safety' },
+      { title: 'Lecture 3: Prototype Flight Operations: Safety, Risk & Readiness' },
+      { title: 'Lecture 4: LH₂ & GH₂ Storage, Fueling & Distribution Safety' },
+      { title: 'Lecture 5: Aircraft–Airport Hydrogen Safety Integration: Detection, Ventilation & Risk Controls' },
+      { title: 'Lecture 6: Aircraft Safety: Jet Fuel vs. Hydrogen' },
+    ],
+    readingMaterials: [
+      { label: 'Downloadable slide deck for every lecture (included with course access)' },
+      { label: 'NFPA 2: Hydrogen Technologies Code' },
+      { label: 'SAE J2601 hydrogen fueling protocols' },
+      { label: 'CSA IR 3-18 hydrogen safety guidance' },
+      { label: 'NASA prototype flight-test and operational safety references' },
+    ],
+    instructors: [
+      {
+        name: 'Danielle McLean',
+        role: 'CEO & Founder, HySky Society',
+        bio: 'Aerospace engineer and founder of HySky Society. Danielle leads the course introduction to hydrogen hazards and connects safety principles to real aviation systems and operations.',
+      },
+      {
+        name: 'Rex Alexander',
+        role: 'Hydrogen Codes & Standards Instructor',
+        bio: 'Rex provides a practical roadmap to hydrogen safety codes and standards across production, storage, transport, refueling, airports, and aviation use cases.',
+      },
+      {
+        name: 'Raffaele Russo',
+        role: 'Prototype Flight Operations Instructor',
+        bio: 'Raffaele teaches hazard identification, operational risk controls, readiness criteria, safety gates, and disciplined go/no-go decisions for early-stage hydrogen flight testing.',
+      },
+      {
+        name: 'Cullen Hall',
+        role: 'Hydrogen Infrastructure Safety Instructor',
+        bio: 'Cullen covers liquid and gaseous hydrogen storage, safe transfer operations, boil-off management, loss prevention, and infrastructure tradeoffs for aviation deployment.',
+      },
+      {
+        name: 'Chris McWhinney',
+        role: 'Aircraft & Airport Safety Instructor',
+        bio: 'Chris focuses on leak behavior, detection, ventilation, fitting integrity, asphyxiation risk, and scalable hazard-mitigation systems for aircraft and airport environments.',
+      },
+      {
+        name: 'Jason Damazo',
+        role: 'Aircraft Safety Instructor',
+        bio: 'Jason examines the operational safety realities of hydrogen aircraft, comparing hazards and risk-management practices for conventional jet fuel and hydrogen systems.',
+      },
+    ],
+    ceus: '12 classroom hours / 1.2 CEU / 12 PDH',
   },
   {
     slug: 'h2-aviation-policy',
