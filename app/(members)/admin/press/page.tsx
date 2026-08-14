@@ -7,7 +7,7 @@ import AddPostForm from './AddPostForm'
 import AutomationControls from './AutomationControls'
 import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { isAdmin } from '@/lib/admin'
+import { ADMIN_NAV, isAdmin } from '@/lib/admin'
 
 async function requireAdmin() {
   const user = await currentUser()
@@ -43,6 +43,20 @@ export default async function AdminPressPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-1.5">Manage Press</h1>
         <p className="text-white/40">Add and manage press posts and news articles.</p>
+      </div>
+
+      <div className="flex gap-1 mb-8 bg-white/5 border border-white/10 rounded-xl p-1 w-fit flex-wrap">
+        {ADMIN_NAV.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              item.href === '/admin/press' ? 'bg-[#5d00f5] text-white' : 'text-white/50 hover:text-white'
+            }`}
+          >
+            {item.label}
+          </Link>
+        ))}
       </div>
 
       <AutomationControls />
