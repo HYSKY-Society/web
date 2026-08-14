@@ -257,7 +257,7 @@ export function SequentialCourse({
                   )}
                 </div>
                 {isCompleted ? (
-                  <span className="shrink-0 rounded-full border border-[#00D4D4]/40 bg-[#00D4D4]/10 px-3 py-1 text-xs font-bold text-[#00D4D4]">
+                  <span className="shrink-0 rounded-full border border-black bg-[#00D4D4]/10 px-3 py-1 text-xs font-bold text-black">
                     ✓ Complete
                   </span>
                 ) : !isUnlocked ? (
