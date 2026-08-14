@@ -233,8 +233,8 @@ This training is essential for aircraft developers, compliance leads, regulators
     imageAlt: 'H2 Aviation Policy and Power online short course about making hydrogen aviation a federal priority',
     buyLink: 'https://www.zeffy.com/embed/ticketing/h2-aviation-policy-and-power',
     badge: '🏛️ Policy',
-    accent: '#d97706',
-    accentLight: '#fbbf24',
+    accent: '#2563eb',
+    accentLight: '#60a5fa',
     highlights: [
       { icon: '⏱️', label: 'Duration', value: '6 Weeks' },
       { icon: '🎓', label: 'Classes', value: '6 Classes' },
