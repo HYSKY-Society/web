@@ -47,7 +47,7 @@ export default async function SponsorsPage() {
             </div>
             <h1 className="text-5xl sm:text-6xl font-black mb-4 leading-tight">Our Sponsors</h1>
             <p className="text-white/50 text-lg max-w-xl mx-auto leading-relaxed">
-              Organizations powering the hydrogen aviation ecosystem through HYSKY Society.
+              Organizations powering the hydrogen aviation ecosystem through HySky Society.
             </p>
           </div>
 
@@ -130,7 +130,7 @@ export default async function SponsorsPage() {
             <h2 className="text-2xl font-bold mb-3">Become a VIP Member</h2>
             <p className="text-white/45 text-sm max-w-md mx-auto mb-6 leading-relaxed">
               Join organizations shaping the hydrogen aviation future. VIP membership starts at $250/year
-              and includes listing in our directory, event access, and visibility across the HYSKY ecosystem.
+              and includes listing in our directory, event access, and visibility across the HySky ecosystem.
             </p>
             <a
               href="mailto:admin@hysky.org?subject=VIP Membership Inquiry"

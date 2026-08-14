@@ -86,6 +86,8 @@ export default function NetworkClient() {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [membersLoading, setMembersLoading] = useState(true)
   const [messagesLoading, setMessagesLoading] = useState(true)
+  const [messageQuery, setMessageQuery] = useState('')
+  const [memberQuery, setMemberQuery] = useState('')
 
   useEffect(() => {
     const updatePresence = () => {
@@ -146,15 +148,22 @@ export default function NetworkClient() {
   }, [])
 
   const onlineById = new Map(online.map((member) => [member.id, member]))
-  const recentlyActive = [...allUsers].sort((first, second) => {
+  const recentlyActive = allUsers.filter((member) => member.tier === 'member_full').sort((first, second) => {
     const firstOnline = onlineById.has(first.id)
     const secondOnline = onlineById.has(second.id)
     if (firstOnline !== secondOnline) return firstOnline ? -1 : 1
     return new Date(second.lastSeenAt ?? 0).getTime() - new Date(first.lastSeenAt ?? 0).getTime()
   })
+  const normalizedMessageQuery = messageQuery.trim().toLowerCase()
+  const filteredConversations = conversations.filter((conversation) => !normalizedMessageQuery
+    || conversation.displayName.toLowerCase().includes(normalizedMessageQuery)
+    || conversation.lastMessage.toLowerCase().includes(normalizedMessageQuery))
+  const normalizedMemberQuery = memberQuery.trim().toLowerCase()
+  const filteredMembers = recentlyActive.filter((member) => !normalizedMemberQuery
+    || member.displayName?.toLowerCase().includes(normalizedMemberQuery))
 
   return (
-    <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
+    <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(460px,.9fr)]">
       <section aria-labelledby="conversation-heading">
         <div className="mb-4 flex items-end justify-between gap-4">
           <div>
@@ -168,21 +177,33 @@ export default function NetworkClient() {
           ) : null}
         </div>
 
+        <label className="relative mb-4 block">
+          <span className="sr-only">Search messages by person or words</span>
+          <span aria-hidden="true" className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">⌕</span>
+          <input
+            type="search"
+            value={messageQuery}
+            onChange={(event) => setMessageQuery(event.target.value)}
+            placeholder="Search messages or people…"
+            className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-[#5d00f5]/55"
+          />
+        </label>
+
         <div
           className="overflow-hidden rounded-2xl"
           style={{ background: 'var(--bg-card)', border: '1px solid var(--border-muted)' }}
         >
           {messagesLoading ? (
             <p className="px-5 py-12 text-center text-sm text-white/35">Loading messages…</p>
-          ) : conversations.length === 0 ? (
+          ) : filteredConversations.length === 0 ? (
             <div className="px-6 py-14 text-center">
               <div className="mb-3 text-3xl" aria-hidden="true">💬</div>
-              <p className="font-semibold text-white">No messages yet</p>
-              <p className="mt-1 text-sm text-white/40">Choose a recently active member to start a conversation.</p>
+              <p className="font-semibold text-white">{messageQuery ? 'No matching conversations' : 'Start something good'}</p>
+              <p className="mt-1 text-sm text-white/40">{messageQuery ? 'Try another person or phrase.' : 'Choose a VIP member and start a conversation.'}</p>
             </div>
           ) : (
             <div className="divide-y divide-white/8">
-              {conversations.map((conversation) => (
+              {filteredConversations.map((conversation) => (
                 <button
                   key={conversation.userId}
                   type="button"
@@ -224,21 +245,33 @@ export default function NetworkClient() {
 
       <aside aria-labelledby="active-members-heading">
         <div className="mb-4">
-          <h2 id="active-members-heading" className="text-lg font-bold text-white">Recently active members</h2>
-          <p className="mt-1 text-xs text-white/40">Online members are shown first.</p>
+          <h2 id="active-members-heading" className="text-lg font-bold text-white">VIP members</h2>
+          <p className="mt-1 text-xs text-white/40">Find someone new and start a conversation.</p>
         </div>
 
+        <label className="relative mb-4 block">
+          <span className="sr-only">Search VIP members by name</span>
+          <span aria-hidden="true" className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">⌕</span>
+          <input
+            type="search"
+            value={memberQuery}
+            onChange={(event) => setMemberQuery(event.target.value)}
+            placeholder="Search VIP members…"
+            className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-[#5d00f5]/55"
+          />
+        </label>
+
         <div
-          className="overflow-hidden rounded-2xl"
+          className="overflow-hidden rounded-2xl p-3"
           style={{ background: 'var(--bg-card)', border: '1px solid var(--border-muted)' }}
         >
           {membersLoading ? (
             <p className="px-5 py-10 text-center text-sm text-white/35">Loading members…</p>
-          ) : recentlyActive.length === 0 ? (
-            <p className="px-5 py-10 text-center text-sm text-white/35">No other members yet.</p>
+          ) : filteredMembers.length === 0 ? (
+            <p className="px-5 py-10 text-center text-sm text-white/35">Try another name.</p>
           ) : (
-            <div className="max-h-[620px] divide-y divide-white/8 overflow-y-auto">
-              {recentlyActive.map((member) => {
+            <div className="grid max-h-[620px] gap-2 overflow-y-auto" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
+              {filteredMembers.map((member) => {
                 const liveMember = onlineById.get(member.id)
                 const name = member.displayName ?? 'Member'
                 const isOnline = Boolean(liveMember)
@@ -248,7 +281,7 @@ export default function NetworkClient() {
                     type="button"
                     onClick={() => openDM(member.id, name, member.avatarUrl)}
                     aria-label={`Message ${name}`}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/5"
+                    className="flex w-full items-center gap-3 rounded-xl border border-white/8 px-3 py-3 text-left transition-colors hover:border-[#5d00f5]/35 hover:bg-white/5"
                   >
                     <span className="relative">
                       <Avatar name={name} url={member.avatarUrl} userId={member.id} size={42} />

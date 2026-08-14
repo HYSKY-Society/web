@@ -43,7 +43,7 @@ export default async function HyskyMonthlyPage() {
               Free Monthly Webinar
             </div>
             <h1 className="text-5xl sm:text-6xl font-black mb-4 leading-tight">
-              HYSKY Monthly
+              HySky Monthly
             </h1>
             <p className="text-white/50 text-lg max-w-xl mx-auto leading-relaxed">
               Free monthly webinars featuring the leaders building the hydrogen aviation future.
@@ -151,7 +151,7 @@ export default async function HyskyMonthlyPage() {
 
           {/* CTA */}
           <div className="text-center mt-16 pt-12" style={{ borderTop: '1px solid rgba(255,255,255,.08)' }}>
-            <p className="text-white/35 text-sm mb-4">Want to present at HYSKY Monthly?</p>
+            <p className="text-white/35 text-sm mb-4">Want to present at HySky Monthly?</p>
             <a
               href="mailto:admin@hysky.org"
               className="text-[#5d00f5] hover:text-[#9b6dff] transition-colors text-sm font-medium"

@@ -43,6 +43,7 @@ async function getOnlineUsers(excludeUserId: string) {
     const rows = await db
       .select({
         id:          users.id,
+        tier:        users.tier,
         displayName: userProfiles.displayName,
         headline:    userProfiles.headline,
         avatarUrl:   userProfiles.avatarUrl,
@@ -64,6 +65,7 @@ async function getAllUsers(excludeUserId: string) {
     const rows = await db
       .select({
         id:          users.id,
+        tier:        users.tier,
         displayName: userProfiles.displayName,
         headline:    userProfiles.headline,
         avatarUrl:   userProfiles.avatarUrl,

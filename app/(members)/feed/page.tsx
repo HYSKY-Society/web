@@ -110,7 +110,7 @@ function BlogPostCard({ post }: { post: WixPost }) {
             className="text-[10px] font-bold px-2 py-0.5 rounded"
             style={{ background: 'rgba(19,220,232,.12)', color: '#13dce8' }}
           >
-            HYSKY BLOG
+            HySky BLOG
           </span>
           {post.firstPublishedDate && (
             <span className="text-xs text-white/30">{timeLabel(post.firstPublishedDate)}</span>
@@ -331,7 +331,7 @@ export default async function FeedPage() {
             style={{ background: 'var(--bg-card)', border: '1px solid var(--border-muted)' }}
           >
             <p className="text-white/25 text-sm">
-              Be the first to post something to the HYSKY community.
+              Be the first to post something to the HySky community.
             </p>
           </div>
         ) : (

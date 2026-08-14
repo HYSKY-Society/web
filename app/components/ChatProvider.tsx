@@ -5,6 +5,7 @@ import { getPusher } from '@/lib/pusher-client'
 
 export type OnlineUser = {
   id: string
+  tier: string
   displayName: string | null
   headline: string | null
   avatarUrl: string | null
@@ -64,6 +65,7 @@ export function useChatCtx() {
 function memberToUser(id: string, info: Record<string, unknown>): OnlineUser {
   return {
     id,
+    tier:        (info?.tier as string) ?? 'free',
     displayName: (info?.displayName as string) ?? null,
     headline:    (info?.headline    as string) ?? null,
     avatarUrl:   (info?.avatarUrl   as string) ?? null,

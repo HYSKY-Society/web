@@ -6,11 +6,11 @@ import HeroHelicopter from '@/app/components/HeroHelicopter'
 import PublicShell from '@/app/components/PublicShell'
 
 const programs = [
-  { tag: 'Membership',  title: 'HYSKY Connect',   desc: 'A dedicated platform where the hydrogen aviation ecosystem connects, collaborates, and grows.' },
-  { tag: 'Education',   title: 'HYSKY Edu',        desc: 'Courses and training for hydrogen aircraft certification, operations, infrastructure, safety, and policy.' },
+  { tag: 'Membership',  title: 'HySky Connect',   desc: 'A dedicated platform where the hydrogen aviation ecosystem connects, collaborates, and grows.' },
+  { tag: 'Education',   title: 'HySky Edu',        desc: 'Courses and training for hydrogen aircraft certification, operations, infrastructure, safety, and policy.' },
   { tag: 'Event',       title: 'FLYING HY',        desc: "The world's largest annual hydrogen aviation event, bringing together innovators across air and aerospace.", href: '/flying-hy' },
-  { tag: 'Webinars',    title: 'HYSKY Monthly',    desc: 'Free monthly webinars featuring leaders building the hydrogen aviation future.' },
-  { tag: 'Podcast',     title: 'HYSKY Pod',        desc: 'Conversations with aviation, hydrogen, and climate tech innovators pushing the industry forward.' },
+  { tag: 'Webinars',    title: 'HySky Monthly',    desc: 'Free monthly webinars featuring leaders building the hydrogen aviation future.' },
+  { tag: 'Podcast',     title: 'HySky Pod',        desc: 'Conversations with aviation, hydrogen, and climate tech innovators pushing the industry forward.' },
   { tag: 'Advocacy',    title: 'Policy + Power',   desc: 'Helping the ecosystem understand policy, engage responsibly, and advocate for hydrogen aviation progress.' },
 ]
 
@@ -69,7 +69,7 @@ export default async function AboutPage() {
           </h1>
 
           <p className="text-white/50 text-lg leading-relaxed max-w-[520px] mb-10">
-            HYSKY Society is a 501(c)(3) nonprofit accelerating the decarbonization of aviation through hydrogen-powered flight — through community, education, advocacy, and the world&apos;s leading hydrogen aviation programs.
+            HySky Society is a 501(c)(3) nonprofit accelerating the decarbonization of aviation through hydrogen-powered flight — through community, education, advocacy, and the world&apos;s leading hydrogen aviation programs.
           </p>
 
           <div className="flex flex-wrap gap-4 items-center">
@@ -99,7 +99,7 @@ export default async function AboutPage() {
               Why We <span style={{ color: '#5d00f5' }}>Exist</span>
             </h2>
             <p className="text-white/55 text-lg leading-relaxed">
-              HYSKY Society is a 501(c)(3) nonprofit committed to decarbonizing aviation and aerospace with hydrogen. Our mission is simple: if it defies gravity and uses hydrogen as fuel, it&apos;s part of our vision for sustainable flight.
+              HySky Society is a 501(c)(3) nonprofit committed to decarbonizing aviation and aerospace with hydrogen. Our mission is simple: if it defies gravity and uses hydrogen as fuel, it&apos;s part of our vision for sustainable flight.
             </p>
           </div>
           <div className="lg:border-l lg:pl-16" style={{ borderColor: 'var(--border-muted)' }}>
@@ -124,10 +124,10 @@ export default async function AboutPage() {
         </h2>
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           <p className="text-white/55 text-lg leading-relaxed">
-            HYSKY bridges the gap between hydrogen and aviation by connecting the people, technology, and infrastructure needed to make hydrogen-powered flight possible. We unite innovators across eVTOLs, fixed-wing aircraft, UAVs/drones, WIG craft, and spacecraft.
+            HySky bridges the gap between hydrogen and aviation by connecting the people, technology, and infrastructure needed to make hydrogen-powered flight possible. We unite innovators across eVTOLs, fixed-wing aircraft, UAVs/drones, WIG craft, and spacecraft.
           </p>
           <p className="text-white/55 text-lg leading-relaxed">
-            From UAVs and eVTOLs to fixed-wing aircraft, rotorcraft, WIG craft, spacecraft, fuel cells, storage systems, refueling infrastructure, and hydrogen production — HYSKY is where the ecosystem meets.
+            From UAVs and eVTOLs to fixed-wing aircraft, rotorcraft, WIG craft, spacecraft, fuel cells, storage systems, refueling infrastructure, and hydrogen production — HySky is where the ecosystem meets.
           </p>
         </div>
       </section>
@@ -177,7 +177,7 @@ export default async function AboutPage() {
           </div>
           <div className="lg:border-l lg:pl-16" style={{ borderColor: 'var(--border-muted)' }}>
             <p className="text-white/50 text-lg leading-relaxed mb-8">
-              From UAVs and eVTOLs to fixed-wing aircraft, rotorcraft, WIG craft, spacecraft, fuel cells, storage systems, refueling infrastructure, and hydrogen production — HYSKY is where the ecosystem meets.
+              From UAVs and eVTOLs to fixed-wing aircraft, rotorcraft, WIG craft, spacecraft, fuel cells, storage systems, refueling infrastructure, and hydrogen production — HySky is where the ecosystem meets.
             </p>
             <Link
               href="/sign-up"
@@ -250,7 +250,7 @@ export default async function AboutPage() {
             The Future of Flight <span style={{ color: '#5d00f5' }}>Needs a Place to Gather.</span>
           </h2>
           <p className="text-white/50 text-lg leading-relaxed max-w-[500px] mx-auto mb-10">
-            HYSKY Society is building that place — through community, education, advocacy, awareness, and the world&apos;s leading hydrogen aviation programs.
+            HySky Society is building that place — through community, education, advocacy, awareness, and the world&apos;s leading hydrogen aviation programs.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
@@ -273,14 +273,14 @@ export default async function AboutPage() {
       {/* ── FOOTER ────────────────────────────────────────────────────────── */}
       <footer style={{ borderTop: '1px solid var(--border-muted)' }}>
         <div className="flex flex-wrap justify-between items-center gap-6 px-[6%] py-10">
-          <Image src="/logo-new.png" alt="HYSKY Society" height={30} width={120} className="object-contain opacity-70" />
+          <Image src="/logo-new.png" alt="HySky Society" height={30} width={120} className="object-contain opacity-70" />
           <p className="text-white/35 text-sm max-w-sm leading-relaxed">
             Clean skies for future generations through hydrogen-powered flight. Donations are tax deductible.
           </p>
           <NewsletterPopup />
         </div>
         <div className="flex flex-wrap items-center justify-between gap-4 px-[6%] pb-8">
-          <p className="text-white/25 text-xs">© {new Date().getFullYear()} HYSKY Society. All rights reserved.</p>
+          <p className="text-white/25 text-xs">© {new Date().getFullYear()} HySky Society. All rights reserved.</p>
           <div className="flex gap-6 text-white/25 text-xs">
             <span>EIN / TIN: 88-2447859</span>
             <span>SAM UEI: SLANPKA45AM7</span>

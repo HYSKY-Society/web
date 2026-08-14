@@ -11,7 +11,7 @@ export default function NotAuthorizedPage() {
 
         <h1 className="text-2xl font-bold text-white mb-3">Membership Required</h1>
         <p className="text-white/50 leading-relaxed mb-8">
-          Your email address is not on the HYSKY Society member list.
+          Your email address is not on the HySky Society member list.
           Access requires an active paid membership through our registration portal.
         </p>
 
@@ -22,7 +22,7 @@ export default function NotAuthorizedPage() {
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 w-full bg-[#5d00f5] hover:bg-[#4a00c4] text-white px-6 py-3 rounded-xl font-semibold transition-colors"
           >
-            Join HYSKY Society →
+            Join HySky Society →
           </a>
 
           <SignOutButton redirectUrl="/sign-in">

@@ -47,7 +47,7 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
   const canUseVipCommunity = hasVipCommunityAccess(viewerTier)
   if (!member) notFound()
 
-  const name        = member.displayName || 'HYSKY Member'
+  const name        = member.displayName || 'HySky Member'
   const isOwnProfile = userId === member.id
 
   return (

@@ -13,7 +13,7 @@ export default function DonatePage() {
           </div>
           <h1 className="text-4xl font-bold mb-4 leading-tight">Save the Skies</h1>
           <p className="text-white/55 text-lg leading-relaxed max-w-xl mx-auto">
-            Your donation helps HYSKY Society advance hydrogen aviation — accelerating the path to zero-emission flight for future generations.
+            Your donation helps HySky Society advance hydrogen aviation — accelerating the path to zero-emission flight for future generations.
           </p>
         </div>
 
@@ -35,7 +35,7 @@ export default function DonatePage() {
         <div className="rounded-2xl overflow-hidden border border-white/10" style={{ height: '640px' }}>
           <div style={{ position: 'relative', overflow: 'hidden', height: '100%', width: '100%' }}>
             <iframe
-              title="Donate to HYSKY Society"
+              title="Donate to HySky Society"
               src={ZEFFY.donate}
               style={{ position: 'absolute', border: 0, top: 0, left: 0, bottom: 0, right: 0, width: '100%', height: '100%' }}
               allowTransparency={true}

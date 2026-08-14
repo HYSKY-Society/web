@@ -41,7 +41,7 @@ export default function AppTopBar({ onMenuClick, isLoggedIn = true, myId }: { on
       <Link href={isLoggedIn ? '/feed' : '/about'} className="shrink-0 mr-4">
         <Image
           src="/logo-white.png"
-          alt="HYSKY Society"
+          alt="HySky Society"
           height={28}
           width={90}
           className="object-contain logo-topbar"

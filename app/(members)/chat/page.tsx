@@ -7,7 +7,7 @@ const DEFAULT_CHANNELS = [
   { name: 'General',             slug: 'general',      description: 'Open discussion for all members', icon: '💬' },
   { name: 'Hydrogen Tech',       slug: 'hydrogen-tech', description: 'Propulsion, storage, fuel cell systems', icon: '⚗️' },
   { name: 'Policy & Advocacy',   slug: 'policy',        description: 'Federal policy, regulation, and advocacy', icon: '🏛️' },
-  { name: 'Events & Conferences', slug: 'events',       description: 'FLYING HY, HYSKY Monthly, and more', icon: '✈️' },
+  { name: 'Events & Conferences', slug: 'events',       description: 'FLYING HY, HySky Monthly, and more', icon: '✈️' },
 ]
 
 async function getOrCreateChannels() {
@@ -23,7 +23,7 @@ export default async function ChatPage() {
     <div className="text-white max-w-2xl">
       <div className="mb-8">
         <h1 className="text-2xl font-bold mb-1">Groups</h1>
-        <p className="text-white/40 text-sm">HYSKY-curated group channels for members.</p>
+        <p className="text-white/40 text-sm">HySky-curated group channels for members.</p>
       </div>
 
       <div className="space-y-2">

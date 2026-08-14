@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { type Tier, type MemberListItem, TIER_LABELS } from '@/lib/tiers'
+import { hasVipCommunityAccess, type Tier, type MemberListItem, TIER_LABELS } from '@/lib/tiers'
 
 function initials(name: string | null): string {
   if (!name) return '?'
@@ -45,24 +45,29 @@ export default function MemberDirectory({
   canAccessProfiles: boolean
 }) {
   const [query, setQuery] = useState('')
+  const [memberFilter, setMemberFilter] = useState<'all' | 'free' | 'vip'>('all')
 
-  const filtered = query.trim()
-    ? members.filter(m => {
-        const q = query.toLowerCase()
-        return (
-          m.displayName?.toLowerCase().includes(q) ||
-          m.company?.toLowerCase().includes(q) ||
-          m.jobTitle?.toLowerCase().includes(q) ||
-          m.location?.toLowerCase().includes(q) ||
-          m.headline?.toLowerCase().includes(q)
-        )
-      })
-    : members
+  const normalizedQuery = query.trim().toLowerCase()
+  const filtered = members.filter((member) => {
+    const matchesMembership = memberFilter === 'all'
+      || (memberFilter === 'free' && !hasVipCommunityAccess(member.tier))
+      || (memberFilter === 'vip' && hasVipCommunityAccess(member.tier))
+    if (!matchesMembership) return false
+    if (!normalizedQuery) return true
+    return (
+      member.displayName?.toLowerCase().includes(normalizedQuery) ||
+      member.company?.toLowerCase().includes(normalizedQuery) ||
+      member.jobTitle?.toLowerCase().includes(normalizedQuery) ||
+      member.location?.toLowerCase().includes(normalizedQuery) ||
+      member.headline?.toLowerCase().includes(normalizedQuery)
+    )
+  })
 
   return (
     <div>
-      {/* Search */}
-      <div className="relative mb-8">
+      {/* Search and membership filters */}
+      <div className="mb-8 flex flex-col gap-3 lg:flex-row lg:items-center">
+      <div className="relative flex-1">
         <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
         </svg>
@@ -77,6 +82,20 @@ export default function MemberDirectory({
           <button onClick={() => setQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 text-lg leading-none">×</button>
         )}
       </div>
+        <div className="flex shrink-0 rounded-xl border border-white/10 bg-white/5 p-1" role="group" aria-label="Filter members by membership">
+          {(['all', 'free', 'vip'] as const).map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => setMemberFilter(option)}
+              aria-pressed={memberFilter === option}
+              className={`rounded-lg px-4 py-2 text-xs font-semibold capitalize transition-colors ${memberFilter === option ? 'bg-[#5d00f5] text-white' : 'text-white/45 hover:bg-white/5 hover:text-white'}`}
+            >
+              {option === 'vip' ? 'VIP' : option[0].toUpperCase() + option.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {!canAccessProfiles && (
         <div className="mb-6 flex items-center gap-3 bg-[#5d00f5]/8 border border-[#5d00f5]/20 rounded-xl px-4 py-3 text-sm text-white/60">
@@ -86,12 +105,12 @@ export default function MemberDirectory({
         </div>
       )}
 
-      <p className="text-white/30 text-xs mb-5">{filtered.length} member{filtered.length !== 1 ? 's' : ''}{query ? ' matching' : ''}</p>
+      <p className="text-white/30 text-xs mb-5">{filtered.length} member{filtered.length !== 1 ? 's' : ''}{query || memberFilter !== 'all' ? ' matching' : ''}</p>
 
       {/* Grid */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map(m => {
-          const name = m.displayName || 'HYSKY Member'
+          const name = m.displayName || 'HySky Member'
           const card = (
             <div className={`group bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col gap-3 transition-all ${canAccessProfiles && !m.isPending ? 'hover:border-[#5d00f5]/40 hover:bg-white/8 cursor-pointer' : 'opacity-80'}`}>
               <div className="flex items-start gap-3">

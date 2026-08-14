@@ -32,7 +32,7 @@ export default async function PodcastPage() {
             >
               🎙 Podcast
             </div>
-            <h1 className="text-5xl sm:text-6xl font-black mb-4 leading-tight">HYSKY Pod</h1>
+            <h1 className="text-5xl sm:text-6xl font-black mb-4 leading-tight">HySky Pod</h1>
             <p className="text-white/50 text-lg max-w-xl mx-auto leading-relaxed">
               Conversations with aviation, hydrogen, and climate tech innovators pushing the industry
               forward.
@@ -102,7 +102,7 @@ export default async function PodcastPage() {
 
           {/* CTA */}
           <div className="text-center mt-16 pt-12" style={{ borderTop: '1px solid rgba(255,255,255,.08)' }}>
-            <p className="text-white/35 text-sm mb-2">Want to be a guest on HYSKY Pod?</p>
+            <p className="text-white/35 text-sm mb-2">Want to be a guest on HySky Pod?</p>
             <a
               href="mailto:admin@hysky.org"
               className="text-[#13dce8]/70 hover:text-[#13dce8] transition-colors text-sm font-medium"

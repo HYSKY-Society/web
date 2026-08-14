@@ -10,7 +10,7 @@ const links = [
   { href: '/members',          label: 'Members' },
   { href: '/courses',          label: 'Courses' },
   { href: '/dashboard/events', label: 'Events' },
-  { href: '/hysky-monthly',    label: 'HYSKY Monthly' },
+  { href: '/hysky-monthly',    label: 'HySky Monthly' },
   { href: '/podcast',          label: 'Podcast' },
   { href: '/sponsors',         label: 'Sponsors' },
 ]
@@ -23,7 +23,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-8 h-15 flex items-center justify-between h-[60px]">
         <div className="flex items-center gap-6">
           <Link href="/dashboard">
-            <Image src="/logo-white.png" alt="HYSKY Society" height={36} width={120} className="object-contain" />
+            <Image src="/logo-white.png" alt="HySky Society" height={36} width={120} className="object-contain" />
           </Link>
           <nav className="hidden md:flex gap-1">
             {links.map((l) => (

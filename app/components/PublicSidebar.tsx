@@ -15,7 +15,7 @@ const NAV = [
     { href: '/flying-hy#sponsors', label: 'Sponsors' },
     { href: '/flying-hy#faq',      label: 'FAQ' },
   ]},
-  { href: '/hysky-monthly', label: 'HYSKY Monthly', icon: '🎬' },
+  { href: '/hysky-monthly', label: 'HySky Monthly', icon: '🎬' },
   { href: '/podcast',       label: 'Podcast',       icon: '🎙' },
   { href: 'https://news.hysky.org', label: 'News', icon: '📰', newTab: false },
 ]

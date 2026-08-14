@@ -66,7 +66,7 @@ export const courses: Course[] = [
     keyFeatures: [
       'Available on-demand — learn at your own pace',
       'First comprehensive course on hydrogen aircraft certification',
-      'Certificate of Completion from HYSKY Society',
+      'Certificate of Completion from HySky Society',
       '12 classroom hours / 1.2 CEU / 12 PDH',
     ],
     overview: `The Hydrogen Aircraft Certification Short Course provides a comprehensive foundation in the regulatory, technical, and operational pathways required for certifying hydrogen-powered aircraft. Covering propulsion, storage, safety, airworthiness, and policy, this program equips students to navigate certification frameworks across major global regulators including the FAA, EASA, and Transport Canada.
@@ -91,7 +91,7 @@ This training is essential for aircraft developers, compliance leads, regulators
       'Anyone preparing for zero-emission flight',
     ],
     fees: [
-      { label: 'HYSKY Member Price', price: '$200 USD' },
+      { label: 'HySky Member Price', price: '$200 USD' },
       { label: 'Non-Member Price', price: '$500 USD' },
     ],
     outline: [
@@ -164,8 +164,8 @@ This training is essential for aircraft developers, compliance leads, regulators
     instructors: [
       {
         name: 'Danielle McLean',
-        role: 'CEO & Founder, HYSKY Society',
-        bio: 'Aerospace engineer and entrepreneur, Danielle founded HYSKY Society to decarbonize aviation with hydrogen. She created FLYING HY (the world\'s top hydrogen aviation event), the H2Hub Summit, and developed the industry\'s first short courses on hydrogen aircraft certification, working alongside regulators and industry leaders to bridge critical knowledge gaps.',
+        role: 'CEO & Founder, HySky Society',
+        bio: 'Aerospace engineer and entrepreneur, Danielle founded HySky Society to decarbonize aviation with hydrogen. She created FLYING HY (the world\'s top hydrogen aviation event), the H2Hub Summit, and developed the industry\'s first short courses on hydrogen aircraft certification, working alongside regulators and industry leaders to bridge critical knowledge gaps.',
       },
       {
         name: 'Mike Hirschberg',
@@ -218,7 +218,7 @@ This training is essential for aircraft developers, compliance leads, regulators
     objectives: [],
     audience: [],
     fees: [
-      { label: 'HYSKY Member Price', price: 'TBD' },
+      { label: 'HySky Member Price', price: 'TBD' },
       { label: 'Non-Member Price', price: 'TBD' },
     ],
     outline: [],
@@ -243,9 +243,9 @@ This training is essential for aircraft developers, compliance leads, regulators
     ],
     keyFeatures: [
       'First comprehensive federal policy course for hydrogen aviation',
-      'Certificate of Completion from HYSKY Society',
+      'Certificate of Completion from HySky Society',
       '12 classroom hours / 1.2 CEU / 12 PDH',
-      'Delivered live via Zoom on HYSKY Connect',
+      'Delivered live via Zoom on HySky Connect',
       'Sessions available on-demand within 1–2 days',
       'Instructor available by email between sessions',
     ],
@@ -253,7 +253,7 @@ This training is essential for aircraft developers, compliance leads, regulators
 
 The Hydrogen Aviation Policy & Power Short Course provides a structured foundation in how U.S. federal systems prioritize emerging technologies — and how industry leaders can responsibly influence that process.
 
-Developed by HYSKY Society, this course covers how appropriations are shaped, how agencies determine research priorities, how regulatory pathways evolve, and how coordinated industry action can move hydrogen aviation from the margins to a national priority.
+Developed by HySky Society, this course covers how appropriations are shaped, how agencies determine research priorities, how regulatory pathways evolve, and how coordinated industry action can move hydrogen aviation from the margins to a national priority.
 
 Participants will gain clarity on the roles of NASA, FAA, DOE, DOT, DoD, and Congress, and will learn how to align technical progress with policy momentum.`,
     objectives: [
@@ -278,7 +278,7 @@ Participants will gain clarity on the roles of NASA, FAA, DOE, DOT, DoD, and Con
     ],
     fees: [
       { label: 'Non-Member Price', price: '$500 USD' },
-      { label: 'HYSKY Connect VIP Member Price', price: '$200 USD' },
+      { label: 'HySky Connect VIP Member Price', price: '$200 USD' },
       { label: 'Student Price', price: '$200 USD' },
     ],
     outline: [],

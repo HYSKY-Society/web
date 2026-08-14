@@ -15,11 +15,11 @@ export default async function PublicNav() {
       }}
     >
       <Link href="/">
-        <Image src="/logo-new.png" alt="HYSKY Society" height={44} width={175} className="object-contain" />
+        <Image src="/logo-new.png" alt="HySky Society" height={44} width={175} className="object-contain" />
       </Link>
       <div className="flex items-center gap-6">
         <Link href="/hysky-monthly" className="hidden md:block text-sm text-white/50 hover:text-white transition-colors">
-          HYSKY Monthly
+          HySky Monthly
         </Link>
         <Link href="/podcast" className="hidden md:block text-sm text-white/50 hover:text-white transition-colors">
           Podcast

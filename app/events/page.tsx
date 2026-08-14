@@ -28,7 +28,7 @@ export default function EventsPage() {
       <div className="text-white max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-1.5">Events</h1>
-          <p className="text-white/40">Upcoming HYSKY Society events and webinars.</p>
+          <p className="text-white/40">Upcoming HySky Society events and webinars.</p>
         </div>
 
         {/* Flying HY 2026 — Featured */}
@@ -80,7 +80,7 @@ export default function EventsPage() {
               </div>
               <h2 className="text-xl font-bold mb-1">Speed Networking</h2>
               <p className="text-white/45 text-sm leading-relaxed max-w-xl mb-3">
-                Connect with fellow HYSKY members every week in a fast-paced networking session.
+                Connect with fellow HySky members every week in a fast-paced networking session.
               </p>
               <div className="flex flex-wrap gap-4 text-white/45 text-sm">
                 <span>📅 Every Wednesday</span>
@@ -142,14 +142,14 @@ export default function EventsPage() {
           </div>
         </div>
 
-        {/* HYSKY Monthly Webinar Series */}
+        {/* HySky Monthly Webinar Series */}
         <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
           <div className="flex items-start justify-between flex-wrap gap-4 mb-6">
             <div>
               <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-[#00D4D4]/15 text-[#00D4D4]">
                 📡 Monthly Webinar
               </div>
-              <h2 className="text-xl font-bold mb-1">HYSKY Monthly</h2>
+              <h2 className="text-xl font-bold mb-1">HySky Monthly</h2>
               <p className="text-white/45 text-sm leading-relaxed max-w-xl">
                 Free monthly educational webinars featuring leaders building the hydrogen aviation future. Open to all members.
               </p>

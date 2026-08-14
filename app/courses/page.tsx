@@ -9,7 +9,7 @@ export default function CoursesPage() {
       <div className="text-white max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-1.5">Courses</h1>
-          <p className="text-white/40">Hydrogen aviation courses from HYSKY Society.</p>
+          <p className="text-white/40">Hydrogen aviation courses from HySky Society.</p>
         </div>
 
         <div className="grid sm:grid-cols-2 gap-6">

@@ -22,7 +22,7 @@ const faqs = [
   { q: 'Will sessions be recorded?', a: 'Sessions will be recorded and made available to registered attendees following the event.' },
   { q: 'Can my organization sponsor FLYING HY?', a: 'Yes! Multiple sponsorship packages are available. Register as a sponsor through the ticket portal or contact admin@hysky.org for custom packages.' },
   { q: 'Who should attend?', a: 'FLYING HY is designed for engineers, researchers, regulators, policymakers, investors, and innovators across the hydrogen aviation ecosystem — from UAVs to passenger aircraft, fuel cells to infrastructure.' },
-  { q: 'How do I get updates?', a: 'Subscribe to the HYSKY newsletter and follow @hysky_society on social media for speaker announcements, agenda releases, and event updates.' },
+  { q: 'How do I get updates?', a: 'Subscribe to the HySky newsletter and follow @hysky_society on social media for speaker announcements, agenda releases, and event updates.' },
 ]
 
 const previousEditions = [
@@ -165,7 +165,7 @@ export default async function FlyingHyPage() {
             style={{ background: 'var(--surface-dim)', border: '1px solid var(--border-muted)' }}>
             <div className="text-4xl mb-4">🎤</div>
             <p className="text-white/40 text-lg font-semibold mb-1">Speakers to be announced</p>
-            <p className="text-white/25 text-sm">Follow HYSKY Society on social media for speaker announcements.</p>
+            <p className="text-white/25 text-sm">Follow HySky Society on social media for speaker announcements.</p>
           </div>
         )}
       </section>

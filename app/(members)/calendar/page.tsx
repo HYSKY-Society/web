@@ -29,7 +29,7 @@ export default async function CalendarPage() {
         type: 'event' as const,
         href: `/events/${e.slug}`,
       })),
-    // HYSKY Monthly sessions
+    // HySky Monthly sessions
     ...sessions.map(s => ({
       date: s.sessionDate.toISOString(),
       title: s.title,
@@ -42,7 +42,7 @@ export default async function CalendarPage() {
     <div className="text-white">
       <div className="mb-8">
         <h1 className="text-3xl font-black mb-1">My Calendar</h1>
-        <p className="text-white/40 text-sm">Your registered events and upcoming HYSKY Monthly sessions.</p>
+        <p className="text-white/40 text-sm">Your registered events and upcoming HySky Monthly sessions.</p>
       </div>
       <CalendarClient events={calEvents} />
     </div>

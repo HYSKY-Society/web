@@ -6,7 +6,7 @@ import './globals.css'
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'HYSKY Society — Members',
+  title: 'HySky Society — Members',
   description: 'The Hydrogen Aviation Society — Exclusive Member Portal',
 }
 

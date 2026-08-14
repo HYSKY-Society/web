@@ -43,7 +43,7 @@ export default function UpgradeGate({ feature }: { feature: string }) {
       <ZeffyModal
         isOpen={membershipOpen}
         onClose={() => setMembershipOpen(false)}
-        title="HYSKY Membership"
+        title="HySky Membership"
         options={[{ label: 'Membership', icon: '👥', embedUrl: ZEFFY.membership }]}
       />
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -61,7 +61,7 @@ export default function UpgradeGate({ feature }: { feature: string }) {
 
           <h2 className="text-2xl font-bold text-white mb-2">Paid Membership Required</h2>
           <p className="text-white/50 text-sm leading-relaxed mb-8">
-            {feature} is available to paid HYSKY members. Upgrade to unlock full access to Courses, Events, and more.
+            {feature} is available to paid HySky members. Upgrade to unlock full access to Courses, Events, and more.
           </p>
 
           <button
