@@ -24,6 +24,15 @@ export const coursePurchases = pgTable('course_purchases', {
   purchasedAt: timestamp('purchased_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+export const courseLessonProgress = pgTable('course_lesson_progress', {
+  userId:      text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  courseSlug:  text('course_slug').notNull(),
+  lessonId:    text('lesson_id').notNull(),
+  completedAt: timestamp('completed_at', { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  primaryKey({ columns: [t.userId, t.courseSlug, t.lessonId] }),
+])
+
 export const eventPurchases = pgTable('event_purchases', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -287,6 +296,7 @@ export type UserProfile = typeof userProfiles.$inferSelect
 export type ProfileContact = typeof profileContacts.$inferSelect
 export type DiscountCode = typeof discountCodes.$inferSelect
 export type CoursePurchase = typeof coursePurchases.$inferSelect
+export type CourseLessonProgress = typeof courseLessonProgress.$inferSelect
 export type EventPurchase = typeof eventPurchases.$inferSelect
 export type Sponsor = typeof sponsors.$inferSelect
 export type HyskySession = typeof hyskySessions.$inferSelect
