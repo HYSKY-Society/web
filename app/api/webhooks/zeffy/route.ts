@@ -8,7 +8,8 @@ import { grantNewsSubscriptionByEmail } from '@/lib/news'
 
 // Zeffy webhook payload: PaymentCompletedEvent
 // { type: "payment.completed", data: { description, campaign_type, items[], buyer: { email } } }
-// No built-in signing — authenticate via ?secret= query param.
+// Zeffy does not currently document a webhook signature, so the endpoint uses
+// a long, secret query parameter and fails closed when it is not configured.
 
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'invoices@hysky.org'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://connect.hysky.org'
@@ -21,13 +22,29 @@ function parseAmount(raw: unknown): string {
   return (n > 1000 && Number.isInteger(n) ? n / 100 : n).toFixed(2)
 }
 
+function identifyCourseSlug(purchaseText: string): string | null {
+  if (purchaseText.includes('h2 aircraft') || purchaseText.includes('certification')) {
+    return 'h2-aircraft-certification'
+  }
+  if (purchaseText.includes('safety')) {
+    return 'h2-safety-for-aviation'
+  }
+  if (purchaseText.includes('policy')) {
+    return 'h2-aviation-policy'
+  }
+  return null
+}
+
 export async function POST(req: NextRequest) {
   const secret = process.env.ZEFFY_WEBHOOK_SECRET
-  if (secret) {
-    const provided = req.nextUrl.searchParams.get('secret')
-    if (provided !== secret) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  if (!secret) {
+    console.error('[zeffy-webhook] ZEFFY_WEBHOOK_SECRET is not configured')
+    return NextResponse.json({ error: 'Webhook unavailable' }, { status: 503 })
+  }
+
+  const provided = req.nextUrl.searchParams.get('secret')
+  if (provided !== secret) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   let body: Record<string, unknown>
@@ -37,40 +54,74 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  // Log full payload once so we can verify field names
+  if (body.type !== 'payment.completed') {
+    return NextResponse.json({ ok: true, ignored: true })
+  }
+
+  // Log the payload so field-name changes from Zeffy are visible in Vercel logs.
   console.log('[zeffy-webhook] payload:', JSON.stringify(body, null, 2))
 
   const data = body.data as Record<string, unknown> | undefined
   const buyer = data?.buyer as Record<string, unknown> | undefined
-  const email = buyer?.email as string | undefined
+  const rawEmail = buyer?.email as string | undefined
+  const email = rawEmail?.toLowerCase().trim()
 
   if (!email) {
-    console.warn('[zeffy-webhook] No email in payload')
-    return NextResponse.json({ error: 'Email not found' }, { status: 422 })
+    console.warn('[zeffy-webhook] No buyer email in payload')
+    return NextResponse.json({ error: 'Buyer email not found' }, { status: 422 })
   }
 
-  // Extract buyer info — field names may need adjustment after first live webhook
+  // Extract buyer info.
   const firstName = (buyer?.first_name ?? buyer?.firstName ?? '') as string
-  const lastName  = (buyer?.last_name  ?? buyer?.lastName  ?? '') as string
-  const name = `${firstName} ${lastName}`.trim() || (buyer?.name as string ?? email)
-  const org  = (buyer?.organization ?? buyer?.company ?? '') as string
+  const lastName = (buyer?.last_name ?? buyer?.lastName ?? '') as string
+  const name = `${firstName} ${lastName}`.trim() || ((buyer?.name as string) ?? email)
+  const org = (buyer?.organization ?? buyer?.company ?? '') as string
 
-  // Extract order info
-  const amount    = parseAmount(data?.amount ?? data?.total)
-  const currency  = ((data?.currency as string) ?? 'USD').toUpperCase()
-  const orderId   = (data?.id ?? data?.order_id ?? data?.orderId ?? '') as string
+  // Extract order info.
+  const amount = parseAmount(data?.amount ?? data?.total)
+  const currency = ((data?.currency as string) ?? 'USD').toUpperCase()
+  const orderId = (data?.id ?? data?.order_id ?? data?.orderId ?? '') as string
   const eventName = (data?.description as string) ?? 'HySky Society Purchase'
-  const paidAt    = data?.created_at ? new Date(data.created_at as string) : new Date()
+  const paidAt = data?.created_at ? new Date(data.created_at as string) : new Date()
+  const description = eventName.toLowerCase()
+  const items = (data?.items as Array<Record<string, unknown>>) ?? []
+  const itemText = items
+    .map(item => `${String(item.name ?? '')} ${String(item.title ?? '')} ${String(item.description ?? '')}`)
+    .join(' ')
+    .toLowerCase()
+  const firstItemDesc = ((items[0]?.description as string) ?? '').toLowerCase()
+  const purchaseText = `${description} ${itemText}`
+  const courseSlug = identifyCourseSlug(purchaseText)
 
-  // ── Store invoice in DB ────────────────────────────────────────────────────
+  // A course can only be purchased for an existing HySky account. Zeffy must
+  // use the same email address as Clerk/Connect, otherwise no access is granted.
+  const courseBuyer = courseSlug ? await getUserByEmail(email) : null
+  if (courseSlug && !courseBuyer) {
+    console.error(`[zeffy-webhook] Course purchase has no matching HySky account: ${email}`)
+    return NextResponse.json(
+      { error: 'No HySky account matches the checkout email' },
+      { status: 409 },
+    )
+  }
+
+  // Store invoice in DB.
   const [invoice] = await db
     .insert(zeffyInvoices)
-    .values({ email, name, org: org || null, amount, currency, eventName, paidAt, zeffyOrderId: orderId || null })
+    .values({
+      email,
+      name,
+      org: org || null,
+      amount,
+      currency,
+      eventName,
+      paidAt,
+      zeffyOrderId: orderId || null,
+    })
     .returning()
 
   const invoiceUrl = `${APP_URL}/invoice/${invoice.token}`
 
-  // ── Send invoice email ─────────────────────────────────────────────────────
+  // Send invoice email.
   if (process.env.RESEND_API_KEY) {
     const resend = new Resend(process.env.RESEND_API_KEY)
     await resend.emails.send({
@@ -102,15 +153,7 @@ export async function POST(req: NextRequest) {
     console.warn(`[zeffy-webhook] RESEND_API_KEY not set — skipping email. Invoice URL: ${invoiceUrl}`)
   }
 
-  // ── Existing membership / course / event routing ───────────────────────────
-  const description  = eventName.toLowerCase()
-  const items        = (data?.items as Array<Record<string, unknown>>) ?? []
-  const itemText = items
-    .map(item => `${String(item.name ?? '')} ${String(item.title ?? '')} ${String(item.description ?? '')}`)
-    .join(' ')
-    .toLowerCase()
-  const firstItemDesc = ((items[0]?.description as string) ?? '').toLowerCase()
-  const purchaseText = `${description} ${itemText}`
+  // Route the successful purchase.
   const isNewsPurchase =
     purchaseText.includes('hysky news') ||
     purchaseText.includes('hysky subscription')
@@ -135,24 +178,16 @@ export async function POST(req: NextRequest) {
     await setUserTierByEmail(email, tier)
     console.log(`[zeffy-webhook] Membership: upgraded ${email} to ${tier}`)
 
-  } else if (description.includes('h2 aircraft') || description.includes('certification')) {
-    const user = await getUserByEmail(email)
-    if (user) await addCoursePurchase(user.id, 'h2-aircraft-certification')
+  } else if (courseSlug && courseBuyer) {
+    await addCoursePurchase(courseBuyer.id, courseSlug)
+    console.log(`[zeffy-webhook] Course: granted ${email} access to ${courseSlug}`)
 
-  } else if (description.includes('safety')) {
-    const user = await getUserByEmail(email)
-    if (user) await addCoursePurchase(user.id, 'h2-safety-for-aviation')
-
-  } else if (description.includes('policy')) {
-    const user = await getUserByEmail(email)
-    if (user) await addCoursePurchase(user.id, 'h2-aviation-policy')
-
-  } else if (description.includes('flying hy') || description.includes('flying-hy')) {
+  } else if (purchaseText.includes('flying hy') || purchaseText.includes('flying-hy')) {
     const user = await getUserByEmail(email)
     if (user) await addEventPurchase(user.id, 'flying-hy-2026')
 
   } else {
-    console.warn('[zeffy-webhook] Unknown campaign:', description)
+    console.warn('[zeffy-webhook] Unknown campaign:', purchaseText)
   }
 
   return NextResponse.json({ ok: true })
