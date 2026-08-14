@@ -58,6 +58,11 @@ function CourseVideo({
   onEnded: () => void
 }) {
   const playerNode = useRef<HTMLDivElement>(null)
+  const onEndedRef = useRef(onEnded)
+
+  useEffect(() => {
+    onEndedRef.current = onEnded
+  }, [onEnded])
 
   useEffect(() => {
     let player: YouTubePlayer | undefined
@@ -73,7 +78,7 @@ function CourseVideo({
         playerVars: { rel: 0, modestbranding: 1 },
         events: {
           onStateChange: (event) => {
-            if (!isCompleted && event.data === YT.PlayerState.ENDED) onEnded()
+            if (!isCompleted && event.data === YT.PlayerState.ENDED) onEndedRef.current()
           },
         },
       })
@@ -83,7 +88,7 @@ function CourseVideo({
       cancelled = true
       player?.destroy()
     }
-  }, [isCompleted, lesson.videoUrl, onEnded])
+  }, [isCompleted, lesson.videoUrl])
 
   return <div ref={playerNode} className="h-full w-full" />
 }
