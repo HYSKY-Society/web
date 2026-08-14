@@ -187,12 +187,7 @@ export default function NetworkClient() {
                     size={52}
                   />
                   <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-white">{conversation.displayName}</span>
-                      {onlineById.has(conversation.userId) ? (
-                        <span className="h-2 w-2 shrink-0 rounded-full bg-green-400" title="Online now" />
-                      ) : null}
-                    </span>
+                    <span className="text-sm font-bold text-white">{conversation.displayName}</span>
                     <span className={`mt-1 block truncate text-sm ${conversation.unreadCount > 0 ? 'font-semibold text-white' : 'text-white/45'}`}>
                       {conversation.lastMessageFromMe ? 'You: ' : ''}{conversation.lastMessage}
                     </span>
