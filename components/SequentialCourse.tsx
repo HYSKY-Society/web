@@ -59,6 +59,7 @@ function CourseVideo({
   onEnded: () => void
 }) {
   const playerNode = useRef<HTMLDivElement>(null)
+  const playerFrame = useRef<HTMLDivElement>(null)
   const onEndedRef = useRef(onEnded)
 
   useEffect(() => {
@@ -82,6 +83,7 @@ function CourseVideo({
           modestbranding: 1,
           playsinline: 1,
           iv_load_policy: 3,
+          fs: 0,
           origin: window.location.origin,
         },
         events: {
@@ -98,7 +100,29 @@ function CourseVideo({
     }
   }, [isCompleted, lesson.videoUrl])
 
-  return <div ref={playerNode} className="h-full w-full" aria-label={lesson.title} />
+  function enterFullscreen() {
+    void playerFrame.current?.requestFullscreen()
+  }
+
+  return (
+    <div ref={playerFrame} className="relative h-full w-full overflow-hidden bg-black">
+      <div ref={playerNode} className="h-full w-full" aria-label={lesson.title} />
+
+      {/* YouTube does not expose controls for hiding its outbound link, so mask that area. */}
+      <div className="absolute right-0 top-0 h-14 w-40 bg-gradient-to-l from-black via-black to-transparent" aria-hidden="true" />
+      <div className="absolute bottom-0 right-0 flex h-16 w-[44%] items-center justify-end bg-gradient-to-l from-black via-black to-transparent pr-3 sm:w-72">
+        <button
+          type="button"
+          onClick={enterFullscreen}
+          className="rounded-lg border border-white/25 bg-black px-3 py-2 text-xs font-bold text-white/85 transition-colors hover:border-white/50 hover:text-white"
+          style={{ color: '#fff' }}
+          aria-label="Watch lesson full screen"
+        >
+          ⛶ Full screen
+        </button>
+      </div>
+    </div>
+  )
 }
 
 function slidesPreviewUrl(url: string) {
