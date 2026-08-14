@@ -212,7 +212,6 @@ export default function NetworkClient() {
       <aside aria-labelledby="active-members-heading">
         <div className="mb-4">
           <h2 id="active-members-heading" className="text-lg font-bold text-white">VIP members</h2>
-          <p className="mt-1 text-xs text-white/40">Find someone new and start a conversation.</p>
         </div>
 
         <label className="relative mb-4 block">
