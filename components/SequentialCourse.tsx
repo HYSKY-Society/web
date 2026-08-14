@@ -121,8 +121,7 @@ function CourseVideo({
     <div ref={playerFrame} className="relative h-full w-full overflow-hidden bg-black">
       <div ref={playerNode} className="h-full w-full" aria-label={lesson.title} />
 
-      {/* YouTube does not expose controls for hiding its outbound link, so mask that area. */}
-      <div className="absolute inset-x-0 top-0 h-16 bg-black" aria-hidden="true" />
+      {/* Keep the bottom outbound-link areas covered without obstructing playback. */}
       <div className="absolute bottom-0 left-0 h-16 w-[16%] bg-black" aria-hidden="true" />
       <div className="absolute bottom-0 right-0 flex h-16 w-[36%] items-center justify-end bg-black pr-3">
         <button
