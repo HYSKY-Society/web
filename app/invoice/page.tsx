@@ -76,7 +76,7 @@ function InvoiceContent() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo-purple.png"
-              alt="HYSKY Society"
+              alt="HySky Society"
               className="h-14 w-auto mb-1"
             />
             <div className="text-xs text-gray-500">www.hysky.org</div>
@@ -153,12 +153,12 @@ function InvoiceContent() {
         {/* Payment note */}
         <div className="bg-gray-50 rounded-lg p-4 text-xs text-gray-500 mb-8 print:bg-transparent print:border print:border-gray-200">
           Payment was processed securely via Zeffy on {formatDate(date)}. 
-          HYSKY Society is a 501(c)(3) charitable nonprofit association. EIN 88-2447859 
+          HySky Society is a 501(c)(3) charitable nonprofit association. EIN 88-2447859 
         </div>
 
         {/* Footer */}
         <div className="border-t border-gray-200 pt-6 text-xs text-gray-400 text-center">
-          HYSKY Society · hysky.org<br/>
+          HySky Society · hysky.org<br/>
           Questions? Email hysky@hysky.org
         </div>
 

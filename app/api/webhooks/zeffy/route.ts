@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
   const amount    = parseAmount(data?.amount ?? data?.total)
   const currency  = ((data?.currency as string) ?? 'USD').toUpperCase()
   const orderId   = (data?.id ?? data?.order_id ?? data?.orderId ?? '') as string
-  const eventName = (data?.description as string) ?? 'HYSKY Society Purchase'
+  const eventName = (data?.description as string) ?? 'HySky Society Purchase'
   const paidAt    = data?.created_at ? new Date(data.created_at as string) : new Date()
 
   // ── Store invoice in DB ────────────────────────────────────────────────────
@@ -76,10 +76,10 @@ export async function POST(req: NextRequest) {
     await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
-      subject: `Your HYSKY Society Invoice — ${eventName}`,
+      subject: `Your HySky Society Invoice — ${eventName}`,
       html: `
         <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;color:#111827">
-          <img src="${APP_URL}/logo-purple.png" alt="HYSKY Society" style="height:48px;margin-bottom:24px" />
+          <img src="${APP_URL}/logo-purple.png" alt="HySky Society" style="height:48px;margin-bottom:24px" />
           <h2 style="margin:0 0 8px;font-size:20px;color:#3f11fa">Your invoice is ready</h2>
           <p style="margin:0 0 24px;color:#6b7280;font-size:15px">
             Hi ${firstName || name}, thank you for your purchase of <strong>${eventName}</strong>.
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
             View &amp; Download Invoice →
           </a>
           <p style="margin:32px 0 0;font-size:12px;color:#9ca3af">
-            HYSKY Society · hysky@hysky.org · www.hysky.org<br/>
+            HySky Society · hysky@hysky.org · www.hysky.org<br/>
             This link is unique to your order and can be used any time.
           </p>
         </div>

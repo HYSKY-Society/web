@@ -91,7 +91,7 @@ export default async function AdminHyskyMonthlyPage() {
       >
         <div>
           <p className="text-sm font-medium text-white">YouTube Playlist Sync</p>
-          <p className="text-white/40 text-xs mt-0.5">Fetches latest videos from the HYSKY Monthly playlist (RSS — no API key needed)</p>
+          <p className="text-white/40 text-xs mt-0.5">Fetches latest videos from the HySky Monthly playlist (RSS — no API key needed)</p>
         </div>
         <form action={syncFromYoutube}>
           <button

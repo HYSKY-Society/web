@@ -76,7 +76,7 @@ export default async function AdminCodesPage() {
               <input
                 name="code"
                 required
-                placeholder="HYSKY2026"
+                placeholder="HySky2026"
                 className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2.5 text-white text-sm font-mono placeholder-white/20 focus:outline-none focus:border-[#5d00f5]/60"
               />
             </div>

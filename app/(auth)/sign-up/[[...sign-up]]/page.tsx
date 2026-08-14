@@ -6,7 +6,7 @@ export default function SignUpPage() {
   return (
     <main className="min-h-screen bg-[#04080F] flex flex-col items-center justify-center p-4">
       <Link href="/" className="mb-8 text-center group flex flex-col items-center">
-        <Image src="/logo-white.png" alt="HYSKY Society" height={44} width={150} className="object-contain" />
+        <Image src="/logo-white.png" alt="HySky Society" height={44} width={150} className="object-contain" />
         <p className="text-white/35 text-sm mt-2 group-hover:text-white/50 transition-colors">
           Create Your Member Account
         </p>

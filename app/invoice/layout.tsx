@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Invoice — HYSKY Society',
+  title: 'Invoice — HySky Society',
 }
 
 export default function InvoiceLayout({ children }: { children: React.ReactNode }) {

@@ -97,7 +97,7 @@ export async function hasVipConnectMembership(userId: string): Promise<boolean> 
 }
 
 // Returns the user's current news tier, creating or synchronizing a record if needed.
-// Paid HYSKY Connect VIP members receive complimentary unlimited news access.
+// Paid HySky Connect VIP members receive complimentary unlimited news access.
 export async function ensureNewsUser(userId: string): Promise<NewsTier> {
   try {
     const [[existing], [webUser]] = await Promise.all([

@@ -81,7 +81,7 @@ export default async function AdminPodcastPage() {
       >
         <div>
           <p className="text-sm font-medium text-white">YouTube Playlist Sync</p>
-          <p className="text-white/40 text-xs mt-0.5">Fetches latest videos from the HYSKY Pod playlist (RSS — no API key needed)</p>
+          <p className="text-white/40 text-xs mt-0.5">Fetches latest videos from the HySky Pod playlist (RSS — no API key needed)</p>
         </div>
         <form action={syncFromYoutube}>
           <button
