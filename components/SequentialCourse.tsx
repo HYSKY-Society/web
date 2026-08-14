@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import type { CertificationLesson } from '@/lib/h2-certification-course'
 import { completeCertificationLesson } from '@/app/(members)/courses/h2-aircraft-certification/content/actions'
 
@@ -105,6 +105,11 @@ function slidesPreviewUrl(url: string) {
   return url.replace(/\/view(?:\?.*)?$/, '/preview')
 }
 
+function slidesDownloadUrl(url: string) {
+  const fileId = url.match(/\/d\/([^/]+)/)?.[1]
+  return fileId ? `https://drive.google.com/uc?export=download&id=${fileId}` : url
+}
+
 export function SequentialCourse({
   lessons,
   initialCompletedLessonIds,
@@ -115,6 +120,8 @@ export function SequentialCourse({
   const [completed, setCompleted] = useState(() => new Set(initialCompletedLessonIds))
   const [savingLessonId, setSavingLessonId] = useState<string | null>(null)
   const [slidesLesson, setSlidesLesson] = useState<CertificationLesson | null>(null)
+  const [slidesPosition, setSlidesPosition] = useState({ x: 16, y: 16 })
+  const dragState = useRef<{ offsetX: number; offsetY: number } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const completedCount = useMemo(
@@ -126,6 +133,11 @@ export function SequentialCourse({
     if (!slidesLesson) return
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    const modalWidth = Math.min(window.innerWidth * 0.84, 1200)
+    setSlidesPosition({
+      x: Math.max(8, (window.innerWidth - modalWidth) / 2),
+      y: Math.max(8, window.innerHeight * 0.06),
+    })
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setSlidesLesson(null)
     }
@@ -153,6 +165,30 @@ export function SequentialCourse({
 
   function goToLesson(lessonId: string) {
     document.getElementById(`lesson-${lessonId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  function startSlidesDrag(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.button !== 0 || (event.target as HTMLElement).closest('[data-no-drag]')) return
+    dragState.current = {
+      offsetX: event.clientX - slidesPosition.x,
+      offsetY: event.clientY - slidesPosition.y,
+    }
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  function moveSlides(event: ReactPointerEvent<HTMLDivElement>) {
+    if (!dragState.current) return
+    setSlidesPosition({
+      x: Math.max(0, Math.min(window.innerWidth - 280, event.clientX - dragState.current.offsetX)),
+      y: Math.max(0, Math.min(window.innerHeight - 80, event.clientY - dragState.current.offsetY)),
+    })
+  }
+
+  function stopSlidesDrag(event: ReactPointerEvent<HTMLDivElement>) {
+    dragState.current = null
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
   }
 
   return (
@@ -278,7 +314,7 @@ export function SequentialCourse({
 
       {slidesLesson && (
         <div
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 p-4 sm:p-8"
+          className="fixed inset-0 z-[80] bg-black/75"
           role="dialog"
           aria-modal="true"
           aria-labelledby="slides-title"
@@ -286,13 +322,39 @@ export function SequentialCourse({
             if (event.target === event.currentTarget) setSlidesLesson(null)
           }}
         >
-          <div className="flex h-[88vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-white/15 bg-[#080b12] shadow-2xl">
-            <div className="flex items-center gap-4 border-b border-white/10 px-5 py-4">
+          <div
+            className="fixed flex min-h-[320px] min-w-[280px] max-h-[calc(100vh-16px)] max-w-[calc(100vw-16px)] flex-col overflow-hidden rounded-2xl border border-white/15 bg-[#080b12] shadow-2xl"
+            style={{
+              left: slidesPosition.x,
+              top: slidesPosition.y,
+              width: 'min(84vw, 1200px)',
+              height: '84vh',
+              resize: 'both',
+            }}
+          >
+            <div
+              className="flex cursor-move touch-none select-none items-center gap-4 border-b border-white/10 px-5 py-4"
+              onPointerDown={startSlidesDrag}
+              onPointerMove={moveSlides}
+              onPointerUp={stopSlidesDrag}
+              onPointerCancel={stopSlidesDrag}
+            >
               <div className="min-w-0 flex-1">
-                <div className="text-xs font-bold uppercase tracking-wider text-[#00D4D4]">Course slides</div>
-                <h2 id="slides-title" className="truncate font-semibold text-white">{slidesLesson.title}</h2>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="text-xs font-bold uppercase tracking-wider text-[#00D4D4]">Course slides</div>
+                  <a
+                    data-no-drag
+                    href={slidesDownloadUrl(slidesLesson.slidesUrl)}
+                    download
+                    className="rounded-lg border border-[#00D4D4] bg-black px-3 py-1.5 text-xs font-bold text-[#00D4D4] transition-colors hover:bg-[#0a1719]"
+                  >
+                    ↓ Download
+                  </a>
+                </div>
+                <h2 id="slides-title" className="mt-1 truncate font-semibold text-white">{slidesLesson.title}</h2>
               </div>
               <button
+                data-no-drag
                 type="button"
                 onClick={() => setSlidesLesson(null)}
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 text-xl text-white/70 hover:bg-white/10 hover:text-white"
@@ -301,12 +363,21 @@ export function SequentialCourse({
                 ×
               </button>
             </div>
-            <iframe
-              src={slidesPreviewUrl(slidesLesson.slidesUrl)}
-              title={`Slides for ${slidesLesson.title}`}
-              className="min-h-0 flex-1 bg-white"
-              allow="autoplay"
-            />
+            <div className="relative min-h-0 flex-1 bg-[#202124]">
+              <iframe
+                src={slidesPreviewUrl(slidesLesson.slidesUrl)}
+                title={`Slides for ${slidesLesson.title}`}
+                className="h-full w-full bg-white"
+                allow="autoplay"
+              />
+              <div
+                className="absolute right-0 top-0 h-24 w-20 bg-[#202124]"
+                aria-hidden="true"
+              />
+            </div>
+            <div className="border-t border-white/10 px-4 py-2 text-right text-[11px] text-white/35">
+              Drag the header to move · resize from the lower-right corner
+            </div>
           </div>
         </div>
       )}
