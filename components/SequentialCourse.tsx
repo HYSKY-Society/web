@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
-import type { CertificationLesson } from '@/lib/h2-certification-course'
-import { completeCertificationLesson } from '@/app/(members)/courses/h2-aircraft-certification/content/actions'
+import type { CourseLesson } from '@/lib/course-lesson'
+import { completeCourseLesson } from '@/app/(members)/courses/actions'
 
 type YouTubePlayer = { destroy: () => void }
 type YouTubePlayerEvent = { data: number }
@@ -54,7 +54,7 @@ function CourseVideo({
   isCompleted,
   onEnded,
 }: {
-  lesson: CertificationLesson
+  lesson: CourseLesson
   isCompleted: boolean
   onEnded: () => void
 }) {
@@ -115,15 +115,19 @@ function slidesDownloadUrl(url: string) {
 }
 
 export function SequentialCourse({
+  courseSlug,
   lessons,
   initialCompletedLessonIds,
+  guidebook,
 }: {
-  lessons: CertificationLesson[]
+  courseSlug: string
+  lessons: CourseLesson[]
   initialCompletedLessonIds: string[]
+  guidebook?: { title: string; url: string }
 }) {
   const [completed, setCompleted] = useState(() => new Set(initialCompletedLessonIds))
   const [savingLessonId, setSavingLessonId] = useState<string | null>(null)
-  const [slidesLesson, setSlidesLesson] = useState<CertificationLesson | null>(null)
+  const [slidesLesson, setSlidesLesson] = useState<{ title: string; slidesUrl: string } | null>(null)
   const [slidesPosition, setSlidesPosition] = useState({ x: 16, y: 16 })
   const dragState = useRef<{ offsetX: number; offsetY: number } | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -158,7 +162,7 @@ export function SequentialCourse({
     setError(null)
 
     try {
-      const result = await completeCertificationLesson(lessonId)
+      const result = await completeCourseLesson(courseSlug, lessonId)
       setCompleted(new Set(result.completedLessonIds))
     } catch {
       setError('We could not save your progress. Please replay the end of the video and try again.')
@@ -197,6 +201,19 @@ export function SequentialCourse({
 
   return (
     <>
+      {guidebook && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#fbbf24]/35 bg-[#fbbf24]/10 p-5">
+          <div>
+            <div className="text-xs font-bold uppercase tracking-wider text-[#fbbf24]">Course resource</div>
+            <div className="mt-1 font-semibold text-white">{guidebook.title}</div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => setSlidesLesson({ title: guidebook.title, slidesUrl: guidebook.url })} className="rounded-xl bg-[#d97706] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#b86105]">▣ View Guidebook</button>
+            <a href={slidesDownloadUrl(guidebook.url)} download className="rounded-xl border border-[#fbbf24] bg-black px-5 py-3 text-sm font-bold text-[#fbbf24] transition-colors hover:bg-[#17110a]">↓ Download</a>
+          </div>
+        </div>
+      )}
+
       <div className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-5">
         <div className="mb-2 flex items-center justify-between gap-4 text-sm">
           <span className="font-semibold">Course progress</span>
@@ -209,7 +226,7 @@ export function SequentialCourse({
           />
         </div>
         <p className="mt-3 text-xs text-white/45">
-          Finish each video to unlock the next lesson and its slides.
+          Finish each video to unlock the next lesson and any available materials.
         </p>
       </div>
 
@@ -279,13 +296,17 @@ export function SequentialCourse({
                     />
                   </div>
                   <div className="flex flex-wrap items-center justify-between gap-3 px-6 pb-5">
-                    <button
-                      type="button"
-                      onClick={() => setSlidesLesson(lesson)}
-                      className="inline-flex items-center gap-2 rounded-xl border border-[#00D4D4] bg-black px-6 py-3 text-sm font-semibold text-[#00D4D4] transition-colors hover:bg-[#0a1719]"
-                    >
-                      ▣ View Slides
-                    </button>
+                    {lesson.slidesUrl ? (
+                      <button
+                        type="button"
+                        onClick={() => setSlidesLesson({ title: lesson.title, slidesUrl: lesson.slidesUrl! })}
+                        className="inline-flex items-center gap-2 rounded-xl border border-[#00D4D4] bg-black px-6 py-3 text-sm font-semibold text-[#00D4D4] transition-colors hover:bg-[#0a1719]"
+                      >
+                        ▣ View Slides
+                      </button>
+                    ) : (
+                      <span className="text-xs text-white/35">Hands-on lesson · no slide deck</span>
+                    )}
 
                     <div className="flex flex-wrap gap-2">
                       {previousLesson && (

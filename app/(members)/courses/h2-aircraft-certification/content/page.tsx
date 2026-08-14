@@ -67,6 +67,7 @@ export default async function CourseContentPage() {
       </div>
 
       <SequentialCourse
+        courseSlug={H2_CERTIFICATION_COURSE_SLUG}
         lessons={h2CertificationLessons}
         initialCompletedLessonIds={completedLessonIds}
       />

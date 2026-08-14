@@ -1,9 +1,6 @@
-export type CertificationLesson = {
-  id: string
-  title: string
-  videoUrl: string
-  slidesUrl: string
-}
+import type { CourseLesson } from './course-lesson'
+
+export type CertificationLesson = CourseLesson
 
 export const H2_CERTIFICATION_COURSE_SLUG = 'h2-aircraft-certification'
 
