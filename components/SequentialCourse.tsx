@@ -368,7 +368,7 @@ export function SequentialCourse({
             }}
           >
             <div
-              className="flex cursor-move touch-none select-none items-center gap-4 border-b border-white/10 px-5 py-4"
+              className="relative flex cursor-move touch-none select-none items-center gap-4 border-b border-white/10 px-5 py-4 pr-16"
               onPointerDown={startSlidesDrag}
               onPointerMove={moveSlides}
               onPointerUp={stopSlidesDrag}
@@ -376,23 +376,25 @@ export function SequentialCourse({
             >
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-3">
-                  <div className="text-xs font-bold uppercase tracking-wider text-[#00D4D4]">Course slides</div>
+                  <div className="text-xs font-bold uppercase tracking-wider" style={{ color: completeColor }}>Course slides</div>
                   <a
                     data-no-drag
                     href={slidesDownloadUrl(slidesLesson.slidesUrl)}
                     download
-                    className="rounded-lg border border-[#00D4D4] bg-black px-3 py-1.5 text-xs font-bold text-[#00D4D4] transition-colors hover:bg-[#0a1719]"
+                    className="rounded-lg border bg-black px-3 py-1.5 text-xs font-bold transition-colors hover:bg-white/10"
+                    style={{ borderColor: completeColor, color: completeColor }}
                   >
                     ↓ Download
                   </a>
                 </div>
-                <h2 id="slides-title" className="mt-1 truncate font-semibold text-white">{slidesLesson.title}</h2>
+                <h2 id="slides-title" className="mt-1 truncate font-semibold" style={{ color: '#fff' }}>{slidesLesson.title}</h2>
               </div>
               <button
                 data-no-drag
                 type="button"
                 onClick={() => setSlidesLesson(null)}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 text-xl text-white/70 hover:bg-white/10 hover:text-white"
+                className="absolute right-4 top-4 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/25 bg-black/40 text-xl hover:bg-white/10"
+                style={{ color: '#fff' }}
                 aria-label="Close slides"
               >
                 ×
@@ -409,7 +411,8 @@ export function SequentialCourse({
                 <button
                   type="button"
                   onClick={() => setSlidesLesson(null)}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-black/50 text-xl text-white/75 transition-colors hover:bg-black hover:text-white"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-black/50 text-xl transition-colors hover:bg-black"
+                  style={{ color: '#fff' }}
                   aria-label="Close slides"
                 >
                   ×
