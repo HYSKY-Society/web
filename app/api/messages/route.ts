@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { directMessages, userProfiles, users } from '@/lib/schema'
-import { desc, eq, inArray, or } from 'drizzle-orm'
+import { directMessages, notifications, userProfiles, users } from '@/lib/schema'
+import { and, desc, eq, inArray, isNull, or } from 'drizzle-orm'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
+import { ensureNotificationsTable } from '@/lib/notifications'
 
 export async function GET() {
   const user = await currentUser()
@@ -15,6 +16,21 @@ export async function GET() {
   }
 
   try {
+    await ensureNotificationsTable()
+    const unreadDmNotifications = await db
+      .select({ actorId: notifications.actorId })
+      .from(notifications)
+      .where(and(
+        eq(notifications.userId, user.id),
+        eq(notifications.type, 'dm'),
+        isNull(notifications.readAt),
+      ))
+    const unreadBySender = new Map<string, number>()
+    for (const notification of unreadDmNotifications) {
+      if (!notification.actorId) continue
+      unreadBySender.set(notification.actorId, (unreadBySender.get(notification.actorId) ?? 0) + 1)
+    }
+
     const messages = await db
       .select()
       .from(directMessages)
@@ -40,10 +56,8 @@ export async function GET() {
           lastMessage: message.content,
           lastMessageAt: message.createdAt,
           lastMessageFromMe: message.fromUserId === user.id,
-          unreadCount: message.toUserId === user.id && !message.readAt ? 1 : 0,
+          unreadCount: unreadBySender.get(otherId) ?? 0,
         })
-      } else if (message.toUserId === user.id && !message.readAt) {
-        existing.unreadCount += 1
       }
     }
 
