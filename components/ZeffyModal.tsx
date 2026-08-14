@@ -1,6 +1,7 @@
 'use client'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 export interface ZeffyOption {
   label: string
@@ -27,18 +28,29 @@ export function ZeffyModal({
 }: ZeffyModalProps) {
   const [selectedIdx, setSelectedIdx] = useState(0)
 
-  if (!isOpen) return null
+  useEffect(() => {
+    if (!isOpen) return
 
-  return (
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [isOpen])
+
+  if (!isOpen || typeof document === 'undefined') return null
+
+  return createPortal(
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[1000] flex items-center justify-center p-2 sm:p-4"
       style={{ background: 'rgba(4,3,10,.88)', backdropFilter: 'blur(8px)' }}
       onClick={onClose}
     >
       <div
-        className={`section-dark relative w-full ${heroImage ? 'max-w-5xl md:flex-row' : 'max-w-lg'} rounded-2xl overflow-hidden flex flex-col`}
+        className={`section-dark relative w-full max-w-[calc(100vw-1rem)] max-h-[calc(100dvh-1rem)] sm:max-w-none sm:max-h-[calc(100dvh-2rem)] ${heroImage ? 'md:max-w-5xl md:flex-row' : 'sm:max-w-lg'} rounded-2xl overflow-hidden flex flex-col`}
         style={{
-          height: 'min(760px, 92vh)',
+          height: 'min(760px, calc(100dvh - 1rem))',
           border: '1px solid rgba(255,255,255,.12)',
           background: '#09090f',
         }}
@@ -122,6 +134,7 @@ export function ZeffyModal({
           </div>
         </section>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

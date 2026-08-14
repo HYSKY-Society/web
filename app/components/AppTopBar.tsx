@@ -2,25 +2,11 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
 import { SignInButton, SignUpButton } from '@clerk/nextjs'
 import ThemeToggle from './ThemeToggle'
 import NotificationBell from './NotificationBell'
 
-type NavItem = { href: string; label: string; authOnly?: boolean; newTab?: boolean }
-
-const ALL_NAV: NavItem[] = [
-  { href: '/feed',          label: 'Feed',          authOnly: true },
-  { href: '/members',       label: 'Members',       authOnly: true },
-  { href: '/courses',       label: 'Courses' },
-  { href: '/events',        label: 'Events' },
-  { href: 'https://news.hysky.org', label: 'News' },
-]
-
 export default function AppTopBar({ onMenuClick, isLoggedIn = true, myId }: { onMenuClick: () => void; isLoggedIn?: boolean; myId?: string }) {
-  const pathname = usePathname()
-  const NAV = ALL_NAV.filter(n => !n.authOnly || isLoggedIn)
-
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 h-[60px] flex items-center px-4 sm:px-6 border-b border-white/8"
@@ -47,26 +33,6 @@ export default function AppTopBar({ onMenuClick, isLoggedIn = true, myId }: { on
           className="h-[36px] w-auto object-contain logo-topbar"
         />
       </Link>
-
-      {/* Nav links — desktop */}
-      <nav className="hidden md:flex gap-0 flex-1 min-w-0">
-        {NAV.map((item) => {
-          const active = pathname === item.href || (item.href.length > 1 && pathname.startsWith(item.href + '/'))
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              target={item.newTab ? '_blank' : undefined}
-              rel={item.newTab ? 'noopener noreferrer' : undefined}
-              className={`px-2.5 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
-                active ? 'bg-white/10 text-white' : 'text-white/45 hover:text-white hover:bg-white/6'
-              }`}
-            >
-              {item.label}
-            </Link>
-          )
-        })}
-      </nav>
 
       {/* Right side: theme toggle + optional auth buttons */}
       <div className="flex items-center gap-1 ml-auto">
