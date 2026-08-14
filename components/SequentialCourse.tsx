@@ -109,8 +109,9 @@ function CourseVideo({
       <div ref={playerNode} className="h-full w-full" aria-label={lesson.title} />
 
       {/* YouTube does not expose controls for hiding its outbound link, so mask that area. */}
-      <div className="absolute right-0 top-0 h-14 w-40 bg-gradient-to-l from-black via-black to-transparent" aria-hidden="true" />
-      <div className="absolute bottom-0 right-0 flex h-16 w-[44%] items-center justify-end bg-gradient-to-l from-black via-black to-transparent pr-3 sm:w-72">
+      <div className="absolute right-0 top-0 h-14 w-[36%] bg-black" aria-hidden="true" />
+      <div className="absolute bottom-0 left-0 h-16 w-[16%] bg-black" aria-hidden="true" />
+      <div className="absolute bottom-0 right-0 flex h-16 w-[36%] items-center justify-end bg-black pr-3">
         <button
           type="button"
           onClick={enterFullscreen}
