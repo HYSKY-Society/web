@@ -4,6 +4,7 @@ import { getCompletedLessonIds } from '@/lib/course-progress'
 import { H2_POLICY_COURSE_SLUG, h2PolicyGuidebook, h2PolicyLessons } from '@/lib/h2-policy-course'
 import { SequentialCourse } from '@/components/SequentialCourse'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 const accent = '#2563eb'
 const accentLight = '#60a5fa'
@@ -11,7 +12,8 @@ const accentLight = '#60a5fa'
 export default async function CourseContentPage() {
   const user = await currentUser()
   const hasAccess = user ? await hasCourseAccess(user.id, H2_POLICY_COURSE_SLUG) : false
-  if (!hasAccess) return <div className="text-white max-w-2xl mx-auto text-center py-16"><div className="text-5xl mb-6">🔒</div><h1 className="text-2xl font-bold mb-3">Course Access Required</h1><p className="text-white/50 mb-8 leading-relaxed">This content is available to enrolled students. Purchase the course to access all lectures.</p><a href="https://www.zeffy.com/embed/ticketing/h2-aviation-policy-and-power" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white font-bold px-8 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-sm" style={{ backgroundColor: accent, boxShadow: `0 8px 32px ${accent}50`, color: '#fff' }}>Enroll Now →</a><div className="mt-4"><Link href="/courses/h2-aviation-policy" className="text-white/30 hover:text-white/60 text-sm transition-colors">← Back to course overview</Link></div></div>
+  if (!hasAccess) redirect('/courses/h2-aviation-policy')
+
   const completedLessonIds = await getCompletedLessonIds(user!.id, H2_POLICY_COURSE_SLUG)
   return <div className="text-white max-w-4xl">
     <Link href="/courses" className="inline-flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-8 transition-colors">← Back to Courses</Link>

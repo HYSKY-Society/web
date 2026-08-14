@@ -1,5 +1,5 @@
 import { getCourse } from '@/lib/courses'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { currentUser } from '@clerk/nextjs/server'
 import { hasCourseAccess } from '@/lib/course-access'
@@ -18,14 +18,15 @@ export default async function CoursePage({ params }: { params: { slug: string } 
 
   const user = await currentUser()
   const hasAccess = user ? await hasCourseAccess(user.id, course.slug) : false
+  const contentPath = `/courses/${course.slug}/content`
+
+  if (hasAccess) redirect(contentPath)
 
   const accent = course.accent
   const accentLight = course.accentLight
   const accentTextClass = accent.toLowerCase() === '#00d4d4' ? 'text-black' : 'text-white'
   const badgeLabel = course.badge
   const embedUrl = COURSE_EMBED_URLS[course.slug] ?? ZEFFY.membership
-  const contentPath = `/courses/${course.slug}/content`
-
   return (
     <div className="text-white max-w-4xl">
       <Link href="/courses" className="inline-flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-8 transition-colors">

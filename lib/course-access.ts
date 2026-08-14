@@ -1,7 +1,8 @@
 import { hasCourseMembership, hasEventMembership, hasIndividualCourseAccess, hasIndividualEventAccess } from './members'
 
 export async function hasCourseAccess(clerkId: string, courseSlug: string): Promise<boolean> {
-  if (await hasCourseMembership(clerkId)) return true
+  // VIP membership does not include paid courses. Each course must be granted
+  // through its own Zeffy purchase or an explicit admin course assignment.
   return hasIndividualCourseAccess(clerkId, courseSlug)
 }
 
