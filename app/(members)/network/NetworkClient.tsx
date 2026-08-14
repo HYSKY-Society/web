@@ -57,29 +57,6 @@ function Avatar({
   )
 }
 
-function relativeTime(value: string | null) {
-  if (!value) return 'No recent activity'
-  const date = new Date(value)
-  const seconds = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000))
-  if (seconds < 60) return 'Just now'
-  const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.floor(hours / 24)
-  if (days < 7) return `${days}d ago`
-  return date.toLocaleDateString([], { month: 'short', day: 'numeric' })
-}
-
-function messageTime(value: string) {
-  const date = new Date(value)
-  const today = new Date()
-  if (date.toDateString() === today.toDateString()) {
-    return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
-  }
-  return date.toLocaleDateString([], { month: 'short', day: 'numeric' })
-}
-
 export default function NetworkClient() {
   const { online, openDM } = useChatCtx()
   const [allUsers, setAllUsers] = useState<OnlineUser[]>([])
@@ -165,16 +142,8 @@ export default function NetworkClient() {
   return (
     <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(460px,.9fr)]">
       <section aria-labelledby="conversation-heading">
-        <div className="mb-4 flex items-end justify-between gap-4">
-          <div>
-            <h2 id="conversation-heading" className="text-lg font-bold text-white">Recent conversations</h2>
-            <p className="mt-1 text-xs text-white/40">Newest messages appear first.</p>
-          </div>
-          {conversations.length > 0 ? (
-            <span className="text-xs text-white/35">
-              {conversations.length} conversation{conversations.length === 1 ? '' : 's'}
-            </span>
-          ) : null}
+        <div className="mb-4">
+          <h2 id="conversation-heading" className="text-lg font-bold text-white">Recent conversations</h2>
         </div>
 
         <label className="relative mb-4 block">
@@ -219,7 +188,7 @@ export default function NetworkClient() {
                   />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-2">
-                      <span className="truncate text-sm font-bold text-white">{conversation.displayName}</span>
+                      <span className="text-sm font-bold text-white">{conversation.displayName}</span>
                       {onlineById.has(conversation.userId) ? (
                         <span className="h-2 w-2 shrink-0 rounded-full bg-green-400" title="Online now" />
                       ) : null}
@@ -228,14 +197,11 @@ export default function NetworkClient() {
                       {conversation.lastMessageFromMe ? 'You: ' : ''}{conversation.lastMessage}
                     </span>
                   </span>
-                  <span className="flex shrink-0 flex-col items-end gap-2">
-                    <span className="text-[11px] text-white/35">{messageTime(conversation.lastMessageAt)}</span>
-                    {conversation.unreadCount > 0 ? (
-                      <span className="flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#5d00f5] px-1.5 text-[10px] font-bold text-white">
-                        {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
-                      </span>
-                    ) : null}
-                  </span>
+                  {conversation.unreadCount > 0 ? (
+                    <span className="flex min-h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#5d00f5] px-1.5 text-[10px] font-bold text-white">
+                      {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
+                    </span>
+                  ) : null}
                 </button>
               ))}
             </div>
@@ -270,7 +236,7 @@ export default function NetworkClient() {
           ) : filteredMembers.length === 0 ? (
             <p className="px-5 py-10 text-center text-sm text-white/35">Try another name.</p>
           ) : (
-            <div className="grid max-h-[620px] gap-2 overflow-y-auto" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
+            <div className="grid max-h-[620px] grid-cols-1 gap-2 overflow-y-auto">
               {filteredMembers.map((member) => {
                 const liveMember = onlineById.get(member.id)
                 const name = member.displayName ?? 'Member'
@@ -291,13 +257,10 @@ export default function NetworkClient() {
                       />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-semibold text-white">{name}</span>
+                      <span className="block break-words text-sm font-semibold leading-snug text-white">{name}</span>
                       <span className="block truncate text-xs text-white/40">
                         {member.headline ?? (isOnline ? 'Online now' : 'HySky member')}
                       </span>
-                    </span>
-                    <span className={`shrink-0 text-[10px] ${isOnline ? 'font-semibold text-green-400' : 'text-white/30'}`}>
-                      {isOnline ? 'Online' : relativeTime(member.lastSeenAt)}
                     </span>
                   </button>
                 )
