@@ -23,7 +23,7 @@ export default function AppTopBar({ onMenuClick, isLoggedIn = true, myId, canOpe
         <span className="block w-5 h-0.5 bg-current rounded" />
       </button>
 
-      {/* Logo */}
+      {/* Restored original HySky wordmark. */}
       <Link href={isLoggedIn ? '/feed' : '/about'} className="shrink-0 mr-4">
         <Image
           src="/logo-white.png"
