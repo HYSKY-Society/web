@@ -38,7 +38,7 @@ export default function CoursesPage() {
                   </div>
                 )}
                 <div
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider mb-4 px-2.5 py-1 rounded-full"
+                  className="course-category-badge inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider mb-4 px-2.5 py-1 rounded-full"
                   style={{ backgroundColor: `${course.accent}25`, color: course.accentLight }}
                 >
                   {course.badge}

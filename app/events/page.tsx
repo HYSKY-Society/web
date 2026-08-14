@@ -41,7 +41,7 @@ export default function EventsPage() {
         >
           <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full blur-3xl opacity-20" style={{ backgroundColor: '#5d00f5' }} />
           <div className="relative">
-            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-5 bg-[#5d00f5]/25 text-[#9b6dff]">
+            <div className="event-category-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-5 bg-[#5d00f5]/25 text-[#9b6dff]">
               ✈️ Featured Event
             </div>
             <div className="text-white/50 text-sm mb-1">The 4th Global</div>
@@ -93,6 +93,7 @@ export default function EventsPage() {
               options={[{ label: 'VIP Membership', icon: '👥', embedUrl: ZEFFY.membership }]}
               title="Upgrade to HySky VIP"
               className="shrink-0 inline-flex items-center gap-2 text-sm font-bold px-6 py-3 rounded-xl bg-[#5d00f5] text-white hover:bg-[#7130f7] transition-colors cursor-pointer"
+              style={{ color: '#fff' }}
             />
           </div>
         </div>

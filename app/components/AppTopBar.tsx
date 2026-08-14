@@ -42,9 +42,9 @@ export default function AppTopBar({ onMenuClick, isLoggedIn = true, myId }: { on
         <Image
           src="/logo-white.png"
           alt="HySky Society"
-          height={28}
-          width={90}
-          className="object-contain logo-topbar"
+          height={36}
+          width={124}
+          className="h-[36px] w-auto object-contain logo-topbar"
         />
       </Link>
 

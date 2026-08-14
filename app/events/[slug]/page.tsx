@@ -36,7 +36,7 @@ export default function EventPage({ params }: { params: { slug: string } }) {
         >
           <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full blur-3xl opacity-15" style={{ backgroundColor: '#5d00f5' }} />
           <div className="relative">
-            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-5 bg-[#5d00f5]/25 text-[#9b6dff]">
+            <div className="event-category-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-5 bg-[#5d00f5]/25 text-[#9b6dff]">
               ✈️ Featured Event
             </div>
             {event.subtitle && <div className="text-white/50 text-sm mb-1">{event.subtitle}</div>}
