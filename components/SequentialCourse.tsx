@@ -59,21 +59,11 @@ function CourseVideo({
   onEnded: () => void
 }) {
   const playerNode = useRef<HTMLDivElement>(null)
-  const playerFrame = useRef<HTMLDivElement>(null)
-  const [isFullscreen, setIsFullscreen] = useState(false)
   const onEndedRef = useRef(onEnded)
 
   useEffect(() => {
     onEndedRef.current = onEnded
   }, [onEnded])
-
-  useEffect(() => {
-    const syncFullscreenState = () => {
-      setIsFullscreen(document.fullscreenElement === playerFrame.current)
-    }
-    document.addEventListener('fullscreenchange', syncFullscreenState)
-    return () => document.removeEventListener('fullscreenchange', syncFullscreenState)
-  }, [])
 
   useEffect(() => {
     let player: YouTubePlayer | undefined
@@ -86,13 +76,12 @@ function CourseVideo({
 
       player = new YT.Player(playerNode.current, {
         videoId,
-        host: 'https://www.youtube-nocookie.com',
+        host: 'https://www.youtube.com',
         playerVars: {
           rel: 0,
-          modestbranding: 1,
           playsinline: 1,
           iv_load_policy: 3,
-          fs: 0,
+          fs: 1,
           origin: window.location.origin,
         },
         events: {
@@ -109,31 +98,9 @@ function CourseVideo({
     }
   }, [isCompleted, lesson.videoUrl])
 
-  function toggleFullscreen() {
-    if (document.fullscreenElement === playerFrame.current) {
-      void document.exitFullscreen()
-    } else {
-      void playerFrame.current?.requestFullscreen()
-    }
-  }
-
   return (
-    <div ref={playerFrame} className="relative h-full w-full overflow-hidden bg-black">
+    <div className="h-full w-full overflow-hidden bg-black">
       <div ref={playerNode} className="h-full w-full" aria-label={lesson.title} />
-
-      {/* Keep the bottom outbound-link areas covered without obstructing playback. */}
-      <div className="absolute bottom-0 left-0 h-16 w-[16%] bg-black" aria-hidden="true" />
-      <div className="absolute bottom-0 right-0 flex h-16 w-[36%] items-center justify-end bg-black pr-3">
-        <button
-          type="button"
-          onClick={toggleFullscreen}
-          className="rounded-lg border border-white/25 bg-black px-3 py-2 text-xs font-bold text-white/85 transition-colors hover:border-white/50 hover:text-white"
-          style={{ color: '#fff' }}
-          aria-label={isFullscreen ? 'Exit full screen' : 'Watch lesson full screen'}
-        >
-          {isFullscreen ? '× Exit full screen' : '⛶ Full screen'}
-        </button>
-      </div>
     </div>
   )
 }
