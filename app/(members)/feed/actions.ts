@@ -1,9 +1,9 @@
 'use server'
 import { currentUser } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { feedPosts, feedPostLikes, feedPostReplies } from '@/lib/schema'
+import { feedPosts, feedPostLikes, feedPostReplies, userProfiles } from '@/lib/schema'
 import { createNotification, notifyNewPost, removeNotification } from '@/lib/notifications'
-import { eq, and, sql } from 'drizzle-orm'
+import { eq, and, inArray, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
 import { isAdmin } from '@/lib/admin'
@@ -23,10 +23,51 @@ export async function createPost(formData: FormData) {
   if (!content && imageUrls === '[]') return
   if (content.length > 3000) return
 
+  let requestedMentionIds: string[] = []
+  try {
+    const parsed = JSON.parse((formData.get('mentionUserIds') as string | null) ?? '[]')
+    if (Array.isArray(parsed)) {
+      requestedMentionIds = [...new Set(parsed.filter((value): value is string => typeof value === 'string'))]
+        .filter((id) => id !== user.id)
+        .slice(0, 20)
+    }
+  } catch {
+    requestedMentionIds = []
+  }
+
+  const mentionCandidates = requestedMentionIds.length
+    ? await db
+        .select({ id: userProfiles.userId, name: userProfiles.displayName })
+        .from(userProfiles)
+        .where(and(
+          inArray(userProfiles.userId, requestedMentionIds),
+          eq(userProfiles.isVisible, true),
+        ))
+    : []
+
+  const mentions = mentionCandidates.flatMap((member) =>
+    member.name && content.includes(`@${member.name}`)
+      ? [{ id: member.id, name: member.name }]
+      : []
+  )
+  const storedContent = mentions.length
+    ? `${content}\n⁣hysky-mentions:${encodeURIComponent(JSON.stringify(mentions))}`
+    : content
+
   const [post] = await db.insert(feedPosts)
-    .values({ authorId: user.id, content, imageUrls })
+    .values({ authorId: user.id, content: storedContent, imageUrls })
     .returning({ id: feedPosts.id })
-  await notifyNewPost(user.id, post.id).catch(() => {})
+
+  await Promise.all(mentions.map((member) =>
+    createNotification({
+      userId: member.id,
+      actorId: user.id,
+      type: 'mention',
+      entityId: post.id,
+      href: `/feed#post-${post.id}`,
+    }).catch(() => {})
+  ))
+  await notifyNewPost(user.id, post.id, mentions.map((member) => member.id)).catch(() => {})
   revalidatePath('/feed')
 }
 

@@ -43,31 +43,85 @@ export type PostData = {
 
 // ── Markdown renderer ────────────────────────────────────────────────────────
 
-const INLINE = /(\*\*[^*\n]+\*\*|\*[^*\n]+\*|__[^_\n]+__|https?:\/\/[^\s]+)/g
+type MentionRef = {
+  id: string
+  name: string
+}
 
-function renderLine(line: string) {
+const MENTION_METADATA = /\n\u2063hysky-mentions:([^\n]+)$/
+
+function parseMentionMetadata(text: string): { visibleText: string; mentions: MentionRef[] } {
+  const match = text.match(MENTION_METADATA)
+  if (!match) return { visibleText: text, mentions: [] }
+  try {
+    const parsed = JSON.parse(decodeURIComponent(match[1])) as unknown
+    const mentions = Array.isArray(parsed)
+      ? parsed.filter((value): value is MentionRef =>
+          !!value
+          && typeof value === 'object'
+          && typeof (value as MentionRef).id === 'string'
+          && typeof (value as MentionRef).name === 'string'
+        )
+      : []
+    const metadataIndex = match.index ?? text.length
+    return { visibleText: text.slice(0, metadataIndex), mentions }
+  } catch {
+    const metadataIndex = match.index ?? text.length
+    return { visibleText: text.slice(0, metadataIndex), mentions: [] }
+  }
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function renderLine(line: string, mentions: MentionRef[]) {
+  const mentionMap = new Map(mentions.map((mention) => [`@${mention.name}`, mention]))
+  const mentionPatterns = [...mentionMap.keys()]
+    .sort((a, b) => b.length - a.length)
+    .map(escapeRegExp)
+  const patterns = [
+    '\\*\\*[^*\\n]+\\*\\*',
+    '\\*[^*\\n]+\\*',
+    '__[^_\\n]+__',
+    'https?:\\/\\/[^\\s]+',
+    ...mentionPatterns,
+  ]
+  const inline = new RegExp(`(${patterns.join('|')})`, 'g')
   const nodes: React.ReactNode[] = []
   let last = 0
-  let m: RegExpExecArray | null
+  let match: RegExpExecArray | null
   let key = 0
-  INLINE.lastIndex = 0
-  while ((m = INLINE.exec(line)) !== null) {
-    if (m.index > last) nodes.push(line.slice(last, m.index))
-    const t = m[0]
-    if (t.startsWith('**'))
-      nodes.push(<strong key={key++} className="font-semibold text-white">{t.slice(2, -2)}</strong>)
-    else if (t.startsWith('__'))
-      nodes.push(<u key={key++}>{t.slice(2, -2)}</u>)
-    else if (t.startsWith('*'))
-      nodes.push(<em key={key++}>{t.slice(1, -1)}</em>)
-    else
+
+  while ((match = inline.exec(line)) !== null) {
+    if (match.index > last) nodes.push(line.slice(last, match.index))
+    const token = match[0]
+    const mention = mentionMap.get(token)
+    if (mention) {
       nodes.push(
-        <a key={key++} href={t} target="_blank" rel="noopener noreferrer"
+        <Link
+          key={key++}
+          href={`/members/${mention.id}`}
+          className="inline-flex rounded-md bg-[#5d00f5]/15 px-1 font-semibold text-[#8b4dff] hover:bg-[#5d00f5]/25 hover:underline"
+        >
+          {token}
+        </Link>
+      )
+    } else if (token.startsWith('**')) {
+      nodes.push(<strong key={key++} className="font-semibold text-white">{token.slice(2, -2)}</strong>)
+    } else if (token.startsWith('__')) {
+      nodes.push(<u key={key++}>{token.slice(2, -2)}</u>)
+    } else if (token.startsWith('*')) {
+      nodes.push(<em key={key++}>{token.slice(1, -1)}</em>)
+    } else {
+      nodes.push(
+        <a key={key++} href={token} target="_blank" rel="noopener noreferrer"
            className="text-[#9b6dff] hover:underline break-all">
-          {t}
+          {token}
         </a>
       )
-    last = m.index + t.length
+    }
+    last = match.index + token.length
   }
   if (last < line.length) nodes.push(line.slice(last))
   return nodes
@@ -75,12 +129,13 @@ function renderLine(line: string) {
 
 function RichContent({ text }: { text: string }) {
   if (!text) return null
+  const { visibleText, mentions } = parseMentionMetadata(text)
   return (
     <p className="text-sm text-white/85 leading-relaxed whitespace-pre-wrap">
-      {text.split('\n').map((line, i, arr) => (
+      {visibleText.split('\n').map((line, i, lines) => (
         <Fragment key={i}>
-          {renderLine(line)}
-          {i < arr.length - 1 && <br />}
+          {renderLine(line, mentions)}
+          {i < lines.length - 1 ? <br /> : null}
         </Fragment>
       ))}
     </p>

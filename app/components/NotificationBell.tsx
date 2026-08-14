@@ -8,7 +8,7 @@ import { useChatCtx } from './ChatProvider'
 type NotificationItem = {
   id: string
   actorId: string | null
-  type: 'post' | 'like' | 'reply' | 'dm'
+  type: 'post' | 'like' | 'reply' | 'mention' | 'dm'
   entityId: string | null
   href: string | null
   readAt: string | null
@@ -21,6 +21,7 @@ function notificationText(item: NotificationItem) {
   if (item.type === 'post') return `${name} posted in the community`
   if (item.type === 'like') return `${name} liked your post`
   if (item.type === 'reply') return `${name} commented on your post`
+  if (item.type === 'mention') return `${name} tagged you in a post`
   return `${name} sent you a direct message`
 }
 

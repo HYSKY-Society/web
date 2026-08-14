@@ -5,7 +5,7 @@ import {
   feedPosts, feedPostLikes, feedPostReplies,
   userProfiles, users, hyskySessions,
 } from '@/lib/schema'
-import { eq, desc, asc, inArray, and, gte } from 'drizzle-orm'
+import { eq, desc, asc, inArray, and, gte, ne } from 'drizzle-orm'
 import Link from 'next/link'
 import { events as allEvents } from '@/lib/events'
 import { courses as allCourses } from '@/lib/courses'
@@ -183,6 +183,29 @@ export default async function FeedPage() {
     getRecentBlogPosts(14, 5),
   ])
 
+  const rawMentionMembers = canUseVipCommunity
+    ? await db
+        .select({
+          id: userProfiles.userId,
+          name: userProfiles.displayName,
+          avatarUrl: userProfiles.avatarUrl,
+          headline: userProfiles.headline,
+        })
+        .from(userProfiles)
+        .where(and(
+          eq(userProfiles.isVisible, true),
+          ne(userProfiles.userId, clerkUser.id),
+        ))
+        .orderBy(asc(userProfiles.displayName))
+        .limit(1000)
+    : []
+
+  const mentionMembers = rawMentionMembers.flatMap((member) =>
+    member.name
+      ? [{ id: member.id, name: member.name, avatarUrl: member.avatarUrl, headline: member.headline }]
+      : []
+  )
+
   // Liked post IDs set
   const likedIds = new Set(myLikesRes.map((l) => l.postId))
 
@@ -303,6 +326,7 @@ export default async function FeedPage() {
           <FeedComposer
             avatarUrl={profile?.avatarUrl}
             displayName={profile?.displayName ?? clerkEmail}
+            mentionMembers={mentionMembers}
           />
         ) : (
           <div

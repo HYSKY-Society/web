@@ -284,7 +284,7 @@ export const notifications = pgTable('notifications', {
   id:        text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   userId:    text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   actorId:   text('actor_id').references(() => users.id, { onDelete: 'set null' }),
-  type:      text('type').notNull(), // post | like | reply | dm
+  type:      text('type').notNull(), // post | like | reply | mention | dm
   entityId:  text('entity_id'),
   href:      text('href'),
   readAt:    timestamp('read_at', { withTimezone: true }),

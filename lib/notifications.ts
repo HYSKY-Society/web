@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { notifications, userProfiles, users } from '@/lib/schema'
 import { pusherServer } from '@/lib/pusher'
 
-export type NotificationType = 'post' | 'like' | 'reply' | 'dm'
+export type NotificationType = 'post' | 'like' | 'reply' | 'mention' | 'dm'
 
 let notificationsTableReady: Promise<void> | null = null
 
@@ -62,9 +62,11 @@ export async function createNotification({
   }).catch(() => {})
 }
 
-export async function notifyNewPost(actorId: string, postId: string) {
+export async function notifyNewPost(actorId: string, postId: string, excludedUserIds: string[] = []) {
   await ensureNotificationsTable()
-  const recipients = await db.select({ id: users.id }).from(users).where(ne(users.id, actorId))
+  const excluded = new Set(excludedUserIds)
+  const recipients = (await db.select({ id: users.id }).from(users).where(ne(users.id, actorId)))
+    .filter((recipient) => !excluded.has(recipient.id))
   if (recipients.length) {
     await db.insert(notifications).values(recipients.map((recipient) => ({
       userId: recipient.id,
