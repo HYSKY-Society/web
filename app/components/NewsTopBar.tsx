@@ -39,6 +39,7 @@ export default function NewsTopBar({
   contacts,
   clerkName,
   clerkEmail,
+  canManageVisibility,
 }: {
   isLoggedIn: boolean
   tier?: NewsTier
@@ -47,6 +48,7 @@ export default function NewsTopBar({
   contacts: ProfileContact | null
   clerkName: string
   clerkEmail: string
+  canManageVisibility: boolean
 }) {
   const [profileOpen, setProfileOpen] = useState(false)
   const visibleTier: NewsTier | undefined = isVipMember ? 'complimentary' : tier
@@ -194,6 +196,7 @@ export default function NewsTopBar({
             clerkName={clerkName}
             clerkEmail={clerkEmail}
             canEditLinks={isVipMember}
+            canManageVisibility={canManageVisibility}
             directoryHref="https://connect.hysky.org/members"
           />
         </div>

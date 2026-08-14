@@ -4,6 +4,7 @@ import { ensureNewsUser, hasVipConnectMembership, type NewsTier } from '@/lib/ne
 import { getProfile } from '@/lib/members'
 import { getProfileContacts } from '@/lib/profile-contacts'
 import type { ProfileContact, UserProfile } from '@/lib/schema'
+import { isAdmin } from '@/lib/admin'
 
 export default async function NewsShell({ children }: { children: React.ReactNode }) {
   const { userId } = auth()
@@ -43,6 +44,7 @@ export default async function NewsShell({ children }: { children: React.ReactNod
         contacts={contacts}
         clerkName={clerkName}
         clerkEmail={clerkEmail}
+        canManageVisibility={isAdmin(clerkEmail)}
       />
       <main>{children}</main>
     </div>
