@@ -77,10 +77,20 @@ export default async function CoursePage({ params }: { params: { slug: string } 
       {/* Fees */}
       <div className="grid sm:grid-cols-2 gap-4 mb-6">
         {course.fees.map((f, i) => (
-          <div key={f.label} className={`rounded-2xl p-5 border flex items-center justify-between ${i === 0 ? 'border-white/20 bg-white/8' : 'border-white/10 bg-white/4'}`}>
-            <span className="text-white/60 text-sm">{f.label}</span>
-            <span className={`font-bold text-lg ${i === 0 ? 'text-white' : 'text-white/50'}`}>{f.price}</span>
-          </div>
+          <EnrollButton
+            key={f.label}
+            hasAccess={false}
+            courseSlug={course.slug}
+            courseTitle={course.title}
+            courseImage={course.image}
+            courseEmbedUrl={embedUrl}
+            contentPath={contentPath}
+            accent={accent}
+            variant="fee"
+            feeLabel={f.label}
+            feePrice={f.price}
+            featured={i === 0}
+          />
         ))}
       </div>
 

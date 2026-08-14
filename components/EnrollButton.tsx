@@ -13,6 +13,10 @@ interface EnrollButtonProps {
   contentPath: string
   accent: string
   size?: 'md' | 'lg'
+  variant?: 'cta' | 'fee'
+  feeLabel?: string
+  feePrice?: string
+  featured?: boolean
 }
 
 export function EnrollButton({
@@ -24,6 +28,10 @@ export function EnrollButton({
   contentPath,
   accent,
   size = 'lg',
+  variant = 'cta',
+  feeLabel,
+  feePrice,
+  featured = false,
 }: EnrollButtonProps) {
   const [open, setOpen] = useState(false)
   const router = useRouter()
@@ -84,6 +92,40 @@ export function EnrollButton({
       <Link href={contentPath} className={cls} style={{ backgroundColor: accent, boxShadow: `0 8px 32px ${accent}50` }}>
         Access Course Content →
       </Link>
+    )
+  }
+
+  if (variant === 'fee' && feeLabel && feePrice) {
+    return (
+      <>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label={`Enroll with the ${feeLabel} option`}
+          className="group w-full rounded-2xl p-5 border flex items-center justify-between gap-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          style={{
+            borderColor: `${accent}${featured ? '90' : '55'}`,
+            boxShadow: featured ? `0 8px 24px ${accent}18` : undefined,
+            outlineColor: accent,
+          }}
+        >
+          <span className="text-white/70 text-sm font-medium">{feeLabel}</span>
+          <span className="flex shrink-0 items-center gap-3">
+            <span className="font-bold text-lg text-white">{feePrice}</span>
+            <span className="text-white/45 transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true">→</span>
+          </span>
+        </button>
+        <ZeffyModal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title={courseTitle}
+          heroImage={courseImage}
+          heroAccent={accent}
+          options={[
+            { label: courseTitle, icon: '🎓', embedUrl: courseEmbedUrl },
+          ]}
+        />
+      </>
     )
   }
 
