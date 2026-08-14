@@ -1,11 +1,19 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type ChangeEvent as ReactChangeEvent, type PointerEvent as ReactPointerEvent } from 'react'
 import type { CertificationLesson } from '@/lib/h2-certification-course'
 import { completeCertificationLesson } from '@/app/(members)/courses/h2-aircraft-certification/content/actions'
 
-type YouTubePlayer = { destroy: () => void }
+type YouTubePlayer = {
+  destroy: () => void
+  playVideo: () => void
+  pauseVideo: () => void
+  getCurrentTime: () => number
+  getDuration: () => number
+  seekTo: (seconds: number, allowSeekAhead: boolean) => void
+}
 type YouTubePlayerEvent = { data: number }
+type YouTubeReadyEvent = { target: YouTubePlayer }
 type YouTubeNamespace = {
   Player: new (
     element: HTMLElement,
@@ -13,10 +21,13 @@ type YouTubeNamespace = {
       videoId: string
       host?: string
       playerVars: Record<string, number | string>
-      events: { onStateChange: (event: YouTubePlayerEvent) => void }
+      events: {
+        onReady: (event: YouTubeReadyEvent) => void
+        onStateChange: (event: YouTubePlayerEvent) => void
+      }
     },
   ) => YouTubePlayer
-  PlayerState: { ENDED: number }
+  PlayerState: { ENDED: number; PLAYING: number; PAUSED: number }
 }
 
 declare global {
@@ -60,7 +71,11 @@ function CourseVideo({
 }) {
   const playerNode = useRef<HTMLDivElement>(null)
   const playerFrame = useRef<HTMLDivElement>(null)
+  const playerRef = useRef<YouTubePlayer | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
   const onEndedRef = useRef(onEnded)
 
   useEffect(() => {
@@ -76,6 +91,19 @@ function CourseVideo({
   }, [])
 
   useEffect(() => {
+    if (!isPlaying) return
+
+    const interval = window.setInterval(() => {
+      const player = playerRef.current
+      if (!player) return
+      setCurrentTime(player.getCurrentTime() || 0)
+      setDuration(player.getDuration() || 0)
+    }, 400)
+
+    return () => window.clearInterval(interval)
+  }, [isPlaying])
+
+  useEffect(() => {
     let player: YouTubePlayer | undefined
     let cancelled = false
 
@@ -88,6 +116,8 @@ function CourseVideo({
         videoId,
         host: 'https://www.youtube-nocookie.com',
         playerVars: {
+          controls: 0,
+          disablekb: 1,
           rel: 0,
           modestbranding: 1,
           playsinline: 1,
@@ -96,7 +126,17 @@ function CourseVideo({
           origin: window.location.origin,
         },
         events: {
+          onReady: (event) => {
+            playerRef.current = event.target
+            setDuration(event.target.getDuration() || 0)
+          },
           onStateChange: (event) => {
+            setIsPlaying(event.data === YT.PlayerState.PLAYING)
+            const activePlayer = playerRef.current
+            if (activePlayer) {
+              setCurrentTime(activePlayer.getCurrentTime() || 0)
+              setDuration(activePlayer.getDuration() || 0)
+            }
             if (!isCompleted && event.data === YT.PlayerState.ENDED) onEndedRef.current()
           },
         },
@@ -105,9 +145,25 @@ function CourseVideo({
 
     return () => {
       cancelled = true
+      playerRef.current = null
       player?.destroy()
     }
   }, [isCompleted, lesson.videoUrl])
+
+  function togglePlayback() {
+    const player = playerRef.current
+    if (!player) return
+    if (isPlaying) player.pauseVideo()
+    else player.playVideo()
+  }
+
+  function seekVideo(event: ReactChangeEvent<HTMLInputElement>) {
+    const player = playerRef.current
+    if (!player || duration <= 0) return
+    const nextTime = (Number(event.target.value) / 100) * duration
+    player.seekTo(nextTime, true)
+    setCurrentTime(nextTime)
+  }
 
   function toggleFullscreen() {
     if (document.fullscreenElement === playerFrame.current) {
@@ -117,18 +173,40 @@ function CourseVideo({
     }
   }
 
+  const progress = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0
+  const progressBackground = `linear-gradient(90deg, #5d00f5 0%, #00D4D4 ${progress}%, rgba(255,255,255,.24) ${progress}%, rgba(255,255,255,.24) 100%)`
+
   return (
     <div ref={playerFrame} className="relative h-full w-full overflow-hidden bg-black">
       <div ref={playerNode} className="h-full w-full" aria-label={lesson.title} />
 
-      {/* YouTube does not expose controls for hiding its outbound link, so mask that area. */}
-      <div className="absolute right-0 top-0 h-14 w-[36%] bg-black" aria-hidden="true" />
-      <div className="absolute bottom-0 left-0 h-16 w-[16%] bg-black" aria-hidden="true" />
-      <div className="absolute bottom-0 right-0 flex h-16 w-[36%] items-center justify-end bg-black pr-3">
+      {/* Mask YouTube's channel/title treatment and provide HySky-owned controls. */}
+      <div className="absolute inset-x-0 top-0 h-16 bg-black" aria-hidden="true" />
+      <div className="absolute inset-x-0 bottom-0 flex h-16 items-center gap-3 bg-black px-4">
+        <button
+          type="button"
+          onClick={togglePlayback}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/25 bg-black text-base font-bold text-white transition-colors hover:border-[#00D4D4] hover:text-[#00D4D4]"
+          style={{ color: '#fff' }}
+          aria-label={isPlaying ? 'Pause lesson' : 'Play lesson'}
+        >
+          {isPlaying ? '❚❚' : '▶'}
+        </button>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          step="0.1"
+          value={progress}
+          onChange={seekVideo}
+          className="course-video-slider min-w-0 flex-1 cursor-pointer"
+          style={{ background: progressBackground }}
+          aria-label="Video progress"
+        />
         <button
           type="button"
           onClick={toggleFullscreen}
-          className="rounded-lg border border-white/25 bg-black px-3 py-2 text-xs font-bold text-white/85 transition-colors hover:border-white/50 hover:text-white"
+          className="shrink-0 rounded-lg border border-white/25 bg-black px-3 py-2 text-xs font-bold text-white transition-colors hover:border-[#00D4D4] hover:text-[#00D4D4]"
           style={{ color: '#fff' }}
           aria-label={isFullscreen ? 'Exit full screen' : 'Watch lesson full screen'}
         >
