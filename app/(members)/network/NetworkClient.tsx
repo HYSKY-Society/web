@@ -198,7 +198,7 @@ export default function NetworkClient() {
                     </span>
                   </span>
                   {conversation.unreadCount > 0 ? (
-                    <span className="flex min-h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#5d00f5] px-1.5 text-[10px] font-bold text-white">
+                    <span className="flex min-h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#5d00f5] px-1.5 text-[10px] font-bold text-white" style={{ color: '#fff' }}>
                       {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
                     </span>
                   ) : null}

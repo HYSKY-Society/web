@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { directMessages, userProfiles } from '@/lib/schema'
-import { and, or, eq, asc } from 'drizzle-orm'
+import { and, or, eq, asc, isNull } from 'drizzle-orm'
 import { pusherServer, dmChannelName } from '@/lib/pusher'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
 import { createNotification, markDirectMessageNotificationsRead } from '@/lib/notifications'
@@ -21,6 +21,17 @@ export async function GET(_req: NextRequest, { params }: { params: { userId: str
   const otherId = params.userId
 
   try {
+    await db
+      .update(directMessages)
+      .set({ readAt: new Date() })
+      .where(
+        and(
+          eq(directMessages.fromUserId, otherId),
+          eq(directMessages.toUserId, myId),
+          isNull(directMessages.readAt),
+        )
+      )
+
     const msgs = await db
       .select()
       .from(directMessages)

@@ -1,10 +1,11 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { directMessages, users } from '@/lib/schema'
-import { and, or, eq, asc } from 'drizzle-orm'
+import { and, or, eq, asc, isNull } from 'drizzle-orm'
 import { getProfile, getUserTier, hasVipCommunityAccess } from '@/lib/members'
 import { notFound, redirect } from 'next/navigation'
 import DMChatClient from './DMChatClient'
+import { markDirectMessageNotificationsRead } from '@/lib/notifications'
 
 export default async function DMConversationPage({ params }: { params: { userId: string } }) {
   const clerkUser = await currentUser()
@@ -22,6 +23,19 @@ export default async function DMConversationPage({ params }: { params: { userId:
 
   const otherName   = otherProfile?.displayName ?? otherUser!.email.split('@')[0]
   const otherAvatar = otherProfile?.avatarUrl   ?? null
+
+  await db
+    .update(directMessages)
+    .set({ readAt: new Date() })
+    .where(
+      and(
+        eq(directMessages.fromUserId, otherId),
+        eq(directMessages.toUserId, myId),
+        isNull(directMessages.readAt),
+      )
+    )
+
+  await markDirectMessageNotificationsRead(myId, otherId).catch(() => {})
 
   const messages = await db
     .select()
