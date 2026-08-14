@@ -305,8 +305,8 @@ Participants will gain clarity on the roles of NASA, FAA, DOE, DOT, DoD, and Con
         videoUrl: 'https://youtu.be/MfxBoAFEkjA',
       },
       {
-        title: 'Lecture 6',
-        upcoming: true,
+        title: 'Lecture 6: H2 Aviation Policy & Power',
+        videoUrl: 'https://youtu.be/5yxZ1MPhhuk',
       },
     ],
     readingMaterials: [

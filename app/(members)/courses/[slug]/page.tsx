@@ -24,7 +24,7 @@ export default async function CoursePage({ params }: { params: { slug: string } 
 
   const accent = course.accent
   const accentLight = course.accentLight
-  const accentTextClass = accent.toLowerCase() === '#00d4d4' ? 'text-black' : 'text-white'
+  const accentTextClass = accent.toLowerCase() === '#00d4d4' ? 'text-black' : 'text-[#fff]'
   const badgeLabel = course.badge
   const embedUrl = COURSE_EMBED_URLS[course.slug] ?? ZEFFY.membership
   return (
@@ -141,7 +141,7 @@ export default async function CoursePage({ params }: { params: { slug: string } 
             {course.outline.map((section, i) => (
               <div key={section.title} className="border border-white/8 rounded-xl p-5">
                 <div className="flex gap-3 mb-3">
-                  <span className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ backgroundColor: accent }}>
+                  <span className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-[#fff]" style={{ backgroundColor: accent }}>
                     {i + 1}
                   </span>
                   <h3 className="font-semibold text-sm text-white/90 leading-snug">{section.title}</h3>
@@ -170,7 +170,7 @@ export default async function CoursePage({ params }: { params: { slug: string } 
             {course.lectures.map((lecture, i) => (
               <div key={lecture.title} className="flex items-start gap-4 border border-white/8 rounded-xl p-4">
                 <span
-                  className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white mt-0.5"
+                  className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-[#fff] mt-0.5"
                   style={{ backgroundColor: lecture.upcoming ? '#ffffff15' : accent }}
                 >
                   {i + 1}

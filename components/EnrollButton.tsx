@@ -74,7 +74,7 @@ export function EnrollButton({
     }
   }, [open, hasAccess, courseSlug, contentPath, router])
 
-  const textColor = accent.toLowerCase() === '#00d4d4' ? 'text-black' : 'text-white'
+  const textColor = accent.toLowerCase() === '#00d4d4' ? 'text-black' : 'text-[#fff]'
   const cls = size === 'lg'
     ? `inline-flex items-center gap-2 ${textColor} font-bold px-10 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-base`
     : `inline-flex items-center gap-2 ${textColor} font-semibold px-6 py-3 rounded-xl transition-all hover:scale-[1.02] text-sm`

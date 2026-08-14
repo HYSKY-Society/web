@@ -266,7 +266,7 @@ export function SequentialCourse({
                       : isUnlocked
                         ? accentColor
                         : 'rgba(255,255,255,0.08)',
-                    color: isCompleted || isUnlocked ? '#000' : 'rgba(255,255,255,0.35)',
+                    color: isCompleted ? '#000' : isUnlocked ? '#fff' : 'rgba(255,255,255,0.35)',
                   }}
                 >
                   {isCompleted ? '✓' : lesson.id}
