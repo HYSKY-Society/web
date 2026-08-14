@@ -77,7 +77,7 @@ export default function AppSidebar({
   data: SidebarData; open: boolean; collapsed: boolean; onClose: () => void
 }) {
   const tierLabel = TIER_LABELS[data.tier as Tier] ?? data.tier
-  const canUseVipCommunity = hasVipCommunityAccess(data.tier) || data.isAdmin
+  const canUseVipCommunity = hasVipCommunityAccess(data.tier)
   const { openUserProfile, signOut } = useClerk()
   const initials = (data.displayName || data.email || 'M')
     .split(' ').map((part) => part[0]).slice(0, 2).join('').toUpperCase()

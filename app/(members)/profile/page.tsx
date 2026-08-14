@@ -2,6 +2,7 @@ import { currentUser } from '@clerk/nextjs/server'
 import { getProfile, getUserTier, hasVipCommunityAccess } from '@/lib/members'
 import { getProfileContacts } from '@/lib/profile-contacts'
 import ProfileForm from './ProfileForm'
+import { isAdmin } from '@/lib/admin'
 
 export default async function ProfilePage() {
   const user = await currentUser()
@@ -26,6 +27,7 @@ export default async function ProfilePage() {
         clerkName={clerkName}
         clerkEmail={clerkEmail}
         canEditLinks={hasVipCommunityAccess(tier)}
+        canManageVisibility={isAdmin(clerkEmail)}
       />
     </div>
   )

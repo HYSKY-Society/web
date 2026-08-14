@@ -7,6 +7,7 @@ export type { Tier, MemberListItem } from './tiers'
 export { TIER_LABELS, TIERS_WITH_COURSES, TIERS_WITH_EVENTS, PAID_TIERS, isPaidTier, hasVipCommunityAccess } from './tiers'
 import type { Tier, MemberListItem } from './tiers'
 import { TIERS_WITH_COURSES, TIERS_WITH_EVENTS } from './tiers'
+import { getAdminEmails } from './admin'
 
 // ── User CRUD ─────────────────────────────────────────────────────────────────
 
@@ -154,6 +155,7 @@ export async function upsertProfile(userId: string, data: ProfileData) {
 // ── Member directory ──────────────────────────────────────────────────────────
 
 export async function getAllVisibleMembers(): Promise<MemberListItem[]> {
+  const adminEmails = getAdminEmails()
   const [activeRows, registeredEmails, pendingRows] = await Promise.all([
     db
       .select({
@@ -169,7 +171,7 @@ export async function getAllVisibleMembers(): Promise<MemberListItem[]> {
       })
       .from(users)
       .leftJoin(userProfiles, eq(users.id, userProfiles.userId))
-      .where(or(isNull(userProfiles.isVisible), eq(userProfiles.isVisible, true))),
+      .where(or(notInArray(users.email, adminEmails), isNull(userProfiles.isVisible), eq(userProfiles.isVisible, true))),
     db.select({ email: users.email }).from(users),
     db.select({ email: pendingTiers.email, tier: pendingTiers.tier, name: pendingTiers.name, avatarUrl: pendingTiers.avatarUrl }).from(pendingTiers),
   ])

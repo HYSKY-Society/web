@@ -37,12 +37,13 @@ function Field({
   )
 }
 
-export default function ProfileForm({ profile, contacts, clerkName, clerkEmail, canEditLinks, directoryHref = '/members' }: {
+export default function ProfileForm({ profile, contacts, clerkName, clerkEmail, canEditLinks, canManageVisibility, directoryHref = '/members' }: {
   profile: UserProfile | null
   contacts: ProfileContact | null
   clerkName: string
   clerkEmail: string
   canEditLinks: boolean
+  canManageVisibility: boolean
   directoryHref?: string
 }) {
   const { openUserProfile } = useClerk()
@@ -241,24 +242,26 @@ export default function ProfileForm({ profile, contacts, clerkName, clerkEmail, 
         />
       )}
 
-      {/* Privacy */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-        <p className="text-xs text-white/50 uppercase tracking-wider font-semibold mb-4">Privacy</p>
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            name="isVisible"
-            value="true"
-            defaultChecked={profile?.isVisible ?? true}
-            className="w-4 h-4 accent-[#5d00f5]"
-          />
-          <div>
-            <div className="text-sm font-medium text-white">Show me in the member directory</div>
-            <div className="text-white/35 text-xs mt-0.5">If unchecked, your profile won't appear to other members.</div>
-          </div>
-        </label>
-        <input type="hidden" name="isVisible" value="false" />
-      </div>
+      {/* Directory visibility is an administrator-only setting. */}
+      {canManageVisibility && (
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
+          <p className="text-xs text-white/50 uppercase tracking-wider font-semibold mb-4">Privacy</p>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              name="isVisible"
+              value="true"
+              defaultChecked={profile?.isVisible ?? true}
+              className="w-4 h-4 accent-[#5d00f5]"
+            />
+            <div>
+              <div className="text-sm font-medium text-white">Show me in the member directory</div>
+              <div className="text-white/35 text-xs mt-0.5">Admins may hide their own profile from the directory.</div>
+            </div>
+          </label>
+          <input type="hidden" name="isVisible" value="false" />
+        </div>
+      )}
 
       <div className="flex items-center gap-4">
         <button

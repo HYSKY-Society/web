@@ -5,13 +5,13 @@ import {
   feedPosts, feedPostLikes, feedPostReplies,
   userProfiles, users, hyskySessions,
 } from '@/lib/schema'
-import { eq, desc, asc, inArray, and, gte, ne } from 'drizzle-orm'
+import { eq, desc, asc, inArray, and, gte, ne, or, notInArray } from 'drizzle-orm'
 import Link from 'next/link'
 import { events as allEvents } from '@/lib/events'
 import { courses as allCourses } from '@/lib/courses'
 import { getRecentBlogPosts, type WixPost } from '@/lib/wix'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
-import { isAdmin } from '@/lib/admin'
+import { getAdminEmails, isAdmin } from '@/lib/admin'
 import FeedComposer from './FeedComposer'
 import FeedPostCard, { type PostData, type PostAuthor, type ReplyData } from './FeedPostCard'
 
@@ -193,9 +193,13 @@ export default async function FeedPage() {
           headline: userProfiles.headline,
         })
         .from(userProfiles)
+        .innerJoin(users, eq(userProfiles.userId, users.id))
         .where(and(
-          eq(userProfiles.isVisible, true),
           ne(userProfiles.userId, clerkUser.id),
+          or(
+            notInArray(users.email, getAdminEmails()),
+            eq(userProfiles.isVisible, true),
+          ),
         ))
         .orderBy(asc(userProfiles.displayName))
         .limit(1000)

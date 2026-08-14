@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { users, userProfiles } from '@/lib/schema'
-import { desc, eq, sql } from 'drizzle-orm'
+import { getAdminEmails } from '@/lib/admin'
+import { and, desc, eq, gte, ne, notInArray, or } from 'drizzle-orm'
 
 const ONLINE_WINDOW_MS = 5 * 60 * 1000 // 5 minutes
 
@@ -51,9 +52,14 @@ async function getOnlineUsers(excludeUserId: string) {
       })
       .from(userProfiles)
       .innerJoin(users, eq(userProfiles.userId, users.id))
-      .where(
-        sql`${userProfiles.lastSeenAt} >= ${since} AND ${userProfiles.userId} != ${excludeUserId} AND ${userProfiles.isVisible} = true`
-      )
+      .where(and(
+        gte(userProfiles.lastSeenAt, since),
+        ne(userProfiles.userId, excludeUserId),
+        or(
+          notInArray(users.email, getAdminEmails()),
+          eq(userProfiles.isVisible, true),
+        ),
+      ))
     return rows
   } catch {
     return []
@@ -73,9 +79,13 @@ async function getAllUsers(excludeUserId: string) {
       })
       .from(userProfiles)
       .innerJoin(users, eq(userProfiles.userId, users.id))
-      .where(
-        sql`${userProfiles.userId} != ${excludeUserId} AND ${userProfiles.isVisible} = true`
-      )
+      .where(and(
+        ne(userProfiles.userId, excludeUserId),
+        or(
+          notInArray(users.email, getAdminEmails()),
+          eq(userProfiles.isVisible, true),
+        ),
+      ))
       .orderBy(desc(userProfiles.lastSeenAt))
     return rows
   } catch {

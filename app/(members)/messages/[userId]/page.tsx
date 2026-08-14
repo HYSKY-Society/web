@@ -4,15 +4,12 @@ import { directMessages, users } from '@/lib/schema'
 import { and, or, eq, asc } from 'drizzle-orm'
 import { getProfile, getUserTier, hasVipCommunityAccess } from '@/lib/members'
 import { notFound, redirect } from 'next/navigation'
-import { isAdmin } from '@/lib/admin'
 import DMChatClient from './DMChatClient'
 
 export default async function DMConversationPage({ params }: { params: { userId: string } }) {
   const clerkUser = await currentUser()
-  const myId = clerkUser!.id
-  const email = clerkUser!.emailAddresses.find((entry) => entry.id === clerkUser!.primaryEmailAddressId)?.emailAddress ?? ''
-  const tier = await getUserTier(myId)
-  if (!hasVipCommunityAccess(tier) && !isAdmin(email)) redirect('/messages')
+  const myId = clerkUser!.id  const tier = await getUserTier(myId)
+  if (!hasVipCommunityAccess(tier)) redirect('/messages')
 
   const otherId = params.userId
 

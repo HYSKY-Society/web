@@ -4,15 +4,13 @@ import { db } from '@/lib/db'
 import { directMessages, userProfiles, users } from '@/lib/schema'
 import { desc, eq, inArray, or } from 'drizzle-orm'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
-import { isAdmin } from '@/lib/admin'
 
 export async function GET() {
   const user = await currentUser()
   if (!user) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
 
-  const email = user.emailAddresses.find((entry) => entry.id === user.primaryEmailAddressId)?.emailAddress ?? ''
   const tier = await getUserTier(user.id)
-  if (!hasVipCommunityAccess(tier) && !isAdmin(email)) {
+  if (!hasVipCommunityAccess(tier)) {
     return NextResponse.json({ error: 'VIP membership required' }, { status: 403 })
   }
 

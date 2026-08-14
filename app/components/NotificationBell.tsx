@@ -36,7 +36,7 @@ function timeAgo(value: string) {
   return days < 7 ? `${days}d ago` : new Date(value).toLocaleDateString()
 }
 
-export default function NotificationBell({ myId }: { myId: string }) {
+export default function NotificationBell({ myId, canOpenDirectMessages }: { myId: string; canOpenDirectMessages: boolean }) {
   const [items, setItems] = useState<NotificationItem[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [open, setOpen] = useState(false)
@@ -152,7 +152,11 @@ export default function NotificationBell({ myId }: { myId: string }) {
     await markRead(item.id)
     setOpen(false)
     if (item.type === 'dm' && item.actorId) {
-      openDM(item.actorId, item.actor?.displayName ?? 'Member', item.actor?.avatarUrl ?? null)
+      if (canOpenDirectMessages) {
+        openDM(item.actorId, item.actor?.displayName ?? 'Member', item.actor?.avatarUrl ?? null)
+      } else {
+        router.push('/messages#message-previews')
+      }
       return
     }
     if (item.href) router.push(item.href)

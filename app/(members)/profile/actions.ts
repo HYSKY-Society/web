@@ -1,19 +1,23 @@
 'use server'
 
-import { auth } from '@clerk/nextjs/server'
+import { currentUser } from '@clerk/nextjs/server'
 import { getUserTier, hasVipCommunityAccess, upsertProfile } from '@/lib/members'
 import { revalidatePath } from 'next/cache'
 import { upsertProfileContacts } from '@/lib/profile-contacts'
+import { isAdmin } from '@/lib/admin'
 
 export async function saveProfile(
   _prev: { error?: string; success?: boolean },
   formData: FormData,
 ): Promise<{ error?: string; success?: boolean }> {
-  const { userId } = auth()
-  if (!userId) return { error: 'Not authenticated' }
+  const user = await currentUser()
+  if (!user) return { error: 'Not authenticated' }
+  const userId = user.id
+  const email = user.emailAddresses.find((entry) => entry.id === user.primaryEmailAddressId)?.emailAddress ?? ''
 
   const tier = await getUserTier(userId)
   const canEditLinks = hasVipCommunityAccess(tier)
+  const canManageVisibility = isAdmin(email)
 
   const str = (key: string) => {
     const v = formData.get(key)
@@ -29,7 +33,7 @@ export async function saveProfile(
     company:     str('company'),
     jobTitle:    str('jobTitle'),
     avatarUrl:   str('avatarUrl'),
-    isVisible:   bool('isVisible'),
+    isVisible:   canManageVisibility ? bool('isVisible') : true,
     ...(canEditLinks ? {
       website:     str('website'),
       linkedinUrl: str('linkedinUrl'),

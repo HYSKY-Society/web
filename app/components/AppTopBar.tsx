@@ -6,7 +6,7 @@ import { SignInButton, SignUpButton } from '@clerk/nextjs'
 import ThemeToggle from './ThemeToggle'
 import NotificationBell from './NotificationBell'
 
-export default function AppTopBar({ onMenuClick, isLoggedIn = true, myId }: { onMenuClick: () => void; isLoggedIn?: boolean; myId?: string }) {
+export default function AppTopBar({ onMenuClick, isLoggedIn = true, myId, canOpenDirectMessages = false }: { onMenuClick: () => void; isLoggedIn?: boolean; myId?: string; canOpenDirectMessages?: boolean }) {
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 h-[60px] flex items-center px-4 sm:px-6 border-b border-white/8"
@@ -36,7 +36,7 @@ export default function AppTopBar({ onMenuClick, isLoggedIn = true, myId }: { on
 
       {/* Right side: theme toggle + optional auth buttons */}
       <div className="flex items-center gap-1 ml-auto">
-        {myId && <NotificationBell myId={myId} />}
+        {myId && <NotificationBell myId={myId} canOpenDirectMessages={canOpenDirectMessages} />}
         <ThemeToggle />
         {!isLoggedIn && (
           <>
