@@ -140,7 +140,7 @@ export default function NetworkClient() {
     || member.displayName?.toLowerCase().includes(normalizedMemberQuery))
 
   return (
-    <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(460px,.9fr)]">
+    <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,.9fr)_minmax(560px,1.1fr)]">
       <section aria-labelledby="conversation-heading">
         <div className="mb-4">
           <h2 id="conversation-heading" className="text-lg font-bold text-white">Recent conversations</h2>
@@ -257,7 +257,7 @@ export default function NetworkClient() {
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block break-words text-sm font-semibold leading-snug text-white">{name}</span>
-                      <span className="block truncate text-xs text-white/40">
+                      <span className="block whitespace-normal break-words text-xs leading-relaxed text-white/40">
                         {member.headline ?? (isOnline ? 'Online now' : 'HySky member')}
                       </span>
                     </span>
