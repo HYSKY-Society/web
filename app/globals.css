@@ -114,9 +114,43 @@ body {
 /* Preserve dark styling within a section regardless of page theme (hero banners, etc.) */
 .section-dark { --color-white: 255 255 255; }
 
-/* Invert white logo to dark in light mode */
-[data-theme='light'] .logo-topbar {
-  filter: invert(1);
+/* Raised white plate keeps the HySky Connect wordmark crisp in both themes. */
+.logo-plate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, .82);
+  border-radius: 12px;
+  background: linear-gradient(145deg, #ffffff 0%, #f5f7fb 100%);
+  box-shadow:
+    0 7px 18px rgba(0, 0, 0, .38),
+    0 0 0 1px rgba(93, 0, 245, .14),
+    inset 0 1px 0 rgba(255, 255, 255, .95);
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+
+.logo-plate:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 9px 22px rgba(0, 0, 0, .44),
+    0 0 0 1px rgba(93, 0, 245, .22),
+    inset 0 1px 0 rgba(255, 255, 255, .95);
+}
+
+[data-theme='light'] .logo-plate {
+  border-color: rgba(255, 255, 255, .94);
+  box-shadow:
+    5px 5px 12px rgba(95, 105, 130, .2),
+    -4px -4px 10px rgba(255, 255, 255, .95),
+    inset 0 1px 0 #ffffff;
+}
+
+[data-theme='light'] .logo-plate:hover {
+  box-shadow:
+    6px 7px 15px rgba(95, 105, 130, .24),
+    -4px -4px 10px rgba(255, 255, 255, .98),
+    inset 0 1px 0 #ffffff;
 }
 
 @media print {
