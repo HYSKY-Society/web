@@ -41,15 +41,59 @@ export default function NotificationBell({ myId }: { myId: string }) {
   const [unreadCount, setUnreadCount] = useState(0)
   const [open, setOpen] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
+  const audioContextRef = useRef<AudioContext | null>(null)
+  const lastUnreadRef = useRef<number | null>(null)
   const router = useRouter()
   const { openDM } = useChatCtx()
+
+  const playNotificationChime = useCallback(() => {
+    const context = audioContextRef.current
+    if (!context || context.state !== 'running') return
+
+    const now = context.currentTime
+    const oscillator = context.createOscillator()
+    const gain = context.createGain()
+    oscillator.type = 'sine'
+    oscillator.frequency.setValueAtTime(660, now)
+    oscillator.frequency.exponentialRampToValueAtTime(880, now + 0.12)
+    gain.gain.setValueAtTime(0.0001, now)
+    gain.gain.exponentialRampToValueAtTime(0.035, now + 0.015)
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24)
+    oscillator.connect(gain)
+    gain.connect(context.destination)
+    oscillator.start(now)
+    oscillator.stop(now + 0.25)
+  }, [])
 
   const refresh = useCallback(async () => {
     const response = await fetch('/api/notifications', { cache: 'no-store' })
     if (!response.ok) return
     const data = await response.json() as { items: NotificationItem[]; unreadCount: number }
+    const previousUnread = lastUnreadRef.current
+    if (previousUnread !== null && data.unreadCount > previousUnread) {
+      playNotificationChime()
+    }
+    lastUnreadRef.current = data.unreadCount
     setItems(data.items)
     setUnreadCount(data.unreadCount)
+  }, [playNotificationChime])
+
+  useEffect(() => {
+    const unlockAudio = () => {
+      if (!audioContextRef.current) audioContextRef.current = new AudioContext()
+      if (audioContextRef.current.state === 'suspended') {
+        void audioContextRef.current.resume()
+      }
+      window.removeEventListener('pointerdown', unlockAudio)
+      window.removeEventListener('keydown', unlockAudio)
+    }
+
+    window.addEventListener('pointerdown', unlockAudio, { once: true })
+    window.addEventListener('keydown', unlockAudio, { once: true })
+    return () => {
+      window.removeEventListener('pointerdown', unlockAudio)
+      window.removeEventListener('keydown', unlockAudio)
+    }
   }, [])
 
   useEffect(() => {
@@ -91,8 +135,12 @@ export default function NotificationBell({ myId }: { myId: string }) {
   }, [open])
 
   const markRead = async (id: string) => {
+    const wasUnread = !items.find((item) => item.id === id)?.readAt
     setItems((current) => current.map((item) => item.id === id ? { ...item, readAt: item.readAt ?? new Date().toISOString() } : item))
-    setUnreadCount((count) => Math.max(0, count - (items.find((item) => item.id === id)?.readAt ? 0 : 1)))
+    setUnreadCount((count) => Math.max(0, count - (wasUnread ? 1 : 0)))
+    if (wasUnread && lastUnreadRef.current !== null) {
+      lastUnreadRef.current = Math.max(0, lastUnreadRef.current - 1)
+    }
     await fetch('/api/notifications', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -113,6 +161,7 @@ export default function NotificationBell({ myId }: { myId: string }) {
   const markAllRead = async () => {
     setItems((current) => current.map((item) => ({ ...item, readAt: item.readAt ?? new Date().toISOString() })))
     setUnreadCount(0)
+    lastUnreadRef.current = 0
     await fetch('/api/notifications', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
