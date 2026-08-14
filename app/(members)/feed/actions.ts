@@ -6,12 +6,10 @@ import { createNotification, notifyNewPost, removeNotification } from '@/lib/not
 import { eq, and, inArray, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
-import { isAdmin } from '@/lib/admin'
 
 async function canPublish(user: NonNullable<Awaited<ReturnType<typeof currentUser>>>): Promise<boolean> {
-  const email = user.emailAddresses.find((entry) => entry.id === user.primaryEmailAddressId)?.emailAddress ?? ''
   const tier = await getUserTier(user.id)
-  return hasVipCommunityAccess(tier) || isAdmin(email)
+  return hasVipCommunityAccess(tier)
 }
 
 export async function createPost(formData: FormData) {

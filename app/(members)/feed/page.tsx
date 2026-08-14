@@ -11,7 +11,6 @@ import { events as allEvents } from '@/lib/events'
 import { courses as allCourses } from '@/lib/courses'
 import { getRecentBlogPosts, type WixPost } from '@/lib/wix'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
-import { isAdmin } from '@/lib/admin'
 import FeedComposer from './FeedComposer'
 import FeedPostCard, { type PostData, type PostAuthor, type ReplyData } from './FeedPostCard'
 
@@ -137,7 +136,7 @@ export default async function FeedPage() {
   const now = new Date()
   const clerkEmail = clerkUser.emailAddresses.find((e) => e.id === clerkUser.primaryEmailAddressId)?.emailAddress ?? ''
   const viewerTier = await getUserTier(clerkUser.id)
-  const canUseVipCommunity = hasVipCommunityAccess(viewerTier) || isAdmin(clerkEmail)
+  const canUseVipCommunity = hasVipCommunityAccess(viewerTier)
 
   const [rawPosts, myLikesRes, myProfile, upcomingSessions, _blogPosts] = await Promise.all([
     db
