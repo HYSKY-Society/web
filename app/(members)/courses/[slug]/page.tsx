@@ -38,7 +38,7 @@ export default async function CoursePage({ params }: { params: { slug: string } 
         <div className="absolute z-0 pointer-events-none -top-24 -right-24 w-96 h-96 rounded-full blur-3xl opacity-[0.12]" style={{ backgroundColor: accent }} />
         <div className="absolute z-0 pointer-events-none -bottom-24 -left-24 w-64 h-64 rounded-full blur-3xl opacity-[0.04]" style={{ backgroundColor: accent }} />
         <div className="relative z-10">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-5" style={{ backgroundColor: `${accent}25`, color: accentLight }}>
+          <div className="course-category-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-5" style={{ backgroundColor: `${accent}25`, color: accentLight }}>
             {badgeLabel}
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold mb-4 leading-tight">{course.title}</h1>
