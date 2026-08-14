@@ -57,7 +57,7 @@ export default async function CourseContentPage() {
         <div className="relative">
           <div
             className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-4"
-            style={{ backgroundColor: `${accent}25`, color: accentLight }}
+            style={{ backgroundColor: `${accent}25`, color: '#000' }}
           >
             ✈️ Certification Course
           </div>

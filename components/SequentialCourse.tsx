@@ -119,12 +119,17 @@ export function SequentialCourse({
   lessons,
   initialCompletedLessonIds,
   guidebook,
+  theme,
 }: {
   courseSlug: string
   lessons: CourseLesson[]
   initialCompletedLessonIds: string[]
   guidebook?: { title: string; url: string }
+  theme?: { accent: string; accentHover?: string; complete?: string }
 }) {
+  const accentColor = theme?.accent ?? '#5d00f5'
+  const accentHoverColor = theme?.accentHover ?? '#7130f7'
+  const completeColor = theme?.complete ?? '#00D4D4'
   const [completed, setCompleted] = useState(() => new Set(initialCompletedLessonIds))
   const [savingLessonId, setSavingLessonId] = useState<string | null>(null)
   const [slidesLesson, setSlidesLesson] = useState<{ title: string; slidesUrl: string } | null>(null)
@@ -202,14 +207,14 @@ export function SequentialCourse({
   return (
     <>
       {guidebook && (
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#fbbf24]/35 bg-[#fbbf24]/10 p-5">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border p-5" style={{ borderColor: `${completeColor}66`, backgroundColor: `${completeColor}1a` }}>
           <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-[#fbbf24]">Course resource</div>
+            <div className="text-xs font-bold uppercase tracking-wider" style={{ color: '#000' }}>Course resource</div>
             <div className="mt-1 font-semibold text-white">{guidebook.title}</div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={() => setSlidesLesson({ title: guidebook.title, slidesUrl: guidebook.url })} className="rounded-xl bg-[#d97706] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#b86105]">▣ View Guidebook</button>
-            <a href={slidesDownloadUrl(guidebook.url)} download className="rounded-xl border border-[#fbbf24] bg-black px-5 py-3 text-sm font-bold text-[#fbbf24] transition-colors hover:bg-[#17110a]">↓ Download</a>
+            <button type="button" onClick={() => setSlidesLesson({ title: guidebook.title, slidesUrl: guidebook.url })} className="rounded-xl px-5 py-3 text-sm font-bold transition-colors" style={{ backgroundColor: accentColor, color: '#000' }}>▣ View Guidebook</button>
+            <a href={slidesDownloadUrl(guidebook.url)} download className="rounded-xl border bg-black px-5 py-3 text-sm font-bold transition-colors hover:bg-white/10" style={{ borderColor: completeColor, color: completeColor }}>↓ Download</a>
           </div>
         </div>
       )}
@@ -221,8 +226,8 @@ export function SequentialCourse({
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-white/10">
           <div
-            className="h-full rounded-full bg-[#5d00f5] transition-all duration-500"
-            style={{ width: `${(completedCount / lessons.length) * 100}%` }}
+            className="h-full rounded-full transition-all duration-500"
+            style={{ width: `${(completedCount / lessons.length) * 100}%`, backgroundColor: accentColor }}
           />
         </div>
         <p className="mt-3 text-xs text-white/45">
@@ -254,14 +259,15 @@ export function SequentialCourse({
             >
               <div className="flex items-center gap-4 p-6 pb-4">
                 <div
-                  className={`flex h-8 min-w-8 shrink-0 items-center justify-center rounded-lg px-2 text-xs font-bold ${
-                    isCompleted
-                      ? 'bg-[#00D4D4] text-black'
+                  className="flex h-8 min-w-8 shrink-0 items-center justify-center rounded-lg px-2 text-xs font-bold"
+                  style={{
+                    backgroundColor: isCompleted
+                      ? completeColor
                       : isUnlocked
-                        ? 'bg-[#5d00f5] text-white'
-                        : 'bg-white/8 text-white/35'
-                  }`}
-                  style={!isCompleted && isUnlocked ? { color: '#fff' } : undefined}
+                        ? accentColor
+                        : 'rgba(255,255,255,0.08)',
+                    color: isCompleted || isUnlocked ? '#000' : 'rgba(255,255,255,0.35)',
+                  }}
                 >
                   {isCompleted ? '✓' : lesson.id}
                 </div>
@@ -278,7 +284,8 @@ export function SequentialCourse({
                   )}
                 </div>
                 {isCompleted ? (
-                  <span className="shrink-0 rounded-full border border-black bg-[#00D4D4]/10 px-3 py-1 text-xs font-bold text-black">
+                  <span className="shrink-0 rounded-full border px-3 py-1 text-xs font-bold"
+                    style={{ borderColor: completeColor, backgroundColor: `${completeColor}22`, color: '#000' }}>
                     ✓ Complete
                   </span>
                 ) : !isUnlocked ? (
@@ -300,7 +307,8 @@ export function SequentialCourse({
                       <button
                         type="button"
                         onClick={() => setSlidesLesson({ title: lesson.title, slidesUrl: lesson.slidesUrl! })}
-                        className="inline-flex items-center gap-2 rounded-xl border border-[#00D4D4] bg-black px-6 py-3 text-sm font-semibold text-[#00D4D4] transition-colors hover:bg-[#0a1719]"
+                        className="inline-flex items-center gap-2 rounded-xl border bg-black px-6 py-3 text-sm font-semibold transition-colors hover:bg-white/10"
+                        style={{ borderColor: completeColor, color: completeColor }}
                       >
                         ▣ View Slides
                       </button>
@@ -322,8 +330,10 @@ export function SequentialCourse({
                         <button
                           type="button"
                           onClick={() => goToLesson(nextLesson.id)}
-                          className="rounded-xl bg-[#5d00f5] px-5 py-3 text-sm font-bold transition-colors hover:bg-[#7130f7]"
-                          style={{ color: '#fff' }}
+                          className="rounded-xl px-5 py-3 text-sm font-bold transition-colors"
+                          style={{ backgroundColor: accentColor, color: '#000' }}
+                          onMouseEnter={(event) => { event.currentTarget.style.backgroundColor = accentHoverColor }}
+                          onMouseLeave={(event) => { event.currentTarget.style.backgroundColor = accentColor }}
                         >
                           Next lesson →
                         </button>
