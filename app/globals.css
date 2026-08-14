@@ -81,6 +81,30 @@ body {
   background: rgba(16, 20, 32, .3);
 }
 
+/* Solid HySky purple actions keep high-contrast white labels in light mode. */
+[data-theme='light'] :is(button, a, [role='button']):is(
+  [class~="bg-[#5d00f5]"],
+  [class~="bg-[#5D00F5]"],
+  [class~="bg-purple-600"],
+  [class~="bg-purple-700"],
+  [class~="bg-violet-600"],
+  [class~="bg-violet-700"]
+) {
+  --color-white: 255 255 255;
+  color: #ffffff !important;
+}
+
+[data-theme='light'] :is(button, a, [role='button']):is(
+  [class~="bg-[#5d00f5]"],
+  [class~="bg-[#5D00F5]"],
+  [class~="bg-purple-600"],
+  [class~="bg-purple-700"],
+  [class~="bg-violet-600"],
+  [class~="bg-violet-700"]
+) * {
+  color: inherit !important;
+}
+
 /* Keep colorful category labels legible on light surfaces. */
 [data-theme='light'] .course-category-badge,
 [data-theme='light'] .event-category-badge {
