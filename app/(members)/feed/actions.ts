@@ -1,15 +1,21 @@
 'use server'
 import { currentUser } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { feedPosts, feedPostLikes, feedPostReplies, userProfiles } from '@/lib/schema'
+import { feedPosts, feedPostLikes, feedPostReplies, notifications, userProfiles } from '@/lib/schema'
 import { createNotification, notifyNewPost, removeNotification } from '@/lib/notifications'
 import { eq, and, inArray, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
+import { isAdmin } from '@/lib/admin'
 
 async function canPublish(user: NonNullable<Awaited<ReturnType<typeof currentUser>>>): Promise<boolean> {
   const tier = await getUserTier(user.id)
   return hasVipCommunityAccess(tier)
+}
+
+function canModerate(user: NonNullable<Awaited<ReturnType<typeof currentUser>>>): boolean {
+  const email = user.emailAddresses.find((entry) => entry.id === user.primaryEmailAddressId)?.emailAddress ?? ''
+  return isAdmin(email)
 }
 
 export async function createPost(formData: FormData) {
@@ -67,6 +73,63 @@ export async function createPost(formData: FormData) {
   ))
   await notifyNewPost(user.id, post.id, mentions.map((member) => member.id)).catch(() => {})
   revalidatePath('/feed')
+}
+
+export async function deletePost(postId: string): Promise<{ deleted: boolean }> {
+  const user = await currentUser()
+  if (!user || !canModerate(user)) return { deleted: false }
+
+  const [post] = await db
+    .select({ id: feedPosts.id, repostOfId: feedPosts.repostOfId })
+    .from(feedPosts)
+    .where(eq(feedPosts.id, postId))
+    .limit(1)
+  if (!post) return { deleted: false }
+
+  const reposts = await db
+    .select({ id: feedPosts.id })
+    .from(feedPosts)
+    .where(eq(feedPosts.repostOfId, postId))
+  const removedPostIds = [postId, ...reposts.map((repost) => repost.id)]
+
+  await db.delete(notifications).where(inArray(notifications.entityId, removedPostIds))
+  if (reposts.length > 0) {
+    await db.delete(feedPosts).where(inArray(feedPosts.id, reposts.map((repost) => repost.id)))
+  }
+  await db.delete(feedPosts).where(eq(feedPosts.id, postId))
+  if (post.repostOfId) {
+    await db.update(feedPosts)
+      .set({ repostCount: sql`greatest(${feedPosts.repostCount} - 1, 0)` })
+      .where(eq(feedPosts.id, post.repostOfId))
+  }
+
+  revalidatePath('/feed')
+  return { deleted: true }
+}
+
+export async function deleteReply(replyId: string): Promise<{ deleted: boolean }> {
+  const user = await currentUser()
+  if (!user || !canModerate(user)) return { deleted: false }
+
+  const [reply] = await db
+    .select({ postId: feedPostReplies.postId, authorId: feedPostReplies.authorId })
+    .from(feedPostReplies)
+    .where(eq(feedPostReplies.id, replyId))
+    .limit(1)
+  if (!reply) return { deleted: false }
+
+  await db.delete(feedPostReplies).where(eq(feedPostReplies.id, replyId))
+  await db.update(feedPosts)
+    .set({ replyCount: sql`greatest(${feedPosts.replyCount} - 1, 0)` })
+    .where(eq(feedPosts.id, reply.postId))
+  await db.delete(notifications).where(and(
+    eq(notifications.type, 'reply'),
+    eq(notifications.entityId, reply.postId),
+    eq(notifications.actorId, reply.authorId),
+  ))
+
+  revalidatePath('/feed')
+  return { deleted: true }
 }
 
 export async function toggleLike(postId: string): Promise<{ liked: boolean }> {

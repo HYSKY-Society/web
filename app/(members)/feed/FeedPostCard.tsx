@@ -2,7 +2,7 @@
 import { Fragment, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { toggleLike, createReply, repostPost } from './actions'
+import { toggleLike, createReply, repostPost, deletePost, deleteReply } from './actions'
 import { useChatCtx } from '@/app/components/ChatProvider'
 
 export type PostAuthor = {
@@ -317,9 +317,11 @@ function timeAgo(date: Date): string {
 export default function FeedPostCard({
   post,
   canUseVipCommunity,
+  canModerate,
 }: {
   post: PostData
   canUseVipCommunity: boolean
+  canModerate: boolean
 }) {
   const [liked, setLiked] = useState(post.isLiked)
   const [likeCount, setLikeCount] = useState(post.likeCount)
@@ -330,6 +332,7 @@ export default function FeedPostCard({
   const [replyPending, startReply] = useTransition()
   const [likePending, startLike] = useTransition()
   const [repostPending, startRepost] = useTransition()
+  const [deletePending, startDelete] = useTransition()
   const [copied, setCopied] = useState(false)
   const [showRepostConfirm, setShowRepostConfirm] = useState(false)
   const router = useRouter()
@@ -362,6 +365,22 @@ export default function FeedPostCard({
       setRepostCount((c) => c + 1)
       setShowRepostConfirm(false)
       router.refresh()
+    })
+  }
+
+  const handleDeletePost = () => {
+    if (!window.confirm('Delete this post and all of its comments?')) return
+    startDelete(async () => {
+      const result = await deletePost(post.id)
+      if (result.deleted) router.refresh()
+    })
+  }
+
+  const handleDeleteReply = (replyId: string) => {
+    if (!window.confirm('Delete this comment?')) return
+    startDelete(async () => {
+      const result = await deleteReply(replyId)
+      if (result.deleted) router.refresh()
     })
   }
 
@@ -400,6 +419,17 @@ export default function FeedPostCard({
           </div>
           <span className="text-xs text-white/30">{timeAgo(displayPost.createdAt)}</span>
         </div>
+        {canModerate && (
+          <button
+            type="button"
+            onClick={handleDeletePost}
+            disabled={deletePending}
+            className="shrink-0 rounded-lg px-2 py-1 text-xs font-medium text-red-400/80 transition-colors hover:bg-red-500/10 hover:text-red-300 disabled:opacity-40"
+            aria-label="Delete post"
+          >
+            Delete
+          </button>
+        )}
       </div>
 
       {/* Content + images */}
@@ -534,6 +564,17 @@ export default function FeedPostCard({
                       <RichContent text={r.content} />
                     </div>
                   </div>
+                  {canModerate && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteReply(r.id)}
+                      disabled={deletePending}
+                      className="self-start rounded-md px-2 py-1 text-[10px] font-medium text-red-400/75 transition-colors hover:bg-red-500/10 hover:text-red-300 disabled:opacity-40"
+                      aria-label="Delete comment"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
