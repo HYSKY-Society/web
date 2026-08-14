@@ -247,8 +247,8 @@ export default async function CoursePage({ params }: { params: { slug: string } 
                 </div>
                 <div>
                   <div className="font-semibold text-white text-sm">{ins.name}</div>
-                  <div className="text-xs mb-2" style={{ color: accentLight }}>{ins.role}</div>
-                  <p className="text-white/50 text-sm leading-relaxed">{ins.bio}</p>
+                  <div className="text-white/80 text-sm font-medium mb-2">{ins.role}</div>
+                  <p className="text-white/70 text-sm leading-relaxed">{ins.bio}</p>
                 </div>
               </div>
             ))}
