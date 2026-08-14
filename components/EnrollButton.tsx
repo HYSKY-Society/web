@@ -3,12 +3,12 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ZeffyModal } from './ZeffyModal'
-import { ZEFFY } from '@/lib/zeffy'
 
 interface EnrollButtonProps {
   hasAccess: boolean
   courseSlug: string
   courseTitle: string
+  courseImage?: string
   courseEmbedUrl: string
   contentPath: string
   accent: string
@@ -19,6 +19,7 @@ export function EnrollButton({
   hasAccess,
   courseSlug,
   courseTitle,
+  courseImage,
   courseEmbedUrl,
   contentPath,
   accent,
@@ -98,10 +99,11 @@ export function EnrollButton({
       <ZeffyModal
         isOpen={open}
         onClose={() => setOpen(false)}
-        title={`Get Access — ${courseTitle}`}
+        title={courseTitle}
+        heroImage={courseImage}
+        heroAccent={accent}
         options={[
-          { label: 'This Course', icon: '🎓', embedUrl: courseEmbedUrl },
-          { label: 'Membership', icon: '👥', embedUrl: ZEFFY.membership },
+          { label: courseTitle, icon: '🎓', embedUrl: courseEmbedUrl },
         ]}
       />
     </>

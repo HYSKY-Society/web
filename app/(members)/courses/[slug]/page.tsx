@@ -285,6 +285,7 @@ export default async function CoursePage({ params }: { params: { slug: string } 
               hasAccess={false}
               courseSlug={course.slug}
               courseTitle={course.title}
+              courseImage={course.image}
               courseEmbedUrl={embedUrl}
               contentPath={contentPath}
               accent={accent}
