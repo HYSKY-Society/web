@@ -11,7 +11,8 @@ type YouTubeNamespace = {
     element: HTMLElement,
     options: {
       videoId: string
-      playerVars: Record<string, number>
+      host?: string
+      playerVars: Record<string, number | string>
       events: { onStateChange: (event: YouTubePlayerEvent) => void }
     },
   ) => YouTubePlayer
@@ -75,7 +76,14 @@ function CourseVideo({
 
       player = new YT.Player(playerNode.current, {
         videoId,
-        playerVars: { rel: 0, modestbranding: 1 },
+        host: 'https://www.youtube-nocookie.com',
+        playerVars: {
+          rel: 0,
+          modestbranding: 1,
+          playsinline: 1,
+          iv_load_policy: 3,
+          origin: window.location.origin,
+        },
         events: {
           onStateChange: (event) => {
             if (!isCompleted && event.data === YT.PlayerState.ENDED) onEndedRef.current()
@@ -90,7 +98,11 @@ function CourseVideo({
     }
   }, [isCompleted, lesson.videoUrl])
 
-  return <div ref={playerNode} className="h-full w-full" />
+  return <div ref={playerNode} className="h-full w-full" aria-label={lesson.title} />
+}
+
+function slidesPreviewUrl(url: string) {
+  return url.replace(/\/view(?:\?.*)?$/, '/preview')
 }
 
 export function SequentialCourse({
@@ -102,12 +114,27 @@ export function SequentialCourse({
 }) {
   const [completed, setCompleted] = useState(() => new Set(initialCompletedLessonIds))
   const [savingLessonId, setSavingLessonId] = useState<string | null>(null)
+  const [slidesLesson, setSlidesLesson] = useState<CertificationLesson | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const completedCount = useMemo(
     () => lessons.filter((lesson) => completed.has(lesson.id)).length,
     [completed, lessons],
   )
+
+  useEffect(() => {
+    if (!slidesLesson) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSlidesLesson(null)
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [slidesLesson])
 
   async function finishLesson(lessonId: string) {
     if (completed.has(lessonId) || savingLessonId) return
@@ -122,6 +149,10 @@ export function SequentialCourse({
     } finally {
       setSavingLessonId(null)
     }
+  }
+
+  function goToLesson(lessonId: string) {
+    document.getElementById(`lesson-${lessonId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   return (
@@ -153,11 +184,14 @@ export function SequentialCourse({
           const isCompleted = completed.has(lesson.id)
           const isUnlocked = index === 0 || lessons.slice(0, index).every((item) => completed.has(item.id))
           const isSaving = savingLessonId === lesson.id
+          const nextLesson = lessons[index + 1]
+          const previousLesson = lessons[index - 1]
 
           return (
             <section
+              id={`lesson-${lesson.id}`}
               key={lesson.id}
-              className={`overflow-hidden rounded-2xl border transition-colors ${
+              className={`scroll-mt-20 overflow-hidden rounded-2xl border transition-colors ${
                 isUnlocked ? 'border-white/10 bg-white/5' : 'border-white/7 bg-white/[0.025]'
               }`}
             >
@@ -170,6 +204,7 @@ export function SequentialCourse({
                         ? 'bg-[#5d00f5] text-white'
                         : 'bg-white/8 text-white/35'
                   }`}
+                  style={!isCompleted && isUnlocked ? { color: '#fff' } : undefined}
                 >
                   {isCompleted ? '✓' : lesson.id}
                 </div>
@@ -177,15 +212,21 @@ export function SequentialCourse({
                   <h2 className={`text-sm font-semibold leading-snug ${isUnlocked ? 'text-white' : 'text-white/35'}`}>
                     {lesson.title}
                   </h2>
-                  <p className="mt-1 text-xs text-white/40">
-                    {isCompleted
-                      ? 'Completed'
-                      : isUnlocked
+                  {!isCompleted && (
+                    <p className="mt-1 text-xs text-white/40">
+                      {isUnlocked
                         ? isSaving ? 'Saving your progress…' : 'Watch to the end to complete this lesson'
                         : 'Locked — complete the previous lesson first'}
-                  </p>
+                    </p>
+                  )}
                 </div>
-                {!isUnlocked && <span aria-hidden="true" className="text-xl opacity-50">🔒</span>}
+                {isCompleted ? (
+                  <span className="shrink-0 rounded-full border border-[#00D4D4]/40 bg-[#00D4D4]/10 px-3 py-1 text-xs font-bold text-[#00D4D4]">
+                    ✓ Complete
+                  </span>
+                ) : !isUnlocked ? (
+                  <span aria-hidden="true" className="text-xl opacity-50">🔒</span>
+                ) : null}
               </div>
 
               {isUnlocked && (
@@ -197,16 +238,36 @@ export function SequentialCourse({
                       onEnded={() => void finishLesson(lesson.id)}
                     />
                   </div>
-                  <div className="px-6 pb-5">
-                    <a
-                      href={lesson.slidesUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-xl border px-6 py-3 text-sm font-semibold transition-colors hover:bg-white/8"
-                      style={{ borderColor: '#00D4D4', color: '#00D4D4' }}
+                  <div className="flex flex-wrap items-center justify-between gap-3 px-6 pb-5">
+                    <button
+                      type="button"
+                      onClick={() => setSlidesLesson(lesson)}
+                      className="inline-flex items-center gap-2 rounded-xl border border-[#00D4D4] bg-black px-6 py-3 text-sm font-semibold text-[#00D4D4] transition-colors hover:bg-[#0a1719]"
                     >
-                      ↓ Open Slides
-                    </a>
+                      ▣ View Slides
+                    </button>
+
+                    <div className="flex flex-wrap gap-2">
+                      {previousLesson && (
+                        <button
+                          type="button"
+                          onClick={() => goToLesson(previousLesson.id)}
+                          className="rounded-xl border border-white/15 px-5 py-3 text-sm font-semibold text-white/70 transition-colors hover:bg-white/8 hover:text-white"
+                        >
+                          ← Previous
+                        </button>
+                      )}
+                      {nextLesson && isCompleted && (
+                        <button
+                          type="button"
+                          onClick={() => goToLesson(nextLesson.id)}
+                          className="rounded-xl bg-[#5d00f5] px-5 py-3 text-sm font-bold transition-colors hover:bg-[#7130f7]"
+                          style={{ color: '#fff' }}
+                        >
+                          Next lesson →
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </>
               )}
@@ -214,6 +275,41 @@ export function SequentialCourse({
           )
         })}
       </div>
+
+      {slidesLesson && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 p-4 sm:p-8"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="slides-title"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setSlidesLesson(null)
+          }}
+        >
+          <div className="flex h-[88vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-white/15 bg-[#080b12] shadow-2xl">
+            <div className="flex items-center gap-4 border-b border-white/10 px-5 py-4">
+              <div className="min-w-0 flex-1">
+                <div className="text-xs font-bold uppercase tracking-wider text-[#00D4D4]">Course slides</div>
+                <h2 id="slides-title" className="truncate font-semibold text-white">{slidesLesson.title}</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSlidesLesson(null)}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 text-xl text-white/70 hover:bg-white/10 hover:text-white"
+                aria-label="Close slides"
+              >
+                ×
+              </button>
+            </div>
+            <iframe
+              src={slidesPreviewUrl(slidesLesson.slidesUrl)}
+              title={`Slides for ${slidesLesson.title}`}
+              className="min-h-0 flex-1 bg-white"
+              allow="autoplay"
+            />
+          </div>
+        </div>
+      )}
     </>
   )
 }
