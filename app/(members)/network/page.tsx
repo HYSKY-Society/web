@@ -4,7 +4,8 @@ import { redirect } from 'next/navigation'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
 
 export default async function NetworkPage() {
-  const user = await currentUser()  const tier = await getUserTier(user!.id)
+  const user = await currentUser()
+  const tier = await getUserTier(user!.id)
   if (!hasVipCommunityAccess(tier)) redirect('/messages')
 
   return (

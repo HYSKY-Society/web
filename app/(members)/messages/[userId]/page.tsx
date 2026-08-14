@@ -8,7 +8,8 @@ import DMChatClient from './DMChatClient'
 
 export default async function DMConversationPage({ params }: { params: { userId: string } }) {
   const clerkUser = await currentUser()
-  const myId = clerkUser!.id  const tier = await getUserTier(myId)
+  const myId = clerkUser!.id
+  const tier = await getUserTier(myId)
   if (!hasVipCommunityAccess(tier)) redirect('/messages')
 
   const otherId = params.userId
