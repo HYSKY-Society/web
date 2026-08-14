@@ -36,7 +36,7 @@ export function ZeffyModal({
       onClick={onClose}
     >
       <div
-        className={`relative w-full ${heroImage ? 'max-w-5xl md:flex-row' : 'max-w-lg'} rounded-2xl overflow-hidden flex flex-col`}
+        className={`section-dark relative w-full ${heroImage ? 'max-w-5xl md:flex-row' : 'max-w-lg'} rounded-2xl overflow-hidden flex flex-col`}
         style={{
           height: 'min(760px, 92vh)',
           border: '1px solid rgba(255,255,255,.12)',
