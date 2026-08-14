@@ -213,7 +213,7 @@ export function SequentialCourse({
             <div className="mt-1 font-semibold text-white">{guidebook.title}</div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={() => setSlidesLesson({ title: guidebook.title, slidesUrl: guidebook.url })} className="rounded-xl px-5 py-3 text-sm font-bold transition-colors" style={{ backgroundColor: accentColor, color: '#000' }}>▣ View Guidebook</button>
+            <button type="button" onClick={() => setSlidesLesson({ title: guidebook.title, slidesUrl: guidebook.url })} className="rounded-xl px-5 py-3 text-sm font-bold transition-colors" style={{ backgroundColor: accentColor, color: '#fff' }}>▣ View Guidebook</button>
             <a href={slidesDownloadUrl(guidebook.url)} download className="rounded-xl border bg-black px-5 py-3 text-sm font-bold transition-colors hover:bg-white/10" style={{ borderColor: completeColor, color: completeColor }}>↓ Download</a>
           </div>
         </div>
@@ -331,7 +331,7 @@ export function SequentialCourse({
                           type="button"
                           onClick={() => goToLesson(nextLesson.id)}
                           className="rounded-xl px-5 py-3 text-sm font-bold transition-colors"
-                          style={{ backgroundColor: accentColor, color: '#000' }}
+                          style={{ backgroundColor: accentColor, color: '#fff' }}
                           onMouseEnter={(event) => { event.currentTarget.style.backgroundColor = accentHoverColor }}
                           onMouseLeave={(event) => { event.currentTarget.style.backgroundColor = accentColor }}
                         >
