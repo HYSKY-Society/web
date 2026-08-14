@@ -24,18 +24,13 @@ export default function AppTopBar({ onMenuClick, isLoggedIn = true, myId, canOpe
       </button>
 
       {/* Logo */}
-      <Link
-        href={isLoggedIn ? '/feed' : '/about'}
-        className="logo-plate mr-4 shrink-0"
-        aria-label="HySky Connect home"
-      >
+      <Link href={isLoggedIn ? '/feed' : '/about'} className="shrink-0 mr-4">
         <Image
-          src="/hysky-connect-logo.png"
-          alt="HySky Connect"
-          height={30}
-          width={140}
-          priority
-          className="h-[30px] w-auto object-contain"
+          src="/logo-white.png"
+          alt="HySky Society"
+          height={36}
+          width={124}
+          className="h-[36px] w-auto object-contain logo-topbar"
         />
       </Link>
 
