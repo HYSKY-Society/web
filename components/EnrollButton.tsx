@@ -1,6 +1,7 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ZeffyModal } from './ZeffyModal'
 import { ZEFFY } from '@/lib/zeffy'
 
@@ -16,6 +17,7 @@ interface EnrollButtonProps {
 
 export function EnrollButton({
   hasAccess,
+  courseSlug,
   courseTitle,
   courseEmbedUrl,
   contentPath,
@@ -23,6 +25,53 @@ export function EnrollButton({
   size = 'lg',
 }: EnrollButtonProps) {
   const [open, setOpen] = useState(false)
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!open || hasAccess) return
+
+    let active = true
+    let checking = false
+
+    const checkAccess = async () => {
+      if (!active || checking) return
+      checking = true
+
+      try {
+        const response = await fetch(`/api/courses/${encodeURIComponent(courseSlug)}/access`, {
+          cache: 'no-store',
+        })
+        if (!response.ok) return
+
+        const result = await response.json() as { hasAccess?: boolean }
+        if (active && result.hasAccess) {
+          setOpen(false)
+          router.replace(contentPath)
+          router.refresh()
+        }
+      } catch {
+        // A temporary network failure should not interrupt checkout.
+      } finally {
+        checking = false
+      }
+    }
+
+    const checkWhenVisible = () => {
+      if (document.visibilityState === 'visible') void checkAccess()
+    }
+
+    void checkAccess()
+    const intervalId = window.setInterval(checkAccess, 1500)
+    window.addEventListener('focus', checkAccess)
+    document.addEventListener('visibilitychange', checkWhenVisible)
+
+    return () => {
+      active = false
+      window.clearInterval(intervalId)
+      window.removeEventListener('focus', checkAccess)
+      document.removeEventListener('visibilitychange', checkWhenVisible)
+    }
+  }, [open, hasAccess, courseSlug, contentPath, router])
 
   const textColor = accent.toLowerCase() === '#00d4d4' ? 'text-black' : 'text-white'
   const cls = size === 'lg'
