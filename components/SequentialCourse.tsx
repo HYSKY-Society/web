@@ -60,11 +60,20 @@ function CourseVideo({
 }) {
   const playerNode = useRef<HTMLDivElement>(null)
   const playerFrame = useRef<HTMLDivElement>(null)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const onEndedRef = useRef(onEnded)
 
   useEffect(() => {
     onEndedRef.current = onEnded
   }, [onEnded])
+
+  useEffect(() => {
+    const syncFullscreenState = () => {
+      setIsFullscreen(document.fullscreenElement === playerFrame.current)
+    }
+    document.addEventListener('fullscreenchange', syncFullscreenState)
+    return () => document.removeEventListener('fullscreenchange', syncFullscreenState)
+  }, [])
 
   useEffect(() => {
     let player: YouTubePlayer | undefined
@@ -100,8 +109,12 @@ function CourseVideo({
     }
   }, [isCompleted, lesson.videoUrl])
 
-  function enterFullscreen() {
-    void playerFrame.current?.requestFullscreen()
+  function toggleFullscreen() {
+    if (document.fullscreenElement === playerFrame.current) {
+      void document.exitFullscreen()
+    } else {
+      void playerFrame.current?.requestFullscreen()
+    }
   }
 
   return (
@@ -114,12 +127,12 @@ function CourseVideo({
       <div className="absolute bottom-0 right-0 flex h-16 w-[36%] items-center justify-end bg-black pr-3">
         <button
           type="button"
-          onClick={enterFullscreen}
+          onClick={toggleFullscreen}
           className="rounded-lg border border-white/25 bg-black px-3 py-2 text-xs font-bold text-white/85 transition-colors hover:border-white/50 hover:text-white"
           style={{ color: '#fff' }}
-          aria-label="Watch lesson full screen"
+          aria-label={isFullscreen ? 'Exit full screen' : 'Watch lesson full screen'}
         >
-          ⛶ Full screen
+          {isFullscreen ? '× Exit full screen' : '⛶ Full screen'}
         </button>
       </div>
     </div>
