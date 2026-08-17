@@ -8,22 +8,26 @@ function applyTheme(theme: Theme) {
   document.documentElement.setAttribute('data-theme', theme)
   localStorage.setItem('theme', theme)
 
+  const cookie = `hysky-theme=${theme}; Path=/; Max-Age=31536000; SameSite=Lax`
   const sharedDomain =
     window.location.hostname === 'hysky.org' ||
     window.location.hostname.endsWith('.hysky.org')
 
-  document.cookie =
-    `hysky-theme=${theme}; Path=/; Max-Age=31536000; SameSite=Lax` +
-    (sharedDomain ? '; Domain=.hysky.org; Secure' : '')
+  // Keep a host cookie and a shared HySky cookie in sync. This also replaces
+  // any older host-only value that could otherwise override a new selection.
+  document.cookie = cookie
+  if (sharedDomain) {
+    document.cookie = cookie + '; Domain=.hysky.org; Secure'
+  }
 }
 
 export default function ThemeToggle() {
-  const [isDark, setIsDark] = useState(true)
+  const [isDark, setIsDark] = useState(false)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     const currentTheme: Theme =
-      document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'
+      document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'
 
     setIsDark(currentTheme === 'dark')
     setMounted(true)

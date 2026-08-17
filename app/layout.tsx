@@ -8,21 +8,24 @@ const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] })
 const themeInitScript = `
 (function () {
   try {
+    var storedTheme = localStorage.getItem('theme')
     var cookieMatch = document.cookie.match(/(?:^|; )hysky-theme=(light|dark)(?:;|$)/)
     var cookieTheme = cookieMatch ? cookieMatch[1] : null
-    var storedTheme = localStorage.getItem('theme')
-    var theme = cookieTheme || (storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : 'dark')
+    var theme = storedTheme === 'light' || storedTheme === 'dark'
+      ? storedTheme
+      : (cookieTheme || 'light')
+    var cookie = 'hysky-theme=' + theme + '; Path=/; Max-Age=31536000; SameSite=Lax'
+    var sharedDomain = location.hostname === 'hysky.org' || location.hostname.endsWith('.hysky.org')
 
     document.documentElement.setAttribute('data-theme', theme)
     localStorage.setItem('theme', theme)
+    document.cookie = cookie
 
-    if (!cookieTheme) {
-      var sharedDomain = location.hostname === 'hysky.org' || location.hostname.endsWith('.hysky.org')
-      document.cookie = 'hysky-theme=' + theme + '; Path=/; Max-Age=31536000; SameSite=Lax' +
-        (sharedDomain ? '; Domain=.hysky.org; Secure' : '')
+    if (sharedDomain) {
+      document.cookie = cookie + '; Domain=.hysky.org; Secure'
     }
   } catch (_) {
-    // The static dark theme remains as the safe fallback when storage is unavailable.
+    // The static light theme remains as the safe fallback when storage is unavailable.
   }
 })()
 `
@@ -35,7 +38,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider appearance={{ variables: { fontFamily: spaceGrotesk.style.fontFamily } }}>
-      <html lang="en" data-theme="dark" suppressHydrationWarning>
+      <html lang="en" data-theme="light" suppressHydrationWarning>
         <head>
           {/* Apply the last saved theme before first paint to avoid a light/dark flash. */}
           <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
