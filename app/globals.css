@@ -77,6 +77,10 @@ body {
   background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(93, 0, 245, .22), transparent);
 }
 
+[data-theme='light'] .monthly-hero-badge {
+  color: #000000 !important;
+}
+
 [data-theme='light'] .monthly-page-glow {
   background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(93, 0, 245, .11), transparent);
 }
