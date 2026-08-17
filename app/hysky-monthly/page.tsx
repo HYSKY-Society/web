@@ -68,7 +68,7 @@ export default async function HyskyMonthlyPage() {
           </div>
 
           {/* Next Session Card */}
-          <div className="monthly-next-card rounded-3xl p-8 sm:p-10 mb-16 text-center">
+          <div className="monthly-next-card w-full max-w-4xl mx-auto rounded-3xl p-8 sm:p-10 mb-16 text-center">
             <p className="monthly-next-kicker text-white/40 text-sm uppercase tracking-widest mb-2">Next Session</p>
             <h2 className="text-3xl font-bold mb-1">
               {nextSession?.title ?? 'AeroDelft with Amit Weitzman'}
