@@ -79,10 +79,21 @@ export default function NewsTopBar({
       padding: '0 24px',
       gap: 12,
     }}>
-      {/* Logo → hysky.org in new tab; "News" → news listing same tab */}
+      {/* The HySky Connect wordmark returns readers to the member community. */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginRight: 'auto' }}>
-        <a href="https://hysky.org" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-          <Image src="/logo-purple.png" alt="HySky Society" height={22} width={70} style={{ objectFit: 'contain' }} />
+        <a
+          href="https://connect.hysky.org"
+          aria-label="Go to HySky Connect"
+          style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+        >
+          <Image
+            src="/hysky-connect-light.png"
+            alt="HySky Connect"
+            height={40}
+            width={190}
+            priority
+            className="h-[36px] w-[150px] object-contain object-left sm:w-[190px]"
+          />
         </a>
         <Link href="/news" style={{
           fontSize: '0.8rem', fontWeight: 700, color: '#111',
