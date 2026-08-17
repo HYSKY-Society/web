@@ -2,20 +2,46 @@
 
 import { useEffect, useState } from 'react'
 
+type Theme = 'light' | 'dark'
+
+function applyTheme(theme: Theme) {
+  document.documentElement.setAttribute('data-theme', theme)
+  localStorage.setItem('theme', theme)
+
+  const sharedDomain =
+    window.location.hostname === 'hysky.org' ||
+    window.location.hostname.endsWith('.hysky.org')
+
+  document.cookie =
+    `hysky-theme=${theme}; Path=/; Max-Age=31536000; SameSite=Lax` +
+    (sharedDomain ? '; Domain=.hysky.org; Secure' : '')
+}
+
 export default function ThemeToggle() {
   const [isDark, setIsDark] = useState(true)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    const currentTheme: Theme =
+      document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'
+
+    setIsDark(currentTheme === 'dark')
     setMounted(true)
-    setIsDark(localStorage.getItem('theme') !== 'light')
+
+    const syncThemeBetweenTabs = (event: StorageEvent) => {
+      if (event.key !== 'theme' || (event.newValue !== 'light' && event.newValue !== 'dark')) return
+      document.documentElement.setAttribute('data-theme', event.newValue)
+      setIsDark(event.newValue === 'dark')
+    }
+
+    window.addEventListener('storage', syncThemeBetweenTabs)
+    return () => window.removeEventListener('storage', syncThemeBetweenTabs)
   }, [])
 
   const toggle = () => {
-    const next = isDark ? 'light' : 'dark'
-    setIsDark(!isDark)
-    localStorage.setItem('theme', next)
-    document.documentElement.setAttribute('data-theme', next)
+    const next: Theme = isDark ? 'light' : 'dark'
+    applyTheme(next)
+    setIsDark(next === 'dark')
   }
 
   if (!mounted) return <div className="w-8 h-8 shrink-0" />
@@ -24,6 +50,7 @@ export default function ThemeToggle() {
     <button
       onClick={toggle}
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       className="flex items-center justify-center w-8 h-8 rounded-lg text-white/55 hover:text-white hover:bg-white/6 transition-colors shrink-0"
     >
       {isDark ? (
