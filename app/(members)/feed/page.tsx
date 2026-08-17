@@ -216,8 +216,8 @@ export default async function FeedPage() {
 
   // Fetch replies for displayed posts
   const postIds = rawPosts.map((p) => p.id)
-  const rawReplies = postIds.length > 0
-    ? await db
+  const rawRepliesPromise = postIds.length > 0
+    ? db
         .select({
           id:           feedPostReplies.id,
           postId:       feedPostReplies.postId,
@@ -234,7 +234,26 @@ export default async function FeedPage() {
         .leftJoin(users, eq(feedPostReplies.authorId, users.id))
         .where(inArray(feedPostReplies.postId, postIds))
         .orderBy(asc(feedPostReplies.createdAt))
-    : []
+    : Promise.resolve([])
+
+  const rawLikersPromise = postIds.length > 0
+    ? db
+        .select({
+          postId:         feedPostLikes.postId,
+          authorId:       feedPostLikes.userId,
+          authorName:     userProfiles.displayName,
+          authorAvatar:   userProfiles.avatarUrl,
+          authorHeadline: userProfiles.headline,
+          authorEmail:    users.email,
+        })
+        .from(feedPostLikes)
+        .innerJoin(users, eq(feedPostLikes.userId, users.id))
+        .leftJoin(userProfiles, eq(feedPostLikes.userId, userProfiles.userId))
+        .where(inArray(feedPostLikes.postId, postIds))
+        .orderBy(asc(userProfiles.displayName))
+    : Promise.resolve([])
+
+  const [rawReplies, rawLikers] = await Promise.all([rawRepliesPromise, rawLikersPromise])
 
   // Fetch original posts for reposts
   const repostOfIds = rawPosts.map((p) => p.repostOfId).filter(Boolean) as string[]
@@ -270,6 +289,12 @@ export default async function FeedPage() {
     })
   }
 
+  const likersByPost = new Map<string, PostAuthor[]>()
+  for (const liker of rawLikers) {
+    if (!likersByPost.has(liker.postId)) likersByPost.set(liker.postId, [])
+    likersByPost.get(liker.postId)!.push(authorFromRow(liker))
+  }
+
   function parseImageUrls(raw: string | null | undefined): string[] {
     try { return JSON.parse(raw ?? '[]') } catch { return [] }
   }
@@ -288,6 +313,7 @@ export default async function FeedPage() {
       createdAt:   p.createdAt,
       author:      authorFromRow(p),
       isLiked:     likedIds.has(p.id),
+      likers:      likersByPost.get(p.id) ?? [],
       replies:     repliesByPost.get(p.id) ?? [],
       originalPost: orig
         ? {

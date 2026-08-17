@@ -2,7 +2,7 @@
 import { Fragment, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { toggleLike, createReply, repostPost, deletePost, deleteReply } from './actions'
+import { toggleLike, createReply, deletePost, deleteReply } from './actions'
 import { useChatCtx } from '@/app/components/ChatProvider'
 
 export type PostAuthor = {
@@ -31,6 +31,7 @@ export type PostData = {
   createdAt: Date
   author: PostAuthor
   isLiked: boolean
+  likers: PostAuthor[]
   replies: ReplyData[]
   originalPost?: {
     id: string
@@ -325,16 +326,13 @@ export default function FeedPostCard({
 }) {
   const [liked, setLiked] = useState(post.isLiked)
   const [likeCount, setLikeCount] = useState(post.likeCount)
-  const [repostCount, setRepostCount] = useState(post.repostCount)
   const [showReplyForm, setShowReplyForm] = useState(false)
   const [showReplies, setShowReplies] = useState(false)
   const [replyText, setReplyText] = useState('')
   const [replyPending, startReply] = useTransition()
   const [likePending, startLike] = useTransition()
-  const [repostPending, startRepost] = useTransition()
   const [deletePending, startDelete] = useTransition()
   const [copied, setCopied] = useState(false)
-  const [showRepostConfirm, setShowRepostConfirm] = useState(false)
   const router = useRouter()
 
   const isRepost = !!post.repostOfId
@@ -347,6 +345,7 @@ export default function FeedPostCard({
       setLiked(next)
       setLikeCount((c) => next ? c + 1 : Math.max(c - 1, 0))
       await toggleLike(post.id)
+      router.refresh()
     })
   }
 
@@ -355,15 +354,6 @@ export default function FeedPostCard({
       await createReply(post.id, replyText)
       setReplyText('')
       setShowReplyForm(false)
-      router.refresh()
-    })
-  }
-
-  const handleRepost = () => {
-    startRepost(async () => {
-      await repostPost(post.id)
-      setRepostCount((c) => c + 1)
-      setShowRepostConfirm(false)
       router.refresh()
     })
   }
@@ -443,20 +433,49 @@ export default function FeedPostCard({
       <div className="flex items-center gap-1">
 
         {/* Like */}
-        <button
-          onClick={handleLike}
-          disabled={likePending}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-            liked ? 'text-[#9b6dff] bg-[#5d00f5]/15' : 'text-white/45 hover:text-white hover:bg-white/6'
-          }`}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
-            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
-            <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
-          </svg>
-          {likeCount > 0 && <span>{likeCount}</span>}
-          <span className="hidden sm:inline">Like</span>
-        </button>
+        <div className="group/likes relative">
+          <button
+            onClick={handleLike}
+            disabled={likePending}
+            aria-label={likeCount > 0 ? `${likeCount} likes. Hover to see who liked this post.` : 'Like this post'}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              liked ? 'text-[#9b6dff] bg-[#5d00f5]/15' : 'text-white/45 hover:text-white hover:bg-white/6'
+            }`}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+              <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+              <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+            </svg>
+            {likeCount > 0 && <span>{likeCount}</span>}
+            <span className="hidden sm:inline">Like</span>
+          </button>
+          {post.likers.length > 0 && (
+            <div
+              role="tooltip"
+              className="pointer-events-none absolute bottom-full left-0 z-30 mb-2 min-w-[190px] max-w-[260px] translate-y-1 rounded-xl p-3 opacity-0 shadow-2xl transition-all duration-150 group-hover/likes:translate-y-0 group-hover/likes:opacity-100 group-focus-within/likes:translate-y-0 group-focus-within/likes:opacity-100"
+              style={{ background: 'var(--bg-panel)', border: '1px solid var(--border-dim)' }}
+            >
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-white/35">
+                Liked by
+              </p>
+              <div className="space-y-1.5">
+                {post.likers.slice(0, 8).map((liker) => (
+                  <div key={liker.id} className="flex items-center gap-2">
+                    <Avatar author={liker} />
+                    <span className="truncate text-xs font-medium text-white">
+                      {authorDisplayName(liker)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              {post.likers.length > 8 && (
+                <p className="mt-2 text-xs text-white/40">
+                  +{post.likers.length - 8} more
+                </p>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Reply */}
         <button
@@ -469,42 +488,6 @@ export default function FeedPostCard({
           {post.replyCount > 0 && <span>{post.replyCount}</span>}
           <span className="hidden sm:inline">Reply</span>
         </button>
-
-        {/* Repost — publishing is a VIP community feature */}
-        {canUseVipCommunity && <div className="relative">
-          <button
-            onClick={() => setShowRepostConfirm((v) => !v)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white/45 hover:text-white hover:bg-white/6 transition-colors"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M17 1l4 4-4 4" /><path d="M3 11V9a4 4 0 014-4h14" />
-              <path d="M7 23l-4-4 4-4" /><path d="M21 13v2a4 4 0 01-4 4H3" />
-            </svg>
-            {repostCount > 0 && <span>{repostCount}</span>}
-            <span className="hidden sm:inline">Repost</span>
-          </button>
-          {showRepostConfirm && (
-            <div
-              className="absolute bottom-full left-0 mb-2 z-20 rounded-xl p-3 shadow-xl"
-              style={{ background: 'var(--bg-panel)', border: '1px solid var(--border-dim)', width: '160px' }}
-            >
-              <p className="text-xs text-white/60 mb-2">Share to your feed?</p>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setShowRepostConfirm(false)}
-                  className="flex-1 text-xs py-1 rounded-lg text-white/50 hover:text-white transition-colors"
-                  style={{ border: '1px solid var(--border-muted)' }}
-                >Cancel</button>
-                <button
-                  onClick={handleRepost}
-                  disabled={repostPending}
-                  className="flex-1 text-xs py-1 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] transition-colors"
-                  style={{ color: '#fff' }}
-                >Repost</button>
-              </div>
-            </div>
-          )}
-        </div>}
 
         {/* Share */}
         <button

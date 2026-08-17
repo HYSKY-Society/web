@@ -185,13 +185,3 @@ export async function createReply(postId: string, content: string) {
   revalidatePath('/feed')
 }
 
-export async function repostPost(originalPostId: string) {
-  const user = await currentUser()
-  if (!user || !await canPublish(user)) return
-
-  await db.insert(feedPosts).values({ authorId: user.id, content: '', repostOfId: originalPostId })
-  await db.update(feedPosts)
-    .set({ repostCount: sql`${feedPosts.repostCount} + 1` })
-    .where(eq(feedPosts.id, originalPostId))
-  revalidatePath('/feed')
-}
