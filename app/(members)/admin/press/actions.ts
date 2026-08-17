@@ -46,7 +46,7 @@ export async function addPressPost(data: {
     if (!data.coverImageUrl || !data.imageAltText) throw new Error('A cover image and descriptive alt text are required before publishing.')
     if (!data.seoDescription || data.seoDescription.length < 70) throw new Error('Add an SEO description of at least 70 characters before publishing.')
     if (!focusKeywords.length || !focusKeywords.some(keyword => headingText.includes(keyword))) throw new Error('Use at least one focus keyword in the headline or an H2 heading.')
-    if (linkCount < 2) throw new Error('Add at least two relevant internal or authoritative links before publishing.')
+    if (linkCount < 1) throw new Error('Add at least one relevant internal or authoritative link before publishing.')
   }
 
   await db.insert(pressPosts).values({
