@@ -73,6 +73,54 @@ body {
   opacity: 1;
 }
 
+.monthly-next-card {
+  background: linear-gradient(135deg, rgba(93, 0, 245, .18), rgba(4, 8, 15, .95));
+  border: 1px solid rgba(93, 0, 245, .4);
+}
+
+.monthly-primary-action {
+  color: #ffffff !important;
+  background: #5d00f5;
+  box-shadow: 0 0 30px rgba(93, 0, 245, .4);
+}
+
+.monthly-secondary-action {
+  border: 1px solid rgba(255, 255, 255, .2);
+}
+
+.monthly-secondary-action:hover {
+  background: rgba(255, 255, 255, .1);
+}
+
+[data-theme='light'] .monthly-next-card {
+  background: linear-gradient(135deg, #fbf9ff 0%, #f0eaff 58%, #e8f8fb 100%);
+  border-color: rgba(93, 0, 245, .28);
+  box-shadow: 0 18px 45px rgba(68, 44, 125, .12);
+}
+
+[data-theme='light'] .monthly-next-kicker {
+  color: #3f315e !important;
+}
+
+[data-theme='light'] .monthly-next-date {
+  color: #5d00f5 !important;
+}
+
+[data-theme='light'] .monthly-next-copy {
+  color: #211b32 !important;
+}
+
+[data-theme='light'] .monthly-secondary-action {
+  color: #211b32 !important;
+  background: rgba(255, 255, 255, .7);
+  border-color: rgba(47, 35, 75, .28);
+}
+
+[data-theme='light'] .monthly-secondary-action:hover {
+  background: #ffffff;
+  border-color: rgba(93, 0, 245, .45);
+}
+
 .news-profile-backdrop {
   background: rgba(0, 0, 0, .72);
 }
