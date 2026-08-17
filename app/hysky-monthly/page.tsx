@@ -2,26 +2,47 @@ import { db } from '@/lib/db'
 import { hyskySessions } from '@/lib/schema'
 import { eq, desc } from 'drizzle-orm'
 import { getNextHyskyMonthly, formatSessionDate } from '@/lib/hysky-monthly'
+import { getMonthlyPlaylistVideos } from '@/lib/youtube-sync'
 import PublicShell from '@/app/components/PublicShell'
 import VideoCard from '@/app/components/VideoCard'
 
 export const revalidate = 3600
 
 export default async function HyskyMonthlyPage() {
-  const sessions = await db
-    .select()
-    .from(hyskySessions)
-    .where(eq(hyskySessions.isPublished, true))
-    .orderBy(desc(hyskySessions.sessionDate))
+  const [sessions, playlistVideos] = await Promise.all([
+    db
+      .select()
+      .from(hyskySessions)
+      .where(eq(hyskySessions.isPublished, true))
+      .orderBy(desc(hyskySessions.sessionDate)),
+    getMonthlyPlaylistVideos().catch(() => []),
+  ])
 
   const now = new Date()
-  const upcoming = sessions.filter((s) => s.sessionDate > now)
-  const past = sessions.filter((s) => s.sessionDate <= now)
+  const upcoming = sessions.filter((session) => session.sessionDate > now)
+  const savedPast = sessions.filter((session) => session.sessionDate <= now)
+  const savedYoutubeUrls = new Set(
+    savedPast.map((session) => session.youtubeUrl).filter(Boolean) as string[],
+  )
+  const playlistPast = playlistVideos
+    .filter((video) => video.publishedAt <= now && !savedYoutubeUrls.has(video.youtubeUrl))
+    .map((video) => ({
+      id: `youtube-${video.videoId}`,
+      title: video.title,
+      description: video.description || null,
+      sessionDate: video.publishedAt,
+      youtubeUrl: video.youtubeUrl,
+    }))
+  const past = [...savedPast, ...playlistPast].sort(
+    (a, b) => new Date(b.sessionDate).getTime() - new Date(a.sessionDate).getTime(),
+  )
 
   const nextDate = getNextHyskyMonthly()
   const nextFormatted = formatSessionDate(nextDate)
-
   const nextSession = upcoming[0] ?? null
+  const registrationUrl =
+    nextSession?.zoomUrl ??
+    'https://us06web.zoom.us/meeting/register/tZUtd-GpqzojGdXo6wK6DVPDD55IQyYJvL1e#/registration'
 
   return (
     <PublicShell>
@@ -61,34 +82,30 @@ export default async function HyskyMonthlyPage() {
           >
             <p className="text-white/40 text-sm uppercase tracking-widest mb-2">Next Session</p>
             <h2 className="text-3xl font-bold mb-1">
-              {nextSession?.title ?? 'Coming Soon'}
+              {nextSession?.title ?? 'AeroDelft with Amit Weitzman'}
             </h2>
             <p className="text-[#9b6dff] font-semibold mb-3">{nextFormatted}</p>
-            {nextSession?.description && (
-              <p className="text-white/45 text-sm max-w-lg mx-auto mb-6 leading-relaxed">
-                {nextSession.description}
-              </p>
-            )}
+            <p className="text-white/45 text-sm max-w-lg mx-auto mb-6 leading-relaxed">
+              {nextSession?.description ??
+                'Join AeroDelft and Amit Weitzman for the next free HySky Monthly conversation.'}
+            </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              {nextSession?.zoomUrl ? (
+              <a
+                href={registrationUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl font-bold text-white transition-all hover:scale-[1.02]"
+                style={{ background: '#5d00f5', boxShadow: '0 0 30px rgba(93,0,245,.4)' }}
+              >
+                Register Free on Zoom →
+              </a>
+              {past.length > 0 && (
                 <a
-                  href={nextSession.zoomUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl font-bold text-white transition-all hover:scale-[1.02]"
-                  style={{ background: '#5d00f5', boxShadow: '0 0 30px rgba(93,0,245,.4)' }}
+                  href="#past-sessions"
+                  className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl font-bold text-white transition-all hover:bg-white/10"
+                  style={{ border: '1px solid rgba(255,255,255,.2)' }}
                 >
-                  Register on Zoom →
-                </a>
-              ) : (
-                <a
-                  href="https://www.youtube.com/@hy-sky"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl font-bold text-white transition-all hover:scale-[1.02]"
-                  style={{ background: '#FF0000' }}
-                >
-                  Watch Live on YouTube →
+                  Watch Past Sessions
                 </a>
               )}
             </div>
@@ -96,7 +113,7 @@ export default async function HyskyMonthlyPage() {
 
           {/* Past Sessions */}
           {past.length > 0 && (
-            <section>
+            <section id="past-sessions">
               <h2 className="text-2xl font-bold mb-6">Past Sessions</h2>
               <div className="grid sm:grid-cols-2 gap-6">
                 {past.map((session) => (
