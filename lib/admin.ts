@@ -1,4 +1,5 @@
 const HARDCODED_ADMINS = ['r@hy-sky.net', 'd@hy-sky.net']
+const FEED_MODERATORS = new Set(['d@hy-sky.net', 'r@hy-sky.net'])
 
 export function getAdminEmails(): string[] {
   const envAdmins = (process.env.ADMIN_EMAILS || '')
@@ -10,6 +11,10 @@ export function getAdminEmails(): string[] {
 
 export function isAdmin(email: string): boolean {
   return getAdminEmails().includes(email.toLowerCase())
+}
+
+export function isFeedModerator(email: string): boolean {
+  return FEED_MODERATORS.has(email.trim().toLowerCase())
 }
 
 export const ADMIN_NAV = [

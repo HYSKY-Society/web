@@ -6,7 +6,7 @@ import { createNotification, notifyNewPost, removeNotification } from '@/lib/not
 import { eq, and, inArray, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
-import { isAdmin } from '@/lib/admin'
+import { isFeedModerator } from '@/lib/admin'
 
 async function canPublish(user: NonNullable<Awaited<ReturnType<typeof currentUser>>>): Promise<boolean> {
   const tier = await getUserTier(user.id)
@@ -15,7 +15,7 @@ async function canPublish(user: NonNullable<Awaited<ReturnType<typeof currentUse
 
 function canModerate(user: NonNullable<Awaited<ReturnType<typeof currentUser>>>): boolean {
   const email = user.emailAddresses.find((entry) => entry.id === user.primaryEmailAddressId)?.emailAddress ?? ''
-  return isAdmin(email)
+  return isFeedModerator(email)
 }
 
 export async function createPost(formData: FormData) {
