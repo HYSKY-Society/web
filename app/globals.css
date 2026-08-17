@@ -114,9 +114,17 @@ body {
 /* Preserve dark styling within a section regardless of page theme (hero banners, etc.) */
 .section-dark { --color-white: 255 255 255; }
 
-/* Invert white logo to dark in light mode */
-[data-theme='light'] .logo-topbar {
-  filter: invert(1);
+/* Swap the full HySky Connect wordmark to match the selected theme. */
+.theme-logo-light {
+  display: none;
+}
+
+[data-theme='light'] .theme-logo-dark {
+  display: none;
+}
+
+[data-theme='light'] .theme-logo-light {
+  display: block;
 }
 
 @media print {

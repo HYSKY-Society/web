@@ -23,14 +23,27 @@ export default function AppTopBar({ onMenuClick, isLoggedIn = true, myId, canOpe
         <span className="block w-5 h-0.5 bg-current rounded" />
       </button>
 
-      {/* Restored original HySky wordmark. */}
-      <Link href={isLoggedIn ? '/feed' : '/about'} className="shrink-0 mr-4">
+      {/* Full HySky Connect wordmark with a wider responsive logo slot. */}
+      <Link
+        href={isLoggedIn ? '/feed' : '/about'}
+        className="relative mr-3 block h-[48px] w-[170px] shrink-0 sm:mr-5 sm:w-[230px]"
+        aria-label="HySky Connect home"
+      >
         <Image
-          src="/logo-white.png"
-          alt="HySky Society"
-          height={36}
-          width={124}
-          className="h-[36px] w-auto object-contain logo-topbar"
+          src="/hysky-connect-dark.png"
+          alt="HySky Connect"
+          fill
+          priority
+          sizes="(min-width: 640px) 230px, 170px"
+          className="theme-logo-dark object-contain object-left"
+        />
+        <Image
+          src="/hysky-connect-light.png"
+          alt="HySky Connect"
+          fill
+          priority
+          sizes="(min-width: 640px) 230px, 170px"
+          className="theme-logo-light object-contain object-left"
         />
       </Link>
 
