@@ -45,16 +45,16 @@ export default function AutomationControls() {
         </button>
       </div>
       <label className="mt-4 block text-xs font-medium text-white/55">
-        Optional article topic
+        Optional article topic or link
         <textarea
           value={topic}
           onChange={(event) => setTopic(event.target.value)}
           rows={3}
-          placeholder="Example: All companies with noteworthy 2026 press releases actively developing or researching hydrogen-powered aircraft"
+          placeholder="Example: All companies with noteworthy 2026 press releases actively developing or researching hydrogen-powered aircraft — or paste a specific article URL"
           className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-white/25 focus:border-[#7C3AFF] focus:outline-none"
         />
       </label>
-      <p className="mt-2 text-xs text-white/35">Leave blank for the normal daily news scan. Enter a topic for a broader editor-directed research draft.</p>
+      <p className="mt-2 text-xs text-white/35">Leave blank for the normal daily news scan. Enter a topic for a broader editor-directed research draft, or paste a link to draft from one specific article.</p>
       {message && <p className="mt-3 text-sm text-white/65" aria-live="polite">{message}</p>}
     </section>
   )
