@@ -5,6 +5,7 @@ import { eq, desc } from 'drizzle-orm'
 import Link from 'next/link'
 import AddPostForm from './AddPostForm'
 import AutomationControls from './AutomationControls'
+import DeleteButton from './DeleteButton'
 import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { ADMIN_NAV, isAdmin } from '@/lib/admin'
@@ -94,12 +95,7 @@ export default async function AdminPressPage() {
                       {post.isPublished ? 'Unpublish' : 'Publish'}
                     </button>
                   </form>
-                  <form action={deletePost.bind(null, post.id)}>
-                    <button type="submit"
-                      className="text-xs px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400/70 hover:text-red-400 transition-colors">
-                      Delete
-                    </button>
-                  </form>
+                  <DeleteButton isPublished={post.isPublished} action={deletePost.bind(null, post.id)} />
                 </div>
               </div>
             ))}
