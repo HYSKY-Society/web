@@ -410,9 +410,14 @@ export default async function FeedPage() {
                   key={ev.slug}
                   label={ev.title}
                   date={ev.date}
-                  href={`/dashboard/events/${ev.slug}`}
+                  href={`/events/${ev.slug}`}
                 />
               ))}
+              <EventPill
+                label="Advanced Sustainable Aviation Fuels & Aircraft Design"
+                date="2026-09-22"
+                href="https://aiaa.org/courses/advanced-sustainable-aviation-fuels-and-aircraft-design/"
+              />
               {upcomingSessions.map((s) => (
                 <EventPill
                   key={s.id}
