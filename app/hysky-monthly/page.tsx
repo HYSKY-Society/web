@@ -53,7 +53,7 @@ export default async function HyskyMonthlyPage() {
           {/* Hero */}
           <div className="text-center mb-16">
             <div
-              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest px-3 py-1.5 rounded-full mb-5"
+              className="monthly-hero-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest px-3 py-1.5 rounded-full mb-5"
               style={{ background: 'rgba(93,0,245,.2)', color: '#9b6dff' }}
             >
               Free Monthly Webinar
