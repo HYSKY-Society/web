@@ -73,19 +73,13 @@ export default async function HyskyMonthlyPage() {
           </div>
 
           {/* Next Session Card */}
-          <div
-            className="rounded-3xl p-8 sm:p-10 mb-16 text-center"
-            style={{
-              background: 'linear-gradient(135deg, rgba(93,0,245,.18), rgba(4,8,15,.95))',
-              border: '1px solid rgba(93,0,245,.4)',
-            }}
-          >
-            <p className="text-white/40 text-sm uppercase tracking-widest mb-2">Next Session</p>
+          <div className="monthly-next-card rounded-3xl p-8 sm:p-10 mb-16 text-center">
+            <p className="monthly-next-kicker text-white/40 text-sm uppercase tracking-widest mb-2">Next Session</p>
             <h2 className="text-3xl font-bold mb-1">
               {nextSession?.title ?? 'AeroDelft with Amit Weitzman'}
             </h2>
-            <p className="text-[#9b6dff] font-semibold mb-3">{nextFormatted}</p>
-            <p className="text-white/45 text-sm max-w-lg mx-auto mb-6 leading-relaxed">
+            <p className="monthly-next-date text-[#9b6dff] font-semibold mb-3">{nextFormatted}</p>
+            <p className="monthly-next-copy text-white/45 text-sm max-w-lg mx-auto mb-6 leading-relaxed">
               {nextSession?.description ??
                 'Join AeroDelft and Amit Weitzman for the next free HySky Monthly conversation.'}
             </p>
@@ -94,16 +88,14 @@ export default async function HyskyMonthlyPage() {
                 href={registrationUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl font-bold text-white transition-all hover:scale-[1.02]"
-                style={{ background: '#5d00f5', boxShadow: '0 0 30px rgba(93,0,245,.4)' }}
+                className="monthly-primary-action inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl font-bold text-white transition-all hover:scale-[1.02]"
               >
                 Register Free on Zoom →
               </a>
               {past.length > 0 && (
                 <a
                   href="#past-sessions"
-                  className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl font-bold text-white transition-all hover:bg-white/10"
-                  style={{ border: '1px solid rgba(255,255,255,.2)' }}
+                  className="monthly-secondary-action inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl font-bold text-white transition-all"
                 >
                   Watch Past Sessions
                 </a>
