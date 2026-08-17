@@ -339,6 +339,37 @@ export default async function FeedPage() {
   }))
 
   const upcomingEvents = allEvents.filter((e) => new Date(e.date) >= now)
+  const featuredMonthlyDate = '2026-09-21T18:00:00Z'
+  const sidebarEvents = [
+    ...upcomingEvents.map((event) => ({
+      key: `event-${event.slug}`,
+      label: event.title,
+      date: event.date,
+      href: `/events/${event.slug}`,
+    })),
+    {
+      key: 'hysky-monthly-aerodelft-2026-09-21',
+      label: 'HySky Monthly: AeroDelft — Amit Weitzman',
+      date: featuredMonthlyDate,
+      href: '/hysky-monthly',
+    },
+    {
+      key: 'aiaa-saf-course-2026-09-22',
+      label: 'Advanced Sustainable Aviation Fuels & Aircraft Design',
+      date: '2026-09-22T12:00:00Z',
+      href: 'https://aiaa.org/courses/advanced-sustainable-aviation-fuels-and-aircraft-design/',
+    },
+    ...upcomingSessions
+      .filter((session) => session.sessionDate.toISOString().slice(0, 10) !== featuredMonthlyDate.slice(0, 10))
+      .map((session) => ({
+        key: `monthly-${session.id}`,
+        label: session.title,
+        date: session.sessionDate.toISOString(),
+        href: '/hysky-monthly',
+      })),
+  ]
+    .filter((event) => new Date(event.date) >= now)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
   const profile = myProfile[0]
 
   return (
@@ -402,28 +433,15 @@ export default async function FeedPage() {
       <aside className="space-y-4 hidden xl:block">
 
         {/* Upcoming Events */}
-        {(upcomingEvents.length > 0 || upcomingSessions.length > 0) && (
+        {sidebarEvents.length > 0 && (
           <SidebarCard title="Upcoming Events">
             <div className="pb-2">
-              {upcomingEvents.map((ev) => (
+              {sidebarEvents.map((event) => (
                 <EventPill
-                  key={ev.slug}
-                  label={ev.title}
-                  date={ev.date}
-                  href={`/events/${ev.slug}`}
-                />
-              ))}
-              <EventPill
-                label="Advanced Sustainable Aviation Fuels & Aircraft Design"
-                date="2026-09-22"
-                href="https://aiaa.org/courses/advanced-sustainable-aviation-fuels-and-aircraft-design/"
-              />
-              {upcomingSessions.map((s) => (
-                <EventPill
-                  key={s.id}
-                  label={s.title}
-                  date={s.sessionDate.toISOString()}
-                  href="/hysky-monthly"
+                  key={event.key}
+                  label={event.label}
+                  date={event.date}
+                  href={event.href}
                 />
               ))}
             </div>
