@@ -47,12 +47,7 @@ export default async function HyskyMonthlyPage() {
   return (
     <PublicShell>
       <div className="relative">
-        <div
-          className="absolute inset-0 z-0 pointer-events-none"
-          style={{
-            background: `radial-gradient(ellipse 60% 50% at 50% 0%, rgba(93,0,245,.22), transparent)`,
-          }}
-        />
+        <div className="monthly-page-glow absolute inset-0 z-0 pointer-events-none" />
 
         <main className="relative z-10 max-w-5xl mx-auto px-6 pb-20 pt-8">
           {/* Hero */}
