@@ -21,7 +21,7 @@ function decodeXml(s: string): string {
     .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&apos;/g, "'")
 }
 
-interface VideoEntry {
+export interface VideoEntry {
   videoId:     string
   title:       string
   description: string
@@ -50,6 +50,11 @@ function parseRss(xml: string): VideoEntry[] {
     })
   }
   return entries
+}
+
+export async function getMonthlyPlaylistVideos(): Promise<VideoEntry[]> {
+  const xml = await httpsGet(`https://www.youtube.com/feeds/videos.xml?playlist_id=${MONTHLY_PLAYLIST}`)
+  return parseRss(xml)
 }
 
 export async function syncMonthlyPlaylist(): Promise<{ inserted: number; total: number }> {
