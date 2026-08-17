@@ -47,11 +47,11 @@ export default async function HyskyMonthlyPage() {
   return (
     <PublicShell>
       <div className="relative">
-        <div className="monthly-page-glow absolute inset-0 z-0 pointer-events-none" />
+        <div className="monthly-page-glow absolute top-0 left-1/2 z-0 h-[30rem] w-full max-w-4xl -translate-x-1/2 pointer-events-none" />
 
         <main className="relative z-10 max-w-5xl mx-auto px-6 pb-20 pt-8">
           {/* Hero */}
-          <div className="text-center mb-16">
+          <div className="relative z-10 max-w-4xl mx-auto text-center mb-16">
             <div
               className="monthly-hero-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest px-3 py-1.5 rounded-full mb-5"
               style={{ background: 'rgba(93,0,245,.2)', color: '#9b6dff' }}
@@ -68,7 +68,7 @@ export default async function HyskyMonthlyPage() {
           </div>
 
           {/* Next Session Card */}
-          <div className="monthly-next-card w-full max-w-4xl mx-auto rounded-3xl p-8 sm:p-10 mb-16 text-center">
+          <div className="monthly-next-card rounded-3xl p-8 sm:p-10 mb-16 text-center">
             <p className="monthly-next-kicker text-white/40 text-sm uppercase tracking-widest mb-2">Next Session</p>
             <h2 className="text-3xl font-bold mb-1">
               {nextSession?.title ?? 'AeroDelft with Amit Weitzman'}
