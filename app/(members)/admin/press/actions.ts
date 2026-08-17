@@ -5,11 +5,13 @@ import { db } from '@/lib/db'
 import { pressPosts } from '@/lib/schema'
 import { currentUser } from '@clerk/nextjs/server'
 import { isAdmin } from '@/lib/admin'
+import { postFeedTeaser } from '@/lib/feed-teaser'
 
 async function requireAdmin() {
   const user = await currentUser()
   const email = user?.emailAddresses.find(e => e.id === user.primaryEmailAddressId)?.emailAddress ?? ''
   if (!user || !isAdmin(email)) throw new Error('Forbidden')
+  return user
 }
 
 export async function addPressPost(data: {
@@ -28,7 +30,7 @@ export async function addPressPost(data: {
   readTimeMinutes: number | null
   isPublished: boolean
 }) {
-  await requireAdmin()
+  const admin = await requireAdmin()
   const normalized = {
     ...data,
     title: data.title.replace(/\bHYSKY\b/g, 'HySky'),
@@ -65,6 +67,9 @@ export async function addPressPost(data: {
     readTimeMinutes: data.readTimeMinutes,
     isPublished: data.isPublished,
   })
+  if (data.isPublished) {
+    await postFeedTeaser(admin.id, { title: normalized.title, slug: data.slug, coverImageUrl: data.coverImageUrl })
+  }
   revalidatePath('/news')
   revalidatePath('/admin/press')
 }

@@ -7,12 +7,14 @@ import { db } from '@/lib/db'
 import { pressPosts } from '@/lib/schema'
 import { isAdmin } from '@/lib/admin'
 import { cleanSlug, normalizeHySky } from '@/lib/news-automation'
+import { postFeedTeaser } from '@/lib/feed-teaser'
 import EditPostForm from './EditPostForm'
 
 async function requireAdmin() {
   const user = await currentUser()
   const email = user?.emailAddresses.find(e => e.id === user.primaryEmailAddressId)?.emailAddress ?? ''
   if (!user || !isAdmin(email)) redirect('/not-authorized')
+  return user
 }
 
 export default async function EditPressPostPage({ params }: { params: { id: string } }) {
@@ -22,7 +24,7 @@ export default async function EditPressPostPage({ params }: { params: { id: stri
 
   async function save(formData: FormData): Promise<{ error?: string }> {
     'use server'
-    await requireAdmin()
+    const admin = await requireAdmin()
     const title = normalizeHySky(String(formData.get('title') || '').trim())
     const content = normalizeHySky(String(formData.get('content') || '').trim())
     const excerpt = normalizeHySky(String(formData.get('excerpt') || '').trim())
@@ -48,8 +50,9 @@ export default async function EditPressPostPage({ params }: { params: { id: stri
       if (!focus.some(value => `${title} ${h2s}`.toLowerCase().includes(value))) return { error: 'Use a focus keyword in the headline or an H2.' }
       if (linkCount < 1) return { error: 'Add at least one authoritative link.' }
     }
+    const slug = cleanSlug(String(formData.get('slug') || title))
     await db.update(pressPosts).set({
-      slug: cleanSlug(String(formData.get('slug') || title)), title,
+      slug, title,
       author: normalizeHySky(String(formData.get('author') || 'HySky News')),
       category: String(formData.get('category') || 'News Analysis'), excerpt, content,
       coverImageUrl: coverImageUrl || null, imageAltText: imageAltText || null,
@@ -60,6 +63,9 @@ export default async function EditPressPostPage({ params }: { params: { id: stri
       keywords, readTimeMinutes: Number(formData.get('readTimeMinutes')) || null,
       isPublished: publish, updatedAt: new Date(),
     }).where(eq(pressPosts.id, params.id))
+    if (publish && !post.isPublished) {
+      await postFeedTeaser(admin.id, { title, slug, coverImageUrl: coverImageUrl || null })
+    }
     revalidatePath('/admin/press')
     revalidatePath('/news')
     revalidatePath(`/news/${post.slug}`)

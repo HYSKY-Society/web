@@ -9,11 +9,13 @@ import DeleteButton from './DeleteButton'
 import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { ADMIN_NAV, isAdmin } from '@/lib/admin'
+import { postFeedTeaser } from '@/lib/feed-teaser'
 
 async function requireAdmin() {
   const user = await currentUser()
   const email = user?.emailAddresses.find(e => e.id === user.primaryEmailAddressId)?.emailAddress ?? ''
   if (!user || !isAdmin(email)) redirect('/not-authorized')
+  return user
 }
 
 async function deletePost(id: string) {
@@ -26,8 +28,12 @@ async function deletePost(id: string) {
 
 async function togglePublished(id: string, current: boolean) {
   'use server'
-  await requireAdmin()
+  const admin = await requireAdmin()
   await db.update(pressPosts).set({ isPublished: !current }).where(eq(pressPosts.id, id))
+  if (!current) {
+    const [post] = await db.select().from(pressPosts).where(eq(pressPosts.id, id)).limit(1)
+    if (post) await postFeedTeaser(admin.id, post)
+  }
   revalidatePath('/admin/press')
   revalidatePath('/press')
 }
