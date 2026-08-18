@@ -94,7 +94,7 @@ export default async function NewsPage() {
 
                 {imageInfo && (
                   <div style={{ flexShrink: 0, width: 'clamp(86px, 15vw, 126px)', height: 78, borderRadius: 12, overflow: 'hidden', background: '#f1eef5' }}>
-                    <Image src={imageInfo.src} alt={imageInfo.alt} width={252} height={156} unoptimized={imageInfo.src.startsWith('http')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <Image src={imageInfo.src} alt={imageInfo.alt} width={252} height={156} unoptimized={imageInfo.src.startsWith('http')} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
                   </div>
                 )}
 

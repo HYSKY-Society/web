@@ -121,7 +121,7 @@ export default async function NewsPostPage({ params }: { params: { slug: string 
         {post.excerpt && <p style={{ color: '#5e5866', fontSize: 'clamp(1.05rem, 2.4vw, 1.22rem)', lineHeight: 1.58, margin: '0 0 24px', maxWidth: 720 }}>{post.excerpt}</p>}
         <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, paddingBottom: 25, marginBottom: 34, borderBottom: '1px solid #ece8f1', fontSize: '0.78rem', color: '#8c8593' }}><span style={{ fontWeight: 700, color: '#4a4450' }}>{post.author}</span><span>Â·</span><span>{new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>{post.readTimeMinutes && <><span>Â·</span><span>{post.readTimeMinutes} min read</span></>}</div>
         {imageInfo && <figure style={{ margin: '0 0 38px' }}>
-          <Image src={imageInfo.src} alt={imageInfo.alt} width={1920} height={1081} priority unoptimized={imageInfo.src.startsWith('http')} style={{ width: '100%', height: 'auto', borderRadius: 18, objectFit: 'cover', maxHeight: 430 }} />
+          <Image src={imageInfo.src} alt={imageInfo.alt} width={1920} height={1081} priority unoptimized={imageInfo.src.startsWith('http')} style={{ width: '100%', height: 'auto', borderRadius: 18, objectFit: 'cover', objectPosition: 'top', maxHeight: 430 }} />
           {imageInfo.credit && <figcaption style={{ color: '#817989', fontSize: '0.72rem', lineHeight: 1.5, marginTop: 9 }}>
             {imageInfo.caption} Photo:{' '}
             {imageInfo.sourceUrl
