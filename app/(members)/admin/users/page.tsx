@@ -4,10 +4,12 @@ import Link from 'next/link'
 import { db } from '@/lib/db'
 import { users, coursePurchases } from '@/lib/schema'
 import { eq, and } from 'drizzle-orm'
-import { setUserTier, addCoursePurchase } from '@/lib/members'
+import { addCoursePurchase } from '@/lib/members'
 import { revalidatePath } from 'next/cache'
-import type { Tier } from '@/lib/members'
 import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
+import MakeVipButton from './MakeVipButton'
+
+const VIP_MANAGER_EMAIL = 'd@hy-sky.net'
 
 const COURSES = [
   { slug: 'h2-aircraft-certification', label: 'Certification' },
@@ -15,18 +17,34 @@ const COURSES = [
   { slug: 'h2-aviation-policy',        label: 'Policy' },
 ]
 
-async function updateTier(formData: FormData) {
+async function getCurrentEmail() {
+  const user = await currentUser()
+  return user?.emailAddresses
+    .find((email) => email.id === user.primaryEmailAddressId)
+    ?.emailAddress?.trim().toLowerCase() ?? ''
+}
+
+async function requireAdmin() {
+  const email = await getCurrentEmail()
+  if (!getAdminEmails().includes(email)) throw new Error('Forbidden')
+}
+
+async function makeVip(formData: FormData) {
   'use server'
-  const id   = formData.get('id') as string
-  const tier = formData.get('tier') as Tier
-  if (id && ['free', 'member_courses', 'member_courses_events', 'member_full'].includes(tier)) {
-    await setUserTier(id, tier)
-    revalidatePath('/admin/users')
-  }
+  const email = await getCurrentEmail()
+  if (email !== VIP_MANAGER_EMAIL) throw new Error('Only Danielle can change VIP membership.')
+  const userId = String(formData.get('userId') ?? '').trim()
+  if (!userId) return
+  await db
+    .update(users)
+    .set({ tier: 'member_full' })
+    .where(and(eq(users.id, userId), eq(users.tier, 'free')))
+  revalidatePath('/admin/users')
 }
 
 async function grantCourse(formData: FormData) {
   'use server'
+  await requireAdmin()
   const userId     = formData.get('userId') as string
   const courseSlug = formData.get('courseSlug') as string
   if (userId && courseSlug) {
@@ -37,6 +55,7 @@ async function grantCourse(formData: FormData) {
 
 async function revokeCourse(formData: FormData) {
   'use server'
+  await requireAdmin()
   const userId     = formData.get('userId') as string
   const courseSlug = formData.get('courseSlug') as string
   if (userId && courseSlug) {
@@ -55,6 +74,7 @@ export default async function AdminUsersPage() {
     user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)?.emailAddress?.toLowerCase() ?? ''
 
   if (!getAdminEmails().includes(userEmail)) redirect('/dashboard')
+  const canManageVip = userEmail === VIP_MANAGER_EMAIL
 
   const [allUsers, allPurchases] = await Promise.all([
     db.select().from(users).orderBy(users.createdAt),
@@ -111,25 +131,18 @@ export default async function AdminUsersPage() {
                         Joined {new Date(u.createdAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <form action={updateTier} className="flex items-center gap-2">
-                      <input type="hidden" name="id" value={u.id} />
-                      <select
-                        name="tier"
-                        defaultValue={u.tier}
-                        className="bg-white/8 border border-white/15 text-white text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#5d00f5]/60"
-                      >
-                        <option value="free">Free</option>
-                        <option value="member_courses">Member — Courses</option>
-                        <option value="member_courses_events">Member — Courses + Events</option>
-                        <option value="member_full">VIP Member</option>
-                      </select>
-                      <button
-                        type="submit"
-                        className="text-xs px-3 py-1.5 rounded-lg font-medium transition-colors bg-[#5d00f5]/20 text-[#9b6dff] hover:bg-[#5d00f5]/40 border border-[#5d00f5]/30"
-                      >
-                        Save
-                      </button>
-                    </form>
+                    <div className="flex items-center gap-2">
+                      <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                        u.tier === 'member_full'
+                          ? 'border-[#5d00f5]/40 bg-[#5d00f5]/15 text-[#9b6dff]'
+                          : 'border-white/15 bg-white/5 text-white/45'
+                      }`}>
+                        {u.tier === 'member_full' ? 'VIP Member' : u.tier === 'free' ? 'Free' : 'Member'}
+                      </span>
+                      {canManageVip && u.tier === 'free' && (
+                        <MakeVipButton action={makeVip} userId={u.id} userEmail={u.email} />
+                      )}
+                    </div>
                   </div>
 
                   {/* Row 2: per-course access */}
@@ -165,3 +178,4 @@ export default async function AdminUsersPage() {
     </div>
   )
 }
+
