@@ -2,8 +2,10 @@
 import { Fragment, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { toggleLike, createReply, deletePost, deleteReply } from './actions'
+import { toggleLike, deletePost, deleteReply } from './actions'
 import { useChatCtx } from '@/app/components/ChatProvider'
+import ReplyComposer from './ReplyComposer'
+import type { MentionMember } from './FeedComposer'
 
 export type PostAuthor = {
   id: string
@@ -319,17 +321,17 @@ export default function FeedPostCard({
   post,
   canUseVipCommunity,
   canModerate,
+  mentionMembers,
 }: {
   post: PostData
   canUseVipCommunity: boolean
   canModerate: boolean
+  mentionMembers: MentionMember[]
 }) {
   const [liked, setLiked] = useState(post.isLiked)
   const [likeCount, setLikeCount] = useState(post.likeCount)
   const [showReplyForm, setShowReplyForm] = useState(false)
   const [showReplies, setShowReplies] = useState(false)
-  const [replyText, setReplyText] = useState('')
-  const [replyPending, startReply] = useTransition()
   const [likePending, startLike] = useTransition()
   const [deletePending, startDelete] = useTransition()
   const [copied, setCopied] = useState(false)
@@ -345,15 +347,6 @@ export default function FeedPostCard({
       setLiked(next)
       setLikeCount((c) => next ? c + 1 : Math.max(c - 1, 0))
       await toggleLike(post.id)
-      router.refresh()
-    })
-  }
-
-  const handleReply = () => {
-    startReply(async () => {
-      await createReply(post.id, replyText)
-      setReplyText('')
-      setShowReplyForm(false)
       router.refresh()
     })
   }
@@ -504,24 +497,12 @@ export default function FeedPostCard({
 
       {/* Reply form */}
       {showReplyForm && (
-        <div className="mt-3 flex gap-2">
-          <textarea
-            value={replyText}
-            onChange={(e) => setReplyText(e.target.value)}
-            placeholder="Write a reply…"
-            rows={2}
-            className="flex-1 resize-none rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-[#5d00f5]/60"
-            style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}
-          />
-          <button
-            onClick={handleReply}
-            disabled={!replyText.trim() || replyPending}
-            className="self-end px-3 py-2 rounded-lg text-xs font-semibold bg-[#5d00f5] hover:bg-[#7b33ff] disabled:opacity-40 transition-colors"
-            style={{ color: '#fff' }}
-          >
-            {replyPending ? '…' : 'Reply'}
-          </button>
-        </div>
+        <ReplyComposer
+          postId={post.id}
+          mentionMembers={mentionMembers}
+          canTagMembers={canUseVipCommunity}
+          onComplete={() => setShowReplyForm(false)}
+        />
       )}
 
       {/* Replies */}
@@ -567,3 +548,4 @@ export default function FeedPostCard({
     </article>
   )
 }
+
