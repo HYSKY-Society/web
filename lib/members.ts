@@ -9,6 +9,11 @@ import type { Tier, MemberListItem } from './tiers'
 import { TIERS_WITH_COURSES, TIERS_WITH_EVENTS } from './tiers'
 import { getAdminEmails } from './admin'
 import { getCourseSlugVariants, normalizeCourseSlug } from './course-slugs'
+import { createHash } from 'crypto'
+
+function pendingMemberId(email: string): string {
+  return createHash('sha256').update(email.toLowerCase()).digest('hex').slice(0, 24)
+}
 
 // ── User CRUD ─────────────────────────────────────────────────────────────────
 
@@ -194,7 +199,7 @@ export async function getAllVisibleMembers(): Promise<MemberListItem[]> {
   const pendingMapped: MemberListItem[] = pendingRows
     .filter(r => !registeredSet.has(r.email))
     .map(r => ({
-      id:          `pending:${r.email}`,
+      id:          `pending:${pendingMemberId(r.email)}`,
       tier:        r.tier,
       displayName: r.name,
       headline:    null,
@@ -224,9 +229,35 @@ export type MemberProfile = {
   linkedinUrl: string | null
   twitterUrl:  string | null
   avatarUrl:   string | null
+  isPending?:  boolean
 }
 
 export async function getMemberProfile(userId: string): Promise<MemberProfile | null> {
+  if (userId.startsWith('pending:')) {
+    const opaqueId = userId.slice('pending:'.length)
+    const pendingRows = await db.select().from(pendingTiers)
+    const pending = pendingRows.find((row) => pendingMemberId(row.email) === opaqueId)
+    if (!pending) return null
+
+    return {
+      id: userId,
+      email: pending.email,
+      tier: pending.tier,
+      createdAt: pending.createdAt,
+      displayName: pending.name,
+      headline: null,
+      bio: null,
+      company: null,
+      jobTitle: null,
+      location: null,
+      website: null,
+      linkedinUrl: null,
+      twitterUrl: null,
+      avatarUrl: pending.avatarUrl,
+      isPending: true,
+    }
+  }
+
   const rows = await db
     .select({
       id:          users.id,
