@@ -19,7 +19,12 @@ export default async function MembersPage() {
         <h1 className="text-3xl font-bold mb-1.5">Member Directory</h1>
         <p className="text-white/40">Connect with the hydrogen aviation ecosystem.</p>
       </div>
-      <MemberDirectory members={members} canAccessProfiles={canAccessProfiles} />
+      <MemberDirectory
+        members={members}
+        canAccessProfiles={canAccessProfiles}
+        showActivationStatus={isAdmin(email)}
+      />
     </div>
   )
 }
+

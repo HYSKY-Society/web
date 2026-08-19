@@ -40,9 +40,11 @@ function TierChip({ tier }: { tier: string }) {
 export default function MemberDirectory({
   members,
   canAccessProfiles,
+  showActivationStatus,
 }: {
   members: MemberListItem[]
   canAccessProfiles: boolean
+  showActivationStatus: boolean
 }) {
   const [query, setQuery] = useState('')
   const [memberFilter, setMemberFilter] = useState<'all' | 'free' | 'vip'>('all')
@@ -112,7 +114,7 @@ export default function MemberDirectory({
         {filtered.map(m => {
           const name = m.displayName || 'HySky Member'
           const card = (
-            <div className={`group bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col gap-3 transition-all ${canAccessProfiles && !m.isPending ? 'hover:border-[#5d00f5]/40 hover:bg-white/8 cursor-pointer' : 'opacity-80'}`}>
+            <div className="group bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col gap-3 transition-all hover:border-[#5d00f5]/40 hover:bg-white/8 cursor-pointer">
               <div className="flex items-start gap-3">
                 <Avatar name={name} url={m.avatarUrl} size={48} />
                 <div className="min-w-0 flex-1">
@@ -139,22 +141,16 @@ export default function MemberDirectory({
               </div>
               <div className="flex items-center justify-between mt-auto pt-1 border-t border-white/6">
                 <TierChip tier={m.tier} />
-                {m.isPending ? (
-                  <span className="text-white/20 text-xs">Pending sign-in</span>
-                ) : canAccessProfiles ? (
-                  <span className="text-[#9b6dff] text-xs group-hover:underline">View profile →</span>
+                {showActivationStatus && m.isPending ? (
+                  <span className="text-amber-500/80 text-xs">Not signed in yet</span>
                 ) : (
-                  <span className="text-white/20 text-xs">🔒 Paid only</span>
+                  <span className="text-[#9b6dff] text-xs group-hover:underline">View profile →</span>
                 )}
               </div>
             </div>
           )
 
-          return canAccessProfiles && !m.isPending ? (
-            <Link key={m.id} href={`/members/${m.id}`}>{card}</Link>
-          ) : (
-            <div key={m.id}>{card}</div>
-          )
+          return <Link key={m.id} href={`/members/${m.id}`}>{card}</Link>
         })}
       </div>
 
@@ -164,3 +160,4 @@ export default function MemberDirectory({
     </div>
   )
 }
+
