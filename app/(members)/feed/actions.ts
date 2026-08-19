@@ -127,6 +127,11 @@ export async function deleteReply(replyId: string): Promise<{ deleted: boolean }
     eq(notifications.entityId, reply.postId),
     eq(notifications.actorId, reply.authorId),
   ))
+  await db.delete(notifications).where(and(
+    eq(notifications.type, 'mention'),
+    eq(notifications.entityId, replyId),
+    eq(notifications.actorId, reply.authorId),
+  ))
 
   revalidatePath('/feed')
   return { deleted: true }
@@ -165,23 +170,60 @@ export async function toggleLike(postId: string): Promise<{ liked: boolean }> {
   }
 }
 
-export async function createReply(postId: string, content: string) {
+export async function createReply(postId: string, content: string, requestedMentionIds: string[] = []) {
   const user = await currentUser()
   if (!user) return
 
   const trimmed = content.trim()
   if (!trimmed || trimmed.length > 1000) return
 
+  const canTagMembers = await canPublish(user)
+  const uniqueMentionIds = canTagMembers
+    ? [...new Set(requestedMentionIds.filter((id): id is string => typeof id === 'string'))]
+        .filter((id) => id !== user.id)
+        .slice(0, 20)
+    : []
+  const mentionCandidates = uniqueMentionIds.length
+    ? await db
+        .select({ id: userProfiles.userId, name: userProfiles.displayName })
+        .from(userProfiles)
+        .where(and(
+          inArray(userProfiles.userId, uniqueMentionIds),
+          eq(userProfiles.isVisible, true),
+        ))
+    : []
+  const mentions = mentionCandidates.flatMap((member) =>
+    member.name && trimmed.includes(`@${member.name}`)
+      ? [{ id: member.id, name: member.name }]
+      : []
+  )
+  const storedContent = mentions.length
+    ? `${trimmed}\n⁣hysky-mentions:${encodeURIComponent(JSON.stringify(mentions))}`
+    : trimmed
+
   const [post] = await db.select({ authorId: feedPosts.authorId })
     .from(feedPosts)
     .where(eq(feedPosts.id, postId))
     .limit(1)
 
-  await db.insert(feedPostReplies).values({ postId, authorId: user.id, content: trimmed })
+  const [reply] = await db.insert(feedPostReplies)
+    .values({ postId, authorId: user.id, content: storedContent })
+    .returning({ id: feedPostReplies.id })
   await db.update(feedPosts)
     .set({ replyCount: sql`${feedPosts.replyCount} + 1` })
     .where(eq(feedPosts.id, postId))
-  if (post) await createNotification({ userId: post.authorId, actorId: user.id, type: 'reply', entityId: postId, href: `/feed#post-${postId}` }).catch(() => {})
+  await Promise.all(mentions.map((member) =>
+    createNotification({
+      userId: member.id,
+      actorId: user.id,
+      type: 'mention',
+      entityId: reply.id,
+      href: `/feed#post-${postId}`,
+    }).catch(() => {})
+  ))
+  if (post && !mentions.some((member) => member.id === post.authorId)) {
+    await createNotification({ userId: post.authorId, actorId: user.id, type: 'reply', entityId: postId, href: `/feed#post-${postId}` }).catch(() => {})
+  }
   revalidatePath('/feed')
 }
 
