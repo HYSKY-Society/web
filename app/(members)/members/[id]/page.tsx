@@ -5,6 +5,7 @@ import { getMemberProfile, getUserTier, hasVipCommunityAccess, TIER_LABELS, Tier
 import MessageMemberButton from './MessageMemberButton'
 import ProfileAccessTease from './ProfileAccessTease'
 import { getProfileContacts } from '@/lib/profile-contacts'
+import { isAdmin } from '@/lib/admin'
 
 function Avatar({ name, url }: { name: string | null; url: string | null }) {
   const initials = (name ?? '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
@@ -38,13 +39,14 @@ function TierBadge({ tier }: { tier: string }) {
 export default async function MemberProfilePage({ params }: { params: { id: string } }) {
   const user = await currentUser()
   const userId = user!.id
+  const viewerEmail = user!.emailAddresses.find((entry) => entry.id === user!.primaryEmailAddressId)?.emailAddress ?? ''
   const [viewerTier, member, contacts] = await Promise.all([
     getUserTier(userId),
     getMemberProfile(params.id),
     getProfileContacts(params.id),
   ])
 
-  const canUseVipCommunity = hasVipCommunityAccess(viewerTier)
+  const canUseVipCommunity = hasVipCommunityAccess(viewerTier) || isAdmin(viewerEmail)
   if (!member) notFound()
 
   const name        = member.displayName || 'HySky Member'
@@ -69,7 +71,7 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
             {member.headline && (
               <p className="text-white/60 text-base mb-3">{member.headline}</p>
             )}
-            {canUseVipCommunity && member.location && (
+            {member.location && (
               <div className="flex flex-wrap gap-4 text-sm text-white/40">
                 <span className="flex items-center gap-1.5">
                   <span>📍</span> {member.location}
@@ -90,15 +92,14 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
               name={name}
               avatarUrl={member.avatarUrl}
               canMessage={canUseVipCommunity}
+              canReceiveMessages={!member.isPending}
             />
           )}
         </div>
       </div>
 
-      {!canUseVipCommunity && !isOwnProfile && <ProfileAccessTease name={name} />}
-
       {/* Bio */}
-      {canUseVipCommunity && member.bio && (
+      {member.bio && (
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
           <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">About</h2>
           <p className="text-white/75 leading-relaxed whitespace-pre-wrap">{member.bio}</p>
@@ -106,24 +107,20 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
       )}
 
       {/* Company */}
-      {canUseVipCommunity && (member.company || member.jobTitle || contacts?.companyWebsite) && (
+      {(member.company || member.jobTitle) && (
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
           <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-4">Company</h2>
           <div className="space-y-2">
             {member.company && <p className="text-lg font-semibold text-white">{member.company}</p>}
             {member.jobTitle && <p className="text-sm text-white/55">{member.jobTitle}</p>}
-            {contacts?.companyWebsite && (
-              <a href={contacts.companyWebsite} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-[#9b6dff] hover:text-white transition-colors">
-                <span>🌐</span>
-                <span>{contacts.companyWebsite.replace(/^https?:\/\/(www\.)?/, '')}</span>
-              </a>
-            )}
           </div>
         </div>
       )}
 
+      {!canUseVipCommunity && !isOwnProfile && <ProfileAccessTease name={name} />}
+
       {/* Contact / Links */}
-      {canUseVipCommunity && (member.linkedinUrl || member.twitterUrl || member.website || member.email || contacts?.phoneNumber) && (
+      {canUseVipCommunity && (member.linkedinUrl || member.twitterUrl || member.website || member.email || contacts?.phoneNumber || contacts?.companyWebsite) && (
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
           <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-4">Contact & Links</h2>
           <div className="flex flex-col gap-3">
@@ -137,6 +134,12 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
               <a href={`tel:${contacts.phoneNumber}`} className="flex items-center gap-3 text-sm text-white/60 hover:text-white transition-colors group">
                 <span className="w-8 h-8 rounded-lg bg-white/8 flex items-center justify-center text-base group-hover:bg-[#5d00f5]/20 transition-colors">📞</span>
                 <span>{contacts.phoneNumber}</span>
+              </a>
+            )}
+            {contacts?.companyWebsite && (
+              <a href={contacts.companyWebsite} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-white/60 hover:text-white transition-colors group">
+                <span className="w-8 h-8 rounded-lg bg-white/8 flex items-center justify-center text-base group-hover:bg-[#5d00f5]/20 transition-colors">🌐</span>
+                <span className="truncate">{contacts.companyWebsite.replace(/^https?:\/\/(www\.)?/, '')}</span>
               </a>
             )}
             {member.linkedinUrl && (
@@ -168,3 +171,4 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
     </div>
   )
 }
+
