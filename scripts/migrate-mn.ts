@@ -45,8 +45,8 @@ const PLAN_MAP: Record<number, { tier?: string; course?: string; event?: string;
   1867940: { tier: 'free'                                       }, // HYSKY Monthly
   1874703: { tier: 'instructor'                                 }, // Instructor 2025
   1894893: { tier: 'member_full',    vipTier: 'vip_free'       }, // Free VIP
-  1904470: { tier: 'member_courses', course: 'hydrogen-safety-aviation' },
-  1966695: { tier: 'member_courses', course: 'h2-aviation-policy-power' },
+  1904470: { tier: 'member_courses', course: 'h2-safety-for-aviation' },
+  1966695: { tier: 'member_courses', course: 'h2-aviation-policy' },
   1967257: { event: 'flying-hy-2025'                           }, // FLYING HY 2025
 }
 
@@ -220,3 +220,4 @@ async function main() {
 }
 
 main().catch(err => { console.error(err); process.exit(1) })
+
