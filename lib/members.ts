@@ -1,6 +1,6 @@
 import { db } from './db'
 import { users, userProfiles, coursePurchases, eventPurchases, pendingTiers, podcastEpisodes } from './schema'
-import { eq, and, or, isNull, count, notInArray } from 'drizzle-orm'
+import { eq, and, or, isNull, count, notInArray, inArray } from 'drizzle-orm'
 
 // Re-export from client-safe tiers module so server code imports one place
 export type { Tier, MemberListItem } from './tiers'
@@ -8,6 +8,7 @@ export { TIER_LABELS, TIERS_WITH_COURSES, TIERS_WITH_EVENTS, PAID_TIERS, isPaidT
 import type { Tier, MemberListItem } from './tiers'
 import { TIERS_WITH_COURSES, TIERS_WITH_EVENTS } from './tiers'
 import { getAdminEmails } from './admin'
+import { getCourseSlugVariants, normalizeCourseSlug } from './course-slugs'
 
 // ── User CRUD ─────────────────────────────────────────────────────────────────
 
@@ -45,7 +46,7 @@ export async function ensureUser(clerkId: string, email: string): Promise<Tier> 
   }
 
   if (pending) {
-    const courses = JSON.parse(pending.courseSlugs) as string[]
+    const courses = (JSON.parse(pending.courseSlugs) as string[]).map(normalizeCourseSlug)
     const events  = JSON.parse(pending.eventSlugs)  as string[]
     for (const slug of courses) await addCoursePurchase(clerkId, slug)
     for (const slug of events)  await addEventPurchase(clerkId, slug)
@@ -87,7 +88,16 @@ export async function hasEventMembership(clerkId: string): Promise<boolean> {
 }
 
 export async function addCoursePurchase(userId: string, courseSlug: string) {
-  await db.insert(coursePurchases).values({ userId, courseSlug }).onConflictDoNothing()
+  const canonicalSlug = normalizeCourseSlug(courseSlug)
+  const existing = await db.query.coursePurchases.findFirst({
+    where: and(
+      eq(coursePurchases.userId, userId),
+      inArray(coursePurchases.courseSlug, getCourseSlugVariants(canonicalSlug))
+    ),
+  })
+  if (!existing) {
+    await db.insert(coursePurchases).values({ userId, courseSlug: canonicalSlug })
+  }
 }
 
 export async function addEventPurchase(userId: string, eventSlug: string) {
@@ -96,7 +106,10 @@ export async function addEventPurchase(userId: string, eventSlug: string) {
 
 export async function hasIndividualCourseAccess(userId: string, courseSlug: string): Promise<boolean> {
   const row = await db.query.coursePurchases.findFirst({
-    where: and(eq(coursePurchases.userId, userId), eq(coursePurchases.courseSlug, courseSlug)),
+    where: and(
+      eq(coursePurchases.userId, userId),
+      inArray(coursePurchases.courseSlug, getCourseSlugVariants(courseSlug))
+    ),
   })
   return !!row
 }
@@ -112,7 +125,7 @@ export async function getUserCourseSlugs(userId: string): Promise<string[]> {
   const rows = await db.query.coursePurchases.findMany({
     where: eq(coursePurchases.userId, userId),
   })
-  return rows.map(r => r.courseSlug)
+  return [...new Set(rows.map(r => normalizeCourseSlug(r.courseSlug)))]
 }
 
 export async function getUserEventSlugs(userId: string): Promise<string[]> {
@@ -253,3 +266,4 @@ export async function getMemberStats() {
     podcastEpisodes: Number(episodesRes[0].count),
   }
 }
+
