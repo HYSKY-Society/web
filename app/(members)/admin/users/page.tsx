@@ -8,6 +8,7 @@ import { addCoursePurchase } from '@/lib/members'
 import { revalidatePath } from 'next/cache'
 import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
 import MakeVipButton from './MakeVipButton'
+import UserSearch from './UserSearch'
 
 const VIP_MANAGER_EMAIL = 'd@hy-sky.net'
 
@@ -66,7 +67,11 @@ async function revokeCourse(formData: FormData) {
   }
 }
 
-export default async function AdminUsersPage() {
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>
+}) {
   const user = await currentUser()
   if (!user) redirect('/sign-in')
 
@@ -75,6 +80,7 @@ export default async function AdminUsersPage() {
 
   if (!getAdminEmails().includes(userEmail)) redirect('/dashboard')
   const canManageVip = userEmail === VIP_MANAGER_EMAIL
+  const query = (await searchParams).q?.trim().toLowerCase() ?? ''
 
   const [allUsers, allPurchases] = await Promise.all([
     db.select().from(users).orderBy(users.createdAt),
@@ -86,6 +92,10 @@ export default async function AdminUsersPage() {
     if (!purchasesByUser[p.userId]) purchasesByUser[p.userId] = []
     purchasesByUser[p.userId].push(p.courseSlug)
   }
+
+  const visibleUsers = query
+    ? allUsers.filter((member) => member.email.toLowerCase().includes(query))
+    : allUsers
 
   return (
     <div className="text-white max-w-3xl">
@@ -112,14 +122,19 @@ export default async function AdminUsersPage() {
       <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
         <div className="px-6 py-5 border-b border-white/8">
           <h2 className="font-semibold">All Members</h2>
-          <p className="text-white/35 text-xs mt-0.5">{allUsers.length} total</p>
+          <p className="text-white/35 text-xs mt-0.5">
+            {query ? `${visibleUsers.length} of ${allUsers.length} members` : `${allUsers.length} total`}
+          </p>
+          <UserSearch initialQuery={query} />
         </div>
 
-        {allUsers.length === 0 ? (
-          <p className="text-white/25 text-sm text-center py-12">No members yet.</p>
+        {visibleUsers.length === 0 ? (
+          <p className="text-white/35 text-sm text-center py-12">
+            {query ? 'No users match that search.' : 'No members yet.'}
+          </p>
         ) : (
           <div className="divide-y divide-white/5">
-            {allUsers.map((u) => {
+            {visibleUsers.map((u) => {
               const userCourses = purchasesByUser[u.id] ?? []
               return (
                 <div key={u.id} className="px-6 py-4 space-y-3">
