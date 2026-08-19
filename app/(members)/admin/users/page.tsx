@@ -10,8 +10,6 @@ import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
 import MakeVipButton from './MakeVipButton'
 import UserSearch from './UserSearch'
 
-const VIP_MANAGER_EMAIL = 'd@hy-sky.net'
-
 const COURSES = [
   { slug: 'h2-aircraft-certification', label: 'Certification' },
   { slug: 'h2-safety-for-aviation',    label: 'Safety' },
@@ -30,16 +28,17 @@ async function requireAdmin() {
   if (!getAdminEmails().includes(email)) throw new Error('Forbidden')
 }
 
-async function makeVip(formData: FormData) {
+async function updateMembership(formData: FormData) {
   'use server'
   const email = await getCurrentEmail()
-  if (email !== VIP_MANAGER_EMAIL) throw new Error('Only Danielle can change VIP membership.')
+  if (!getAdminEmails().includes(email)) throw new Error('Only Danielle or Rishav can change membership.')
   const userId = String(formData.get('userId') ?? '').trim()
-  if (!userId) return
+  const targetTier = String(formData.get('targetTier') ?? '')
+  if (!userId || !['free', 'member_full'].includes(targetTier)) return
   await db
     .update(users)
-    .set({ tier: 'member_full' })
-    .where(and(eq(users.id, userId), eq(users.tier, 'free')))
+    .set({ tier: targetTier as 'free' | 'member_full' })
+    .where(eq(users.id, userId))
   revalidatePath('/admin/users')
 }
 
@@ -79,7 +78,7 @@ export default async function AdminUsersPage({
     user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)?.emailAddress?.toLowerCase() ?? ''
 
   if (!getAdminEmails().includes(userEmail)) redirect('/dashboard')
-  const canManageVip = userEmail === VIP_MANAGER_EMAIL
+  const canManageMembership = getAdminEmails().includes(userEmail)
   const query = (await searchParams).q?.trim().toLowerCase() ?? ''
 
   const [allUsers, allPurchases] = await Promise.all([
@@ -154,8 +153,13 @@ export default async function AdminUsersPage({
                       }`}>
                         {u.tier === 'member_full' ? 'VIP Member' : u.tier === 'free' ? 'Free' : 'Member'}
                       </span>
-                      {canManageVip && u.tier === 'free' && (
-                        <MakeVipButton action={makeVip} userId={u.id} userEmail={u.email} />
+                      {canManageMembership && (
+                        <MakeVipButton
+                          action={updateMembership}
+                          userId={u.id}
+                          userEmail={u.email}
+                          currentTier={u.tier}
+                        />
                       )}
                     </div>
                   </div>
