@@ -6,6 +6,7 @@ import MessageMemberButton from './MessageMemberButton'
 import ProfileAccessTease from './ProfileAccessTease'
 import { getProfileContacts } from '@/lib/profile-contacts'
 import { isAdmin } from '@/lib/admin'
+import ContactEmailAction from './ContactEmailAction'
 
 function Avatar({ name, url }: { name: string | null; url: string | null }) {
   const initials = (name ?? '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
@@ -125,10 +126,7 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
           <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-4">Contact & Links</h2>
           <div className="flex flex-col gap-3">
             {member.email && (
-              <a href={`mailto:${member.email}`} className="flex items-center gap-3 text-sm text-white/60 hover:text-white transition-colors group">
-                <span className="w-8 h-8 rounded-lg bg-white/8 flex items-center justify-center text-base group-hover:bg-[#5d00f5]/20 transition-colors">✉️</span>
-                <span>{member.email}</span>
-              </a>
+              <ContactEmailAction email={member.email} />
             )}
             {contacts?.phoneNumber && (
               <a href={`tel:${contacts.phoneNumber}`} className="flex items-center gap-3 text-sm text-white/60 hover:text-white transition-colors group">
