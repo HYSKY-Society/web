@@ -1,20 +1,15 @@
-const HARDCODED_ADMINS = ['r@hy-sky.net', 'd@hy-sky.net']
-const FEED_MODERATORS = new Set(['d@hy-sky.net', 'r@hy-sky.net'])
+const ADMIN_EMAILS = new Set(['d@hy-sky.net', 'r@hy-sky.net'])
 
 export function getAdminEmails(): string[] {
-  const envAdmins = (process.env.ADMIN_EMAILS || '')
-    .split(',')
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean)
-  return [...new Set([...HARDCODED_ADMINS, ...envAdmins])]
+  return [...ADMIN_EMAILS]
 }
 
 export function isAdmin(email: string): boolean {
-  return getAdminEmails().includes(email.toLowerCase())
+  return ADMIN_EMAILS.has(email.trim().toLowerCase())
 }
 
 export function isFeedModerator(email: string): boolean {
-  return FEED_MODERATORS.has(email.trim().toLowerCase())
+  return isAdmin(email)
 }
 
 export const ADMIN_NAV = [
@@ -27,3 +22,4 @@ export const ADMIN_NAV = [
   { href: '/admin/podcast',      label: 'Podcast' },
   { href: '/admin/migration',    label: 'Migration' },
 ]
+
