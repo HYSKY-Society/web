@@ -6,6 +6,7 @@ import { toggleLike, deletePost, deleteReply } from './actions'
 import { useChatCtx } from '@/app/components/ChatProvider'
 import ReplyComposer from './ReplyComposer'
 import type { MentionMember } from './FeedComposer'
+import type { LinkPreviewData } from '@/lib/link-preview'
 
 export type PostAuthor = {
   id: string
@@ -51,14 +52,17 @@ type MentionRef = {
   name: string
 }
 
-const MENTION_METADATA = /\n\u2063hysky-mentions:([^\n]+)$/
+const MENTION_METADATA = /\n\u2063hysky-mentions:([^\n]+)/
+const LINK_PREVIEW_METADATA = /\n\u2063hysky-link-preview:([^\n]+)/
 
-function parseMentionMetadata(text: string): { visibleText: string; mentions: MentionRef[] } {
-  const match = text.match(MENTION_METADATA)
-  if (!match) return { visibleText: text, mentions: [] }
+function parsePostMetadata(text: string): { visibleText: string; mentions: MentionRef[]; linkPreview: LinkPreviewData | null } {
+  const mentionMatch = text.match(MENTION_METADATA)
+  const previewMatch = text.match(LINK_PREVIEW_METADATA)
+  let mentions: MentionRef[] = []
+  let linkPreview: LinkPreviewData | null = null
   try {
-    const parsed = JSON.parse(decodeURIComponent(match[1])) as unknown
-    const mentions = Array.isArray(parsed)
+    const parsed = mentionMatch ? JSON.parse(decodeURIComponent(mentionMatch[1])) as unknown : []
+    mentions = Array.isArray(parsed)
       ? parsed.filter((value): value is MentionRef =>
           !!value
           && typeof value === 'object'
@@ -66,11 +70,26 @@ function parseMentionMetadata(text: string): { visibleText: string; mentions: Me
           && typeof (value as MentionRef).name === 'string'
         )
       : []
-    const metadataIndex = match.index ?? text.length
-    return { visibleText: text.slice(0, metadataIndex), mentions }
-  } catch {
-    const metadataIndex = match.index ?? text.length
-    return { visibleText: text.slice(0, metadataIndex), mentions: [] }
+  } catch {}
+  try {
+    const parsed = previewMatch ? JSON.parse(decodeURIComponent(previewMatch[1])) as unknown : null
+    if (parsed && typeof parsed === 'object') {
+      const candidate = parsed as Partial<LinkPreviewData>
+      if (typeof candidate.url === 'string' && typeof candidate.title === 'string' && typeof candidate.siteName === 'string') {
+        linkPreview = {
+          url: candidate.url,
+          title: candidate.title,
+          siteName: candidate.siteName,
+          description: typeof candidate.description === 'string' ? candidate.description : null,
+          image: typeof candidate.image === 'string' ? candidate.image : null,
+        }
+      }
+    }
+  } catch {}
+  return {
+    visibleText: text.replace(LINK_PREVIEW_METADATA, '').replace(MENTION_METADATA, '').trimEnd(),
+    mentions,
+    linkPreview,
   }
 }
 
@@ -132,7 +151,7 @@ function renderLine(line: string, mentions: MentionRef[]) {
 
 function RichContent({ text }: { text: string }) {
   if (!text) return null
-  const { visibleText, mentions } = parseMentionMetadata(text)
+  const { visibleText, mentions } = parsePostMetadata(text)
   return (
     <p className="text-sm text-white/85 leading-relaxed whitespace-pre-wrap">
       {visibleText.split('\n').map((line, i, lines) => (
@@ -142,6 +161,41 @@ function RichContent({ text }: { text: string }) {
         </Fragment>
       ))}
     </p>
+  )
+}
+
+function LinkPreview({ text }: { text: string }) {
+  const { linkPreview } = parsePostMetadata(text)
+  if (!linkPreview) return null
+  return (
+    <a
+      href={linkPreview.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-3 block overflow-hidden rounded-xl transition-transform hover:-translate-y-0.5"
+      style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}
+    >
+      {linkPreview.image ? (
+        <div className="aspect-[1.91/1] w-full overflow-hidden bg-black/10">
+          <img
+            src={linkPreview.image}
+            alt=""
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            className="h-full w-full object-cover"
+          />
+        </div>
+      ) : null}
+      <div className="p-3">
+        <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-white/40">
+          {linkPreview.siteName}
+        </p>
+        <p className="text-sm font-semibold leading-snug text-white">{linkPreview.title}</p>
+        {linkPreview.description ? (
+          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-white/55">{linkPreview.description}</p>
+        ) : null}
+      </div>
+    </a>
   )
 }
 
@@ -417,6 +471,7 @@ export default function FeedPostCard({
 
       {/* Content + images */}
       <RichContent text={displayPost.content} />
+      <LinkPreview text={displayPost.content} />
       <ImageGallery urls={displayPost.imageUrls} />
 
       {/* Divider */}

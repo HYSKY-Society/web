@@ -7,6 +7,7 @@ import { eq, and, inArray, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
 import { isFeedModerator } from '@/lib/admin'
+import { fetchLinkPreview } from '@/lib/link-preview'
 
 async function canPublish(user: NonNullable<Awaited<ReturnType<typeof currentUser>>>): Promise<boolean> {
   const tier = await getUserTier(user.id)
@@ -54,9 +55,12 @@ export async function createPost(formData: FormData) {
       ? [{ id: member.id, name: member.name }]
       : []
   )
-  const storedContent = mentions.length
-    ? `${content}\n⁣hysky-mentions:${encodeURIComponent(JSON.stringify(mentions))}`
-    : content
+  const linkPreview = await fetchLinkPreview(content)
+  const metadata = [
+    linkPreview ? `⁣hysky-link-preview:${encodeURIComponent(JSON.stringify(linkPreview))}` : null,
+    mentions.length ? `⁣hysky-mentions:${encodeURIComponent(JSON.stringify(mentions))}` : null,
+  ].filter(Boolean)
+  const storedContent = metadata.length ? `${content}\n${metadata.join('\n')}` : content
 
   const [post] = await db.insert(feedPosts)
     .values({ authorId: user.id, content: storedContent, imageUrls })
