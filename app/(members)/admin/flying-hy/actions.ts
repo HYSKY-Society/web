@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import { flyingHySpeakers, flyingHyAgenda } from '@/lib/schema'
 import { eq } from 'drizzle-orm'
+import { requireAdmin } from '@/lib/admin-auth'
 
 export async function addSpeaker(data: {
   eventYear: number
@@ -15,12 +16,14 @@ export async function addSpeaker(data: {
   sessionTitle: string | null
   displayOrder: number
 }) {
+  await requireAdmin()
   await db.insert(flyingHySpeakers).values({ ...data, isPublished: true })
   revalidatePath('/flying-hy')
   revalidatePath('/admin/flying-hy')
 }
 
 export async function deleteSpeaker(id: string) {
+  await requireAdmin()
   await db.delete(flyingHySpeakers).where(eq(flyingHySpeakers.id, id))
   revalidatePath('/flying-hy')
   revalidatePath('/admin/flying-hy')
@@ -35,12 +38,14 @@ export async function addAgendaItem(data: {
   sessionType: string
   displayOrder: number
 }) {
+  await requireAdmin()
   await db.insert(flyingHyAgenda).values(data)
   revalidatePath('/flying-hy')
   revalidatePath('/admin/flying-hy')
 }
 
 export async function deleteAgendaItem(id: string) {
+  await requireAdmin()
   await db.delete(flyingHyAgenda).where(eq(flyingHyAgenda.id, id))
   revalidatePath('/flying-hy')
   revalidatePath('/admin/flying-hy')

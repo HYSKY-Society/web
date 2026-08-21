@@ -5,12 +5,14 @@ import { db } from '@/lib/db'
 import { podcastEpisodes } from '@/lib/schema'
 import { revalidatePath } from 'next/cache'
 import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
+import { requireAdmin } from '@/lib/admin-auth'
 import { syncPodcastPlaylist } from '@/lib/youtube-sync'
 import { eq, desc, max } from 'drizzle-orm'
 import AddEpisodeForm from './AddEpisodeForm'
 
 async function createEpisode(formData: FormData) {
   'use server'
+  await requireAdmin()
   const title = (formData.get('title') as string).trim()
   const youtubeUrl = (formData.get('youtubeUrl') as string).trim()
   const publishedAt = formData.get('publishedAt') as string
@@ -29,6 +31,7 @@ async function createEpisode(formData: FormData) {
 
 async function deleteEpisode(formData: FormData) {
   'use server'
+  await requireAdmin()
   const id = formData.get('id') as string
   await db.delete(podcastEpisodes).where(eq(podcastEpisodes.id, id))
   revalidatePath('/admin/podcast')
@@ -37,6 +40,7 @@ async function deleteEpisode(formData: FormData) {
 
 async function syncFromYoutube() {
   'use server'
+  await requireAdmin()
   await syncPodcastPlaylist()
   revalidatePath('/admin/podcast')
   revalidatePath('/podcast')

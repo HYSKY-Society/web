@@ -5,6 +5,7 @@ import { db } from '@/lib/db'
 import { sponsors } from '@/lib/schema'
 import { revalidatePath } from 'next/cache'
 import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
+import { requireAdmin } from '@/lib/admin-auth'
 import { eq } from 'drizzle-orm'
 
 const TIERS = [
@@ -20,6 +21,7 @@ const TIERS = [
 
 async function createSponsor(formData: FormData) {
   'use server'
+  await requireAdmin()
   const name = (formData.get('name') as string).trim()
   const tier = formData.get('tier') as string
   const website = (formData.get('website') as string).trim() || null
@@ -33,6 +35,7 @@ async function createSponsor(formData: FormData) {
 
 async function toggleActive(formData: FormData) {
   'use server'
+  await requireAdmin()
   const id = formData.get('id') as string
   const current = formData.get('isActive') === 'true'
   await db.update(sponsors).set({ isActive: !current }).where(eq(sponsors.id, id))
@@ -42,6 +45,7 @@ async function toggleActive(formData: FormData) {
 
 async function deleteSponsor(formData: FormData) {
   'use server'
+  await requireAdmin()
   const id = formData.get('id') as string
   await db.delete(sponsors).where(eq(sponsors.id, id))
   revalidatePath('/admin/sponsors')
