@@ -6,9 +6,11 @@ import { discountCodes } from '@/lib/schema'
 import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
+import { requireAdmin } from '@/lib/admin-auth'
 
 async function createCode(formData: FormData) {
   'use server'
+  await requireAdmin()
   const code = (formData.get('code') as string)?.trim().toUpperCase()
   const usesStr = formData.get('uses') as string
   const expiresStr = formData.get('expires') as string
@@ -26,6 +28,7 @@ async function createCode(formData: FormData) {
 
 async function deleteCode(formData: FormData) {
   'use server'
+  await requireAdmin()
   const id = formData.get('id') as string
   if (id) {
     await db.delete(discountCodes).where(eq(discountCodes.id, id))

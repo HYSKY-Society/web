@@ -5,6 +5,7 @@ import { db } from '@/lib/db'
 import { hyskySessions } from '@/lib/schema'
 import { revalidatePath } from 'next/cache'
 import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
+import { requireAdmin } from '@/lib/admin-auth'
 import { getNextHyskyMonthly, formatSessionDate } from '@/lib/hysky-monthly'
 import { syncMonthlyPlaylist } from '@/lib/youtube-sync'
 import { eq, desc } from 'drizzle-orm'
@@ -12,6 +13,7 @@ import AddSessionForm from './AddSessionForm'
 
 async function createSession(formData: FormData) {
   'use server'
+  await requireAdmin()
   const title = (formData.get('title') as string).trim()
   const sessionDate = formData.get('sessionDate') as string
   const description = (formData.get('description') as string).trim() || null
@@ -25,6 +27,7 @@ async function createSession(formData: FormData) {
 
 async function deleteSession(formData: FormData) {
   'use server'
+  await requireAdmin()
   const id = formData.get('id') as string
   await db.delete(hyskySessions).where(eq(hyskySessions.id, id))
   revalidatePath('/admin/hysky-monthly')
@@ -33,6 +36,7 @@ async function deleteSession(formData: FormData) {
 
 async function syncFromYoutube() {
   'use server'
+  await requireAdmin()
   await syncMonthlyPlaylist()
   revalidatePath('/admin/hysky-monthly')
   revalidatePath('/hysky-monthly')
