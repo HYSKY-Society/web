@@ -82,7 +82,7 @@ export default async function AboutPage() {
             </Link>
             <Link
               href="/sign-in"
-              className="border border-white/[.08] text-white hover:border-[#13dce8] hover:text-[#13dce8] hover:shadow-[0_0_20px_rgba(19,220,232,.35)] px-7 py-4 rounded-full text-base font-bold transition-all"
+              className="border border-black text-black hover:border-black hover:text-black hover:shadow-[0_0_20px_rgba(0,0,0,.2)] px-7 py-4 rounded-full text-base font-bold transition-all"
             >
               Login Now
             </Link>
@@ -300,3 +300,4 @@ export default async function AboutPage() {
     </PublicShell>
   )
 }
+
