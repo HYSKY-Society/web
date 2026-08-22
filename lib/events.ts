@@ -20,7 +20,7 @@ export const events: Event[] = [
     subtitle: 'The 4th Global Hydrogen Aviation Conference',
     tagline: "The world's largest annual hydrogen aviation event.",
     date: 'November 4, 2026',
-    time: '9:00 AM – 5:00 PM CT',
+    time: '8:00 AM – 6:05 PM CT',
     format: 'Virtual (Zoom)',
     description: "Bringing together innovators, researchers, regulators, and industry leaders from across air and aerospace to advance the future of hydrogen aviation.",
     isFree: false,
