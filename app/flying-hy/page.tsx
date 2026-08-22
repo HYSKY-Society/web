@@ -29,30 +29,48 @@ const eventArchive = [
   { year: 2023, href: 'https://www.hysky.org/flyinghy2023', external: true },
 ]
 
-const speakerHeadshots: Record<string, string> = {
+const speakerHeadshots: Record<string, string | string[]> = {
   'Danielle McLean': '1uDNh6QU9gidXhZBP9DHj44KVI8e19IR2',
+  'Catherine (Cat) Wren & Jamie Santiago Muñoz': [
+    '1LjHuK-F28ZYNPGH2ZcaodwTYsTCiG8yR',
+    '1zzJGENmru0lPzi1JiBYErtwNlPy6qA9t',
+  ],
+  'Christine Ourmières-Widener': '1D56qPu_R6ZBSGEMcq1ZBRsSeCg0r7uce',
+  'Dr. Phil Elliott': '142riIo3OJFcGA226RSbpOPEV-plkgQZP',
   'Helen Leadbetter': '1llmCYsaPC4XnffmOmEuUUxA9momAQ12n',
   'Irwin Kerboriou': '1BsLN4wx4JzaG0dqdkBm0A4XTvQDj8toj',
   'Dr. Josef Kallo': '1s-ucIi1d2QocqDesDf23gNkNWK1TJZLn',
   'Karl Samuelsson': '10yvo5u1HwLRrzFsPU5XZ8plP75KS756J',
   'Dr. Eva Maleviti': '1tUwQYn9kWYRBV4JDcbWyhWnWRafafbJ5',
+  'Jared Semik': '16iAjjBDhU1x5c5nEmV6tBqL0zay1qrip',
   'Mark van Wyk': '1ICYFaG8wUlVQCV9SKONF1jwLQtiKWlih',
+  'Martin Chan': '1i4pljgjeiM_mvUBxw3x9WOsqfCyVu9cC',
   'Mikael Cardinal': '1QTWD7i57uRMQWy7Bc-0vDOLZZaOr1Vnv',
   'Chris McWhinney': '1nimB7u-ihmF2_3XE2FXC61NcZwHJguhP',
   'Bentzion Levinson': '19xmFPC9BMBtiP0zKRzjVW5-Y9pV0_sM9',
   'Dr. Anita Sengupta': '1wfKEs0Du4e5rIWOcIUvftU-3AzCRe2pB',
+  'Matt Moran': '1JlO1KSVLK1DeAnOdBYQugPlFzqt2DGdZ',
+  'Tsion Abreha': '1Z4qmsEToyIoyMfqHj3QXFSTUcYG9UFmd',
   'Dr. Jason Damazo': '1pb9TcnfstVaamhYHhOV9-3QlP5C6Oa_Y',
   'Paul Gloyer': '1H7iSW7n2_7azR8cx251OU1wElfyn88ar',
+  'Barry Prince': '18S-E6GIUpQmAGMpB4Z1stVPARLo71kPl',
   'Dr. Ben Emerson': '1kXQ_JsszwAv61SNNNSX-1pWuwF7iernC',
   'Catalin Fotache': '1i2aEk1EOhjYjF6Z1F5_R4V1hVApChxJk',
+  'Dr. Nick Ingarra': '1SnUkSfUEvKO070kKUAq48qX0Cyc07CRJ',
   'Serge Markoff': '1GVriCcRazhAPemmBCtHG3n0qrOKKSTtx',
   'John Piasecki': '1HnPhjNKO-RCACdDjN-KprHKOSvOWqzTX',
+  'Dr. Jacob Leachman': '1edUT0HpOYr-qN1kxI6OUpcLBlgldlb9e',
+  'Dr. Philip Stuckey': '1-jK2vVHeqmkd-9RGmHvP2qcit8rfYbEI',
   'Sara Mitran': '1iSeNIds6NiIFQ83lSFt6lim-EIxI4bQw',
 }
 
-function speakerHeadshotUrl(name: string): string | null {
-  const fileId = speakerHeadshots[name]
-  return fileId ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w400` : null
+function speakerHeadshotUrls(name: string): string[] {
+  const fileIds = speakerHeadshots[name]
+  if (!fileIds) return []
+
+  return (Array.isArray(fileIds) ? fileIds : [fileIds]).map(
+    (fileId) => `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`,
+  )
 }
 
 export default async function FlyingHyPage() {
@@ -152,20 +170,25 @@ export default async function FlyingHyPage() {
         </h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {agenda.map((speaker) => {
-            const headshotUrl = speakerHeadshotUrl(speaker.name)
+            const headshotUrls = speakerHeadshotUrls(speaker.name)
 
             return (
               <article key={`${speaker.time}-${speaker.name}`} className="rounded-2xl p-6"
                 style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}>
-                {headshotUrl ? (
-                    <img
-                      src={headshotUrl}
-                      alt={`${speaker.name} headshot`}
-                      loading="lazy"
-                      referrerPolicy="no-referrer"
-                      className="w-28 h-28 rounded-full mb-6 object-cover ring-2 ring-[#5d00f5]/50"
-                    />
-                  ) : null}
+                {headshotUrls.length > 0 ? (
+                  <div className="flex -space-x-4 mb-6">
+                    {headshotUrls.map((headshotUrl, index) => (
+                      <img
+                        key={headshotUrl}
+                        src={headshotUrl}
+                        alt={`${speaker.name} headshot${headshotUrls.length > 1 ? ` ${index + 1}` : ''}`}
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                        className="w-28 h-28 rounded-full object-cover ring-2 ring-[#5d00f5]/50"
+                      />
+                    ))}
+                  </div>
+                ) : null}
                 <h3 className="font-bold text-white text-lg mb-0.5">{speaker.name}</h3>
                 <p className="text-white/55 text-sm">{speaker.title}</p>
                 <p className="text-[#9b6dff] text-xs font-semibold mt-1">{speaker.company}</p>
