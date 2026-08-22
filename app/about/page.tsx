@@ -273,7 +273,22 @@ export default async function AboutPage() {
       {/* ── FOOTER ────────────────────────────────────────────────────────── */}
       <footer style={{ borderTop: '1px solid var(--border-muted)' }}>
         <div className="flex flex-wrap justify-between items-center gap-6 px-[6%] py-10">
-          <Image src="/logo-new.png" alt="HySky Society" height={30} width={120} className="object-contain opacity-70" />
+          <div className="relative h-[44px] w-[176px] shrink-0 opacity-85">
+            <Image
+              src="/logo-white.png"
+              alt="HySky Society"
+              fill
+              sizes="176px"
+              className="theme-logo-dark object-contain object-left"
+            />
+            <Image
+              src="/logo-purple.png"
+              alt="HySky Society"
+              fill
+              sizes="176px"
+              className="theme-logo-light object-contain object-left"
+            />
+          </div>
           <p className="text-white/35 text-sm max-w-sm leading-relaxed">
             Clean skies for future generations through hydrogen-powered flight. Donations are tax deductible.
           </p>
