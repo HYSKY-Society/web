@@ -255,7 +255,7 @@ export default async function AboutPage() {
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
               href="/sign-up"
-              className="inline-block bg-[#13dce8] hover:bg-white text-black font-black px-8 py-4 rounded-full text-base transition-all"
+              className="inline-block bg-[#13dce8] hover:bg-white text-black hover:text-[#13dce8] font-black px-8 py-4 rounded-full text-base transition-all"
               style={{ boxShadow: '0 0 35px rgba(19,220,232,.45)' }}
             >
               Join the Movement
