@@ -37,6 +37,14 @@
     var(--surface-subtle);
 }
 
+.flying-hy-representing {
+  color: #13dce8;
+}
+
+[data-theme='light'] .flying-hy-representing {
+  color: #000000;
+}
+
 /* ── CSS custom properties ──────────────────────────────────────────── */
 :root {
   color-scheme: dark;

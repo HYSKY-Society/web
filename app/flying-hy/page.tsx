@@ -254,7 +254,7 @@ export default async function FlyingHyPage() {
                     }}
                   >
                     <div className="absolute inset-3 rounded-xl border border-white/10" aria-hidden="true" />
-                    <p className="relative mb-2 text-[10px] font-bold uppercase tracking-[2px] text-[#13dce8]">Representing</p>
+                    <p className="flying-hy-representing relative mt-3 mb-2 text-[10px] font-bold uppercase tracking-[2px]">Representing</p>
                     <div className="relative mb-5 flex h-36 w-full max-w-[230px] items-center justify-center rounded-2xl border border-white/20 bg-black p-5 shadow-[0_18px_55px_rgba(0,0,0,.28)]">
                       {companyLogoUrl ? (
                         <img
