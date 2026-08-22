@@ -11,7 +11,7 @@ export default function PublicShellClient({
 
   return (
     <div className="min-h-screen overflow-x-hidden" style={{ backgroundColor: 'var(--bg-page)' }}>
-      <AppTopBar onMenuClick={() => setSidebarOpen(true)} isLoggedIn={isLoggedIn} />
+      <AppTopBar onMenuClick={() => setSidebarOpen(open => !open)} isLoggedIn={isLoggedIn} sidebarOpen={sidebarOpen} />
       <PublicSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} isLoggedIn={isLoggedIn} />
       {sidebarOpen && (
         <div
@@ -25,3 +25,4 @@ export default function PublicShellClient({
     </div>
   )
 }
+

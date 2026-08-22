@@ -46,7 +46,13 @@ export default function AppShell({ sidebarData, children, noPadding }: { sidebar
     <ChatProvider myId={sidebarData.myId}>
       <VipAccessRefresh initialCanUseVipCommunity={canUseVipCommunity} />
       <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-page)' }}>
-        <AppTopBar onMenuClick={handleMenuClick} myId={sidebarData.myId} canOpenDirectMessages={canUseVipCommunity} />
+        <AppTopBar
+          onMenuClick={handleMenuClick}
+          myId={sidebarData.myId}
+          canOpenDirectMessages={canUseVipCommunity}
+          sidebarOpen={sidebarOpen}
+          sidebarCollapsed={collapsed}
+        />
 
         <AppSidebar
           data={sidebarData}
@@ -77,3 +83,4 @@ export default function AppShell({ sidebarData, children, noPadding }: { sidebar
     </ChatProvider>
   )
 }
+
