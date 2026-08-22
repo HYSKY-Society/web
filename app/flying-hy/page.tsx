@@ -141,9 +141,9 @@ export default async function FlyingHyPage() {
             style={{ background: 'rgba(93,0,245,.2)', color: '#9b6dff' }}>
             ✈️ The 4th Global H₂ Aviation Conference
           </div>
-          <h1 className="font-black uppercase leading-[.88] tracking-[-3px] mb-6"
-            style={{ fontSize: 'clamp(4rem, 10vw, 9rem)', color: '#fff' }}>
-            FLYING<br /><span style={{ color: '#5d00f5' }}>HY</span>{' '}
+          <h1 className="flying-hy-display uppercase leading-[.88] tracking-[-3px] mb-6"
+            style={{ fontSize: 'clamp(4rem, 10vw, 9rem)' }}>
+            <span className="flying-hy-title-flying">FLYING</span><br /><span style={{ color: '#5d00f5' }}>HY</span>{' '}
             <span style={{ color: '#13dce8' }}>2026</span>
           </h1>
           <div className="flex flex-wrap gap-4 text-white/55 text-sm mb-8">
@@ -244,9 +244,6 @@ export default async function FlyingHyPage() {
                     <p className="text-white/55 text-sm">{speaker.title}</p>
                     <p className="text-[#9b6dff] text-xs font-semibold mt-1">{speaker.company}</p>
                     <p className="text-[#13dce8] text-xs font-bold mt-4">{speaker.time}</p>
-                    <div className="absolute bottom-5 right-5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[1.5px] text-white/35">
-                      <span aria-hidden="true">↻</span> Company
-                    </div>
                   </div>
 
                   <div
@@ -258,6 +255,7 @@ export default async function FlyingHyPage() {
                     }}
                   >
                     <div className="absolute inset-3 rounded-xl border border-white/10" aria-hidden="true" />
+                    <p className="relative mb-2 text-[10px] font-bold uppercase tracking-[2px] text-[#13dce8]">Representing</p>
                     <div className="relative mb-5 flex h-36 w-full max-w-[230px] items-center justify-center rounded-2xl border border-white/20 bg-black p-5 shadow-[0_18px_55px_rgba(0,0,0,.28)]">
                       {companyLogoUrl ? (
                         <img
@@ -271,7 +269,6 @@ export default async function FlyingHyPage() {
                         <span className="text-2xl font-black text-black/75">{speaker.company}</span>
                       )}
                     </div>
-                    <p className="relative text-[10px] font-bold uppercase tracking-[2px] text-[#13dce8]">Representing</p>
                     <p className="relative mt-2 text-lg font-bold text-white">{speaker.company}</p>
                     <p className="relative mt-3 text-xs text-white/45">Speaker bio coming soon</p>
                   </div>
