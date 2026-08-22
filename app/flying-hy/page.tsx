@@ -66,6 +66,40 @@ const speakerHeadshots: Record<string, string | string[]> = {
   'Sara Mitran': '1iSeNIds6NiIFQ83lSFt6lim-EIxI4bQw',
 }
 
+const speakerCompanyLogos: Record<string, string> = {
+  'Danielle McLean': '1a_DXOvaYgklgU9rCLStdW9Zi1qg6bbaV',
+  'Catherine (Cat) Wren & Jamie Santiago Muñoz': '1Lx5EzFDGZ29ZjaexUrpEkFmWMYx79Unp',
+  'Christine Ourmières-Widener': '12uDf7dahJrcmzwuF4yFmRBGOlO3DMoOf',
+  'Dr. Phil Elliott': '1muduWldKMrfjt65GnJUl901Nl7cJUOps',
+  'Helen Leadbetter': '1eoa9TyvggyoYqQDSUCo20nFzIKSRasYt',
+  'Irwin Kerboriou': '17T6OIc4xgqNFGfmiq4cJw3cQjj2qHxXQ',
+  'Dr. Josef Kallo': '1AnwEJMBa3Ip_V0teDLZd0WbnGtnjRrqF',
+  'Karl Samuelsson': '1DGR5AiZkb3yQAM6-4Q3FnqcGfLLdUCwj',
+  'Dr. Eva Maleviti': '1NgS7lngr0cNs_umCUFq2z1n_JTSNpbFM',
+  'Jared Semik': '1cpMRS_XLdYFZRvceruX5dv15jg3NXoS2',
+  'Michael Bluy': '1inv1dNhKacwolN5j39fDfZhXHPx6doPH',
+  'Joshua Heyne': '17Gcs7CMY7gOpg1TgzB6KGpW8VteEPl7U',
+  'Mark van Wyk': '1Ob9stA6mGmYRz6K2NU4wT9H6EWsHz2vt',
+  'Martin Chan': '1qscpgfVYZvpM6iPF0n1DzJf6JztZLa3x',
+  'Mikael Cardinal': '1AZRDgyO2ZhCx0RAZaQQjAJwQnJrR02Ht',
+  'Chris McWhinney': '1kJk1A9t5A2Kz5msEmGlIu3oTZnrTSr_P',
+  'Bentzion Levinson': '1mafs5sX59661HsGue522vbpBSjD6JHWq',
+  'Dr. Anita Sengupta': '1JTWhX0tsc7skOg68RMinv-MRNfISlV9w',
+  'Matt Moran': '1xU2Xwz6HZGO1MTfOYrfvth8dYo9-DoCk',
+  'Tsion Abreha': '1a_DXOvaYgklgU9rCLStdW9Zi1qg6bbaV',
+  'Dr. Jason Damazo': '19Rhg3oLHbZXGc45hjaBQlnXhUMCW29ir',
+  'Paul Gloyer': '13vfZsvfONqn5dGaJ97Ky1ruc9eP-QEpl',
+  'Barry Prince': '1_IFRXbSOpODaIh5xWOge4XEBgRbs4snd',
+  'Dr. Ben Emerson': '1CeJP4jC5vREl8yhm0srGLqZH8OIRgVMK',
+  'Catalin Fotache': '1pwpOjFB5S92fmcqASU13d0NOf9a16wOL',
+  'Dr. Nick Ingarra': '11FbP9W-3-eb4VlPMVTh8eTLom9ySY73p',
+  'Serge Markoff': '1vYZBNGutaEx6kSEWeG-G07h_J7k_tr4A',
+  'John Piasecki': '1R5AwiYAolAkTbnQf7XazzrHD_ncEiZJg',
+  'Dr. Jacob Leachman': '1xd-lNETduaB6h93_nBzBpdxv2qM5JQ-q',
+  'Dr. Philip Stuckey': '1ZrrQaRya22jYonbuiSUfPz5DhxaMXxDv',
+  'Sara Mitran': '1cYG_waIKiZ15I_tFvQqS1HLkiuzFVqeK',
+}
+
 function speakerHeadshotUrls(name: string): string[] {
   const fileIds = speakerHeadshots[name]
   if (!fileIds) return []
@@ -73,6 +107,11 @@ function speakerHeadshotUrls(name: string): string[] {
   return (Array.isArray(fileIds) ? fileIds : [fileIds]).map(
     (fileId) => `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`,
   )
+}
+
+function speakerCompanyLogoUrl(name: string): string | null {
+  const fileId = speakerCompanyLogos[name]
+  return fileId ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w600` : null
 }
 
 export default async function FlyingHyPage() {
@@ -173,28 +212,70 @@ export default async function FlyingHyPage() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {agenda.map((speaker) => {
             const headshotUrls = speakerHeadshotUrls(speaker.name)
+            const companyLogoUrl = speakerCompanyLogoUrl(speaker.name)
 
             return (
-              <article key={`${speaker.time}-${speaker.name}`} className="rounded-2xl p-6"
-                style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}>
-                {headshotUrls.length > 0 ? (
-                  <div className="flex -space-x-4 mb-6">
-                    {headshotUrls.map((headshotUrl, index) => (
-                      <img
-                        key={headshotUrl}
-                        src={headshotUrl}
-                        alt={`${speaker.name} headshot${headshotUrls.length > 1 ? ` ${index + 1}` : ''}`}
-                        loading="lazy"
-                        referrerPolicy="no-referrer"
-                        className="w-28 h-28 rounded-full object-cover ring-2 ring-[#5d00f5]/50"
-                      />
-                    ))}
+              <article
+                key={`${speaker.time}-${speaker.name}`}
+                tabIndex={0}
+                aria-label={`${speaker.name}, ${speaker.company}. Hover or focus to view company.`}
+                className="group relative min-h-[340px] rounded-2xl outline-none [perspective:1200px] focus-visible:ring-2 focus-visible:ring-[#13dce8] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+              >
+                <div className="relative h-full min-h-[340px] transition-transform duration-700 ease-out [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus:[transform:rotateY(180deg)] motion-reduce:duration-0">
+                  <div
+                    className="absolute inset-0 rounded-2xl p-6 [backface-visibility:hidden]"
+                    style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}
+                  >
+                    {headshotUrls.length > 0 ? (
+                      <div className="flex -space-x-4 mb-6">
+                        {headshotUrls.map((headshotUrl, index) => (
+                          <img
+                            key={headshotUrl}
+                            src={headshotUrl}
+                            alt={`${speaker.name} headshot${headshotUrls.length > 1 ? ` ${index + 1}` : ''}`}
+                            loading="lazy"
+                            referrerPolicy="no-referrer"
+                            className="w-28 h-28 rounded-full object-cover ring-2 ring-[#5d00f5]/50"
+                          />
+                        ))}
+                      </div>
+                    ) : null}
+                    <h3 className="font-bold text-white text-lg mb-0.5">{speaker.name}</h3>
+                    <p className="text-white/55 text-sm">{speaker.title}</p>
+                    <p className="text-[#9b6dff] text-xs font-semibold mt-1">{speaker.company}</p>
+                    <p className="text-[#13dce8] text-xs font-bold mt-4">{speaker.time}</p>
+                    <div className="absolute bottom-5 right-5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[1.5px] text-white/35">
+                      <span aria-hidden="true">↻</span> Company
+                    </div>
                   </div>
-                ) : null}
-                <h3 className="font-bold text-white text-lg mb-0.5">{speaker.name}</h3>
-                <p className="text-white/55 text-sm">{speaker.title}</p>
-                <p className="text-[#9b6dff] text-xs font-semibold mt-1">{speaker.company}</p>
-                <p className="text-[#13dce8] text-xs font-bold mt-4">{speaker.time}</p>
+
+                  <div
+                    className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-2xl p-6 text-center [backface-visibility:hidden] [transform:rotateY(180deg)]"
+                    style={{
+                      background: 'radial-gradient(circle at 50% 30%, rgba(19,220,232,.18), transparent 42%), radial-gradient(circle at 20% 90%, rgba(93,0,245,.32), transparent 55%), var(--surface-subtle)',
+                      border: '1px solid rgba(19,220,232,.35)',
+                      boxShadow: 'inset 0 0 60px rgba(93,0,245,.12)',
+                    }}
+                  >
+                    <div className="absolute inset-3 rounded-xl border border-white/10" aria-hidden="true" />
+                    <div className="relative mb-5 flex h-36 w-full max-w-[230px] items-center justify-center rounded-2xl border border-white/20 bg-white p-5 shadow-[0_18px_55px_rgba(0,0,0,.28)]">
+                      {companyLogoUrl ? (
+                        <img
+                          src={companyLogoUrl}
+                          alt={`${speaker.company} logo`}
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                          className="h-full w-full object-contain"
+                        />
+                      ) : (
+                        <span className="text-2xl font-black text-black/75">{speaker.company}</span>
+                      )}
+                    </div>
+                    <p className="relative text-[10px] font-bold uppercase tracking-[2px] text-[#13dce8]">Representing</p>
+                    <p className="relative mt-2 text-lg font-bold text-white">{speaker.company}</p>
+                    <p className="relative mt-3 text-xs text-white/45">Speaker bio coming soon</p>
+                  </div>
+                </div>
               </article>
             )
           })}
