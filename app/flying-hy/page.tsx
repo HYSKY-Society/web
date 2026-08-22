@@ -209,7 +209,7 @@ export default async function FlyingHyPage() {
         <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-10" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
           Who&apos;s <span style={{ color: '#5d00f5' }}>Speaking</span>
         </h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid items-start sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {agenda.map((speaker) => {
             const headshotUrls = speakerHeadshotUrls(speaker.name)
             const companyLogoUrl = speakerCompanyLogoUrl(speaker.name)
