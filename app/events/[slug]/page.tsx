@@ -4,6 +4,7 @@ import { getEvent } from '@/lib/events'
 import { EventRegisterButton } from '@/components/EventRegisterButton'
 import { ZEFFY } from '@/lib/zeffy'
 import PublicShell from '@/app/components/PublicShell'
+import FlyingHyAgenda from './FlyingHyAgenda'
 
 const flyingHyOptions = [
   { label: 'Attendee', icon: '🎟️', embedUrl: ZEFFY.flyingHyAttendee },
@@ -71,6 +72,8 @@ export default function EventPage({ params }: { params: { slug: string } }) {
             />
           </div>
         </div>
+
+        {event.slug === 'flying-hy-2026' && <FlyingHyAgenda />}
 
         {/* Ticket options info */}
         {event.sponsorshipEmbedSlug && (
