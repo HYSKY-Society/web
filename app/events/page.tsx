@@ -49,7 +49,7 @@ export default function EventsPage() {
             <div className="flex flex-wrap gap-4 text-white/55 text-sm mb-6">
               <span>📅 November 4, 2026</span>
               <span>💻 Zoom</span>
-              <span>🕘 9:00 AM – 5:00 PM CT</span>
+              <span>🕘 8:00 AM – 6:05 PM CT</span>
             </div>
             <p className="text-white/50 text-sm leading-relaxed mb-6 max-w-2xl">
               The world&apos;s largest annual hydrogen aviation event — bringing together innovators, researchers, regulators, and industry leaders from across air and aerospace.
@@ -62,7 +62,7 @@ export default function EventsPage() {
                 className="btn-teal-glow inline-flex items-center gap-2 text-white font-bold px-8 py-3 rounded-xl text-sm"
               />
               <Link
-                href="/events/flying-hy-2026"
+                href="/flying-hy"
                 className="inline-flex items-center gap-2 text-white/60 hover:text-white font-semibold px-6 py-3 rounded-xl text-sm border border-white/15 hover:border-white/30 transition-colors"
               >
                 View Details →

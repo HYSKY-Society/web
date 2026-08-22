@@ -345,7 +345,7 @@ export default async function FeedPage() {
       key: `event-${event.slug}`,
       label: event.title,
       date: event.date,
-      href: `/events/${event.slug}`,
+      href: event.slug === 'flying-hy-2026' ? '/flying-hy' : `/events/${event.slug}`,
     })),
     {
       key: 'hysky-monthly-aerodelft-2026-09-21',
@@ -493,4 +493,3 @@ export default async function FeedPage() {
     </div>
   )
 }
-

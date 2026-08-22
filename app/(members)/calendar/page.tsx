@@ -27,7 +27,7 @@ export default async function CalendarPage() {
         date: new Date(e.date).toISOString(),
         title: e.title,
         type: 'event' as const,
-        href: `/events/${e.slug}`,
+        href: e.slug === 'flying-hy-2026' ? '/flying-hy' : `/events/${e.slug}`,
       })),
     // HySky Monthly sessions
     ...sessions.map(s => ({
