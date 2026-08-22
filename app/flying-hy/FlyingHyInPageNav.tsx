@@ -1,7 +1,6 @@
 'use client'
 
 const SECTIONS = [
-  { href: '#about',    label: 'About' },
   { href: '#speakers', label: 'Speakers' },
   { href: '#agenda',   label: 'Agenda' },
   { href: '#sponsors', label: 'Sponsors' },
@@ -26,3 +25,4 @@ export default function FlyingHyInPageNav() {
     </nav>
   )
 }
+

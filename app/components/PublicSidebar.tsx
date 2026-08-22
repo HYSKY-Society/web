@@ -9,7 +9,6 @@ const NAV = [
   { href: '/courses',      label: 'Courses',       icon: '📚' },
   { href: '/events',       label: 'Events',        icon: '📅' },
   { href: '/flying-hy',    label: 'FLYING HY',     icon: '✈️', sub: [
-    { href: '/flying-hy#about',    label: 'About' },
     { href: '/flying-hy#speakers', label: 'Speakers' },
     { href: '/flying-hy#agenda',   label: 'Agenda' },
     { href: '/flying-hy#sponsors', label: 'Sponsors' },
@@ -98,3 +97,4 @@ export default function PublicSidebar({
     </aside>
   )
 }
+

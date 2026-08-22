@@ -171,38 +171,6 @@ export default async function FlyingHyPage() {
       {/* ── STICKY IN-PAGE NAV ── */}
       <FlyingHyInPageNav />
 
-      {/* ── ABOUT ── */}
-      <section id="about" className="scroll-mt-[110px] max-w-5xl mx-auto px-6 lg:px-8 py-20">
-        <div className="text-[#9b6dff] text-xs font-bold uppercase tracking-[2.5px] mb-4">About</div>
-        <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-8" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
-          Built for the People Designing<br /><span style={{ color: '#5d00f5' }}>the Future of Flight</span>
-        </h2>
-        <div className="grid lg:grid-cols-2 gap-12">
-          <p className="text-white/55 text-lg leading-relaxed">
-            FLYING HY is the world&apos;s largest annual hydrogen aviation conference. Each year, it brings together the most influential voices across hydrogen aviation — engineers, regulators, investors, infrastructure builders, and policy advocates — for a focused day of ideas, debates, and breakthroughs.
-          </p>
-          <p className="text-white/55 text-lg leading-relaxed">
-            From UAVs and eVTOLs to fixed-wing aircraft, fuel cells, storage systems, and ground infrastructure — if it combines hydrogen and aviation, it belongs at FLYING HY.
-          </p>
-        </div>
-        <div className="grid sm:grid-cols-3 gap-6 mt-12">
-          {[
-            { stat: '4th', label: 'Annual Edition', icon: '🏆' },
-            { stat: '1 Day', label: 'Intensive Program', icon: '📅' },
-            { stat: 'Global', label: 'Virtual Access', icon: '🌍' },
-          ].map(({ stat, label, icon }) => (
-            <div key={stat} className="rounded-2xl p-6 text-center"
-              style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}>
-              <div className="text-3xl mb-2">{icon}</div>
-              <div className="text-3xl font-black text-white mb-1">{stat}</div>
-              <div className="text-white/40 text-sm">{label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <div className="h-px mx-6 lg:mx-8" style={{ background: 'var(--border-muted)' }} />
-
       {/* ── SPEAKERS ── */}
       <section id="speakers" className="scroll-mt-[110px] max-w-5xl mx-auto px-6 lg:px-8 py-20">
         <div className="text-[#9b6dff] text-xs font-bold uppercase tracking-[2.5px] mb-4">Speakers</div>
