@@ -9,6 +9,14 @@ import type { OnlineUser } from './ChatProvider'
 
 type GroupMember = { userId: string; displayName: string | null; avatarUrl: string | null }
 type MyGroup = { id: string; name: string; createdBy: string; members: GroupMember[] }
+type Conversation = {
+  userId: string
+  displayName: string
+  avatarUrl: string | null
+  lastMessage: string
+  lastMessageFromMe: boolean
+  unreadCount: number
+}
 
 // ── Tiny helpers ──────────────────────────────────────────────────────────────
 
@@ -236,6 +244,8 @@ export default function ChatBar() {
   const [panelOpen,    setPanelOpen]    = useState(false)
   const [tab,          setTab]          = useState<'dm' | 'gm'>('dm')
   const [myGroups,     setMyGroups]     = useState<MyGroup[]>([])
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [messagesLoading, setMessagesLoading] = useState(true)
   const [groupMenuFor, setGroupMenuFor] = useState<string | null>(null)
   const panelRef = useRef<HTMLDivElement>(null)
 
@@ -256,8 +266,23 @@ export default function ChatBar() {
     if (res.ok) setMyGroups(await res.json())
   }
 
+  const fetchConversations = async () => {
+    try {
+      const res = await fetch('/api/messages')
+      if (res.ok) {
+        const data = await res.json()
+        if (Array.isArray(data)) setConversations(data)
+      }
+    } finally {
+      setMessagesLoading(false)
+    }
+  }
+
   useEffect(() => {
-    if (panelOpen) fetchGroups()
+    if (panelOpen) {
+      fetchGroups()
+      fetchConversations()
+    }
   }, [panelOpen])
 
   const createGroup = async (name: string): Promise<MyGroup | null> => {
@@ -315,6 +340,11 @@ export default function ChatBar() {
     setPanelOpen(false)
   }
 
+  const handleOpenConversation = (conversation: Conversation) => {
+    openDM(conversation.userId, conversation.displayName, conversation.avatarUrl)
+    setPanelOpen(false)
+  }
+
   const handleOpenGM = (group: MyGroup) => {
     openGM(group.id, group.name)
     setPanelOpen(false)
@@ -363,14 +393,18 @@ export default function ChatBar() {
 
         {/* DM windows */}
         {windows.map(w => (
-          <DMWindow key={w.id} userId={w.id} name={w.name} avatar={w.avatar} />
+          <div key={w.id} className={panelOpen ? 'invisible pointer-events-none' : ''} aria-hidden={panelOpen}>
+            <DMWindow userId={w.id} name={w.name} avatar={w.avatar} />
+          </div>
         ))}
 
         {/* GM windows — pass member data from myGroups so the window can show who's in the chat */}
         {gmWindows.map(w => {
           const groupData = myGroups.find(g => g.id === w.id)
           return (
-            <GMWindow key={w.id} groupId={w.id} name={w.name} members={groupData?.members ?? []} />
+            <div key={w.id} className={panelOpen ? 'invisible pointer-events-none' : ''} aria-hidden={panelOpen}>
+              <GMWindow groupId={w.id} name={w.name} members={groupData?.members ?? []} />
+            </div>
           )
         })}
 
@@ -407,30 +441,47 @@ export default function ChatBar() {
               {/* Content */}
               <div className="flex-1 overflow-y-auto">
                 {tab === 'dm' ? (
-                  online.length === 0 ? (
+                  messagesLoading ? (
+                    <p className="px-5 py-12 text-center text-xs text-white/35">Loading conversations…</p>
+                  ) : conversations.length === 0 ? (
                     <div className="flex h-full flex-col items-center justify-center px-4 text-center">
                       <span className="mb-3 text-4xl">✨</span>
                       <p className="text-sm font-semibold text-white">Your next great connection is waiting</p>
                       <a href="/network" className="mt-3 rounded-lg bg-[#5d00f5] px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#7b33ff]">
-                        Browse VIP members →
+                        Browse Members →
                       </a>
                     </div>
                   ) : (
-                    <div className="px-2 py-2">
+                    <div className="flex min-h-full flex-col px-2 py-2">
                       <p className="text-[10px] font-semibold uppercase tracking-wider text-white/25 px-2 mb-1">
-                        Online now · {online.length}
+                        Recent conversations
                       </p>
-                      {online.map(u => (
-                        <OnlineRow
-                          key={u.id}
-                          user={u}
-                          onOpen={handleOpenDM}
-                          myGroups={myGroups}
-                          groupMenuOpen={groupMenuFor === u.id}
-                          onToggleGroupMenu={() => setGroupMenuFor(v => v === u.id ? null : u.id)}
-                          onAddToGroup={gId => addToGroup(gId, u.id)}
-                        />
-                      ))}
+                      <div className="divide-y divide-white/8">
+                        {conversations.map(conversation => (
+                          <button
+                            key={conversation.userId}
+                            type="button"
+                            onClick={() => handleOpenConversation(conversation)}
+                            className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left transition-colors hover:bg-white/6"
+                          >
+                            <Avatar name={conversation.displayName} url={conversation.avatarUrl} size={36} />
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-xs font-semibold text-white">{conversation.displayName}</span>
+                              <span className={`mt-0.5 block truncate text-[11px] ${conversation.unreadCount > 0 ? 'font-semibold text-white/80' : 'text-white/40'}`}>
+                                {conversation.lastMessageFromMe ? 'You: ' : ''}{conversation.lastMessage}
+                              </span>
+                            </span>
+                            {conversation.unreadCount > 0 && (
+                              <span className="flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#5d00f5] px-1 text-[9px] font-bold text-white">
+                                {conversation.unreadCount > 9 ? '9+' : conversation.unreadCount}
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                      <a href="/members" className="mt-auto block px-2 pt-3 text-center text-xs font-semibold text-[#9b6dff] hover:text-white">
+                        Browse Members →
+                      </a>
                     </div>
                   )
                 ) : (
@@ -486,3 +537,4 @@ export default function ChatBar() {
     </>
   )
 }
+
