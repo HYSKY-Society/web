@@ -44,6 +44,7 @@ const speakerHeadshots: Record<string, string | string[]> = {
   'Dr. Eva Maleviti': '1tUwQYn9kWYRBV4JDcbWyhWnWRafafbJ5',
   'Jared Semik': '16iAjjBDhU1x5c5nEmV6tBqL0zay1qrip',
   'Michael Bluy': '1pVfYMH_R41Bcsk7TnNk8dkw3c-STfVDz',
+  'Joshua Heyne': '1DvSNgqWKWX_1NXhkf0Lk09WBF50cC243',
   'Mark van Wyk': '1ICYFaG8wUlVQCV9SKONF1jwLQtiKWlih',
   'Martin Chan': '1i4pljgjeiM_mvUBxw3x9WOsqfCyVu9cC',
   'Mikael Cardinal': '1QTWD7i57uRMQWy7Bc-0vDOLZZaOr1Vnv',
