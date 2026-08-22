@@ -247,9 +247,8 @@ export default async function FlyingHyPage() {
                   </div>
 
                   <div
-                    className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-2xl p-6 text-center [backface-visibility:hidden] [transform:rotateY(180deg)]"
+                    className="flying-hy-speaker-back absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-2xl p-6 text-center [backface-visibility:hidden] [transform:rotateY(180deg)]"
                     style={{
-                      background: 'radial-gradient(circle at 50% 30%, rgba(19,220,232,.18), transparent 42%), radial-gradient(circle at 20% 90%, rgba(93,0,245,.32), transparent 55%), var(--surface-subtle)',
                       border: '1px solid rgba(19,220,232,.35)',
                       boxShadow: 'inset 0 0 60px rgba(93,0,245,.12)',
                     }}
