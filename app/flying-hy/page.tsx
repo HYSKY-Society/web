@@ -29,6 +29,32 @@ const eventArchive = [
   { year: 2023, href: 'https://www.hysky.org/flyinghy2023', external: true },
 ]
 
+const speakerHeadshots: Record<string, string> = {
+  'Danielle McLean': '1uDNh6QU9gidXhZBP9DHj44KVI8e19IR2',
+  'Helen Leadbetter': '1llmCYsaPC4XnffmOmEuUUxA9momAQ12n',
+  'Irwin Kerboriou': '1BsLN4wx4JzaG0dqdkBm0A4XTvQDj8toj',
+  'Dr. Josef Kallo': '1s-ucIi1d2QocqDesDf23gNkNWK1TJZLn',
+  'Karl Samuelsson': '10yvo5u1HwLRrzFsPU5XZ8plP75KS756J',
+  'Dr. Eva Maleviti': '1tUwQYn9kWYRBV4JDcbWyhWnWRafafbJ5',
+  'Mark van Wyk': '1ICYFaG8wUlVQCV9SKONF1jwLQtiKWlih',
+  'Mikael Cardinal': '1QTWD7i57uRMQWy7Bc-0vDOLZZaOr1Vnv',
+  'Chris McWhinney': '1nimB7u-ihmF2_3XE2FXC61NcZwHJguhP',
+  'Bentzion Levinson': '19xmFPC9BMBtiP0zKRzjVW5-Y9pV0_sM9',
+  'Dr. Anita Sengupta': '1wfKEs0Du4e5rIWOcIUvftU-3AzCRe2pB',
+  'Dr. Jason Damazo': '1pb9TcnfstVaamhYHhOV9-3QlP5C6Oa_Y',
+  'Paul Gloyer': '1H7iSW7n2_7azR8cx251OU1wElfyn88ar',
+  'Dr. Ben Emerson': '1kXQ_JsszwAv61SNNNSX-1pWuwF7iernC',
+  'Catalin Fotache': '1i2aEk1EOhjYjF6Z1F5_R4V1hVApChxJk',
+  'Serge Markoff': '1GVriCcRazhAPemmBCtHG3n0qrOKKSTtx',
+  'John Piasecki': '1HnPhjNKO-RCACdDjN-KprHKOSvOWqzTX',
+  'Sara Mitran': '1iSeNIds6NiIFQ83lSFt6lim-EIxI4bQw',
+}
+
+function speakerHeadshotUrl(name: string): string | null {
+  const fileId = speakerHeadshots[name]
+  return fileId ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w400` : null
+}
+
 export default async function FlyingHyPage() {
   const agenda = await getFlyingHyAgenda()
 
@@ -125,19 +151,28 @@ export default async function FlyingHyPage() {
           Who&apos;s <span style={{ color: '#5d00f5' }}>Speaking</span>
         </h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {agenda.map((speaker) => (
-            <article key={`${speaker.time}-${speaker.name}`} className="rounded-2xl p-6"
-              style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}>
-              <div className="w-16 h-16 rounded-full mb-4 flex items-center justify-center text-2xl font-black"
-                style={{ background: 'rgba(93,0,245,.25)', color: '#9b6dff' }}>
-                {speaker.name.charAt(0)}
-              </div>
-              <h3 className="font-bold text-white text-lg mb-0.5">{speaker.name}</h3>
-              <p className="text-white/55 text-sm">{speaker.title}</p>
-              <p className="text-[#9b6dff] text-xs font-semibold mt-1">{speaker.company}</p>
-              <p className="text-[#13dce8] text-xs font-bold mt-4">{speaker.time}</p>
-            </article>
-          ))}
+          {agenda.map((speaker) => {
+            const headshotUrl = speakerHeadshotUrl(speaker.name)
+
+            return (
+              <article key={`${speaker.time}-${speaker.name}`} className="rounded-2xl p-6"
+                style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}>
+                {headshotUrl ? (
+                    <img
+                      src={headshotUrl}
+                      alt={`${speaker.name} headshot`}
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                      className="w-28 h-28 rounded-full mb-6 object-cover ring-2 ring-[#5d00f5]/50"
+                    />
+                  ) : null}
+                <h3 className="font-bold text-white text-lg mb-0.5">{speaker.name}</h3>
+                <p className="text-white/55 text-sm">{speaker.title}</p>
+                <p className="text-[#9b6dff] text-xs font-semibold mt-1">{speaker.company}</p>
+                <p className="text-[#13dce8] text-xs font-bold mt-4">{speaker.time}</p>
+              </article>
+            )
+          })}
         </div>
       </section>
 
@@ -240,3 +275,4 @@ export default async function FlyingHyPage() {
     </PublicShell>
   )
 }
+
