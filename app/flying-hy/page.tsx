@@ -173,7 +173,7 @@ export default async function FlyingHyPage() {
 
       {/* ── SPEAKERS ── */}
       <section id="speakers" className="scroll-mt-[110px] max-w-5xl mx-auto px-6 lg:px-8 py-20">
-        <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-10" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
+        <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-10 text-[#5d00f5]" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
           Speakers
         </h2>
         <div className="grid items-start sm:grid-cols-2 lg:grid-cols-3 gap-6">
