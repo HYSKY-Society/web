@@ -16,13 +16,13 @@ export default function NewsletterPopup() {
 
       {open && (
         <div
-          className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+          className="fixed inset-0 z-[200] flex min-h-[100dvh] items-start justify-center overflow-y-auto p-4 sm:items-center"
           style={{ background: 'rgba(4,3,10,.85)', backdropFilter: 'blur(8px)' }}
           onClick={() => setOpen(false)}
         >
           <div
             className="relative w-full max-w-lg rounded-2xl overflow-hidden"
-            style={{ height: '620px', border: '1px solid rgba(255,255,255,.12)' }}
+            style={{ height: 'min(620px, calc(100dvh - 2rem))', border: '1px solid rgba(255,255,255,.12)' }}
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -45,3 +45,4 @@ export default function NewsletterPopup() {
     </>
   )
 }
+
