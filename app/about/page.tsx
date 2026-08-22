@@ -262,7 +262,7 @@ export default async function AboutPage() {
             </Link>
             <a
               href="mailto:admin@hysky.org"
-              className="inline-block border border-white/[.08] text-white hover:border-[#13dce8] hover:text-[#13dce8] px-8 py-4 rounded-full text-base font-bold transition-all"
+              className="inline-block border border-[#13dce8] bg-white text-[#13dce8] hover:bg-[#13dce8] hover:text-black px-8 py-4 rounded-full text-base font-bold transition-all"
             >
               Contact Us
             </a>
