@@ -221,7 +221,13 @@ export default async function FlyingHyPage() {
                 aria-label={`${speaker.name}, ${speaker.company}. Hover or focus to view company.`}
                 className="group relative min-h-[340px] rounded-2xl outline-none [perspective:1200px] focus-visible:ring-2 focus-visible:ring-[#13dce8] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
               >
-                <div className="relative h-full min-h-[340px] transition-transform duration-700 ease-out [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus:[transform:rotateY(180deg)] motion-reduce:duration-0">
+                <div aria-hidden="true" className="invisible p-6">
+                  {headshotUrls.length > 0 ? <div className="h-28 mb-6" /> : null}
+                  <h3 className="font-bold text-lg mb-0.5">{speaker.name}</h3>
+                  <p className="text-sm">{speaker.title}</p>
+                  <p className="text-xs font-semibold mt-1">{speaker.company}</p>
+                </div>
+                <div className="absolute inset-0 h-full min-h-[340px] transition-transform duration-700 ease-out [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus:[transform:rotateY(180deg)] motion-reduce:duration-0">
                   <div
                     className="absolute inset-0 rounded-2xl p-6 [backface-visibility:hidden]"
                     style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}
@@ -243,7 +249,6 @@ export default async function FlyingHyPage() {
                     <h3 className="font-bold text-white text-lg mb-0.5">{speaker.name}</h3>
                     <p className="text-white/55 text-sm">{speaker.title}</p>
                     <p className="text-[#9b6dff] text-xs font-semibold mt-1">{speaker.company}</p>
-                    <p className="text-[#13dce8] text-xs font-bold mt-4">{speaker.time}</p>
                   </div>
 
                   <div
@@ -269,7 +274,7 @@ export default async function FlyingHyPage() {
                       )}
                     </div>
                     <p className="relative mt-2 text-lg font-bold text-white">{speaker.company}</p>
-                    <p className="relative mt-3 text-xs text-white/45">Speaker bio coming soon</p>
+                    <p className="relative mt-3 pb-3 text-xs text-white/45">Speaker bio coming soon</p>
                   </div>
                 </div>
               </article>
