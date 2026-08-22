@@ -173,9 +173,8 @@ export default async function FlyingHyPage() {
 
       {/* ── SPEAKERS ── */}
       <section id="speakers" className="scroll-mt-[110px] max-w-5xl mx-auto px-6 lg:px-8 py-20">
-        <div className="text-[#9b6dff] text-xs font-bold uppercase tracking-[2.5px] mb-4">Speakers</div>
         <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-10" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
-          Who&apos;s <span style={{ color: '#5d00f5' }}>Speaking</span>
+          Speakers
         </h2>
         <div className="grid items-start sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {agenda.map((speaker) => {
