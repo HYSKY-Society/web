@@ -1,14 +1,11 @@
-import { db } from '@/lib/db'
-import { flyingHySpeakers, flyingHyAgenda } from '@/lib/schema'
-import { eq, asc } from 'drizzle-orm'
 import { EventRegisterButton } from '@/components/EventRegisterButton'
 import { ZEFFY } from '@/lib/zeffy'
 import PublicShell from '@/app/components/PublicShell'
+import FlyingHyAgenda from '@/app/components/FlyingHyAgenda'
+import { getFlyingHyAgenda } from '@/lib/flying-hy-agenda'
 import FlyingHyInPageNav from './FlyingHyInPageNav'
 
 export const revalidate = 3600
-
-const YEAR = 2026
 
 const registerOptions = [
   { label: 'Attendee', icon: '🎟️', embedUrl: ZEFFY.flyingHyAttendee },
@@ -18,33 +15,22 @@ const registerOptions = [
 
 const faqs = [
   { q: 'Is FLYING HY 2026 free?', a: 'FLYING HY 2026 requires a ticket. Multiple tiers are available including attendee and sponsor packages. Students and researchers may qualify for community tickets — reach out to admin@hysky.org.' },
-  { q: 'Is the event virtual or in-person?', a: 'FLYING HY 2026 is fully virtual, held on Zoom on November 4, 2026 from 9:00 AM to 5:00 PM CT.' },
+  { q: 'Is the event virtual or in-person?', a: 'FLYING HY 2026 is fully virtual, held on Zoom on November 4, 2026 from 8:00 AM to 6:05 PM CT.' },
   { q: 'Will sessions be recorded?', a: 'Sessions will be recorded and made available to registered attendees following the event.' },
   { q: 'Can my organization sponsor FLYING HY?', a: 'Yes! Multiple sponsorship packages are available. Register as a sponsor through the ticket portal or contact admin@hysky.org for custom packages.' },
   { q: 'Who should attend?', a: 'FLYING HY is designed for engineers, researchers, regulators, policymakers, investors, and innovators across the hydrogen aviation ecosystem — from UAVs to passenger aircraft, fuel cells to infrastructure.' },
   { q: 'How do I get updates?', a: 'Subscribe to the HySky newsletter and follow @hysky_society on social media for speaker announcements, agenda releases, and event updates.' },
 ]
 
-const previousEditions = [
-  { year: 2025, href: 'https://www.hysky.org/flyinghy2025' },
-  { year: 2024, href: 'https://www.hysky.org/flyinghy2024' },
-  { year: 2023, href: 'https://www.hysky.org/flyinghy2023' },
+const eventArchive = [
+  { year: 2026, href: '/events/flying-hy-2026', external: false },
+  { year: 2025, href: 'https://www.hysky.org/flyinghy2025', external: true },
+  { year: 2024, href: 'https://www.hysky.org/flyinghy2024', external: true },
+  { year: 2023, href: 'https://www.hysky.org/flyinghy2023', external: true },
 ]
 
 export default async function FlyingHyPage() {
-  let speakers: typeof flyingHySpeakers.$inferSelect[] = []
-  let agenda: typeof flyingHyAgenda.$inferSelect[] = []
-  try {
-    ;[speakers, agenda] = await Promise.all([
-      db.select().from(flyingHySpeakers)
-        .where(eq(flyingHySpeakers.isPublished, true))
-        .orderBy(asc(flyingHySpeakers.eventYear), asc(flyingHySpeakers.displayOrder))
-        .then(rows => rows.filter(s => s.eventYear === YEAR)),
-      db.select().from(flyingHyAgenda)
-        .where(eq(flyingHyAgenda.eventYear, YEAR))
-        .orderBy(asc(flyingHyAgenda.displayOrder)),
-    ])
-  } catch { /* tables not yet migrated */ }
+  const agenda = await getFlyingHyAgenda()
 
   return (
     <PublicShell>
@@ -77,7 +63,7 @@ export default async function FlyingHyPage() {
           </h1>
           <div className="flex flex-wrap gap-4 text-white/55 text-sm mb-8">
             <span className="flex items-center gap-1.5"><span>📅</span> November 4, 2026</span>
-            <span className="flex items-center gap-1.5"><span>🕘</span> 9:00 AM – 5:00 PM CT</span>
+            <span className="flex items-center gap-1.5"><span>🕘</span> 8:00 AM – 6:05 PM CT</span>
             <span className="flex items-center gap-1.5"><span>💻</span> Virtual (Zoom)</span>
           </div>
           <p className="text-white/60 text-lg leading-relaxed max-w-2xl mb-10">
@@ -138,81 +124,29 @@ export default async function FlyingHyPage() {
         <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-10" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
           Who&apos;s <span style={{ color: '#5d00f5' }}>Speaking</span>
         </h2>
-        {speakers.length > 0 ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {speakers.map(s => (
-              <div key={s.id} className="rounded-2xl p-6"
-                style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}>
-                {s.avatarUrl ? (
-                  <img src={s.avatarUrl} alt={s.name} className="w-16 h-16 rounded-full object-cover mb-4" />
-                ) : (
-                  <div className="w-16 h-16 rounded-full mb-4 flex items-center justify-center text-2xl font-black" style={{ background: 'rgba(93,0,245,.25)', color: '#9b6dff' }}>
-                    {s.name.charAt(0)}
-                  </div>
-                )}
-                <h3 className="font-bold text-white text-lg mb-0.5">{s.name}</h3>
-                {s.title && <p className="text-white/50 text-sm">{s.title}</p>}
-                {s.organization && <p className="text-[#9b6dff] text-xs font-semibold mt-0.5">{s.organization}</p>}
-                {s.sessionTitle && (
-                  <p className="text-white/35 text-xs mt-3 leading-relaxed italic">&ldquo;{s.sessionTitle}&rdquo;</p>
-                )}
-                {s.bio && <p className="text-white/40 text-xs mt-3 leading-relaxed line-clamp-3">{s.bio}</p>}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {agenda.map((speaker) => (
+            <article key={`${speaker.time}-${speaker.name}`} className="rounded-2xl p-6"
+              style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}>
+              <div className="w-16 h-16 rounded-full mb-4 flex items-center justify-center text-2xl font-black"
+                style={{ background: 'rgba(93,0,245,.25)', color: '#9b6dff' }}>
+                {speaker.name.charAt(0)}
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-2xl p-12 text-center"
-            style={{ background: 'var(--surface-dim)', border: '1px solid var(--border-muted)' }}>
-            <div className="text-4xl mb-4">🎤</div>
-            <p className="text-white/40 text-lg font-semibold mb-1">Speakers to be announced</p>
-            <p className="text-white/25 text-sm">Follow HySky Society on social media for speaker announcements.</p>
-          </div>
-        )}
+              <h3 className="font-bold text-white text-lg mb-0.5">{speaker.name}</h3>
+              <p className="text-white/55 text-sm">{speaker.title}</p>
+              <p className="text-[#9b6dff] text-xs font-semibold mt-1">{speaker.company}</p>
+              <p className="text-[#13dce8] text-xs font-bold mt-4">{speaker.time}</p>
+            </article>
+          ))}
+        </div>
       </section>
 
       <div className="h-px mx-6 lg:mx-8" style={{ background: 'var(--border-muted)' }} />
 
-      {/* ── AGENDA ── */}
-      <section id="agenda" className="scroll-mt-[110px] max-w-5xl mx-auto px-6 lg:px-8 py-20">
-        <div className="text-[#13dce8] text-xs font-bold uppercase tracking-[2.5px] mb-4">Agenda</div>
-        <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-10" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
-          Full Day <span style={{ color: '#13dce8' }}>Schedule</span>
-        </h2>
-        {agenda.length > 0 ? (
-          <div className="space-y-3">
-            {agenda.map((item, i) => (
-              <div key={item.id} className="flex gap-4 rounded-xl p-5"
-                style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}>
-                <div className="shrink-0 w-24 text-right">
-                  <span className="text-[#13dce8] text-xs font-bold">{item.timeSlot ?? `Session ${i + 1}`}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="font-semibold text-white text-sm">{item.title}</p>
-                    {item.sessionType !== 'session' && (
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide ${
-                        item.sessionType === 'keynote' ? 'text-[#9b6dff]' : 'text-white/40'
-                      }`}
-                        style={{ background: item.sessionType === 'keynote' ? 'rgba(93,0,245,.25)' : 'var(--surface-subtle)' }}>
-                        {item.sessionType}
-                      </span>
-                    )}
-                  </div>
-                  {item.speakerName && <p className="text-white/40 text-xs">{item.speakerName}</p>}
-                  {item.description && <p className="text-white/35 text-xs mt-1 leading-relaxed">{item.description}</p>}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-2xl p-12 text-center"
-            style={{ background: 'var(--surface-dim)', border: '1px solid var(--border-muted)' }}>
-            <div className="text-4xl mb-4">📋</div>
-            <p className="text-white/40 text-lg font-semibold mb-1">Agenda coming soon</p>
-            <p className="text-white/25 text-sm">The full day agenda will be published ahead of the event.</p>
-          </div>
-        )}
-      </section>
+      {/* ── LIVE AGENDA ── */}
+      <div className="px-6 lg:px-8 py-20">
+        <FlyingHyAgenda agenda={agenda} />
+      </div>
 
       <div className="h-px mx-6 lg:mx-8" style={{ background: 'var(--border-muted)' }} />
 
@@ -289,13 +223,13 @@ export default async function FlyingHyPage() {
         </div>
       </section>
 
-      {/* ── PREVIOUS EDITIONS ── */}
+      {/* ── EVENT ARCHIVE ── */}
       <section className="max-w-5xl mx-auto px-6 lg:px-8 pb-20">
         <div className="h-px mb-12" style={{ background: 'var(--border-muted)' }} />
-        <div className="text-[#9b6dff] text-xs font-bold uppercase tracking-[2.5px] mb-6">Previous Editions</div>
+        <div className="text-[#9b6dff] text-xs font-bold uppercase tracking-[2.5px] mb-6">Event Archive</div>
         <div className="flex flex-wrap gap-4">
-          {previousEditions.map(({ year, href }) => (
-            <a key={year} href={href} target="_blank" rel="noopener noreferrer"
+          {eventArchive.map(({ year, href, external }) => (
+            <a key={year} href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}
               className="flex items-center gap-3 px-6 py-3 rounded-xl font-semibold text-sm text-white/60 hover:text-white transition-all hover:scale-[1.02]"
               style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-soft)' }}>
               ✈️ FLYING HY {year}
