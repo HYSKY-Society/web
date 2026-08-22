@@ -258,7 +258,7 @@ export default async function FlyingHyPage() {
                     }}
                   >
                     <div className="absolute inset-3 rounded-xl border border-white/10" aria-hidden="true" />
-                    <div className="relative mb-5 flex h-36 w-full max-w-[230px] items-center justify-center rounded-2xl border border-white/20 bg-white p-5 shadow-[0_18px_55px_rgba(0,0,0,.28)]">
+                    <div className="relative mb-5 flex h-36 w-full max-w-[230px] items-center justify-center rounded-2xl border border-white/20 bg-black p-5 shadow-[0_18px_55px_rgba(0,0,0,.28)]">
                       {companyLogoUrl ? (
                         <img
                           src={companyLogoUrl}
