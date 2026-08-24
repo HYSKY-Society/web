@@ -19,8 +19,26 @@
   color: #ffffff;
 }
 
+.flying-hy-title-year {
+  color: #13dce8;
+}
+
 [data-theme='light'] .flying-hy-title-flying {
   color: #000000;
+}
+
+[data-theme='light'] .flying-hy-hero {
+  background:
+    radial-gradient(ellipse 60% 55% at 72% 35%, rgba(93, 0, 245, 0.08), transparent 72%),
+    radial-gradient(ellipse 55% 55% at 18% 72%, rgba(19, 220, 232, 0.14), transparent 72%),
+    #f9fbff !important;
+}
+
+[data-theme='light'] .flying-hy-title-year {
+  color: #00aeb8;
+  text-shadow:
+    0 0 14px rgba(19, 220, 232, 0.55),
+    0 0 32px rgba(19, 220, 232, 0.3);
 }
 
 .flying-hy-agenda-kicker,

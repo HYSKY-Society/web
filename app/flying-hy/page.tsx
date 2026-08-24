@@ -148,7 +148,7 @@ export default async function FlyingHyPage() {
     <PublicShell>
       {/* ── HERO — always dark, atmospheric ── */}
       <section
-        className="relative flex min-h-[calc(100svh-72px)] flex-col justify-center overflow-hidden section-dark"
+        className="flying-hy-hero relative flex min-h-[calc(100svh-72px)] flex-col justify-center overflow-hidden section-dark"
         style={{
           background: `
             radial-gradient(ellipse 70% 60% at 60% 40%, rgba(93,0,245,.35), transparent),
@@ -164,16 +164,13 @@ export default async function FlyingHyPage() {
           maskImage: 'linear-gradient(to bottom, black 0%, black 60%, transparent 85%)',
         }} />
         <div className="relative z-10 mx-auto w-full max-w-5xl px-6 py-10 sm:py-12 lg:px-8 lg:py-14">
-          <p className="mb-2 text-xs font-bold uppercase tracking-[3px] text-[#9b6dff] sm:text-sm">
-            The 4th Annual
-          </p>
           <h1 className="flying-hy-display mb-2 uppercase leading-[.86] tracking-[-3px]"
             style={{ fontSize: 'clamp(3.6rem, 9vw, 7.8rem)' }}>
             <span className="flying-hy-title-flying">FLYING</span><br /><span style={{ color: '#5d00f5' }}>HY</span>{' '}
-            <span style={{ color: '#13dce8' }}>2026</span>
+            <span className="flying-hy-title-year">2026</span>
           </h1>
           <p className="mb-4 text-sm font-bold uppercase tracking-[3px] text-[var(--text-primary)] sm:text-base">
-            Global Symposium
+            The 4th Annual Global Symposium
           </p>
           <div className="mb-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-[var(--text-primary)]">
             <span className="flex items-center gap-1.5"><CalendarIcon /> Nov 4, 2026</span>
