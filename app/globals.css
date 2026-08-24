@@ -32,7 +32,6 @@
 }
 
 [data-theme='light'] .flying-hy-topbar {
-  background: #ffffff !important;
   border-bottom-color: transparent !important;
   border-image: linear-gradient(90deg, #5d00f5 0%, #13dce8 100%) 1;
 }
@@ -96,6 +95,10 @@
     radial-gradient(circle at 50% 30%, rgba(19, 220, 232, .24), transparent 48%),
     radial-gradient(circle at 20% 90%, rgba(19, 220, 232, .14), transparent 58%),
     var(--surface-subtle);
+}
+
+[data-theme='light'] .flying-hy-speaker-front {
+  background: #ffffff !important;
 }
 
 .flying-hy-representing {

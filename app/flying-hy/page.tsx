@@ -214,7 +214,7 @@ export default async function FlyingHyPage() {
               >
                 <div className="absolute inset-0 h-full transition-transform duration-700 ease-out [transform-style:preserve-3d] [-webkit-transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus:[transform:rotateY(180deg)] motion-reduce:duration-0">
                   <div
-                    className="absolute inset-0 rounded-2xl px-5 py-6 [backface-visibility:hidden] [-webkit-backface-visibility:hidden]"
+                    className="flying-hy-speaker-front absolute inset-0 rounded-2xl px-5 py-6 [backface-visibility:hidden] [-webkit-backface-visibility:hidden]"
                     style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}
                   >
                     {headshotUrls.length > 0 ? (
