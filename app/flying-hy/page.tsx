@@ -255,12 +255,7 @@ export default async function FlyingHyPage() {
 
       {/* ── LIVE AGENDA ── */}
       <div className="px-6 lg:px-8 py-20">
-        <FlyingHyAgenda
-          agenda={agenda.map((speaker) => ({
-            ...speaker,
-            headshotUrls: speakerHeadshotUrls(speaker.name),
-          }))}
-        />
+        <FlyingHyAgenda agenda={agenda} />
       </div>
 
       <div className="h-px mx-6 lg:mx-8" style={{ background: 'var(--border-muted)' }} />
