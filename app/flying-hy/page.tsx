@@ -52,7 +52,7 @@ const speakerHeadshots: Record<string, string | string[]> = {
   'Bentzion Levinson': '19xmFPC9BMBtiP0zKRzjVW5-Y9pV0_sM9',
   'Dr. Anita Sengupta': '1wfKEs0Du4e5rIWOcIUvftU-3AzCRe2pB',
   'Matt Moran': '1JlO1KSVLK1DeAnOdBYQugPlFzqt2DGdZ',
-  'Tsion Abreha': '1Z4qmsEToyIoyMfqHj3QXFSTUcYG9UFmd',
+  'Tsion Abreha': '1AVdFsL4jgKJjG8V3W2pgdukweHuvMsoL',
   'Dr. Jason Damazo': '1pb9TcnfstVaamhYHhOV9-3QlP5C6Oa_Y',
   'Paul Gloyer': '1H7iSW7n2_7azR8cx251OU1wElfyn88ar',
   'Barry Prince': '18S-E6GIUpQmAGMpB4Z1stVPARLo71kPl',
