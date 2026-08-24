@@ -196,11 +196,11 @@ export default async function FlyingHyPage() {
       <FlyingHyInPageNav />
 
       {/* ── SPEAKERS ── */}
-      <section id="speakers" className="scroll-mt-[110px] max-w-5xl mx-auto px-6 pt-8 pb-20 lg:px-8">
+      <section id="speakers" className="scroll-mt-[110px] max-w-7xl mx-auto px-6 pt-8 pb-20 lg:px-8">
         <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-10 text-[#5d00f5]" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
           Speakers
         </h2>
-        <div className="grid items-start sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-5">
           {agenda.map((speaker) => {
             const headshotUrls = speakerHeadshotUrls(speaker.name)
             const companyLogoUrl = speakerCompanyLogoUrl(speaker.name)
@@ -210,21 +210,15 @@ export default async function FlyingHyPage() {
                 key={`${speaker.time}-${speaker.name}`}
                 tabIndex={0}
                 aria-label={`${speaker.name}, ${speaker.company}. Hover or focus to view company.`}
-                className="group relative min-h-[340px] rounded-2xl outline-none [perspective:1200px] focus-visible:ring-2 focus-visible:ring-[#13dce8] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                className="group relative h-[380px] rounded-2xl outline-none [perspective:1200px] focus-visible:ring-2 focus-visible:ring-[#13dce8] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
               >
-                <div aria-hidden="true" className="invisible px-6 py-8">
-                  {headshotUrls.length > 0 ? <div className="h-28 mb-6" /> : null}
-                  <h3 className="font-bold text-lg mb-0.5">{speaker.name}</h3>
-                  <p className="text-sm">{speaker.title}</p>
-                  <p className="text-xs font-semibold mt-1">{speaker.company}</p>
-                </div>
-                <div className="absolute inset-0 h-full min-h-[340px] transition-transform duration-700 ease-out [transform-style:preserve-3d] [-webkit-transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus:[transform:rotateY(180deg)] motion-reduce:duration-0">
+                <div className="absolute inset-0 h-full transition-transform duration-700 ease-out [transform-style:preserve-3d] [-webkit-transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus:[transform:rotateY(180deg)] motion-reduce:duration-0">
                   <div
-                    className="absolute inset-0 rounded-2xl px-6 py-8 [backface-visibility:hidden] [-webkit-backface-visibility:hidden]"
+                    className="absolute inset-0 rounded-2xl px-5 py-6 [backface-visibility:hidden] [-webkit-backface-visibility:hidden]"
                     style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}
                   >
                     {headshotUrls.length > 0 ? (
-                      <div className="flex -space-x-4 mb-6">
+                      <div className="mb-5 flex -space-x-4">
                         {headshotUrls.map((headshotUrl, index) => (
                           <img
                             key={headshotUrl}
@@ -232,7 +226,7 @@ export default async function FlyingHyPage() {
                             alt={`${speaker.name} headshot${headshotUrls.length > 1 ? ` ${index + 1}` : ''}`}
                             loading="lazy"
                             referrerPolicy="no-referrer"
-                            className="w-28 h-28 rounded-full object-cover ring-2 ring-[#5d00f5]/50"
+                            className="h-24 w-24 rounded-full object-cover ring-2 ring-[#5d00f5]/50"
                           />
                         ))}
                       </div>
@@ -243,7 +237,7 @@ export default async function FlyingHyPage() {
                   </div>
 
                   <div
-                    className="flying-hy-speaker-back absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-2xl px-6 py-8 text-center [backface-visibility:hidden] [-webkit-backface-visibility:hidden] [transform:rotateY(180deg)]"
+                    className="flying-hy-speaker-back absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-2xl px-5 py-6 text-center [backface-visibility:hidden] [-webkit-backface-visibility:hidden] [transform:rotateY(180deg)]"
                     style={{
                       border: '1px solid rgba(19,220,232,.35)',
                       boxShadow: 'inset 0 0 60px rgba(93,0,245,.12)',
@@ -251,7 +245,7 @@ export default async function FlyingHyPage() {
                   >
                     <div className="absolute inset-3 rounded-xl border border-white/10" aria-hidden="true" />
                     <p className="flying-hy-representing relative mt-3 mb-2 text-[10px] font-bold uppercase tracking-[2px]">Representing</p>
-                    <div className="relative mb-5 flex h-36 w-full max-w-[230px] items-center justify-center rounded-2xl border border-white/20 bg-black p-5 shadow-[0_18px_55px_rgba(0,0,0,.28)]">
+                    <div className="relative mb-5 flex h-32 w-32 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-black p-4 shadow-[0_18px_55px_rgba(0,0,0,.28)]">
                       {companyLogoUrl ? (
                         <img
                           src={companyLogoUrl}
