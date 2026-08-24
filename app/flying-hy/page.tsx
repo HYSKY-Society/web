@@ -188,15 +188,15 @@ export default async function FlyingHyPage() {
                 aria-label={`${speaker.name}, ${speaker.company}. Hover or focus to view company.`}
                 className="group relative min-h-[340px] rounded-2xl outline-none [perspective:1200px] focus-visible:ring-2 focus-visible:ring-[#13dce8] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
               >
-                <div aria-hidden="true" className="invisible p-6">
+                <div aria-hidden="true" className="invisible px-6 py-8">
                   {headshotUrls.length > 0 ? <div className="h-28 mb-6" /> : null}
                   <h3 className="font-bold text-lg mb-0.5">{speaker.name}</h3>
                   <p className="text-sm">{speaker.title}</p>
                   <p className="text-xs font-semibold mt-1">{speaker.company}</p>
                 </div>
-                <div className="absolute inset-0 h-full min-h-[340px] transition-transform duration-700 ease-out [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus:[transform:rotateY(180deg)] motion-reduce:duration-0">
+                <div className="absolute inset-0 h-full min-h-[340px] transition-transform duration-700 ease-out [transform-style:preserve-3d] [-webkit-transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus:[transform:rotateY(180deg)] motion-reduce:duration-0">
                   <div
-                    className="absolute inset-0 rounded-2xl p-6 [backface-visibility:hidden]"
+                    className="absolute inset-0 rounded-2xl px-6 py-8 [backface-visibility:hidden] [-webkit-backface-visibility:hidden]"
                     style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}
                   >
                     {headshotUrls.length > 0 ? (
@@ -219,7 +219,7 @@ export default async function FlyingHyPage() {
                   </div>
 
                   <div
-                    className="flying-hy-speaker-back absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-2xl p-6 text-center [backface-visibility:hidden] [transform:rotateY(180deg)]"
+                    className="flying-hy-speaker-back absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-2xl px-6 py-8 text-center [backface-visibility:hidden] [-webkit-backface-visibility:hidden] [transform:rotateY(180deg)]"
                     style={{
                       border: '1px solid rgba(19,220,232,.35)',
                       boxShadow: 'inset 0 0 60px rgba(93,0,245,.12)',
@@ -232,7 +232,8 @@ export default async function FlyingHyPage() {
                         <img
                           src={companyLogoUrl}
                           alt={`${speaker.company} logo`}
-                          loading="lazy"
+                          loading="eager"
+                          decoding="async"
                           referrerPolicy="no-referrer"
                           className="h-full w-full object-contain"
                         />
