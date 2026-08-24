@@ -38,9 +38,8 @@ export default async function FlyingHyAgenda({ agenda: providedAgenda }: FlyingH
           <div className="space-y-3">
             {agenda.map((item) => (
               <article key={`${item.time}-${item.name}`}
-                className="relative grid grid-cols-[100px_minmax(0,1fr)] items-center gap-x-4 gap-y-1 rounded-2xl border border-white/10 bg-black/10 px-4 py-3 transition-all hover:-translate-y-0.5 hover:border-[#13dce8]/40 hover:bg-[#13dce8]/5 sm:grid-cols-[130px_minmax(0,1.25fr)_minmax(170px,0.75fr)] sm:gap-8 sm:px-6">
-                <div className="flex items-center gap-4 sm:justify-end sm:text-right">
-                  <span className="relative z-10 mt-1 h-3.5 w-3.5 shrink-0 rounded-full border-2 border-[#13dce8] bg-[var(--bg-panel)] shadow-[0_0_14px_rgba(19,220,232,.55)] sm:absolute sm:left-[147px]" />
+                className="relative grid grid-cols-[100px_minmax(0,1fr)] items-center gap-x-4 gap-y-1 rounded-2xl border border-white/10 bg-black/10 px-4 py-3 transition-all hover:-translate-y-0.5 hover:border-[#13dce8]/40 hover:bg-[#13dce8]/5 sm:grid-cols-[130px_minmax(0,1fr)_minmax(0,1fr)] sm:gap-8 sm:px-6">
+                <div className="flex items-center sm:justify-end sm:text-right">
                   <p className="text-sm font-black leading-tight text-[var(--text-primary)]">
                     {item.time.split('–')[0].trim()}
                   </p>
