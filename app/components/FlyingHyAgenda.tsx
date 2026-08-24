@@ -28,7 +28,7 @@ export default async function FlyingHyAgenda({ agenda: providedAgenda }: FlyingH
             <span className="flying-hy-agenda-date rounded-full border border-[#13dce8]/30 bg-[#13dce8]/10 px-3 py-1.5">
               November 4, 2026
             </span>
-            <span className="rounded-full border border-[#5d00f5]/30 bg-[#5d00f5]/10 px-3 py-1.5 text-[#9b6dff]">
+            <span className="flying-hy-agenda-timezone rounded-full border border-[#5d00f5]/30 bg-[#5d00f5]/10 px-3 py-1.5 text-[#9b6dff]">
               Central Time
             </span>
           </div>
