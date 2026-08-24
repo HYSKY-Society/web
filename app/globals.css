@@ -31,12 +31,6 @@
   background: #ffffff !important;
 }
 
-[data-theme='light'] .flying-hy-title-year {
-  text-shadow:
-    0 0 14px rgba(93, 0, 245, 0.35),
-    0 0 28px rgba(93, 0, 245, 0.18);
-}
-
 .flying-hy-agenda-kicker,
 .flying-hy-agenda-date {
   color: #13dce8;
