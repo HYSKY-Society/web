@@ -8,7 +8,7 @@ export default async function FlyingHyAgenda({ agenda: providedAgenda }: FlyingH
   const agenda = providedAgenda ?? await getFlyingHyAgenda()
 
   return (
-    <section id="agenda" className="mx-auto mb-6 max-w-5xl scroll-mt-[110px]">
+    <section id="agenda" className="mx-auto mb-6 max-w-5xl scroll-mt-[110px] pt-8">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <h2 className="font-black uppercase leading-[.92] tracking-[-1px] text-[#5d00f5]" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
           Agenda
