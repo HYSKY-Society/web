@@ -137,8 +137,7 @@ export default async function FlyingHyPage() {
           maskImage: 'linear-gradient(to bottom, black 0%, black 60%, transparent 85%)',
         }} />
         <div className="relative z-10 max-w-5xl px-6 lg:px-8 py-20 mx-auto w-full">
-          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[2.5px] px-3 py-1.5 rounded-full mb-6"
-            style={{ background: 'rgba(93,0,245,.2)', color: '#9b6dff' }}>
+          <div className="flying-hy-conference-pill inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[2.5px] px-3 py-1.5 rounded-full mb-6">
             ✈️ The 4th Global H₂ Aviation Conference
           </div>
           <h1 className="flying-hy-display uppercase leading-[.88] tracking-[-3px] mb-6"

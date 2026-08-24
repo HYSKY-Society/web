@@ -38,14 +38,14 @@ export default async function FlyingHyAgenda({ agenda: providedAgenda }: FlyingH
           <div className="space-y-3">
             {agenda.map((item) => (
               <article key={`${item.time}-${item.name}`}
-                className="relative grid grid-cols-[100px_minmax(0,1fr)] items-center gap-x-4 gap-y-1 rounded-2xl border border-white/10 bg-black/10 px-4 py-3 transition-all hover:-translate-y-0.5 hover:border-[#13dce8]/40 hover:bg-[#13dce8]/5 sm:grid-cols-[130px_minmax(0,1fr)_minmax(0,1fr)] sm:gap-8 sm:px-6">
+                className="group relative grid grid-cols-[100px_minmax(0,1fr)] items-center gap-x-4 gap-y-1 rounded-2xl border border-white/10 bg-black/10 px-4 py-3 transition-all hover:-translate-y-0.5 hover:border-[#13dce8]/40 hover:bg-[#13dce8]/5 sm:grid-cols-[130px_minmax(0,1fr)_minmax(0,1fr)] sm:gap-8 sm:px-6">
                 <div className="flex items-center sm:justify-end sm:text-right">
-                  <p className="text-sm font-black leading-tight text-[var(--text-primary)]">
+                  <p className="text-sm font-normal leading-tight text-[var(--text-primary)] group-hover:font-bold">
                     {item.time.split('–')[0].trim()}
                   </p>
                 </div>
-                <h3 className="min-w-0 text-sm font-black leading-snug">{item.name}</h3>
-                <p className="col-start-2 min-w-0 text-sm font-semibold text-[#9b6dff] sm:col-start-auto">
+                <h3 className="min-w-0 text-sm font-normal leading-snug group-hover:font-bold">{item.name}</h3>
+                <p className="col-start-2 min-w-0 text-sm font-normal text-[#9b6dff] group-hover:font-bold sm:col-start-auto">
                   {item.company}
                 </p>
               </article>

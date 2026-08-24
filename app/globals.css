@@ -44,6 +44,17 @@
   border-color: #5d00f5;
 }
 
+.flying-hy-conference-pill {
+  color: #9b6dff;
+  background-color: rgba(93, 0, 245, 0.2);
+  border: 1px solid transparent;
+}
+
+[data-theme='light'] .flying-hy-conference-pill {
+  background-color: #ffffff;
+  border-color: #5d00f5;
+}
+
 .flying-hy-speaker-back {
   background:
     radial-gradient(circle at 50% 30%, rgba(19, 220, 232, .18), transparent 42%),
