@@ -10,7 +10,7 @@ const SECTIONS = [
 export default function FlyingHyInPageNav() {
   return (
     <nav
-      className="sticky top-[60px] z-30 flex items-center gap-1 overflow-x-auto px-6 lg:px-8 border-b scrollbar-hide"
+      className="flying-hy-inpage-nav sticky top-[60px] z-30 flex items-center gap-1 overflow-x-auto px-6 lg:px-8 border-b scrollbar-hide"
       style={{ background: 'var(--bg-topbar)', backdropFilter: 'blur(12px)', borderColor: 'var(--border-muted)' }}
     >
       {SECTIONS.map(({ href, label }) => (

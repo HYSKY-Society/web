@@ -31,6 +31,13 @@
   background: #ffffff !important;
 }
 
+[data-theme='light'] .flying-hy-topbar,
+[data-theme='light'] .flying-hy-inpage-nav {
+  background: transparent !important;
+  border-bottom-color: transparent !important;
+  border-image: linear-gradient(90deg, #5d00f5 0%, #13dce8 100%) 1;
+}
+
 .flying-hy-agenda-kicker,
 .flying-hy-agenda-date {
   color: #13dce8;

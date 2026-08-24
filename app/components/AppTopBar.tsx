@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 import { SignInButton, SignUpButton } from '@clerk/nextjs'
 import ThemeToggle from './ThemeToggle'
 import NotificationBell from './NotificationBell'
@@ -29,11 +30,12 @@ export default function AppTopBar({
   sidebarOpen?: boolean
   sidebarCollapsed?: boolean
 }) {
+  const pathname = usePathname()
   const desktopSidebarExpanded = sidebarCollapsed === undefined ? sidebarOpen : !sidebarCollapsed
 
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-50 h-[60px] flex items-center px-4 sm:px-6 border-b border-white/8"
+      className={`fixed top-0 left-0 right-0 z-50 h-[60px] flex items-center px-4 sm:px-6 border-b border-white/8 ${pathname === '/flying-hy' ? 'flying-hy-topbar' : ''}`}
       style={{ background: 'var(--bg-topbar)', backdropFilter: 'blur(12px)' }}
     >
       {/* Sidebar expand/collapse control */}

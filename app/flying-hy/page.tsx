@@ -196,7 +196,7 @@ export default async function FlyingHyPage() {
       <FlyingHyInPageNav />
 
       {/* ── SPEAKERS ── */}
-      <section id="speakers" className="scroll-mt-[110px] max-w-5xl mx-auto px-6 lg:px-8 py-20">
+      <section id="speakers" className="scroll-mt-[110px] max-w-5xl mx-auto px-6 pt-8 pb-20 lg:px-8">
         <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-10 text-[#5d00f5]" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
           Speakers
         </h2>
@@ -278,17 +278,16 @@ export default async function FlyingHyPage() {
       <div className="h-px mx-6 lg:mx-8" style={{ background: 'var(--border-muted)' }} />
 
       {/* ── LIVE AGENDA ── */}
-      <div className="px-6 lg:px-8 py-20">
+      <div className="px-6 pt-8 pb-20 lg:px-8">
         <FlyingHyAgenda agenda={agenda} />
       </div>
 
       <div className="h-px mx-6 lg:mx-8" style={{ background: 'var(--border-muted)' }} />
 
       {/* ── SPONSORS ── */}
-      <section id="sponsors" className="scroll-mt-[110px] max-w-5xl mx-auto px-6 lg:px-8 py-20">
-        <div className="text-[#9b6dff] text-xs font-bold uppercase tracking-[2.5px] mb-4">Sponsors</div>
-        <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-6" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
-          Partner with <span style={{ color: '#5d00f5' }}>FLYING HY</span>
+      <section id="sponsors" className="scroll-mt-[110px] max-w-5xl mx-auto px-6 pt-8 pb-20 lg:px-8">
+        <h2 className="mb-6 font-black uppercase leading-[.92] tracking-[-1px] text-[#5d00f5]" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
+          Sponsors
         </h2>
         <p className="text-white/55 text-lg leading-relaxed max-w-2xl mb-10">
           Gain visibility among hundreds of hydrogen aviation professionals and demonstrate your commitment to the future of clean flight.
@@ -313,20 +312,15 @@ export default async function FlyingHyPage() {
             className="inline-flex items-center gap-2 font-bold px-8 py-3.5 rounded-xl transition-all hover:scale-[1.02] bg-[#5d00f5] shadow-[0_0_30px_rgba(93,0,245,.4)]"
             style={{ color: '#fff' } as React.CSSProperties}
           />
-          <a href="mailto:admin@hysky.org?subject=FLYING HY 2026 Sponsorship"
-            className="inline-flex items-center gap-2 text-white/60 hover:text-white font-semibold px-7 py-3.5 rounded-xl border border-white/15 hover:border-white/30 transition-colors">
-            Contact Us
-          </a>
         </div>
       </section>
 
       <div className="h-px mx-6 lg:mx-8" style={{ background: 'var(--border-muted)' }} />
 
       {/* ── FAQ ── */}
-      <section id="faq" className="scroll-mt-[110px] max-w-5xl mx-auto px-6 lg:px-8 py-20">
-        <div className="text-[#9b6dff] text-xs font-bold uppercase tracking-[2.5px] mb-4">FAQ</div>
-        <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-10" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
-          Frequently Asked <span style={{ color: '#5d00f5' }}>Questions</span>
+      <section id="faq" className="scroll-mt-[110px] max-w-5xl mx-auto px-6 pt-8 pb-20 lg:px-8">
+        <h2 className="mb-10 font-black uppercase leading-[.92] tracking-[-1px] text-[#5d00f5]" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
+          FAQ
         </h2>
         <div className="space-y-4">
           {faqs.map(({ q, a }) => (
