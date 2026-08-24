@@ -233,7 +233,7 @@ export default async function FlyingHyPage() {
                         ))}
                       </div>
                     ) : null}
-                    <h3 className="mb-0.5 break-words text-lg font-bold text-white">{speaker.name}</h3>
+                    <h3 className="mb-0.5 break-words text-base font-bold leading-tight text-white">{speaker.name}</h3>
                     <p className="break-words text-sm text-white/55">{speaker.title}</p>
                     <p className="mt-1 break-words text-xs font-semibold text-[#9b6dff]">{speaker.company}</p>
                   </div>
