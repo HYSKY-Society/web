@@ -218,7 +218,7 @@ export default async function FlyingHyPage() {
                     style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}
                   >
                     {headshotUrls.length > 0 ? (
-                      <div className={`mb-5 w-full ${headshotUrls.length > 1 ? 'grid grid-cols-2 gap-2' : 'flex'}`}>
+                      <div className={`mb-5 w-full ${headshotUrls.length > 1 ? 'flex items-center px-1' : 'flex'}`}>
                         {headshotUrls.map((headshotUrl, index) => (
                           <img
                             key={headshotUrl}
@@ -227,7 +227,7 @@ export default async function FlyingHyPage() {
                             loading="lazy"
                             referrerPolicy="no-referrer"
                             className={headshotUrls.length > 1
-                              ? 'aspect-square w-full min-w-0 rounded-full object-cover ring-2 ring-[#5d00f5]/50'
+                              ? `aspect-square w-[55%] min-w-0 shrink-0 rounded-full object-cover ring-2 ring-[#5d00f5]/50 ${index > 0 ? '-ml-[10%]' : ''}`
                               : 'h-24 w-24 rounded-full object-cover ring-2 ring-[#5d00f5]/50'}
                           />
                         ))}
