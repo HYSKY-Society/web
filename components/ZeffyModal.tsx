@@ -126,14 +126,14 @@ export function ZeffyModal({
                 <button
                   key={opt.label}
                   onClick={() => setSelectedIdx(i)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-all ${
+                  className={`flex-1 flex items-center justify-center text-xs font-semibold px-3 py-2 rounded-lg transition-all ${
                     selectedIdx === i
                       ? 'bg-[#5d00f5]'
                       : 'bg-white/6 hover:bg-white/10'
                   }`}
                   style={{ color: '#ffffff', opacity: selectedIdx === i ? 1 : 0.7 }}
                 >
-                  <span>{opt.icon}</span> {opt.label}
+                  {opt.label}
                 </button>
               ))}
             </div>
