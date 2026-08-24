@@ -185,11 +185,9 @@ export default async function FlyingHyPage() {
               label="Reserve Your Seat →"
               options={registerOptions}
               title="FLYING HY 2026 — Registration"
+              compactModal
               className="btn-teal-glow inline-flex items-center gap-2 text-white font-bold px-8 py-3.5 rounded-xl text-base transition-all hover:scale-[1.02]"
             />
-            <a href="#agenda" className="flying-hy-view-agenda inline-flex items-center gap-2 text-white/60 hover:text-white font-semibold px-7 py-3.5 rounded-xl text-base border border-white/15 hover:border-white/30 transition-colors">
-              View Agenda
-            </a>
           </div>
         </div>
       </section>

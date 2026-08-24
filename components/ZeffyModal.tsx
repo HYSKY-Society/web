@@ -16,6 +16,7 @@ interface ZeffyModalProps {
   options: ZeffyOption[]
   heroImage?: string
   heroAccent?: string
+  compact?: boolean
 }
 
 export function ZeffyModal({
@@ -25,6 +26,7 @@ export function ZeffyModal({
   options,
   heroImage,
   heroAccent = '#5d00f5',
+  compact = false,
 }: ZeffyModalProps) {
   const [selectedIdx, setSelectedIdx] = useState(0)
 
@@ -33,11 +35,16 @@ export function ZeffyModal({
 
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleKeyDown)
 
     return () => {
       document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [isOpen])
+  }, [isOpen, onClose])
 
   if (!isOpen || typeof document === 'undefined') return null
 
@@ -46,11 +53,16 @@ export function ZeffyModal({
       className="fixed inset-0 z-[1000] flex items-center justify-center p-2 sm:p-4"
       style={{ background: 'rgba(4,3,10,.88)', backdropFilter: 'blur(8px)' }}
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
     >
       <div
-        className={`section-dark relative w-full max-w-[calc(100vw-1rem)] max-h-[calc(100dvh-1rem)] sm:max-w-none sm:max-h-[calc(100dvh-2rem)] ${heroImage ? 'md:max-w-5xl md:flex-row' : 'sm:max-w-lg'} rounded-2xl overflow-hidden flex flex-col`}
+        className={`section-dark relative flex w-full max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-2xl max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] ${compact ? 'sm:max-w-[460px]' : heroImage ? 'sm:max-w-none md:max-w-5xl md:flex-row' : 'sm:max-w-lg'}`}
         style={{
-          height: 'min(760px, calc(100dvh - 1rem))',
+          height: compact
+            ? 'min(660px, calc(100dvh - 2rem))'
+            : 'min(760px, calc(100dvh - 1rem))',
           border: '1px solid rgba(255,255,255,.12)',
           background: '#09090f',
         }}
@@ -97,11 +109,13 @@ export function ZeffyModal({
               )}
             </div>
             <button
+              type="button"
               onClick={onClose}
               aria-label="Close checkout"
-              className="w-8 h-8 flex items-center justify-center rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-all shrink-0"
+              className="flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full border border-white/20 px-3 text-white/70 transition-all hover:border-white/40 hover:bg-white/10 hover:text-white"
             >
-              ✕
+              <span className="text-xs font-semibold">Close</span>
+              <span aria-hidden="true">×</span>
             </button>
           </div>
 
@@ -138,3 +152,4 @@ export function ZeffyModal({
     document.body,
   )
 }
+

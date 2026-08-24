@@ -49,28 +49,6 @@
   padding: 0;
 }
 
-[data-theme='light'] .flying-hy-view-agenda {
-  color: #000000;
-  border-color: #5d00f5;
-}
-
-[data-theme='light'] .flying-hy-view-agenda:hover {
-  color: #ffffff;
-  background-color: #5d00f5;
-  border-color: #5d00f5;
-}
-
-.flying-hy-conference-pill {
-  color: #9b6dff;
-  background-color: rgba(93, 0, 245, 0.2);
-  border: 1px solid transparent;
-}
-
-[data-theme='light'] .flying-hy-conference-pill {
-  background-color: #ffffff;
-  border-color: #5d00f5;
-}
-
 .flying-hy-hero-icon {
   width: 1.05rem;
   height: 1.05rem;

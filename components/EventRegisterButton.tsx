@@ -8,9 +8,10 @@ interface EventRegisterButtonProps {
   title: string
   className?: string
   style?: React.CSSProperties
+  compactModal?: boolean
 }
 
-export function EventRegisterButton({ label = 'Register Now →', options, title, className, style }: EventRegisterButtonProps) {
+export function EventRegisterButton({ label = 'Register Now →', options, title, className, style, compactModal = false }: EventRegisterButtonProps) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -18,7 +19,8 @@ export function EventRegisterButton({ label = 'Register Now →', options, title
       <button onClick={() => setOpen(true)} className={className} style={style}>
         {label}
       </button>
-      <ZeffyModal isOpen={open} onClose={() => setOpen(false)} title={title} options={options} />
+      <ZeffyModal isOpen={open} onClose={() => setOpen(false)} title={title} options={options} compact={compactModal} />
     </>
   )
 }
+
