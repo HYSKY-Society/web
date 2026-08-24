@@ -112,7 +112,8 @@ export function ZeffyModal({
               type="button"
               onClick={onClose}
               aria-label="Close checkout"
-              className="flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full border border-white/20 px-3 text-white/70 transition-all hover:border-white/40 hover:bg-white/10 hover:text-white"
+              className="flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full border border-white/20 px-3 transition-all hover:border-white/40 hover:bg-white/10"
+              style={{ color: '#ffffff' }}
             >
               <span className="text-xs font-semibold">Close</span>
               <span aria-hidden="true">×</span>
@@ -127,9 +128,10 @@ export function ZeffyModal({
                   onClick={() => setSelectedIdx(i)}
                   className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-all ${
                     selectedIdx === i
-                      ? 'bg-[#5d00f5] text-white'
-                      : 'bg-white/6 text-white/50 hover:text-white hover:bg-white/10'
+                      ? 'bg-[#5d00f5]'
+                      : 'bg-white/6 hover:bg-white/10'
                   }`}
+                  style={{ color: '#ffffff', opacity: selectedIdx === i ? 1 : 0.7 }}
                 >
                   <span>{opt.icon}</span> {opt.label}
                 </button>
