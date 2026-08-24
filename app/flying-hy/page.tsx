@@ -196,7 +196,7 @@ export default async function FlyingHyPage() {
       <FlyingHyInPageNav />
 
       {/* ── SPEAKERS ── */}
-      <section id="speakers" className="scroll-mt-[110px] max-w-7xl mx-auto px-6 pt-8 pb-20 lg:px-8">
+      <section id="speakers" className="scroll-mt-[110px] max-w-5xl mx-auto px-6 pt-8 pb-20 lg:px-8">
         <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-10 text-[#5d00f5]" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
           Speakers
         </h2>
@@ -214,11 +214,11 @@ export default async function FlyingHyPage() {
               >
                 <div className="absolute inset-0 h-full transition-transform duration-700 ease-out [transform-style:preserve-3d] [-webkit-transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus:[transform:rotateY(180deg)] motion-reduce:duration-0">
                   <div
-                    className="flying-hy-speaker-front absolute inset-0 rounded-2xl px-5 py-6 [backface-visibility:hidden] [-webkit-backface-visibility:hidden]"
+                    className="flying-hy-speaker-front absolute inset-0 min-w-0 overflow-hidden rounded-2xl px-5 py-6 [backface-visibility:hidden] [-webkit-backface-visibility:hidden]"
                     style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}
                   >
                     {headshotUrls.length > 0 ? (
-                      <div className="mb-5 flex -space-x-4">
+                      <div className={`mb-5 w-full ${headshotUrls.length > 1 ? 'grid grid-cols-2 gap-2' : 'flex'}`}>
                         {headshotUrls.map((headshotUrl, index) => (
                           <img
                             key={headshotUrl}
@@ -226,14 +226,16 @@ export default async function FlyingHyPage() {
                             alt={`${speaker.name} headshot${headshotUrls.length > 1 ? ` ${index + 1}` : ''}`}
                             loading="lazy"
                             referrerPolicy="no-referrer"
-                            className="h-24 w-24 rounded-full object-cover ring-2 ring-[#5d00f5]/50"
+                            className={headshotUrls.length > 1
+                              ? 'aspect-square w-full min-w-0 rounded-full object-cover ring-2 ring-[#5d00f5]/50'
+                              : 'h-24 w-24 rounded-full object-cover ring-2 ring-[#5d00f5]/50'}
                           />
                         ))}
                       </div>
                     ) : null}
-                    <h3 className="font-bold text-white text-lg mb-0.5">{speaker.name}</h3>
-                    <p className="text-white/55 text-sm">{speaker.title}</p>
-                    <p className="text-[#9b6dff] text-xs font-semibold mt-1">{speaker.company}</p>
+                    <h3 className="mb-0.5 break-words text-lg font-bold text-white">{speaker.name}</h3>
+                    <p className="break-words text-sm text-white/55">{speaker.title}</p>
+                    <p className="mt-1 break-words text-xs font-semibold text-[#9b6dff]">{speaker.company}</p>
                   </div>
 
                   <div
