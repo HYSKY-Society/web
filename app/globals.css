@@ -23,6 +23,27 @@
   color: #000000;
 }
 
+.flying-hy-agenda-kicker,
+.flying-hy-agenda-date {
+  color: #13dce8;
+}
+
+[data-theme='light'] .flying-hy-agenda-kicker,
+[data-theme='light'] .flying-hy-agenda-date {
+  color: #000000;
+}
+
+[data-theme='light'] .flying-hy-view-agenda {
+  color: #000000;
+  border-color: #5d00f5;
+}
+
+[data-theme='light'] .flying-hy-view-agenda:hover {
+  color: #ffffff;
+  background-color: #5d00f5;
+  border-color: #5d00f5;
+}
+
 .flying-hy-speaker-back {
   background:
     radial-gradient(circle at 50% 30%, rgba(19, 220, 232, .18), transparent 42%),

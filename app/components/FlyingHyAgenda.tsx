@@ -17,7 +17,7 @@ export default async function FlyingHyAgenda({ agenda: providedAgenda }: FlyingH
       <div className="relative px-5 py-8 sm:p-10">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between mb-9">
           <div>
-            <div className="text-[#13dce8] text-xs font-bold uppercase tracking-[2.5px] mb-3">
+            <div className="flying-hy-agenda-kicker text-xs font-bold uppercase tracking-[2.5px] mb-3">
               Event agenda
             </div>
             <h2 className="text-3xl sm:text-4xl font-black leading-tight">
@@ -25,7 +25,7 @@ export default async function FlyingHyAgenda({ agenda: providedAgenda }: FlyingH
             </h2>
           </div>
           <div className="flex flex-wrap gap-2 text-xs font-bold">
-            <span className="rounded-full border border-[#13dce8]/30 bg-[#13dce8]/10 px-3 py-1.5 text-[#13dce8]">
+            <span className="flying-hy-agenda-date rounded-full border border-[#13dce8]/30 bg-[#13dce8]/10 px-3 py-1.5">
               November 4, 2026
             </span>
             <span className="rounded-full border border-[#5d00f5]/30 bg-[#5d00f5]/10 px-3 py-1.5 text-[#9b6dff]">
@@ -35,7 +35,6 @@ export default async function FlyingHyAgenda({ agenda: providedAgenda }: FlyingH
         </div>
 
         <div className="relative">
-          <div className="absolute bottom-4 left-[7px] top-4 w-px bg-gradient-to-b from-[#13dce8] via-[#5d00f5] to-transparent sm:left-[154px]" />
           <div className="space-y-3">
             {agenda.map((item) => (
               <article key={`${item.time}-${item.name}`}
@@ -46,7 +45,7 @@ export default async function FlyingHyAgenda({ agenda: providedAgenda }: FlyingH
                     {item.time.split('–')[0].trim()}
                   </p>
                 </div>
-                <h3 className="min-w-0 text-base font-black leading-snug sm:text-lg">{item.name}</h3>
+                <h3 className="min-w-0 text-sm font-black leading-snug">{item.name}</h3>
                 <p className="col-start-2 min-w-0 text-sm font-semibold text-[#9b6dff] sm:col-start-auto">
                   {item.company}
                 </p>
