@@ -42,12 +42,9 @@ export default async function FlyingHyAgenda({ agenda: providedAgenda }: FlyingH
                 className="relative grid gap-3 rounded-2xl border border-white/10 bg-black/10 px-4 py-5 transition-all hover:-translate-y-0.5 hover:border-[#13dce8]/40 hover:bg-[#13dce8]/5 sm:grid-cols-[130px_1fr] sm:gap-8 sm:px-6">
                 <div className="flex items-start gap-4 sm:justify-end sm:text-right">
                   <span className="relative z-10 mt-1 h-3.5 w-3.5 shrink-0 rounded-full border-2 border-[#13dce8] bg-[var(--bg-panel)] shadow-[0_0_14px_rgba(19,220,232,.55)] sm:absolute sm:left-[147px]" />
-                  <div>
-                    <p className="font-black text-[#13dce8] leading-tight">{item.time.split('–')[0].trim()}</p>
-                    <p className="mt-1 text-[11px] font-semibold text-white/40">
-                      to {item.time.split('–')[1]?.trim()}
-                    </p>
-                  </div>
+                  <p className="text-sm font-black leading-tight text-[var(--text-primary)]">
+                    {item.time.split('–')[0].trim()}
+                  </p>
                 </div>
                 <div className="pl-7 sm:pl-0">
                   <div className="mb-1 flex flex-wrap items-center gap-2">
