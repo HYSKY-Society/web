@@ -7,15 +7,6 @@ import FlyingHyInPageNav from './FlyingHyInPageNav'
 
 export const revalidate = 3600
 
-function PlaneIcon() {
-  return (
-    <svg className="flying-hy-hero-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 2 9 15" />
-      <path d="m22 2-7 20-4-9-9-4Z" />
-    </svg>
-  )
-}
-
 function CalendarIcon() {
   return (
     <svg className="flying-hy-hero-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -157,7 +148,7 @@ export default async function FlyingHyPage() {
     <PublicShell>
       {/* ── HERO — always dark, atmospheric ── */}
       <section
-        className="relative min-h-[80vh] flex flex-col justify-center overflow-hidden section-dark"
+        className="relative flex min-h-[calc(100svh-72px)] flex-col justify-center overflow-hidden section-dark"
         style={{
           background: `
             radial-gradient(ellipse 70% 60% at 60% 40%, rgba(93,0,245,.35), transparent),
@@ -172,22 +163,25 @@ export default async function FlyingHyPage() {
           WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 60%, transparent 85%)',
           maskImage: 'linear-gradient(to bottom, black 0%, black 60%, transparent 85%)',
         }} />
-        <div className="relative z-10 max-w-5xl px-6 lg:px-8 py-20 mx-auto w-full">
-          <div className="flying-hy-conference-pill inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[2.5px] px-3 py-1.5 rounded-full mb-6">
-            <PlaneIcon /> The 4th Global H₂ Aviation Conference
-          </div>
-          <h1 className="flying-hy-display uppercase leading-[.88] tracking-[-3px] mb-6"
-            style={{ fontSize: 'clamp(4rem, 10vw, 9rem)' }}>
+        <div className="relative z-10 mx-auto w-full max-w-5xl px-6 py-10 sm:py-12 lg:px-8 lg:py-14">
+          <p className="mb-2 text-xs font-bold uppercase tracking-[3px] text-[#9b6dff] sm:text-sm">
+            The 4th Annual
+          </p>
+          <h1 className="flying-hy-display mb-2 uppercase leading-[.86] tracking-[-3px]"
+            style={{ fontSize: 'clamp(3.6rem, 9vw, 7.8rem)' }}>
             <span className="flying-hy-title-flying">FLYING</span><br /><span style={{ color: '#5d00f5' }}>HY</span>{' '}
             <span style={{ color: '#13dce8' }}>2026</span>
           </h1>
-          <div className="flex flex-wrap gap-4 text-white/55 text-sm mb-8">
-            <span className="flex items-center gap-1.5"><CalendarIcon /> November 4, 2026</span>
+          <p className="mb-4 text-sm font-bold uppercase tracking-[3px] text-[var(--text-primary)] sm:text-base">
+            Global Symposium
+          </p>
+          <div className="mb-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-[var(--text-primary)]">
+            <span className="flex items-center gap-1.5"><CalendarIcon /> Nov 4, 2026</span>
             <span className="flex items-center gap-1.5"><ClockIcon /> 8:00 AM – 6:05 PM CT</span>
-            <span className="flex items-center gap-1.5"><MonitorIcon /> Virtual (Zoom)</span>
+            <span className="flex items-center gap-1.5"><MonitorIcon /> Zoom (Virtual)</span>
           </div>
-          <p className="text-white/60 text-lg leading-relaxed max-w-2xl mb-10">
-            A one-day virtual summit charting the path to commercial hydrogen aviation — bringing together the engineers, regulators, and pioneers building the future of flight.
+          <p className="mb-6 max-w-3xl text-lg leading-relaxed text-[var(--text-primary)] sm:text-xl">
+            A one-day virtual summit charting the path to <strong>hydrogen &amp; battery-electric</strong> aviation.
           </p>
           <div className="flex flex-wrap gap-4">
             <EventRegisterButton
