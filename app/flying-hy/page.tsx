@@ -7,6 +7,42 @@ import FlyingHyInPageNav from './FlyingHyInPageNav'
 
 export const revalidate = 3600
 
+function PlaneIcon() {
+  return (
+    <svg className="flying-hy-hero-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 2 9 15" />
+      <path d="m22 2-7 20-4-9-9-4Z" />
+    </svg>
+  )
+}
+
+function CalendarIcon() {
+  return (
+    <svg className="flying-hy-hero-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="18" height="18" x="3" y="4" rx="2" />
+      <path d="M16 2v4M8 2v4M3 10h18" />
+    </svg>
+  )
+}
+
+function ClockIcon() {
+  return (
+    <svg className="flying-hy-hero-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </svg>
+  )
+}
+
+function MonitorIcon() {
+  return (
+    <svg className="flying-hy-hero-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="20" height="14" x="2" y="3" rx="2" />
+      <path d="M8 21h8M12 17v4" />
+    </svg>
+  )
+}
+
 const registerOptions = [
   { label: 'Attendee', icon: '🎟️', embedUrl: ZEFFY.flyingHyAttendee },
   { label: 'Sponsor',  icon: '🏆', embedUrl: ZEFFY.flyingHySponsor },
@@ -138,7 +174,7 @@ export default async function FlyingHyPage() {
         }} />
         <div className="relative z-10 max-w-5xl px-6 lg:px-8 py-20 mx-auto w-full">
           <div className="flying-hy-conference-pill inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[2.5px] px-3 py-1.5 rounded-full mb-6">
-            ✈️ The 4th Global H₂ Aviation Conference
+            <PlaneIcon /> The 4th Global H₂ Aviation Conference
           </div>
           <h1 className="flying-hy-display uppercase leading-[.88] tracking-[-3px] mb-6"
             style={{ fontSize: 'clamp(4rem, 10vw, 9rem)' }}>
@@ -146,9 +182,9 @@ export default async function FlyingHyPage() {
             <span style={{ color: '#13dce8' }}>2026</span>
           </h1>
           <div className="flex flex-wrap gap-4 text-white/55 text-sm mb-8">
-            <span className="flex items-center gap-1.5"><span>📅</span> November 4, 2026</span>
-            <span className="flex items-center gap-1.5"><span>🕘</span> 8:00 AM – 6:05 PM CT</span>
-            <span className="flex items-center gap-1.5"><span>💻</span> Virtual (Zoom)</span>
+            <span className="flex items-center gap-1.5"><CalendarIcon /> November 4, 2026</span>
+            <span className="flex items-center gap-1.5"><ClockIcon /> 8:00 AM – 6:05 PM CT</span>
+            <span className="flex items-center gap-1.5"><MonitorIcon /> Virtual (Zoom)</span>
           </div>
           <p className="text-white/60 text-lg leading-relaxed max-w-2xl mb-10">
             A one-day virtual summit charting the path to commercial hydrogen aviation — bringing together the engineers, regulators, and pioneers building the future of flight.

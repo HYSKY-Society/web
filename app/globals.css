@@ -55,6 +55,17 @@
   border-color: #5d00f5;
 }
 
+.flying-hy-hero-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: 0 0 auto;
+  color: #13dce8;
+}
+
+[data-theme='light'] .flying-hy-hero-icon {
+  color: #5d00f5;
+}
+
 .flying-hy-speaker-back {
   background:
     radial-gradient(circle at 50% 30%, rgba(19, 220, 232, .18), transparent 42%),
