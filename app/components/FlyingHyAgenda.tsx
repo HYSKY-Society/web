@@ -37,25 +37,19 @@ export default async function FlyingHyAgenda({ agenda: providedAgenda }: FlyingH
         <div className="relative">
           <div className="absolute bottom-4 left-[7px] top-4 w-px bg-gradient-to-b from-[#13dce8] via-[#5d00f5] to-transparent sm:left-[154px]" />
           <div className="space-y-3">
-            {agenda.map((item, index) => (
+            {agenda.map((item) => (
               <article key={`${item.time}-${item.name}`}
-                className="relative grid gap-3 rounded-2xl border border-white/10 bg-black/10 px-4 py-5 transition-all hover:-translate-y-0.5 hover:border-[#13dce8]/40 hover:bg-[#13dce8]/5 sm:grid-cols-[130px_1fr] sm:gap-8 sm:px-6">
-                <div className="flex items-start gap-4 sm:justify-end sm:text-right">
+                className="relative grid grid-cols-[100px_minmax(0,1fr)] items-center gap-x-4 gap-y-1 rounded-2xl border border-white/10 bg-black/10 px-4 py-3 transition-all hover:-translate-y-0.5 hover:border-[#13dce8]/40 hover:bg-[#13dce8]/5 sm:grid-cols-[130px_minmax(0,1.25fr)_minmax(170px,0.75fr)] sm:gap-8 sm:px-6">
+                <div className="flex items-center gap-4 sm:justify-end sm:text-right">
                   <span className="relative z-10 mt-1 h-3.5 w-3.5 shrink-0 rounded-full border-2 border-[#13dce8] bg-[var(--bg-panel)] shadow-[0_0_14px_rgba(19,220,232,.55)] sm:absolute sm:left-[147px]" />
                   <p className="text-sm font-black leading-tight text-[var(--text-primary)]">
                     {item.time.split('–')[0].trim()}
                   </p>
                 </div>
-                <div className="pl-7 sm:pl-0">
-                  <div className="mb-1 flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-[1.5px] text-[#9b6dff]">
-                      Session {String(index + 1).padStart(2, '0')}
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-black leading-snug">{item.name}</h3>
-                  <p className="mt-1 text-sm font-semibold text-white/60">{item.title}</p>
-                  <p className="mt-1 text-sm text-[#9b6dff]">{item.company}</p>
-                </div>
+                <h3 className="min-w-0 text-base font-black leading-snug sm:text-lg">{item.name}</h3>
+                <p className="col-start-2 min-w-0 text-sm font-semibold text-[#9b6dff] sm:col-start-auto">
+                  {item.company}
+                </p>
               </article>
             ))}
           </div>
