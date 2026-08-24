@@ -148,7 +148,7 @@ export default async function FlyingHyPage() {
     <PublicShell>
       {/* ── HERO — always dark, atmospheric ── */}
       <section
-        className="flying-hy-hero relative flex min-h-[calc(100svh-72px)] flex-col justify-center overflow-hidden section-dark"
+        className="relative flex min-h-[calc(100svh-72px)] flex-col justify-center overflow-hidden section-dark"
         style={{
           background: `
             radial-gradient(ellipse 70% 60% at 60% 40%, rgba(93,0,245,.35), transparent),
