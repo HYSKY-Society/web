@@ -43,7 +43,7 @@ const speakerHeadshots: Record<string, string | string[]> = {
   'Karl Samuelsson': '10yvo5u1HwLRrzFsPU5XZ8plP75KS756J',
   'Dr. Eva Maleviti': '1tUwQYn9kWYRBV4JDcbWyhWnWRafafbJ5',
   'Jared Semik': '16iAjjBDhU1x5c5nEmV6tBqL0zay1qrip',
-  'Michael Bluy': '1pVfYMH_R41Bcsk7TnNk8dkw3c-STfVDz',
+  'Chase Carver': '1d4XnFJtN_5oqPdkg4pMD_SV4DtW27TJX',
   'Joshua Heyne': '1DvSNgqWKWX_1NXhkf0Lk09WBF50cC243',
   'Mark van Wyk': '1ICYFaG8wUlVQCV9SKONF1jwLQtiKWlih',
   'Martin Chan': '1i4pljgjeiM_mvUBxw3x9WOsqfCyVu9cC',
@@ -77,7 +77,7 @@ const speakerCompanyLogos: Record<string, string> = {
   'Karl Samuelsson': '1DGR5AiZkb3yQAM6-4Q3FnqcGfLLdUCwj',
   'Dr. Eva Maleviti': '1NgS7lngr0cNs_umCUFq2z1n_JTSNpbFM',
   'Jared Semik': '1cpMRS_XLdYFZRvceruX5dv15jg3NXoS2',
-  'Michael Bluy': '1inv1dNhKacwolN5j39fDfZhXHPx6doPH',
+  'Chase Carver': '18Ce0SLRy9JPGmqOuZPv6WGsavhWan42Q',
   'Joshua Heyne': '17Gcs7CMY7gOpg1TgzB6KGpW8VteEPl7U',
   'Mark van Wyk': '1Ob9stA6mGmYRz6K2NU4wT9H6EWsHz2vt',
   'Martin Chan': '1qscpgfVYZvpM6iPF0n1DzJf6JztZLa3x',
@@ -255,7 +255,12 @@ export default async function FlyingHyPage() {
 
       {/* ── LIVE AGENDA ── */}
       <div className="px-6 lg:px-8 py-20">
-        <FlyingHyAgenda agenda={agenda} />
+        <FlyingHyAgenda
+          agenda={agenda.map((speaker) => ({
+            ...speaker,
+            headshotUrls: speakerHeadshotUrls(speaker.name),
+          }))}
+        />
       </div>
 
       <div className="h-px mx-6 lg:mx-8" style={{ background: 'var(--border-muted)' }} />

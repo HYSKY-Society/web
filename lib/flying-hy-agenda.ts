@@ -3,6 +3,8 @@ export type FlyingHyAgendaItem = {
   name: string
   title: string
   company: string
+  presentationTitle?: string
+  bio?: string
 }
 
 type Speaker = Omit<FlyingHyAgendaItem, 'time'>
@@ -26,7 +28,7 @@ const FALLBACK_SPEAKERS: Speaker[] = [
   { name: 'Karl Samuelsson', title: 'Technical Business Development Director', company: 'Powercell Group' },
   { name: 'Dr. Eva Maleviti', title: 'Asst. Prof./Program Coordinator Aviation & Aerospace Sustainability', company: 'Embry-Riddle Aeronautical University' },
   { name: 'Jared Semik', title: 'Founder & CEO', company: 'Eternium Aerospace' },
-  { name: 'Michael Bluy', title: 'Senior Product Line Manager', company: 'GE Aviation' },
+  { name: 'Chase Carver', title: 'Technology Leader', company: 'GE Aerospace' },
   { name: 'Joshua Heyne', title: 'Director of the Bioproducts, Sciences, and Engineering Lab', company: 'Washington State University Tri-Cities' },
   { name: 'Mark van Wyk', title: 'Founder & CEO', company: 'FlyH2' },
   { name: 'Martin Chan', title: 'Senior Hydrogen Engineer', company: 'Joby Aviation' },
@@ -60,7 +62,7 @@ const FALLBACK_TIMES: Array<{ name: string; time: string }> = [
   { name: 'Karl Samuelsson', time: '10:05 AM – 10:25 AM' },
   { name: 'Eva Maleviti', time: '10:25 AM – 10:45 AM' },
   { name: 'Jared Semik', time: '10:45 AM – 11:05 AM' },
-  { name: 'Michael Bluy', time: '11:05 AM – 11:25 AM' },
+  { name: 'Chase Carver', time: '11:05 AM – 11:25 AM' },
   { name: 'Joshua Heyne', time: '11:25 AM – 11:45 AM' },
   { name: 'Mark van Wyk', time: '11:45 AM – 12:05 PM' },
   { name: 'Martin Chan', time: '12:05 PM – 12:25 PM' },
@@ -137,6 +139,10 @@ function matchScore(agendaName: string, speakerName: string): number {
   )
 }
 
+const SPEAKER_REPLACEMENTS: Record<string, string> = {
+  'Michael Bluy': 'Chase Carver',
+}
+
 async function fetchCsv(url: string): Promise<string[][]> {
   const response = await fetch(url, { cache: 'no-store' })
   if (!response.ok) throw new Error(`Google Sheet returned ${response.status}`)
@@ -148,6 +154,14 @@ function speakersFromRows(rows: string[][]): Speaker[] {
   const nameIndex = header?.findIndex(cell => cell.trim().toLowerCase() === 'name') ?? -1
   const titleIndex = header?.findIndex(cell => cell.trim().toLowerCase() === 'title') ?? -1
   const companyIndex = header?.findIndex(cell => cell.trim().toLowerCase() === 'company') ?? -1
+  const presentationTitleIndex = header?.findIndex(cell => {
+    const value = cell.trim().toLowerCase()
+    return value === 'presentation title' || value === 'session title' || value === 'presentation'
+  }) ?? -1
+  const bioIndex = header?.findIndex(cell => {
+    const value = cell.trim().toLowerCase()
+    return value === 'bio' || value === 'biography' || value === 'speaker bio'
+  }) ?? -1
 
   if (nameIndex < 0 || titleIndex < 0 || companyIndex < 0) return []
 
@@ -156,6 +170,8 @@ function speakersFromRows(rows: string[][]): Speaker[] {
       name: row[nameIndex]?.trim() ?? '',
       title: row[titleIndex]?.trim() ?? '',
       company: (row[companyIndex]?.trim() ?? '').replace(/^HYSKY Society$/i, 'HySky Society'),
+      presentationTitle: presentationTitleIndex >= 0 ? row[presentationTitleIndex]?.trim() || undefined : undefined,
+      bio: bioIndex >= 0 ? row[bioIndex]?.trim() || undefined : undefined,
     }))
     .filter(speaker => speaker.name && speaker.title && speaker.company)
 }
@@ -189,7 +205,7 @@ export async function getFlyingHyAgenda(): Promise<FlyingHyAgendaItem[]> {
     let bestScore = 0
 
     for (const index of unusedSpeakers) {
-      const score = matchScore(name, trustedSpeakers[index].name)
+      const score = matchScore(SPEAKER_REPLACEMENTS[name] ?? name, trustedSpeakers[index].name)
       if (score > bestScore) {
         bestIndex = index
         bestScore = score
