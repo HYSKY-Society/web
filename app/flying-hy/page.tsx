@@ -284,18 +284,6 @@ export default async function FlyingHyPage() {
         <p className="text-white/55 text-lg leading-relaxed max-w-2xl mb-10">
           Gain visibility among hundreds of hydrogen aviation professionals and demonstrate your commitment to the future of clean flight.
         </p>
-        <div className="grid sm:grid-cols-2 gap-6 mb-10">
-          {[
-            { tier: 'Attendee Sponsor', desc: 'Brand visibility in event materials and virtual backdrop.', color: '#9b6dff' },
-            { tier: 'Presenting Sponsor', desc: 'Opening remarks slot, prominent branding, and dedicated feature in post-event communications.', color: '#13dce8' },
-          ].map(({ tier, desc, color }) => (
-            <div key={tier} className="rounded-2xl p-6"
-              style={{ background: 'var(--surface-subtle)', border: `1px solid ${color}30` }}>
-              <p className="font-bold text-white mb-2">{tier}</p>
-              <p className="text-white/45 text-sm leading-relaxed mb-4">{desc}</p>
-            </div>
-          ))}
-        </div>
         <div className="flex flex-wrap gap-4">
           <EventRegisterButton
             label="Become a Sponsor →"
@@ -369,4 +357,3 @@ export default async function FlyingHyPage() {
     </PublicShell>
   )
 }
-
