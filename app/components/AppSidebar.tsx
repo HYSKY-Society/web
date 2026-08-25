@@ -42,7 +42,7 @@ function SidebarItem({
             : 'text-white/55 hover:text-white hover:bg-white/6'
         } ${locked ? 'opacity-55' : ''}`}
       >
-        <span className="text-base leading-none shrink-0">{icon}</span>
+        <span className="themed-icon text-base leading-none shrink-0" aria-hidden="true">{icon}</span>
         {!collapsed && <span className="truncate">{label}</span>}
         {!collapsed && locked && <span className="ml-auto text-[10px] text-white/35">VIP</span>}
       </Link>
@@ -50,7 +50,7 @@ function SidebarItem({
       {/* Tooltip — only in collapsed mode; nav is overflow-visible when collapsed */}
       {collapsed && (
         <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-3 z-[200] opacity-0 group-hover/item:opacity-100 transition-opacity duration-150">
-          <div className="bg-[#1a1428] text-white/90 text-xs font-semibold px-2.5 py-1.5 rounded-lg whitespace-nowrap border border-white/10 shadow-xl">
+          <div className="sidebar-tooltip bg-[#1a1428] text-white/90 text-xs font-semibold px-2.5 py-1.5 rounded-lg whitespace-nowrap border border-white/10 shadow-xl">
             {label}
           </div>
         </div>
@@ -114,7 +114,7 @@ export default function AppSidebar({
         <SidebarSection label="Membership" collapsed={collapsed} />
         {!collapsed && (
           <div className="px-3 py-1.5 flex items-center gap-2.5">
-            <span className="text-base leading-none">🪪</span>
+            <span className="themed-icon text-base leading-none" aria-hidden="true">🪪</span>
             <span className="text-xs text-white/35">
               Plan: <span className="text-[#9b6dff] font-medium">{tierLabel}</span>
             </span>
@@ -169,7 +169,7 @@ export default function AppSidebar({
               title="Account settings"
               className="rounded-md p-1.5 text-white/35 transition-colors hover:bg-white/8 hover:text-white"
             >
-              ⚙
+              <span className="themed-icon" aria-hidden="true">⚙</span>
             </button>
             <button
               type="button"
@@ -178,7 +178,7 @@ export default function AppSidebar({
               title="Sign out"
               className="rounded-md p-1.5 text-white/35 transition-colors hover:bg-white/8 hover:text-white"
             >
-              ↪
+              <span className="themed-icon" aria-hidden="true">↪</span>
             </button>
           </div>
         )}
@@ -186,3 +186,4 @@ export default function AppSidebar({
     </aside>
   )
 }
+

@@ -45,10 +45,10 @@ const faqs = [
 ]
 
 const eventArchive = [
-  { year: 2026, href: '/events/flying-hy-2026', external: false },
-  { year: 2025, href: 'https://www.hysky.org/flyinghy2025', external: true },
-  { year: 2024, href: 'https://www.hysky.org/flyinghy2024', external: true },
-  { year: 2023, href: 'https://www.hysky.org/flyinghy2023', external: true },
+  { year: 2026, href: null },
+  { year: 2025, href: 'https://www.zeffy.com/en-US/ticketing/fh-2025-recordings-and-slides' },
+  { year: 2024, href: 'https://drive.google.com/drive/folders/1OnShS08B5FI_45F4mFjaMhqd59RxTEck?usp=drive_link' },
+  { year: 2023, href: 'https://drive.google.com/drive/folders/1jFNzvclfKfLp-3yawEo3YyqdVAqtEC_k?usp=drive_link' },
 ]
 
 const speakerHeadshots: Record<string, string | string[]> = {
@@ -348,13 +348,22 @@ export default async function FlyingHyPage() {
         <div className="h-px mb-12" style={{ background: 'var(--border-muted)' }} />
         <div className="text-[#9b6dff] text-xs font-bold uppercase tracking-[2.5px] mb-6">Event Archive</div>
         <div className="flex flex-wrap gap-4">
-          {eventArchive.map(({ year, href, external }) => (
-            <a key={year} href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}
-              className="flex items-center gap-3 px-6 py-3 rounded-xl font-semibold text-sm text-white/60 hover:text-white transition-all hover:scale-[1.02]"
-              style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-soft)' }}>
-              ✈️ FLYING HY {year}
-            </a>
-          ))}
+          {eventArchive.map(({ year, href }) => {
+            const className = 'flex items-center gap-3 px-6 py-3 rounded-xl font-semibold text-sm text-white/60 transition-all'
+            const style = { background: 'var(--surface-subtle)', border: '1px solid var(--border-soft)' }
+
+            return href ? (
+              <a key={year} href={href} target="_blank" rel="noopener noreferrer"
+                className={`${className} hover:text-white hover:scale-[1.02]`} style={style}>
+                ✈️ FLYING HY {year}
+              </a>
+            ) : (
+              <span key={year} aria-label={`FLYING HY ${year} archive is not available yet`}
+                className={`${className} cursor-default`} style={style}>
+                ✈️ FLYING HY {year}
+              </span>
+            )
+          })}
         </div>
       </section>
     </PublicShell>

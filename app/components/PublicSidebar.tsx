@@ -42,7 +42,7 @@ export default function PublicSidebar({
                   active ? 'bg-[#5d00f5]/20 text-white' : 'text-white/55 hover:text-white hover:bg-white/6'
                 }`}
               >
-                <span className="text-base leading-none">{icon}</span>
+                <span className="themed-icon text-base leading-none" aria-hidden="true">{icon}</span>
                 <span className="truncate">{label}</span>
               </Link>
               {sub && active && sub.map(s => (
@@ -64,7 +64,7 @@ export default function PublicSidebar({
             onClick={onClose}
             className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm text-[#9b6dff] hover:text-white hover:bg-white/6 transition-colors"
           >
-            <span className="text-base leading-none">⚡</span>
+            <span className="themed-icon text-base leading-none" aria-hidden="true">⚡</span>
             <span className="truncate">Go to Feed</span>
           </Link>
         )}
