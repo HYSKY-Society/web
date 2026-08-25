@@ -4,7 +4,7 @@ import { FormEvent, useState } from 'react'
 
 type InviteResult = {
   sent?: number
-  results?: { email: string; ok: boolean; error?: string }[]
+  results?: { email: string; ok: boolean; replacedPending?: boolean; error?: string }[]
   error?: string
 }
 
@@ -48,7 +48,9 @@ export default function InviteUserButton() {
       }
 
       setStatus('sent')
-      setMessage(`Invitation sent to ${normalizedEmail}.`)
+      setMessage(invitation.replacedPending
+        ? `The old invitation was replaced and a fresh email was sent to ${normalizedEmail}.`
+        : `Invitation sent to ${normalizedEmail}.`)
     } catch (error) {
       setStatus('error')
       setMessage(error instanceof Error ? error.message : 'The invitation could not be sent.')
@@ -82,7 +84,7 @@ export default function InviteUserButton() {
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <h2 id="invite-user-title" className="text-xl font-bold">Invite a User</h2>
-                <p className="invite-user-muted mt-1 text-sm text-white/50">They’ll receive an email from Clerk with a secure account-creation link.</p>
+                <p className="invite-user-muted mt-1 text-sm text-white/50">They’ll receive a HySky-branded email with a secure account-creation link.</p>
               </div>
               <button
                 type="button"

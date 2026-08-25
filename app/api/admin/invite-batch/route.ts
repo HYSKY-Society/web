@@ -1,9 +1,36 @@
 import { currentUser, clerkClient } from '@clerk/nextjs/server'
 import { getAdminEmails } from '@/lib/admin'
+import { sendInvitationEmail } from '@/lib/invitation-email'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://connect.hysky.org'
 
-type Result = { email: string; ok: boolean; error?: string }
+type Result = { email: string; ok: boolean; replacedPending?: boolean; error?: string }
+
+async function revokePendingInvitations(email: string) {
+  let offset = 0
+  let revoked = 0
+
+  while (true) {
+    const page = await clerkClient.invitations.getInvitationList({
+      status: 'pending',
+      limit: 100,
+      offset,
+    })
+    const invitations = page.data ?? []
+
+    for (const invitation of invitations) {
+      if (invitation.emailAddress.toLowerCase() === email) {
+        await clerkClient.invitations.revokeInvitation(invitation.id)
+        revoked++
+      }
+    }
+
+    if (invitations.length < 100) break
+    offset += invitations.length
+  }
+
+  return revoked
+}
 
 export async function POST(req: Request) {
   const user = await currentUser()
@@ -19,14 +46,31 @@ export async function POST(req: Request) {
   const results: Result[] = []
 
   await Promise.allSettled(
-    emails.map(async (email: string) => {
+    emails.map(async (rawEmail: string) => {
+      const email = rawEmail.trim().toLowerCase()
       try {
-        await clerkClient.invitations.createInvitation({
+        const replacedPending = await revokePendingInvitations(email) > 0
+        const invitation = await clerkClient.invitations.createInvitation({
           emailAddress: email,
           redirectUrl: APP_URL + '/feed',
-          notify: true,
+          notify: false,
         })
-        results.push({ email, ok: true })
+
+        if (!invitation.url) {
+          await clerkClient.invitations.revokeInvitation(invitation.id)
+          throw new Error('Clerk did not create a secure invitation link.')
+        }
+
+        const inviterName = [user.firstName, user.lastName].filter(Boolean).join(' ') || 'HySky Society'
+        try {
+          await sendInvitationEmail({ to: email, inviterName, invitationUrl: invitation.url })
+        } catch (emailError) {
+          // Do not leave another unusable pending invitation if email delivery fails.
+          await clerkClient.invitations.revokeInvitation(invitation.id)
+          throw emailError
+        }
+
+        results.push({ email, ok: true, replacedPending })
       } catch (err: unknown) {
         // Clerk SDK wraps errors — extract the most useful message
         let msg = 'Unknown error'
