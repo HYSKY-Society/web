@@ -34,15 +34,20 @@ export default function EventsPage() {
 
         {/* Flying HY 2026 — Featured */}
         <div
-          className="relative overflow-hidden rounded-3xl p-8 sm:p-10 mb-8"
+          className="flying-hy-featured-card group relative mb-8 cursor-pointer overflow-hidden rounded-3xl p-8 transition-transform hover:scale-[1.005] sm:p-10"
           style={{
             background: 'linear-gradient(135deg, rgba(93,0,245,.35), rgba(0,212,212,.12))',
             border: '1px solid rgba(93,0,245,.4)',
           }}
         >
-          <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full blur-3xl opacity-20" style={{ backgroundColor: '#5d00f5' }} />
-          <div className="relative">
-            <div className="event-category-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-5 bg-[#5d00f5]/25 text-[#9b6dff]">
+          <div className="flying-hy-featured-glow absolute -top-20 -right-20 w-72 h-72 rounded-full blur-3xl opacity-20" style={{ backgroundColor: '#5d00f5' }} />
+          <Link
+            href="/flying-hy"
+            aria-label="View FLYING HY 2026 conference details"
+            className="absolute inset-0 z-10 rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5d00f5] focus-visible:ring-offset-2"
+          />
+          <div className="pointer-events-none relative z-20">
+            <div className="event-category-badge flying-hy-featured-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-5 bg-[#5d00f5]/25 text-[#9b6dff]">
               <SidebarIcon name="plane" className="h-4 w-4" /> Featured Event
             </div>
             <div className="text-white/50 text-sm mb-1">The 4th Global</div>
@@ -60,11 +65,11 @@ export default function EventsPage() {
                 label="Register Now →"
                 options={flyingHyOptions}
                 title="FLYING HY 2026 — Get Your Ticket"
-                className="btn-teal-glow inline-flex items-center gap-2 text-white font-bold px-8 py-3 rounded-xl text-sm"
+                className="btn-teal-glow pointer-events-auto relative z-20 inline-flex items-center gap-2 text-white font-bold px-8 py-3 rounded-xl text-sm"
               />
               <Link
                 href="/flying-hy"
-                className="inline-flex items-center gap-2 text-white/60 hover:text-white font-semibold px-6 py-3 rounded-xl text-sm border border-white/15 hover:border-white/30 transition-colors"
+                className="pointer-events-auto relative z-20 inline-flex items-center gap-2 text-white/60 hover:text-white font-semibold px-6 py-3 rounded-xl text-sm border border-white/15 hover:border-white/30 transition-colors"
               >
                 View Details →
               </Link>
