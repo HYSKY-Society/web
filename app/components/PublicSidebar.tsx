@@ -3,20 +3,21 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { SignInButton, SignUpButton } from '@clerk/nextjs'
+import SidebarIcon, { type SidebarIconName } from './SidebarIcon'
 
-const NAV = [
-  { href: '/about',        label: 'About Us',      icon: '🏠' },
-  { href: '/courses',      label: 'Courses',       icon: '📚' },
-  { href: '/events',       label: 'Events',        icon: '📅' },
-  { href: '/flying-hy',    label: 'FLYING HY',     icon: '✈️', sub: [
+const NAV: Array<{ href: string; label: string; icon: SidebarIconName; newTab?: boolean; sub?: Array<{ href: string; label: string }> }> = [
+  { href: '/about',        label: 'About Us',      icon: 'home' },
+  { href: '/courses',      label: 'Courses',       icon: 'courses' },
+  { href: '/events',       label: 'Events',        icon: 'events' },
+  { href: '/flying-hy',    label: 'FLYING HY',     icon: 'plane', sub: [
     { href: '/flying-hy#speakers', label: 'Speakers' },
     { href: '/flying-hy#agenda',   label: 'Agenda' },
     { href: '/flying-hy#sponsors', label: 'Sponsors' },
     { href: '/flying-hy#faq',      label: 'FAQ' },
   ]},
-  { href: '/hysky-monthly', label: 'HySky Monthly', icon: '🎬' },
-  { href: '/podcast',       label: 'Podcast',       icon: '🎙' },
-  { href: 'https://news.hysky.org', label: 'News', icon: '📰', newTab: false },
+  { href: '/hysky-monthly', label: 'HySky Monthly', icon: 'video' },
+  { href: '/podcast',       label: 'Podcast',       icon: 'podcast' },
+  { href: 'https://news.hysky.org', label: 'News', icon: 'news', newTab: false },
 ]
 
 export default function PublicSidebar({
@@ -42,7 +43,7 @@ export default function PublicSidebar({
                   active ? 'bg-[#5d00f5]/20 text-white' : 'text-white/55 hover:text-white hover:bg-white/6'
                 }`}
               >
-                <span className="themed-icon text-base leading-none" aria-hidden="true">{icon}</span>
+                <SidebarIcon name={icon} />
                 <span className="truncate">{label}</span>
               </Link>
               {sub && active && sub.map(s => (
@@ -64,7 +65,7 @@ export default function PublicSidebar({
             onClick={onClose}
             className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm text-[#9b6dff] hover:text-white hover:bg-white/6 transition-colors"
           >
-            <span className="themed-icon text-base leading-none" aria-hidden="true">⚡</span>
+            <SidebarIcon name="feed" />
             <span className="truncate">Go to Feed</span>
           </Link>
         )}

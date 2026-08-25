@@ -7,6 +7,7 @@ import { TIER_LABELS } from '@/lib/tiers'
 import { hasVipCommunityAccess } from '@/lib/tiers'
 import type { Tier } from '@/lib/tiers'
 import type { SidebarData } from './AppShell'
+import SidebarIcon, { type SidebarIconName } from './SidebarIcon'
 
 function SidebarSection({ label, collapsed }: { label: string; collapsed: boolean }) {
   if (collapsed) return <div className="h-3" />
@@ -20,7 +21,7 @@ function SidebarSection({ label, collapsed }: { label: string; collapsed: boolea
 function SidebarItem({
   href, icon, label, onClick, sub, collapsed, locked,
 }: {
-  href: string; icon: string; label: string
+  href: string; icon: SidebarIconName; label: string
   onClick: () => void; sub?: boolean; collapsed: boolean
   locked?: boolean
 }) {
@@ -42,7 +43,7 @@ function SidebarItem({
             : 'text-white/55 hover:text-white hover:bg-white/6'
         } ${locked ? 'opacity-55' : ''}`}
       >
-        <span className="themed-icon text-base leading-none shrink-0" aria-hidden="true">{icon}</span>
+        <SidebarIcon name={icon} />
         {!collapsed && <span className="truncate">{label}</span>}
         {!collapsed && locked && <span className="ml-auto text-[10px] text-white/35">VIP</span>}
       </Link>
@@ -95,11 +96,11 @@ export default function AppSidebar({
       <nav className={`flex-1 py-2 space-y-0.5 ${collapsed ? 'overflow-visible' : 'overflow-y-auto'}`}>
 
         <SidebarSection label="Connect" collapsed={collapsed} />
-        <SidebarItem href="/feed" icon="🏠" label="Home Feed" onClick={onClose} collapsed={collapsed} />
-        <SidebarItem href="/members" icon="👥" label="Members" onClick={onClose} collapsed={collapsed} />
+        <SidebarItem href="/feed" icon="home" label="Home Feed" onClick={onClose} collapsed={collapsed} />
+        <SidebarItem href="/members" icon="members" label="Members" onClick={onClose} collapsed={collapsed} />
         <SidebarItem
           href={canUseVipCommunity ? '/network' : '/messages'}
-          icon={canUseVipCommunity ? '💬' : '🔒'}
+          icon={canUseVipCommunity ? 'messages' : 'lock'}
           label="Messages"
           onClick={onClose}
           collapsed={collapsed}
@@ -107,26 +108,26 @@ export default function AppSidebar({
         />
 
         <SidebarSection label="Discover" collapsed={collapsed} />
-        <SidebarItem href="/courses" icon="📚" label="Browse Courses" onClick={onClose} collapsed={collapsed} />
-        <SidebarItem href="/events" icon="📅" label="Events" onClick={onClose} collapsed={collapsed} />
-        <SidebarItem href="https://news.hysky.org" icon="📰" label="HySky News" onClick={onClose} collapsed={collapsed} />
+        <SidebarItem href="/courses" icon="courses" label="Browse Courses" onClick={onClose} collapsed={collapsed} />
+        <SidebarItem href="/events" icon="events" label="Events" onClick={onClose} collapsed={collapsed} />
+        <SidebarItem href="https://news.hysky.org" icon="news" label="HySky News" onClick={onClose} collapsed={collapsed} />
 
         <SidebarSection label="Membership" collapsed={collapsed} />
         {!collapsed && (
           <div className="px-3 py-1.5 flex items-center gap-2.5">
-            <span className="themed-icon text-base leading-none" aria-hidden="true">🪪</span>
+            <SidebarIcon name="plan" />
             <span className="text-xs text-white/35">
               Plan: <span className="text-[#9b6dff] font-medium">{tierLabel}</span>
             </span>
           </div>
         )}
-        <SidebarItem href="/profile" icon="👤" label="My Profile" onClick={onClose} collapsed={collapsed} />
+        <SidebarItem href="/profile" icon="profile" label="My Profile" onClick={onClose} collapsed={collapsed} />
 
         {/* ── Admin ─────────────────────────────────────────────── */}
         {data.isAdmin && (
           <>
             <SidebarSection label="Admin" collapsed={collapsed} />
-            <SidebarItem href="/admin" icon="⚙️" label="Admin Dashboard" onClick={onClose} collapsed={collapsed} />
+            <SidebarItem href="/admin" icon="admin" label="Admin Dashboard" onClick={onClose} collapsed={collapsed} />
           </>
         )}
       </nav>
@@ -169,7 +170,7 @@ export default function AppSidebar({
               title="Account settings"
               className="rounded-md p-1.5 text-white/35 transition-colors hover:bg-white/8 hover:text-white"
             >
-              <span className="themed-icon" aria-hidden="true">⚙</span>
+              <SidebarIcon name="settings" className="h-4 w-4" />
             </button>
             <button
               type="button"
@@ -178,7 +179,7 @@ export default function AppSidebar({
               title="Sign out"
               className="rounded-md p-1.5 text-white/35 transition-colors hover:bg-white/8 hover:text-white"
             >
-              <span className="themed-icon" aria-hidden="true">↪</span>
+              <SidebarIcon name="logout" className="h-4 w-4" />
             </button>
           </div>
         )}
