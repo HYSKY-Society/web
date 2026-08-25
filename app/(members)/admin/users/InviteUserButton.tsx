@@ -75,17 +75,20 @@ export default function InviteUserButton() {
             if (event.target === event.currentTarget) close()
           }}
         >
-          <div className="w-full max-w-md rounded-2xl border border-white/15 bg-[#0b0b13] p-6 text-white shadow-2xl">
+          <div
+            className="invite-user-modal w-full max-w-md rounded-2xl border border-white/15 bg-[#0b0b13] p-6 text-white shadow-2xl"
+            style={{ backgroundColor: '#0b0b13', color: '#fff', colorScheme: 'dark' }}
+          >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <h2 id="invite-user-title" className="text-xl font-bold">Invite a User</h2>
-                <p className="mt-1 text-sm text-white/50">They’ll receive an email from Clerk with a secure account-creation link.</p>
+                <p className="invite-user-muted mt-1 text-sm text-white/50">They’ll receive an email from Clerk with a secure account-creation link.</p>
               </div>
               <button
                 type="button"
                 onClick={close}
                 disabled={status === 'sending'}
-                className="rounded-lg px-2 py-1 text-xl text-white/60 hover:bg-white/10 hover:text-white disabled:opacity-40"
+                className="invite-user-muted rounded-lg px-2 py-1 text-xl text-white/60 hover:bg-white/10 hover:text-white disabled:opacity-40"
                 aria-label="Close invitation form"
               >
                 ×
@@ -115,7 +118,8 @@ export default function InviteUserButton() {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="person@example.com"
-                  className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-white/25 focus:border-[#8f5cff]"
+                  className="invite-user-email w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm !text-white outline-none placeholder:!text-white/25 focus:border-[#8f5cff]"
+                  style={{ color: '#fff', WebkitTextFillColor: '#fff' }}
                 />
                 {status === 'error' && (
                   <p className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">{message}</p>
