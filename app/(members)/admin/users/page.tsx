@@ -9,6 +9,7 @@ import { revalidatePath } from 'next/cache'
 import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
 import MakeVipButton from './MakeVipButton'
 import UserSearch from './UserSearch'
+import InviteUserButton from './InviteUserButton'
 
 const COURSES = [
   { slug: 'h2-aircraft-certification', label: 'Certification' },
@@ -118,6 +119,14 @@ export default async function AdminUsersPage({
         ))}
       </div>
 
+      <div className="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 px-6 py-5">
+        <div>
+          <h2 className="font-semibold">User Management</h2>
+          <p className="mt-0.5 text-xs text-white/40">Invite someone to create a HySky Connect account.</p>
+        </div>
+        <InviteUserButton />
+      </div>
+
       <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
         <div className="px-6 py-5 border-b border-white/8">
           <h2 className="font-semibold">All Members</h2>
@@ -197,4 +206,3 @@ export default async function AdminUsersPage({
     </div>
   )
 }
-
