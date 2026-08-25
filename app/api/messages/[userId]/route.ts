@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { directMessages, userProfiles } from '@/lib/schema'
+import { directMessages, userProfiles, users } from '@/lib/schema'
 import { and, or, eq, asc, isNull } from 'drizzle-orm'
 import { pusherServer, dmChannelName } from '@/lib/pusher'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
-import { createNotification, markDirectMessageNotificationsRead } from '@/lib/notifications'
+import {
+  createNotification,
+  hasUnreadDirectMessageNotification,
+  markDirectMessageNotificationsRead,
+} from '@/lib/notifications'
+import { sendDirectMessageEmail } from '@/lib/direct-message-email'
 
 async function getAuthorizedUserId(): Promise<string | null> {
   const user = await currentUser()
@@ -58,6 +63,10 @@ export async function POST(req: NextRequest, { params }: { params: { userId: str
   if (!content?.trim()) return NextResponse.json({ error: 'Empty message' }, { status: 400 })
 
   try {
+    const shouldEmailRecipient = await hasUnreadDirectMessageNotification(toUserId, myId)
+      .then((hasUnread) => !hasUnread)
+      .catch(() => false)
+
     const [msg] = await db
       .insert(directMessages)
       .values({ fromUserId: myId, toUserId, content: content.trim() })
@@ -76,6 +85,22 @@ export async function POST(req: NextRequest, { params }: { params: { userId: str
       type: 'dm',
       entityId: msg.id,
     }).catch(() => {})
+
+    if (shouldEmailRecipient) {
+      const recipient = await db.query.users.findFirst({
+        where: eq(users.id, toUserId),
+        columns: { email: true },
+      })
+
+      if (recipient?.email) {
+        await sendDirectMessageEmail({
+          to: recipient.email,
+          senderName: fromName,
+        }).catch((error) => {
+          console.error('[direct-message-email] Failed to send notification', error)
+        })
+      }
+    }
 
     // Deliver to DM channel (both parties receive new message)
     await pusherServer.trigger(

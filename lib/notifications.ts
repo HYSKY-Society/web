@@ -113,6 +113,18 @@ export async function markDirectMessageNotificationsRead(userId: string, actorId
   ))
 }
 
+export async function hasUnreadDirectMessageNotification(userId: string, actorId: string) {
+  await ensureNotificationsTable()
+  const [notification] = await db.select({ id: notifications.id }).from(notifications).where(and(
+    eq(notifications.userId, userId),
+    eq(notifications.actorId, actorId),
+    eq(notifications.type, 'dm'),
+    isNull(notifications.readAt),
+  )).limit(1)
+
+  return Boolean(notification)
+}
+
 export async function getNotifications(userId: string) {
   await ensureNotificationsTable()
   const rows = await db.select().from(notifications)
