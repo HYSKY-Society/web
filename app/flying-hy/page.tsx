@@ -213,7 +213,7 @@ export default async function FlyingHyPage() {
                 key={`${speaker.time}-${speaker.name}`}
                 tabIndex={0}
                 aria-label={`${speaker.name}, ${speaker.company}. Hover or focus to view company.`}
-                className="group relative h-[340px] min-w-0 rounded-2xl outline-none [perspective:1200px] focus-visible:ring-2 focus-visible:ring-[#13dce8] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                className="group relative h-[320px] min-w-0 rounded-2xl outline-none [perspective:1200px] focus-visible:ring-2 focus-visible:ring-[#13dce8] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
               >
                 <div className="absolute inset-0 h-full transition-transform duration-700 ease-out [transform-style:preserve-3d] [-webkit-transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus:[transform:rotateY(180deg)] motion-reduce:duration-0">
                   <div
@@ -242,15 +242,14 @@ export default async function FlyingHyPage() {
                   </div>
 
                   <div
-                    className="flying-hy-speaker-back absolute inset-0 flex min-w-0 flex-col items-center justify-center overflow-hidden rounded-2xl px-5 py-6 text-center [backface-visibility:hidden] [-webkit-backface-visibility:hidden] [transform:rotateY(180deg)]"
+                    className="flying-hy-speaker-back absolute inset-0 flex min-w-0 flex-col items-center justify-start overflow-hidden rounded-2xl px-5 pb-5 pt-7 text-center [backface-visibility:hidden] [-webkit-backface-visibility:hidden] [transform:rotateY(180deg)]"
                     style={{
                       border: '1px solid rgba(19,220,232,.35)',
                       boxShadow: 'inset 0 0 60px rgba(93,0,245,.12)',
                     }}
                   >
                     <div className="absolute inset-3 rounded-xl border border-white/10" aria-hidden="true" />
-                    <p className="flying-hy-representing relative mt-3 mb-2 text-[10px] font-bold uppercase tracking-[2px]">Representing</p>
-                    <div className="relative mb-5 flex h-32 w-32 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-black p-4 shadow-[0_18px_55px_rgba(0,0,0,.28)]">
+                    <div className="relative mb-3 flex h-28 w-28 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-black p-4 shadow-[0_18px_55px_rgba(0,0,0,.28)]">
                       {companyLogoUrl ? (
                         <img
                           src={companyLogoUrl}
@@ -265,7 +264,6 @@ export default async function FlyingHyPage() {
                       )}
                     </div>
                     <p className="relative mt-2 break-words text-sm font-bold leading-tight text-white">{speaker.company}</p>
-                    <p className="relative mt-3 pb-3 text-xs text-white/45">Speaker bio coming soon</p>
                   </div>
                 </div>
               </article>

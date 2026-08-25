@@ -91,22 +91,12 @@
 }
 
 [data-theme='light'] .flying-hy-speaker-back {
-  background:
-    radial-gradient(circle at 50% 30%, rgba(19, 220, 232, .24), transparent 48%),
-    radial-gradient(circle at 20% 90%, rgba(19, 220, 232, .14), transparent 58%),
-    var(--surface-subtle);
+  background: #ffffff;
+  box-shadow: none !important;
 }
 
 [data-theme='light'] .flying-hy-speaker-front {
   background: #ffffff !important;
-}
-
-.flying-hy-representing {
-  color: #13dce8;
-}
-
-[data-theme='light'] .flying-hy-representing {
-  color: #000000;
 }
 
 /* ── CSS custom properties ──────────────────────────────────────────── */
