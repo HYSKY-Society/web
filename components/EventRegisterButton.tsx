@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { ZeffyModal, type ZeffyOption } from './ZeffyModal'
 
 interface EventRegisterButtonProps {
-  label?: string
+  label?: React.ReactNode
   options: ZeffyOption[]
   title: string
   className?: string

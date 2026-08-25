@@ -1,5 +1,6 @@
 import { EventRegisterButton } from '@/components/EventRegisterButton'
 import { ZEFFY } from '@/lib/zeffy'
+import { FLYING_HY_REGISTER_OPTIONS, FLYING_HY_REGISTRATION_TITLE } from '@/lib/flying-hy-registration'
 import PublicShell from '@/app/components/PublicShell'
 import FlyingHyAgenda from '@/app/components/FlyingHyAgenda'
 import { getFlyingHyAgenda } from '@/lib/flying-hy-agenda'
@@ -33,12 +34,6 @@ function MonitorIcon() {
     </svg>
   )
 }
-
-const registerOptions = [
-  { label: 'Attendee', icon: '🎟️', embedUrl: ZEFFY.flyingHyAttendee },
-  { label: 'Sponsor',  icon: '🏆', embedUrl: ZEFFY.flyingHySponsor },
-  { label: 'Membership', icon: '👥', embedUrl: ZEFFY.membership },
-]
 
 const faqs = [
   { q: 'Is FLYING HY 2026 free?', a: 'FLYING HY 2026 requires a ticket. Multiple tiers are available including attendee and sponsor packages. Students and researchers may qualify for community tickets — reach out to admin@hysky.org.' },
@@ -183,8 +178,8 @@ export default async function FlyingHyPage() {
           <div className="flex flex-wrap gap-4">
             <EventRegisterButton
               label="Reserve Your Seat →"
-              options={registerOptions}
-              title="FLYING HY 2026 — Registration"
+              options={FLYING_HY_REGISTER_OPTIONS}
+              title={FLYING_HY_REGISTRATION_TITLE}
               compactModal
               className="btn-teal-glow inline-flex items-center gap-2 text-white font-bold px-8 py-3.5 rounded-xl text-base transition-all hover:scale-[1.02]"
             />
@@ -340,8 +335,8 @@ export default async function FlyingHyPage() {
             <p className="text-white/50 mb-8 max-w-md mx-auto">Join the engineers, regulators, and pioneers shaping the future of hydrogen aviation.</p>
             <EventRegisterButton
               label="Get Your Ticket →"
-              options={registerOptions}
-              title="FLYING HY 2026 — Registration"
+              options={FLYING_HY_REGISTER_OPTIONS}
+              title={FLYING_HY_REGISTRATION_TITLE}
               className="btn-teal-glow inline-flex items-center gap-2 text-white font-bold px-10 py-4 rounded-xl text-base transition-all hover:scale-[1.03]"
             />
           </div>

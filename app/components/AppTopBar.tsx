@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { SignInButton, SignUpButton } from '@clerk/nextjs'
 import ThemeToggle from './ThemeToggle'
 import NotificationBell from './NotificationBell'
+import FlyingHyTicketButton from './FlyingHyTicketButton'
 
 function SidebarArrow({ expanded }: { expanded: boolean }) {
   return (
@@ -52,7 +53,7 @@ export default function AppTopBar({
       {/* Full HySky Connect wordmark with a wider responsive logo slot. */}
       <Link
         href={isLoggedIn ? '/feed' : '/about'}
-        className="relative mr-3 block h-[48px] w-[170px] shrink-0 sm:mr-5 sm:w-[230px]"
+        className="relative mr-2 block h-[48px] w-[112px] shrink-0 sm:mr-5 sm:w-[190px] lg:w-[230px]"
         aria-label="HySky Connect home"
       >
         <Image
@@ -75,6 +76,7 @@ export default function AppTopBar({
 
       {/* Right side: theme toggle + optional auth buttons */}
       <div className="flex items-center gap-1 ml-auto">
+        <FlyingHyTicketButton />
         {myId && <NotificationBell myId={myId} canOpenDirectMessages={canOpenDirectMessages} />}
         <ThemeToggle />
         {!isLoggedIn && (
