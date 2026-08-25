@@ -7,7 +7,6 @@ import { pusherServer, dmChannelName } from '@/lib/pusher'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
 import {
   createNotification,
-  hasUnreadDirectMessageNotification,
   markDirectMessageNotificationsRead,
 } from '@/lib/notifications'
 import { sendDirectMessageEmail } from '@/lib/direct-message-email'
@@ -63,10 +62,6 @@ export async function POST(req: NextRequest, { params }: { params: { userId: str
   if (!content?.trim()) return NextResponse.json({ error: 'Empty message' }, { status: 400 })
 
   try {
-    const shouldEmailRecipient = await hasUnreadDirectMessageNotification(toUserId, myId)
-      .then((hasUnread) => !hasUnread)
-      .catch(() => false)
-
     const [msg] = await db
       .insert(directMessages)
       .values({ fromUserId: myId, toUserId, content: content.trim() })
@@ -86,20 +81,18 @@ export async function POST(req: NextRequest, { params }: { params: { userId: str
       entityId: msg.id,
     }).catch(() => {})
 
-    if (shouldEmailRecipient) {
-      const recipient = await db.query.users.findFirst({
-        where: eq(users.id, toUserId),
-        columns: { email: true },
-      })
+    const recipient = await db.query.users.findFirst({
+      where: eq(users.id, toUserId),
+      columns: { email: true },
+    })
 
-      if (recipient?.email) {
-        await sendDirectMessageEmail({
-          to: recipient.email,
-          senderName: fromName,
-        }).catch((error) => {
-          console.error('[direct-message-email] Failed to send notification', error)
-        })
-      }
+    if (recipient?.email) {
+      await sendDirectMessageEmail({
+        to: recipient.email,
+        senderName: fromName,
+      }).catch((error) => {
+        console.error('[direct-message-email] Failed to send notification', error)
+      })
     }
 
     // Deliver to DM channel (both parties receive new message)
