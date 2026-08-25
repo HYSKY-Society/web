@@ -213,7 +213,7 @@ export default async function FlyingHyPage() {
                 key={`${speaker.time}-${speaker.name}`}
                 tabIndex={0}
                 aria-label={`${speaker.name}, ${speaker.company}. Hover or focus to view company.`}
-                className="group relative h-[320px] min-w-0 rounded-2xl outline-none [perspective:1200px] focus-visible:ring-2 focus-visible:ring-[#13dce8] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                className="group relative h-[280px] min-w-0 rounded-2xl outline-none [perspective:1200px] focus-visible:ring-2 focus-visible:ring-[#13dce8] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
               >
                 <div className="absolute inset-0 h-full transition-transform duration-700 ease-out [transform-style:preserve-3d] [-webkit-transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus:[transform:rotateY(180deg)] motion-reduce:duration-0">
                   <div
