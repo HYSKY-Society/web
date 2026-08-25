@@ -264,7 +264,7 @@ export default async function FlyingHyPage() {
                         <span className="text-2xl font-black text-black/75">{speaker.company}</span>
                       )}
                     </div>
-                    <p className="relative mt-2 text-lg font-bold text-white">{speaker.company}</p>
+                    <p className="relative mt-2 break-words text-sm font-bold leading-tight text-white">{speaker.company}</p>
                     <p className="relative mt-3 pb-3 text-xs text-white/45">Speaker bio coming soon</p>
                   </div>
                 </div>
