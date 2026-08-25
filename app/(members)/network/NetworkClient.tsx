@@ -125,7 +125,7 @@ export default function NetworkClient() {
   }, [])
 
   const onlineById = new Map(online.map((member) => [member.id, member]))
-  const recentlyActive = allUsers.filter((member) => member.tier === 'member_full').sort((first, second) => {
+  const recentlyActive = [...allUsers].sort((first, second) => {
     const firstOnline = onlineById.has(first.id)
     const secondOnline = onlineById.has(second.id)
     if (firstOnline !== secondOnline) return firstOnline ? -1 : 1
@@ -168,7 +168,7 @@ export default function NetworkClient() {
             <div className="px-6 py-14 text-center">
               <div className="mb-3 text-3xl" aria-hidden="true">💬</div>
               <p className="font-semibold text-white">{messageQuery ? 'No matching conversations' : 'Start something good'}</p>
-              <p className="mt-1 text-sm text-white/40">{messageQuery ? 'Try another person or phrase.' : 'Choose a VIP member and start a conversation.'}</p>
+              <p className="mt-1 text-sm text-white/40">{messageQuery ? 'Try another person or phrase.' : 'Choose a member and start a conversation.'}</p>
             </div>
           ) : (
             <div className="divide-y divide-white/8">
@@ -206,17 +206,17 @@ export default function NetworkClient() {
 
       <aside aria-labelledby="active-members-heading">
         <div className="mb-4">
-          <h2 id="active-members-heading" className="text-lg font-bold text-white">VIP members</h2>
+          <h2 id="active-members-heading" className="text-lg font-bold text-white">Members</h2>
         </div>
 
         <label className="relative mb-4 block">
-          <span className="sr-only">Search VIP members by name</span>
+          <span className="sr-only">Search members by name</span>
           <span aria-hidden="true" className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">⌕</span>
           <input
             type="search"
             value={memberQuery}
             onChange={(event) => setMemberQuery(event.target.value)}
-            placeholder="Search VIP members…"
+            placeholder="Search members…"
             className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-[#5d00f5]/55"
           />
         </label>

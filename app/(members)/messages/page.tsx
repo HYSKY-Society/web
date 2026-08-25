@@ -4,6 +4,7 @@ import { desc, eq } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import { directMessages, userProfiles, users } from '@/lib/schema'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
+import FreeMemberSearch from './FreeMemberSearch'
 
 export default async function MessagesPage() {
   const user = await currentUser()
@@ -39,54 +40,50 @@ export default async function MessagesPage() {
   })
 
   return (
-    <div className="max-w-2xl text-white">
-      <div className="rounded-2xl p-8 text-center" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-muted)' }}>
-        <div className="text-3xl mb-4" aria-hidden>🔒</div>
-        <h1 className="text-2xl font-black">Direct Messages</h1>
-        <p className="text-sm text-white/50 leading-relaxed mt-3 mb-6">
-          You can receive messages and read a short preview on the Free plan. Upgrade to VIP Connect to open complete conversations and send replies.
-        </p>
-        <a
-          href="https://www.zeffy.com/en-US/ticketing/hysky-societys-membership"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex px-5 py-2.5 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] text-sm font-semibold text-white transition-colors"
-        >
-          Upgrade to read and reply
-        </a>
+    <div className="text-white">
+      <div className="mb-8">
+        <h1 className="text-3xl font-black mb-1">Messages</h1>
+        <p className="text-sm text-white/40">Preview received messages or find a member to connect with.</p>
       </div>
-
-      {previews.length > 0 ? (
-        <section id="message-previews" className="mt-6 scroll-mt-24">
-          <h2 className="mb-3 text-lg font-bold">Message previews</h2>
-          <div className="space-y-3">
-            {previews.map((message) => (
-              <article
-                key={message.id}
-                className="rounded-2xl p-4"
-                style={{ background: 'var(--bg-card)', border: '1px solid var(--border-muted)' }}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#5d00f5]/20 font-bold text-[#9b6dff]">
-                    {message.avatarUrl
-                      ? <img src={message.avatarUrl} alt="" className="h-full w-full object-cover" />
-                      : message.sender[0]?.toUpperCase()}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold">{message.sender}</p>
-                    <p className="mt-1 text-sm text-white/55">{message.preview}</p>
-                    <p className="mt-2 text-[11px] text-white/30">
-                      {message.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </p>
-                  </div>
-                  <span className="shrink-0 rounded-full bg-[#5d00f5]/15 px-2 py-1 text-[10px] font-semibold text-[#9b6dff]">Preview</span>
-                </div>
-              </article>
-            ))}
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,.9fr)_minmax(560px,1.1fr)]">
+        <div>
+          <div className="rounded-2xl p-8 text-center" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-muted)' }}>
+            <div className="text-3xl mb-4" aria-hidden>🔒</div>
+            <h2 className="text-2xl font-black">Message previews</h2>
+            <p className="text-sm text-white/50 leading-relaxed mt-3 mb-6">
+              You can receive messages and read a short preview on the Free plan. Upgrade to VIP Connect to open complete conversations and send replies.
+            </p>
+            <a href="https://www.zeffy.com/en-US/ticketing/hysky-societys-membership" target="_blank" rel="noopener noreferrer"
+              className="inline-flex px-5 py-2.5 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] text-sm font-semibold text-white transition-colors">
+              Upgrade to read and reply
+            </a>
           </div>
-          <p className="mt-4 text-center text-xs text-white/40">Upgrade to reveal full conversations and reply.</p>
-        </section>
-      ) : null}
+
+          {previews.length > 0 ? (
+            <section id="message-previews" className="mt-6 scroll-mt-24">
+              <div className="space-y-3">
+                {previews.map((message) => (
+                  <article key={message.id} className="rounded-2xl p-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-muted)' }}>
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#5d00f5]/20 font-bold text-[#9b6dff]">
+                        {message.avatarUrl ? <img src={message.avatarUrl} alt="" className="h-full w-full object-cover" /> : message.sender[0]?.toUpperCase()}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold">{message.sender}</p>
+                        <p className="mt-1 text-sm text-white/55">{message.preview}</p>
+                        <p className="mt-2 text-[11px] text-white/30">{message.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                      </div>
+                      <span className="shrink-0 rounded-full bg-[#5d00f5]/15 px-2 py-1 text-[10px] font-semibold text-[#9b6dff]">Preview</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <p className="mt-4 text-center text-xs text-white/40">Upgrade to reveal full conversations and reply.</p>
+            </section>
+          ) : null}
+        </div>
+        <FreeMemberSearch />
+      </div>
     </div>
   )
 }
