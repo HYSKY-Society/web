@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { EventRegisterButton } from '@/components/EventRegisterButton'
 import { ZEFFY } from '@/lib/zeffy'
 import PublicShell from '@/app/components/PublicShell'
+import SidebarIcon from '@/app/components/SidebarIcon'
 
 const webinarDates = [
   'May 18, 2026',
@@ -42,14 +43,14 @@ export default function EventsPage() {
           <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full blur-3xl opacity-20" style={{ backgroundColor: '#5d00f5' }} />
           <div className="relative">
             <div className="event-category-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-5 bg-[#5d00f5]/25 text-[#9b6dff]">
-              ✈️ Featured Event
+              <SidebarIcon name="plane" className="h-4 w-4" /> Featured Event
             </div>
             <div className="text-white/50 text-sm mb-1">The 4th Global</div>
             <h2 className="text-2xl sm:text-3xl font-bold mb-3">FLYING HY 2026 Conference</h2>
             <div className="flex flex-wrap gap-4 text-white/55 text-sm mb-6">
-              <span>📅 November 4, 2026</span>
-              <span>💻 Zoom</span>
-              <span>🕘 8:00 AM – 6:05 PM CT</span>
+              <span className="inline-flex items-center gap-2"><SidebarIcon name="events" className="h-4 w-4" /> November 4, 2026</span>
+              <span className="inline-flex items-center gap-2"><SidebarIcon name="monitor" className="h-4 w-4" /> Zoom</span>
+              <span className="inline-flex items-center gap-2"><SidebarIcon name="clock" className="h-4 w-4" /> 8:00 AM – 6:05 PM CT</span>
             </div>
             <p className="text-white/50 text-sm leading-relaxed mb-6 max-w-2xl">
               The world&apos;s largest annual hydrogen aviation event — bringing together innovators, researchers, regulators, and industry leaders from across air and aerospace.
@@ -76,16 +77,16 @@ export default function EventsPage() {
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
               <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-[#5d00f5]/20 text-[#9b6dff]">
-                🤝 Weekly
+                <SidebarIcon name="handshake" className="h-4 w-4" /> Weekly
               </div>
               <h2 className="text-xl font-bold mb-1">Speed Networking</h2>
               <p className="text-white/45 text-sm leading-relaxed max-w-xl mb-3">
                 Connect with fellow HySky members every week in a fast-paced networking session.
               </p>
               <div className="flex flex-wrap gap-4 text-white/45 text-sm">
-                <span>📅 Every Wednesday</span>
-                <span>🕘 9:00 – 9:45 AM CT</span>
-                <span>💻 Zoom</span>
+                <span className="inline-flex items-center gap-2"><SidebarIcon name="events" className="h-4 w-4" /> Every Wednesday</span>
+                <span className="inline-flex items-center gap-2"><SidebarIcon name="clock" className="h-4 w-4" /> 9:00 – 9:45 AM CT</span>
+                <span className="inline-flex items-center gap-2"><SidebarIcon name="monitor" className="h-4 w-4" /> Zoom</span>
               </div>
             </div>
             <EventRegisterButton
@@ -117,16 +118,16 @@ export default function EventsPage() {
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
               <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-[#00D4D4]/15 text-[#00D4D4]">
-                🎓 AIAA + HySky Online Course
+                <SidebarIcon name="graduation" className="h-4 w-4" /> AIAA + HySky Online Course
               </div>
               <h2 className="text-xl font-bold mb-1">Advanced Sustainable Aviation Fuels and Aircraft Design</h2>
               <p className="text-white/45 text-sm leading-relaxed max-w-xl mb-3">
                 A five-week joint AIAA and HySky Society course covering sustainable aviation fuels, hydrogen, hybrid-electric aircraft design, certification, safety, and airport infrastructure.
               </p>
               <div className="flex flex-wrap gap-4 text-white/45 text-sm">
-                <span>📅 September 22 – October 22, 2026</span>
-                <span>🕐 Tuesdays &amp; Thursdays, 1:00 – 3:00 PM ET</span>
-                <span>💻 Online</span>
+                <span className="inline-flex items-center gap-2"><SidebarIcon name="events" className="h-4 w-4" /> September 22 – October 22, 2026</span>
+                <span className="inline-flex items-center gap-2"><SidebarIcon name="clock" className="h-4 w-4" /> Tuesdays &amp; Thursdays, 1:00 – 3:00 PM ET</span>
+                <span className="inline-flex items-center gap-2"><SidebarIcon name="monitor" className="h-4 w-4" /> Online</span>
               </div>
             </div>
             <div className="shrink-0 flex flex-col sm:flex-row gap-2">
@@ -148,7 +149,7 @@ export default function EventsPage() {
           <div className="flex items-start justify-between flex-wrap gap-4 mb-6">
             <div>
               <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-[#00D4D4]/15 text-[#00D4D4]">
-                📡 Monthly Webinar
+                <SidebarIcon name="broadcast" className="h-4 w-4" /> Monthly Webinar
               </div>
               <h2 className="text-xl font-bold mb-1">HySky Monthly</h2>
               <p className="text-white/45 text-sm leading-relaxed max-w-xl">
@@ -188,3 +189,4 @@ export default function EventsPage() {
     </PublicShell>
   )
 }
+

@@ -5,6 +5,7 @@ import { EventRegisterButton } from '@/components/EventRegisterButton'
 import { ZEFFY } from '@/lib/zeffy'
 import PublicShell from '@/app/components/PublicShell'
 import FlyingHyAgenda from './FlyingHyAgenda'
+import SidebarIcon from '@/app/components/SidebarIcon'
 
 const flyingHyOptions = [
   { label: 'Attendee', icon: '🎟️', embedUrl: ZEFFY.flyingHyAttendee },
@@ -38,7 +39,7 @@ export default function EventPage({ params }: { params: { slug: string } }) {
           <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full blur-3xl opacity-15" style={{ backgroundColor: '#5d00f5' }} />
           <div className="relative">
             <div className="event-category-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-5 bg-[#5d00f5]/25 text-[#9b6dff]">
-              ✈️ Featured Event
+              <SidebarIcon name="plane" className="h-4 w-4" /> Featured Event
             </div>
             {event.subtitle && <div className="text-white/50 text-sm mb-1">{event.subtitle}</div>}
             <h1 className="text-3xl sm:text-4xl font-bold mb-4 leading-tight">{event.title}</h1>
@@ -46,17 +47,17 @@ export default function EventPage({ params }: { params: { slug: string } }) {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
               <div className="bg-black/20 rounded-xl p-4 border border-white/8">
-                <div className="text-xl mb-1">📅</div>
+                <SidebarIcon name="events" className="mb-2 h-5 w-5" />
                 <div className="text-white/40 text-xs mb-0.5">Date</div>
                 <div className="text-white font-semibold text-sm">{event.date}</div>
               </div>
               <div className="bg-black/20 rounded-xl p-4 border border-white/8">
-                <div className="text-xl mb-1">🕘</div>
+                <SidebarIcon name="clock" className="mb-2 h-5 w-5" />
                 <div className="text-white/40 text-xs mb-0.5">Time</div>
                 <div className="text-white font-semibold text-sm">{event.time}</div>
               </div>
               <div className="bg-black/20 rounded-xl p-4 border border-white/8">
-                <div className="text-xl mb-1">💻</div>
+                <SidebarIcon name="monitor" className="mb-2 h-5 w-5" />
                 <div className="text-white/40 text-xs mb-0.5">Format</div>
                 <div className="text-white font-semibold text-sm">{event.format}</div>
               </div>
@@ -84,12 +85,12 @@ export default function EventPage({ params }: { params: { slug: string } }) {
             </h2>
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="border border-white/10 rounded-xl p-5">
-                <div className="text-2xl mb-2">🎟️</div>
+                <SidebarIcon name="ticket" className="mb-2 h-6 w-6" />
                 <h3 className="font-semibold text-white mb-1">Attendee</h3>
                 <p className="text-white/50 text-sm">Join as an attendee and be part of the world&apos;s largest hydrogen aviation conference.</p>
               </div>
               <div className="border border-[#5d00f5]/30 bg-[#5d00f5]/8 rounded-xl p-5">
-                <div className="text-2xl mb-2">🏆</div>
+                <SidebarIcon name="trophy" className="mb-2 h-6 w-6" />
                 <h3 className="font-semibold text-white mb-1">Sponsor</h3>
                 <p className="text-white/50 text-sm">Gain visibility among 240+ industry professionals and demonstrate your commitment to hydrogen aviation.</p>
               </div>
@@ -112,3 +113,4 @@ export default function EventPage({ params }: { params: { slug: string } }) {
     </PublicShell>
   )
 }
+

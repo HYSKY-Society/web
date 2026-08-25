@@ -15,6 +15,13 @@ export type SidebarIconName =
   | 'video'
   | 'podcast'
   | 'feed'
+  | 'clock'
+  | 'monitor'
+  | 'handshake'
+  | 'graduation'
+  | 'broadcast'
+  | 'ticket'
+  | 'trophy'
 
 export default function SidebarIcon({ name, className = '' }: { name: SidebarIconName; className?: string }) {
   const paths: Record<SidebarIconName, React.ReactNode> = {
@@ -34,6 +41,13 @@ export default function SidebarIcon({ name, className = '' }: { name: SidebarIco
     video: <><rect x="3" y="5" width="15" height="14" rx="2" /><path d="m18 10 4-2v8l-4-2Z" /></>,
     podcast: <><circle cx="12" cy="11" r="3" /><path d="M7.8 15.2a6 6 0 1 1 8.4 0M5 18a10 10 0 1 1 14 0M12 14v8" /></>,
     feed: <><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16" /><circle cx="5" cy="19" r="1" /></>,
+    clock: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,
+    monitor: <><rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" /></>,
+    handshake: <><path d="m8 11 3 3a2 2 0 0 0 3 0l5-5" /><path d="m2 12 5-5 4 1 2-2 4 1 5 5" /><path d="m7 17 2 2a2 2 0 0 0 3 0l1-1" /></>,
+    graduation: <><path d="m2 10 10-5 10 5-10 5Z" /><path d="M6 12v5c3 2 9 2 12 0v-5M22 10v6" /></>,
+    broadcast: <><circle cx="12" cy="12" r="2" /><path d="M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7M5.5 5.5a9 9 0 0 0 0 13M18.5 5.5a9 9 0 0 1 0 13" /></>,
+    ticket: <><path d="M3 7h18v4a2 2 0 0 0 0 4v4H3v-4a2 2 0 0 0 0-4Z" /><path d="M13 7v12" /></>,
+    trophy: <><path d="M8 4h8v4a4 4 0 0 1-8 0Z" /><path d="M6 6H3v1a4 4 0 0 0 5 4M18 6h3v1a4 4 0 0 1-5 4M12 12v5M8 21h8M9 17h6" /></>,
   }
 
   return (
