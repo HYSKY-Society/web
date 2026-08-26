@@ -25,7 +25,7 @@ export default function CompanyDirectoryPreview({ companies }: { companies: Dire
 
   return (
     <div>
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row">
+      <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-stretch">
         <label className="relative flex-1">
           <span className="sr-only">Search companies</span>
           <SidebarIcon name="search" className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2" />
@@ -47,6 +47,14 @@ export default function CompanyDirectoryPreview({ companies }: { companies: Dire
             {countries.map((option) => <option key={option}>{option}</option>)}
           </select>
         </label>
+        <div className="flex shrink-0 rounded-xl border border-white/10 bg-white/5 p-1" role="group" aria-label="Choose directory type">
+          <Link href="/members" className="rounded-lg px-4 py-2 text-xs font-semibold text-white/45 transition-colors hover:bg-white/5 hover:text-white">
+            People
+          </Link>
+          <Link href="/companies" aria-current="page" className="rounded-lg bg-[#5d00f5] px-4 py-2 text-xs font-semibold text-white">
+            Companies
+          </Link>
+        </div>
       </div>
 
       <p className="mb-5 text-xs text-white/35">{filtered.length} compan{filtered.length === 1 ? 'y' : 'ies'}</p>
