@@ -1,6 +1,7 @@
 export type SidebarIconName =
   | 'home'
   | 'members'
+  | 'companies'
   | 'messages'
   | 'lock'
   | 'courses'
@@ -22,11 +23,15 @@ export type SidebarIconName =
   | 'broadcast'
   | 'ticket'
   | 'trophy'
+  | 'search'
+  | 'location'
+  | 'globe'
 
 export default function SidebarIcon({ name, className = '' }: { name: SidebarIconName; className?: string }) {
   const paths: Record<SidebarIconName, React.ReactNode> = {
     home: <><path d="m3 11 9-8 9 8" /><path d="M5 10v10h14V10" /><path d="M9 20v-6h6v6" /></>,
     members: <><path d="M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 20v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>,
+    companies: <><path d="M4 21V4h10v17M14 9h6v12M8 8h2M8 12h2M8 16h2M17 13h1M17 17h1M2 21h20" /></>,
     messages: <><path d="M21 15a4 4 0 0 1-4 4H8l-5 3v-7a4 4 0 0 1-1-2.6V7a4 4 0 0 1 4-4h11a4 4 0 0 1 4 4Z" /><path d="M7 9h10M7 13h6" /></>,
     lock: <><rect x="4" y="10" width="16" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /></>,
     courses: <><path d="M3 5.5A3.5 3.5 0 0 1 6.5 2H11v18H6.5A3.5 3.5 0 0 0 3 23Z" /><path d="M21 5.5A3.5 3.5 0 0 0 17.5 2H13v18h4.5A3.5 3.5 0 0 1 21 23Z" /></>,
@@ -48,6 +53,9 @@ export default function SidebarIcon({ name, className = '' }: { name: SidebarIco
     broadcast: <><circle cx="12" cy="12" r="2" /><path d="M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7M5.5 5.5a9 9 0 0 0 0 13M18.5 5.5a9 9 0 0 1 0 13" /></>,
     ticket: <><path d="M3 7h18v4a2 2 0 0 0 0 4v4H3v-4a2 2 0 0 0 0-4Z" /><path d="M13 7v12" /></>,
     trophy: <><path d="M8 4h8v4a4 4 0 0 1-8 0Z" /><path d="M6 6H3v1a4 4 0 0 0 5 4M18 6h3v1a4 4 0 0 1-5 4M12 12v5M8 21h8M9 17h6" /></>,
+    search: <><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></>,
+    location: <><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></>,
+    globe: <><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" /></>,
   }
 
   return (
@@ -65,4 +73,3 @@ export default function SidebarIcon({ name, className = '' }: { name: SidebarIco
     </svg>
   )
 }
-

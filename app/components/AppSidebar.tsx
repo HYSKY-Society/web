@@ -99,6 +99,7 @@ export default function AppSidebar({
         <SidebarSection label="Connect" collapsed={collapsed} />
         <SidebarItem href="/feed" icon="home" label="Home Feed" onClick={onClose} collapsed={collapsed} />
         <SidebarItem href="/members" icon="members" label="Members" onClick={onClose} collapsed={collapsed} />
+        <SidebarItem href="/companies" icon="companies" label="Companies" onClick={onClose} collapsed={collapsed} />
         <SidebarItem
           href={canUseVipCommunity ? '/network' : '/messages'}
           icon={canUseVipCommunity ? 'messages' : 'lock'}
