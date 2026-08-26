@@ -126,6 +126,21 @@ export const zohoProfileDetails = pgTable('zoho_profile_details', {
   syncedAt:          timestamp('synced_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+// CRM enrichment for members who have a migration record but have not signed
+// into Connect yet. It is moved to zohoProfileDetails when they first sign in.
+export const zohoPendingProfileDetails = pgTable('zoho_pending_profile_details', {
+  email:             text('email').primaryKey(),
+  zohoContactId:     text('zoho_contact_id').notNull(),
+  emails:            text('emails').notNull().default('[]'),
+  phoneNumbers:      text('phone_numbers').notNull().default('[]'),
+  accountId:         text('account_id'),
+  accountName:       text('account_name'),
+  jobTitle:          text('job_title'),
+  companyWebsite:    text('company_website'),
+  companyWhatWeDo:   text('company_what_we_do'),
+  syncedAt:          timestamp('synced_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export const pressPosts = pgTable('press_posts', {
   id:              text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   slug:            text('slug').notNull().unique(),
@@ -310,6 +325,7 @@ export type User = typeof users.$inferSelect
 export type UserProfile = typeof userProfiles.$inferSelect
 export type ProfileContact = typeof profileContacts.$inferSelect
 export type ZohoProfileDetail = typeof zohoProfileDetails.$inferSelect
+export type ZohoPendingProfileDetail = typeof zohoPendingProfileDetails.$inferSelect
 export type DiscountCode = typeof discountCodes.$inferSelect
 export type CoursePurchase = typeof coursePurchases.$inferSelect
 export type CourseLessonProgress = typeof courseLessonProgress.$inferSelect

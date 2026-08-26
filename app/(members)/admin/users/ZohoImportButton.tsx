@@ -5,10 +5,14 @@ import { ChangeEvent, useRef, useState } from 'react'
 type ZohoOnlyContact = { id: string; name: string; emails: string[] }
 type ImportResult = {
   connectAccountsChecked: number
+  pendingAccountsChecked: number
   zohoContactsChecked: number
   matched: number
   unmatched: number
   ambiguous: number
+  pendingMatched: number
+  pendingUnmatched: number
+  pendingAmbiguous: number
   zohoWithoutConnectCount: number
   zohoWithoutConnect: ZohoOnlyContact[]
   error?: string
@@ -66,13 +70,16 @@ export default function ZohoImportButton() {
       {result && (
         <details className="max-w-md rounded-xl border border-white/10 bg-black/20 p-3 text-left text-xs text-white/65">
           <summary className="cursor-pointer font-semibold text-green-300">
-            Imported details for {result.matched} existing Connect accounts
+            Imported details for {result.matched + result.pendingMatched} Connect profiles
           </summary>
           <div className="mt-3 space-y-1">
-            <p>{result.connectAccountsChecked} Connect accounts checked</p>
+            <p>{result.matched} signed-in accounts matched</p>
+            <p>{result.pendingMatched} profiles populated before first sign-in</p>
             <p>{result.zohoContactsChecked} Zoho contacts checked</p>
             <p>{result.unmatched} Connect accounts had no Zoho match</p>
             <p>{result.ambiguous} matches need manual review</p>
+            <p>{result.pendingUnmatched} unsigned profiles had no Zoho match</p>
+            <p>{result.pendingAmbiguous} unsigned matches need manual review</p>
             <p className="pt-2 font-semibold text-amber-300">
               {result.zohoWithoutConnectCount} Zoho contacts do not have a Connect account
             </p>

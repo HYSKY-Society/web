@@ -10,6 +10,7 @@ import { TIERS_WITH_COURSES, TIERS_WITH_EVENTS } from './tiers'
 import { getAdminEmails } from './admin'
 import { getCourseSlugVariants, normalizeCourseSlug } from './course-slugs'
 import { createHash } from 'crypto'
+import { claimPendingZohoProfile } from './zoho-crm'
 
 function pendingMemberId(email: string): string {
   return createHash('sha256').update(email.toLowerCase()).digest('hex').slice(0, 24)
@@ -61,6 +62,7 @@ export async function ensureUser(clerkId: string, email: string): Promise<Tier> 
         avatarUrl:   pending.avatarUrl ?? undefined,
       })
     }
+    await claimPendingZohoProfile(normalizedEmail, clerkId)
     await db.delete(pendingTiers).where(eq(pendingTiers.email, normalizedEmail))
   }
 
@@ -297,4 +299,3 @@ export async function getMemberStats() {
     podcastEpisodes: Number(episodesRes[0].count),
   }
 }
-

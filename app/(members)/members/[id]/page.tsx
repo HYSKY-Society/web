@@ -51,15 +51,17 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
   const user = await currentUser()
   const userId = user!.id
   const viewerEmail = user!.emailAddresses.find((entry) => entry.id === user!.primaryEmailAddressId)?.emailAddress ?? ''
-  const [viewerTier, member, contacts, zohoDetails] = await Promise.all([
+  const [viewerTier, member] = await Promise.all([
     getUserTier(userId),
     getMemberProfile(params.id),
-    getProfileContacts(params.id),
-    getZohoProfileDetails(params.id),
   ])
 
-  const canUseVipCommunity = hasVipCommunityAccess(viewerTier) || isAdmin(viewerEmail)
   if (!member) notFound()
+  const [contacts, zohoDetails] = await Promise.all([
+    member.isPending ? Promise.resolve(null) : getProfileContacts(params.id),
+    getZohoProfileDetails(params.id, member.email),
+  ])
+  const canUseVipCommunity = hasVipCommunityAccess(viewerTier) || isAdmin(viewerEmail)
 
   const name        = member.displayName || 'HySky Member'
   const isOwnProfile = userId === member.id
