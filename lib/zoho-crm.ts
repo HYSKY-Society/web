@@ -9,6 +9,9 @@ export type ZohoProfileData = {
   jobTitle: string | null
   companyWebsite: string | null
   companyWhatWeDo: string | null
+  contactCity: string | null
+  contactState: string | null
+  contactCountry: string | null
   syncedAt: Date
 }
 
@@ -20,6 +23,9 @@ type SnapshotContact = {
   accountId: string | null
   accountName: string | null
   jobTitle: string | null
+  city: string | null
+  state: string | null
+  country: string | null
 }
 
 type SnapshotAccount = {
@@ -27,6 +33,10 @@ type SnapshotAccount = {
   name: string | null
   website: string | null
   whatWeDo: string | null
+  industry: string | null
+  city: string | null
+  state: string | null
+  country: string | null
 }
 
 type ZohoSnapshot = {
@@ -38,13 +48,14 @@ type ZohoSnapshot = {
 
 let zohoTableReady: Promise<void> | null = null
 
-async function ensureZohoProfileDetailsTable() {
+export async function ensureZohoProfileDetailsTable() {
   if (!zohoTableReady) {
     zohoTableReady = (async () => {
       await db.execute(sql`
         CREATE TABLE IF NOT EXISTS zoho_profile_details (
           user_id text PRIMARY KEY NOT NULL REFERENCES users(id) ON DELETE CASCADE,
           zoho_contact_id text NOT NULL,
+          contact_name text,
           emails text DEFAULT '[]' NOT NULL,
           phone_numbers text DEFAULT '[]' NOT NULL,
           account_id text,
@@ -52,6 +63,13 @@ async function ensureZohoProfileDetailsTable() {
           job_title text,
           company_website text,
           company_what_we_do text,
+          account_industry text,
+          account_city text,
+          account_state text,
+          account_country text,
+          contact_city text,
+          contact_state text,
+          contact_country text,
           synced_at timestamp with time zone DEFAULT now() NOT NULL
         )
       `)
@@ -59,6 +77,7 @@ async function ensureZohoProfileDetailsTable() {
         CREATE TABLE IF NOT EXISTS zoho_pending_profile_details (
           email text PRIMARY KEY NOT NULL,
           zoho_contact_id text NOT NULL,
+          contact_name text,
           emails text DEFAULT '[]' NOT NULL,
           phone_numbers text DEFAULT '[]' NOT NULL,
           account_id text,
@@ -66,8 +85,37 @@ async function ensureZohoProfileDetailsTable() {
           job_title text,
           company_website text,
           company_what_we_do text,
+          account_industry text,
+          account_city text,
+          account_state text,
+          account_country text,
+          contact_city text,
+          contact_state text,
+          contact_country text,
           synced_at timestamp with time zone DEFAULT now() NOT NULL
         )
+      `)
+      await db.execute(sql`
+        ALTER TABLE zoho_profile_details
+          ADD COLUMN IF NOT EXISTS contact_name text,
+          ADD COLUMN IF NOT EXISTS account_industry text,
+          ADD COLUMN IF NOT EXISTS account_city text,
+          ADD COLUMN IF NOT EXISTS account_state text,
+          ADD COLUMN IF NOT EXISTS account_country text,
+          ADD COLUMN IF NOT EXISTS contact_city text,
+          ADD COLUMN IF NOT EXISTS contact_state text,
+          ADD COLUMN IF NOT EXISTS contact_country text
+      `)
+      await db.execute(sql`
+        ALTER TABLE zoho_pending_profile_details
+          ADD COLUMN IF NOT EXISTS contact_name text,
+          ADD COLUMN IF NOT EXISTS account_industry text,
+          ADD COLUMN IF NOT EXISTS account_city text,
+          ADD COLUMN IF NOT EXISTS account_state text,
+          ADD COLUMN IF NOT EXISTS account_country text,
+          ADD COLUMN IF NOT EXISTS contact_city text,
+          ADD COLUMN IF NOT EXISTS contact_state text,
+          ADD COLUMN IF NOT EXISTS contact_country text
       `)
     })().catch((error) => {
       zohoTableReady = null
@@ -115,6 +163,9 @@ function parseSnapshot(value: unknown): ZohoSnapshot {
     accountId: cleanString(contact?.accountId),
     accountName: cleanString(contact?.accountName),
     jobTitle: cleanString(contact?.jobTitle),
+    city: cleanString(contact?.city),
+    state: cleanString(contact?.state),
+    country: cleanString(contact?.country),
   })).filter((contact) => contact.id)
 
   const accounts = candidate.accounts.map((account) => ({
@@ -122,6 +173,10 @@ function parseSnapshot(value: unknown): ZohoSnapshot {
     name: cleanString(account?.name),
     website: cleanString(account?.website),
     whatWeDo: cleanString(account?.whatWeDo),
+    industry: cleanString(account?.industry),
+    city: cleanString(account?.city),
+    state: cleanString(account?.state),
+    country: cleanString(account?.country),
   })).filter((account) => account.id)
 
   return {
@@ -139,6 +194,9 @@ function profileDataFromRow(row: {
   jobTitle: string | null
   companyWebsite: string | null
   companyWhatWeDo: string | null
+  contactCity: string | null
+  contactState: string | null
+  contactCountry: string | null
   syncedAt: Date
 }): ZohoProfileData {
   return {
@@ -148,6 +206,9 @@ function profileDataFromRow(row: {
     jobTitle: row.jobTitle,
     companyWebsite: row.companyWebsite,
     companyWhatWeDo: row.companyWhatWeDo,
+    contactCity: row.contactCity,
+    contactState: row.contactState,
+    contactCountry: row.contactCountry,
     syncedAt: row.syncedAt,
   }
 }
@@ -214,6 +275,7 @@ export async function importZohoSnapshot(value: unknown) {
     rows.push({
       userId: connectUser.id,
       zohoContactId: contact.id,
+      contactName: contact.name,
       emails: JSON.stringify(contact.emails),
       phoneNumbers: JSON.stringify(contact.phoneNumbers),
       accountId: contact.accountId,
@@ -221,6 +283,13 @@ export async function importZohoSnapshot(value: unknown) {
       jobTitle: contact.jobTitle,
       companyWebsite: account?.website ?? null,
       companyWhatWeDo: account?.whatWeDo ?? null,
+      accountIndustry: account?.industry ?? null,
+      accountCity: account?.city ?? null,
+      accountState: account?.state ?? null,
+      accountCountry: account?.country ?? null,
+      contactCity: contact.city,
+      contactState: contact.state,
+      contactCountry: contact.country,
       syncedAt: new Date(),
     })
     matched += 1
@@ -245,6 +314,7 @@ export async function importZohoSnapshot(value: unknown) {
     pendingRows.push({
       email: normalizedEmail,
       zohoContactId: contact.id,
+      contactName: contact.name,
       emails: JSON.stringify(contact.emails),
       phoneNumbers: JSON.stringify(contact.phoneNumbers),
       accountId: contact.accountId,
@@ -252,6 +322,13 @@ export async function importZohoSnapshot(value: unknown) {
       jobTitle: contact.jobTitle,
       companyWebsite: account?.website ?? null,
       companyWhatWeDo: account?.whatWeDo ?? null,
+      accountIndustry: account?.industry ?? null,
+      accountCity: account?.city ?? null,
+      accountState: account?.state ?? null,
+      accountCountry: account?.country ?? null,
+      contactCity: contact.city,
+      contactState: contact.state,
+      contactCountry: contact.country,
       syncedAt: new Date(),
     })
     pendingMatched += 1
@@ -264,6 +341,7 @@ export async function importZohoSnapshot(value: unknown) {
         target: zohoProfileDetails.userId,
         set: {
           zohoContactId: sql`excluded.zoho_contact_id`,
+          contactName: sql`excluded.contact_name`,
           emails: sql`excluded.emails`,
           phoneNumbers: sql`excluded.phone_numbers`,
           accountId: sql`excluded.account_id`,
@@ -271,6 +349,13 @@ export async function importZohoSnapshot(value: unknown) {
           jobTitle: sql`excluded.job_title`,
           companyWebsite: sql`excluded.company_website`,
           companyWhatWeDo: sql`excluded.company_what_we_do`,
+          accountIndustry: sql`excluded.account_industry`,
+          accountCity: sql`excluded.account_city`,
+          accountState: sql`excluded.account_state`,
+          accountCountry: sql`excluded.account_country`,
+          contactCity: sql`excluded.contact_city`,
+          contactState: sql`excluded.contact_state`,
+          contactCountry: sql`excluded.contact_country`,
           syncedAt: sql`excluded.synced_at`,
         },
       })
@@ -283,6 +368,7 @@ export async function importZohoSnapshot(value: unknown) {
         target: zohoPendingProfileDetails.email,
         set: {
           zohoContactId: sql`excluded.zoho_contact_id`,
+          contactName: sql`excluded.contact_name`,
           emails: sql`excluded.emails`,
           phoneNumbers: sql`excluded.phone_numbers`,
           accountId: sql`excluded.account_id`,
@@ -290,6 +376,13 @@ export async function importZohoSnapshot(value: unknown) {
           jobTitle: sql`excluded.job_title`,
           companyWebsite: sql`excluded.company_website`,
           companyWhatWeDo: sql`excluded.company_what_we_do`,
+          accountIndustry: sql`excluded.account_industry`,
+          accountCity: sql`excluded.account_city`,
+          accountState: sql`excluded.account_state`,
+          accountCountry: sql`excluded.account_country`,
+          contactCity: sql`excluded.contact_city`,
+          contactState: sql`excluded.contact_state`,
+          contactCountry: sql`excluded.contact_country`,
           syncedAt: sql`excluded.synced_at`,
         },
       })
@@ -327,6 +420,7 @@ export async function claimPendingZohoProfile(email: string, userId: string) {
     .values({
       userId,
       zohoContactId: pending.zohoContactId,
+      contactName: pending.contactName,
       emails: pending.emails,
       phoneNumbers: pending.phoneNumbers,
       accountId: pending.accountId,
@@ -334,12 +428,20 @@ export async function claimPendingZohoProfile(email: string, userId: string) {
       jobTitle: pending.jobTitle,
       companyWebsite: pending.companyWebsite,
       companyWhatWeDo: pending.companyWhatWeDo,
+      accountIndustry: pending.accountIndustry,
+      accountCity: pending.accountCity,
+      accountState: pending.accountState,
+      accountCountry: pending.accountCountry,
+      contactCity: pending.contactCity,
+      contactState: pending.contactState,
+      contactCountry: pending.contactCountry,
       syncedAt: pending.syncedAt,
     })
     .onConflictDoUpdate({
       target: zohoProfileDetails.userId,
       set: {
         zohoContactId: pending.zohoContactId,
+        contactName: pending.contactName,
         emails: pending.emails,
         phoneNumbers: pending.phoneNumbers,
         accountId: pending.accountId,
@@ -347,6 +449,13 @@ export async function claimPendingZohoProfile(email: string, userId: string) {
         jobTitle: pending.jobTitle,
         companyWebsite: pending.companyWebsite,
         companyWhatWeDo: pending.companyWhatWeDo,
+        accountIndustry: pending.accountIndustry,
+        accountCity: pending.accountCity,
+        accountState: pending.accountState,
+        accountCountry: pending.accountCountry,
+        contactCity: pending.contactCity,
+        contactState: pending.contactState,
+        contactCountry: pending.contactCountry,
         syncedAt: pending.syncedAt,
       },
     })

@@ -90,10 +90,13 @@ const whatWeDoField = accountFields.find((field) => normalizedLabel(field.field_
 const [rawContacts, rawAccounts] = await Promise.all([
   getRecords('Contacts', [
     'id', 'Full_Name', 'First_Name', 'Last_Name', 'Account_Name', 'Title',
+    'Mailing_City', 'Mailing_State', 'Mailing_Country',
     ...emailFields, ...phoneFields,
   ]),
   getRecords('Accounts', [
-    'id', 'Account_Name', 'Website', 'Description', ...(whatWeDoField ? [whatWeDoField] : []),
+    'id', 'Account_Name', 'Website', 'Description', 'Industry',
+    'Billing_City', 'Billing_State', 'Billing_Country',
+    ...(whatWeDoField ? [whatWeDoField] : []),
   ]),
 ])
 
@@ -109,6 +112,9 @@ const contacts = rawContacts.map((contact) => {
     accountId: account.id,
     accountName: account.name,
     jobTitle: stringValue(contact.Title),
+    city: stringValue(contact.Mailing_City),
+    state: stringValue(contact.Mailing_State),
+    country: stringValue(contact.Mailing_Country),
   }
 })
 
@@ -117,6 +123,10 @@ const accounts = rawAccounts.map((account) => ({
   name: stringValue(account.Account_Name),
   website: stringValue(account.Website),
   whatWeDo: stringValue(account[whatWeDoField ?? '']) || stringValue(account.Description),
+  industry: stringValue(account.Industry),
+  city: stringValue(account.Billing_City),
+  state: stringValue(account.Billing_State),
+  country: stringValue(account.Billing_Country),
 }))
 
 await mkdir(dirname(outputPath), { recursive: true })

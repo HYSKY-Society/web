@@ -12,7 +12,7 @@ import { getCourseSlugVariants, normalizeCourseSlug } from './course-slugs'
 import { createHash } from 'crypto'
 import { claimPendingZohoProfile } from './zoho-crm'
 
-function pendingMemberId(email: string): string {
+export function pendingMemberId(email: string): string {
   return createHash('sha256').update(email.toLowerCase()).digest('hex').slice(0, 24)
 }
 

@@ -3,12 +3,18 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import SidebarIcon from '@/app/components/SidebarIcon'
-import { companyLocation, type PreviewCompany } from '@/lib/company-directory-preview'
+import type { DirectoryCompany } from '@/lib/company-directory'
 
-export default function CompanyDirectoryPreview({ companies }: { companies: PreviewCompany[] }) {
+function companyLocation(company: DirectoryCompany) {
+  return [company.city, company.state, company.country].filter(Boolean).join(', ')
+}
+
+export default function CompanyDirectoryPreview({ companies }: { companies: DirectoryCompany[] }) {
   const [query, setQuery] = useState('')
   const [country, setCountry] = useState('All countries')
-  const countries = ['All countries', ...Array.from(new Set(companies.map((company) => company.country))).sort()]
+  const countries = ['All countries', ...Array.from(new Set(
+    companies.map((company) => company.country).filter((value): value is string => Boolean(value)),
+  )).sort()]
   const normalizedQuery = query.trim().toLowerCase()
   const filtered = companies.filter((company) => {
     const matchesCountry = country === 'All countries' || company.country === country
@@ -70,11 +76,11 @@ export default function CompanyDirectoryPreview({ companies }: { companies: Prev
             <div className="mt-4 space-y-2 text-xs text-white/45">
               <div className="flex items-start gap-2">
                 <SidebarIcon name="location" className="h-4 w-4" />
-                <span>{companyLocation(company)}</span>
+                <span>{companyLocation(company) || 'Location not listed'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <SidebarIcon name="globe" className="h-4 w-4" />
-                <span className="truncate">{company.website}</span>
+                <span className="truncate">{company.website || 'Website not listed'}</span>
               </div>
             </div>
 

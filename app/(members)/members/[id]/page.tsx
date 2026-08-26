@@ -56,6 +56,7 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
   const contactEmails = uniqueContactValues([member.email, ...(zohoDetails?.emails ?? [])])
   const contactPhones = uniqueContactValues([contacts?.phoneNumber, ...(zohoDetails?.phoneNumbers ?? [])])
   const companyWebsites = uniqueContactValues([contacts?.companyWebsite, zohoDetails?.companyWebsite])
+  const zohoLocation = [zohoDetails?.contactCity, zohoDetails?.contactState, zohoDetails?.contactCountry].filter(Boolean).join(', ')
 
   return (
     <div className="text-white max-w-3xl">
@@ -129,6 +130,7 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
           <div className="space-y-2">
             {zohoDetails.accountName && <p className="text-lg font-semibold text-white">{zohoDetails.accountName}</p>}
             {zohoDetails.jobTitle && <p className="text-sm text-white/60">{zohoDetails.jobTitle}</p>}
+            {zohoLocation && <p className="text-sm text-white/50">{zohoLocation}</p>}
             {zohoDetails.companyWhatWeDo && (
               <div className="pt-3">
                 <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-white/35">What We Do</p>

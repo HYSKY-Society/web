@@ -116,6 +116,7 @@ export const profileContacts = pgTable('profile_contacts', {
 export const zohoProfileDetails = pgTable('zoho_profile_details', {
   userId:            text('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
   zohoContactId:     text('zoho_contact_id').notNull(),
+  contactName:       text('contact_name'),
   emails:            text('emails').notNull().default('[]'),
   phoneNumbers:      text('phone_numbers').notNull().default('[]'),
   accountId:         text('account_id'),
@@ -123,6 +124,13 @@ export const zohoProfileDetails = pgTable('zoho_profile_details', {
   jobTitle:          text('job_title'),
   companyWebsite:    text('company_website'),
   companyWhatWeDo:   text('company_what_we_do'),
+  accountIndustry:   text('account_industry'),
+  accountCity:       text('account_city'),
+  accountState:      text('account_state'),
+  accountCountry:    text('account_country'),
+  contactCity:       text('contact_city'),
+  contactState:      text('contact_state'),
+  contactCountry:    text('contact_country'),
   syncedAt:          timestamp('synced_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
@@ -131,6 +139,7 @@ export const zohoProfileDetails = pgTable('zoho_profile_details', {
 export const zohoPendingProfileDetails = pgTable('zoho_pending_profile_details', {
   email:             text('email').primaryKey(),
   zohoContactId:     text('zoho_contact_id').notNull(),
+  contactName:       text('contact_name'),
   emails:            text('emails').notNull().default('[]'),
   phoneNumbers:      text('phone_numbers').notNull().default('[]'),
   accountId:         text('account_id'),
@@ -138,6 +147,13 @@ export const zohoPendingProfileDetails = pgTable('zoho_pending_profile_details',
   jobTitle:          text('job_title'),
   companyWebsite:    text('company_website'),
   companyWhatWeDo:   text('company_what_we_do'),
+  accountIndustry:   text('account_industry'),
+  accountCity:       text('account_city'),
+  accountState:      text('account_state'),
+  accountCountry:    text('account_country'),
+  contactCity:       text('contact_city'),
+  contactState:      text('contact_state'),
+  contactCountry:    text('contact_country'),
   syncedAt:          timestamp('synced_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
