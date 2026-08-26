@@ -75,10 +75,10 @@ export default function EventsPage() {
             </p>
             <div className="flex flex-wrap gap-3">
               <EventRegisterButton
-                label="Reserve Your Seat →"
+                label="Register Now →"
                 options={flyingHyOptions}
                 title="FLYING HY 2026 — Get Your Ticket"
-                className="btn-teal-glow pointer-events-auto relative z-20 inline-flex items-center gap-2 text-white font-bold px-8 py-3 rounded-xl text-sm"
+                className="btn-teal-glow flying-hy-featured-register pointer-events-auto relative z-20 inline-flex items-center gap-2 text-white font-bold px-8 py-3 rounded-xl text-sm"
               />
               <Link
                 href="/flying-hy"
