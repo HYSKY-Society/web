@@ -8,6 +8,7 @@ import { getProfileContacts } from '@/lib/profile-contacts'
 import { isAdmin } from '@/lib/admin'
 import ContactEmailAction from './ContactEmailAction'
 import { getZohoProfileDetails } from '@/lib/zoho-crm'
+import MemberAvatar from '@/app/components/MemberAvatar'
 
 function uniqueContactValues(values: Array<string | null | undefined>) {
   return [...new Map(
@@ -16,20 +17,6 @@ function uniqueContactValues(values: Array<string | null | undefined>) {
       .filter((value): value is string => Boolean(value))
       .map((value) => [value.toLowerCase(), value]),
   ).values()]
-}
-
-function Avatar({ name, url }: { name: string | null; url: string | null }) {
-  const initials = (name ?? '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
-  const colors = ['bg-[#5d00f5]', 'bg-[#13dce8]/70', 'bg-amber-500', 'bg-emerald-500', 'bg-rose-500']
-  const idx = (name ?? '?').charCodeAt(0) % colors.length
-  if (url) {
-    return <img src={url} alt={name ?? ''} width={96} height={96} className="w-24 h-24 rounded-full object-cover border-2 border-white/10" />
-  }
-  return (
-    <div className={`${colors[idx]} w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold text-white border-2 border-white/10`}>
-      {initials}
-    </div>
-  )
 }
 
 function TierBadge({ tier }: { tier: string }) {
@@ -80,7 +67,7 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
       {/* Header */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-6">
         <div className="flex flex-col sm:flex-row gap-6 items-start">
-          <Avatar name={name} url={member.avatarUrl} />
+          <MemberAvatar name={name} url={member.avatarUrl} size={96} className="border-2 border-white/10" />
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-3 mb-1">
               <h1 className="text-2xl font-bold">{name}</h1>

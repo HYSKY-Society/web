@@ -3,24 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { hasVipCommunityAccess, type Tier, type MemberListItem, TIER_LABELS } from '@/lib/tiers'
-
-function initials(name: string | null): string {
-  if (!name) return '?'
-  return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
-}
-
-function Avatar({ name, url, size = 48 }: { name: string | null; url: string | null; size?: number }) {
-  if (url) {
-    return <img src={url} alt={name ?? ''} width={size} height={size} className="rounded-full object-cover" style={{ width: size, height: size }} />
-  }
-  const colors = ['bg-[#5d00f5]', 'bg-[#13dce8]/70', 'bg-amber-500', 'bg-emerald-500', 'bg-rose-500']
-  const idx = (name ?? '?').charCodeAt(0) % colors.length
-  return (
-    <div className={`${colors[idx]} rounded-full flex items-center justify-center font-bold text-white shrink-0`} style={{ width: size, height: size, fontSize: size * 0.38 }}>
-      {initials(name)}
-    </div>
-  )
-}
+import MemberAvatar from '@/app/components/MemberAvatar'
 
 function TierChip({ tier }: { tier: string }) {
   const styles: Record<string, string> = {
@@ -116,7 +99,7 @@ export default function MemberDirectory({
           const card = (
             <div className="group bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col gap-3 transition-all hover:border-[#5d00f5]/40 hover:bg-white/8 cursor-pointer">
               <div className="flex items-start gap-3">
-                <Avatar name={name} url={m.avatarUrl} size={48} />
+                <MemberAvatar name={name} url={m.avatarUrl} size={48} />
                 <div className="min-w-0 flex-1">
                   <div className="font-semibold text-sm text-white truncate">{name}</div>
                   {m.headline && <div className="text-white/50 text-xs mt-0.5 line-clamp-2">{m.headline}</div>}
@@ -160,4 +143,3 @@ export default function MemberDirectory({
     </div>
   )
 }
-
