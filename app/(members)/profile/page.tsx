@@ -18,8 +18,7 @@ export default async function ProfilePage() {
   return (
     <div className="text-white max-w-2xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-1.5">Edit Profile</h1>
-        <p className="text-white/40">Your profile is visible to other members in the directory.</p>
+        <h1 className="text-3xl font-bold">Edit Profile</h1>
       </div>
       <ProfileForm
         profile={profile ?? null}

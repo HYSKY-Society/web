@@ -37,7 +37,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider appearance={{ variables: { fontFamily: spaceGrotesk.style.fontFamily } }}>
+    <ClerkProvider
+      appearance={{
+        variables: { fontFamily: spaceGrotesk.style.fontFamily },
+        elements: {
+          profileSection__danger: { display: 'none' },
+        },
+      }}
+    >
       <html lang="en" data-theme="light" suppressHydrationWarning>
         <head>
           {/* Apply the last saved theme before first paint to avoid a light/dark flash. */}

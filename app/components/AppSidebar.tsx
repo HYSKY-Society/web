@@ -8,6 +8,7 @@ import { hasVipCommunityAccess } from '@/lib/tiers'
 import type { Tier } from '@/lib/tiers'
 import type { SidebarData } from './AppShell'
 import SidebarIcon, { type SidebarIconName } from './SidebarIcon'
+import MembershipPlanButton from './MembershipPlanButton'
 
 function SidebarSection({ label, collapsed }: { label: string; collapsed: boolean }) {
   if (collapsed) return <div className="h-3" />
@@ -114,12 +115,7 @@ export default function AppSidebar({
 
         <SidebarSection label="Membership" collapsed={collapsed} />
         {!collapsed && (
-          <div className="px-3 py-1.5 flex items-center gap-2.5">
-            <SidebarIcon name="plan" />
-            <span className="text-xs text-white/35">
-              Plan: <span className="text-[#9b6dff] font-medium">{tierLabel}</span>
-            </span>
-          </div>
+          <MembershipPlanButton tierLabel={tierLabel} isVip={canUseVipCommunity} />
         )}
         <SidebarItem href="/profile" icon="profile" label="My Profile" onClick={onClose} collapsed={collapsed} />
 
@@ -187,4 +183,3 @@ export default function AppSidebar({
     </aside>
   )
 }
-

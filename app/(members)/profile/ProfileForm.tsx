@@ -158,9 +158,9 @@ export default function ProfileForm({ profile, contacts, clerkName, clerkEmail, 
         </div>
       </div>
 
-      {/* Read-only Clerk fields */}
+      {/* Read-only account fields */}
       <div className="bg-white/3 border border-white/8 rounded-2xl p-5 space-y-4">
-        <p className="text-xs text-white/30 uppercase tracking-wider font-semibold mb-2">Account (managed by Clerk)</p>
+        <p className="text-xs text-white/30 uppercase tracking-wider font-semibold mb-2">Account</p>
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-white/40 mb-1.5">Name</label>
@@ -172,7 +172,7 @@ export default function ProfileForm({ profile, contacts, clerkName, clerkEmail, 
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <p className="text-white/25 text-xs">To update your name, email, password, or security settings, open your Clerk account.</p>
+          <p className="text-white/25 text-xs">To update your name, email, password, or security settings, open your account settings.</p>
           <button
             type="button"
             onClick={() => openUserProfile()}

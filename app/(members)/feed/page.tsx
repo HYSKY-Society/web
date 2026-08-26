@@ -14,6 +14,7 @@ import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
 import { getAdminEmails, isFeedModerator } from '@/lib/admin'
 import FeedComposer from './FeedComposer'
 import FeedPostCard, { type PostData, type PostAuthor, type ReplyData } from './FeedPostCard'
+import SidebarIcon, { type SidebarIconName } from '@/app/components/SidebarIcon'
 
 export const revalidate = 60
 
@@ -52,7 +53,7 @@ function EventPill({ label, date, href }: { label: string; date: string; href: s
         className="shrink-0 w-10 h-10 rounded-lg flex flex-col items-center justify-center text-center"
         style={{ background: 'rgba(93,0,245,.2)', border: '1px solid rgba(93,0,245,.25)' }}
       >
-        <span className="text-[9px] font-bold leading-none text-[#9b6dff]">
+        <span className="event-pill-month text-[9px] font-bold leading-none text-[#9b6dff]">
           {new Date(date).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
         </span>
         <span className="text-sm font-black leading-none text-white mt-0.5">
@@ -451,13 +452,13 @@ export default async function FeedPage() {
         {/* Courses */}
         <SidebarCard title="Courses">
           <div className="px-4 pb-4 space-y-2">
-            {allCourses.slice(0, 3).map((c) => (
+            {allCourses.slice(0, 3).map((c, index) => (
               <Link
                 key={c.slug}
                 href={`/courses/${c.slug}`}
                 className="flex items-center gap-2 text-xs text-white/55 hover:text-white transition-colors"
               >
-                <span>{c.badge.split(' ')[0]}</span>
+                <SidebarIcon name={(['plane', 'lock', 'graduation'] as SidebarIconName[])[index] ?? 'courses'} className="h-4 w-4" />
                 <span className="truncate">{c.title}</span>
               </Link>
             ))}
@@ -474,17 +475,18 @@ export default async function FeedPage() {
         <SidebarCard title="Quick Links">
           <div className="px-4 pb-4 space-y-1">
             {[
-              { href: '/members', label: '👥 Browse Members' },
-              { href: '/events', label: '📅 Browse Events' },
-              { href: 'https://news.hysky.org', label: '📰 HySky News', newTab: false },
-            ].map(({ href, label, newTab }) => (
+              { href: '/members', label: 'Browse Members', icon: 'members' as SidebarIconName },
+              { href: '/events', label: 'Browse Events', icon: 'events' as SidebarIconName },
+              { href: 'https://news.hysky.org', label: 'HySky News', icon: 'news' as SidebarIconName, newTab: false },
+            ].map(({ href, label, icon, newTab }) => (
               <Link
                 key={href}
                 href={href}
                 {...(newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                className="block text-xs text-white/50 hover:text-white transition-colors py-0.5"
+                className="flex items-center gap-2 py-0.5 text-xs text-white/50 transition-colors hover:text-white"
               >
-                {label}
+                <SidebarIcon name={icon} className="h-4 w-4" />
+                <span>{label}</span>
               </Link>
             ))}
           </div>

@@ -159,6 +159,16 @@ body {
   box-shadow: 0 12px 30px rgba(28, 23, 52, .18);
 }
 
+/* VIP badges use purple on light surfaces while retaining turquoise in dark mode. */
+[data-theme='light'] .vip-tier-badge {
+  background: rgba(93, 0, 245, .12) !important;
+  color: #5d00f5 !important;
+}
+
+[data-theme='light'] .event-pill-month {
+  color: #000000 !important;
+}
+
 /* The admin invitation dialog intentionally uses the dark design in both themes. */
 [data-theme='light'] .invite-user-modal {
   background: #0b0b13 !important;

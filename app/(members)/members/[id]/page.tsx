@@ -25,7 +25,7 @@ function TierBadge({ tier }: { tier: string }) {
     instructor:            'bg-amber-500/20 text-amber-300',
     member_courses:        'bg-[#5d00f5]/20 text-[#9b6dff]',
     member_courses_events: 'bg-[#5d00f5]/25 text-[#b38fff]',
-    member_full:           'bg-[#13dce8]/15 text-[#13dce8]',
+    member_full:           'vip-tier-badge bg-[#13dce8]/15 text-[#13dce8]',
   }
   return (
     <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${styles[tier] ?? 'bg-white/8 text-white/50'}`}>
