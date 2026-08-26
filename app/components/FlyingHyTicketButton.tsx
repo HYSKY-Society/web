@@ -9,7 +9,12 @@ import {
 export default function FlyingHyTicketButton() {
   return (
     <EventRegisterButton
-      label="Flying Hy"
+      label={(
+        <>
+          <span className="hidden lg:inline">Get Tickets to Flying Hy</span>
+          <span className="lg:hidden">Flying Hy</span>
+        </>
+      )}
       options={FLYING_HY_REGISTER_OPTIONS}
       title={FLYING_HY_REGISTRATION_TITLE}
       compactModal
