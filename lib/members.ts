@@ -201,7 +201,9 @@ export async function getAllVisibleMembers(): Promise<MemberListItem[]> {
   const pendingMapped: MemberListItem[] = pendingRows
     .filter(r => !registeredSet.has(r.email))
     .map(r => ({
-      id:          `pending:${pendingMemberId(r.email)}`,
+      // Use a URL-safe prefix. Colons in the previous IDs could be interpreted
+      // inconsistently by the hosted router and lead to a 404.
+      id:          `pending-${pendingMemberId(r.email)}`,
       tier:        r.tier,
       displayName: r.name,
       headline:    null,
@@ -235,8 +237,9 @@ export type MemberProfile = {
 }
 
 export async function getMemberProfile(userId: string): Promise<MemberProfile | null> {
-  if (userId.startsWith('pending:')) {
-    const opaqueId = userId.slice('pending:'.length)
+  const pendingPrefix = userId.startsWith('pending-') ? 'pending-' : userId.startsWith('pending:') ? 'pending:' : null
+  if (pendingPrefix) {
+    const opaqueId = userId.slice(pendingPrefix.length)
     const pendingRows = await db.select().from(pendingTiers)
     const pending = pendingRows.find((row) => pendingMemberId(row.email) === opaqueId)
     if (!pending) return null

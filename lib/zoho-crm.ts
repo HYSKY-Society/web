@@ -154,7 +154,7 @@ function profileDataFromRow(row: {
 
 export async function getZohoProfileDetails(userId: string, memberEmail?: string): Promise<ZohoProfileData | null> {
   await ensureZohoProfileDetailsTable()
-  if (userId.startsWith('pending:')) {
+  if (userId.startsWith('pending-') || userId.startsWith('pending:')) {
     if (!memberEmail) return null
     const row = await db.query.zohoPendingProfileDetails.findFirst({
       where: eq(zohoPendingProfileDetails.email, memberEmail.trim().toLowerCase()),
