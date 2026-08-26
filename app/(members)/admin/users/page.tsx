@@ -10,6 +10,7 @@ import { getAdminEmails, ADMIN_NAV } from '@/lib/admin'
 import MakeVipButton from './MakeVipButton'
 import UserSearch from './UserSearch'
 import InviteUserButton from './InviteUserButton'
+import ZohoImportButton from './ZohoImportButton'
 
 const COURSES = [
   { slug: 'h2-aircraft-certification', label: 'Certification' },
@@ -124,7 +125,10 @@ export default async function AdminUsersPage({
           <h2 className="font-semibold">User Management</h2>
           <p className="mt-0.5 text-xs text-white/40">Invite someone to create a HySky Connect account.</p>
         </div>
-        <InviteUserButton />
+        <div className="flex flex-wrap items-start justify-end gap-3">
+          <ZohoImportButton />
+          <InviteUserButton />
+        </div>
       </div>
 
       <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">

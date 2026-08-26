@@ -7,6 +7,16 @@ import ProfileAccessTease from './ProfileAccessTease'
 import { getProfileContacts } from '@/lib/profile-contacts'
 import { isAdmin } from '@/lib/admin'
 import ContactEmailAction from './ContactEmailAction'
+import { getZohoProfileDetails } from '@/lib/zoho-crm'
+
+function uniqueContactValues(values: Array<string | null | undefined>) {
+  return [...new Map(
+    values
+      .map((value) => value?.trim())
+      .filter((value): value is string => Boolean(value))
+      .map((value) => [value.toLowerCase(), value]),
+  ).values()]
+}
 
 function Avatar({ name, url }: { name: string | null; url: string | null }) {
   const initials = (name ?? '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
@@ -41,10 +51,11 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
   const user = await currentUser()
   const userId = user!.id
   const viewerEmail = user!.emailAddresses.find((entry) => entry.id === user!.primaryEmailAddressId)?.emailAddress ?? ''
-  const [viewerTier, member, contacts] = await Promise.all([
+  const [viewerTier, member, contacts, zohoDetails] = await Promise.all([
     getUserTier(userId),
     getMemberProfile(params.id),
     getProfileContacts(params.id),
+    getZohoProfileDetails(params.id),
   ])
 
   const canUseVipCommunity = hasVipCommunityAccess(viewerTier) || isAdmin(viewerEmail)
@@ -52,6 +63,10 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
 
   const name        = member.displayName || 'HySky Member'
   const isOwnProfile = userId === member.id
+  const canSeePrivateDetails = canUseVipCommunity || isOwnProfile
+  const contactEmails = uniqueContactValues([member.email, ...(zohoDetails?.emails ?? [])])
+  const contactPhones = uniqueContactValues([contacts?.phoneNumber, ...(zohoDetails?.phoneNumbers ?? [])])
+  const companyWebsites = uniqueContactValues([contacts?.companyWebsite, zohoDetails?.companyWebsite])
 
   return (
     <div className="text-white max-w-3xl">
@@ -118,28 +133,43 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
         </div>
       )}
 
+      {/* Zoho CRM enrichment is private and never replaces member-entered fields. */}
+      {canSeePrivateDetails && zohoDetails && (zohoDetails.accountName || zohoDetails.jobTitle || zohoDetails.companyWhatWeDo) && (
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
+          <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-4">Professional Details</h2>
+          <div className="space-y-2">
+            {zohoDetails.accountName && <p className="text-lg font-semibold text-white">{zohoDetails.accountName}</p>}
+            {zohoDetails.jobTitle && <p className="text-sm text-white/60">{zohoDetails.jobTitle}</p>}
+            {zohoDetails.companyWhatWeDo && (
+              <div className="pt-3">
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-white/35">What We Do</p>
+                <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/65">{zohoDetails.companyWhatWeDo}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {!canUseVipCommunity && !isOwnProfile && <ProfileAccessTease name={name} />}
 
       {/* Contact / Links */}
-      {canUseVipCommunity && (member.linkedinUrl || member.twitterUrl || member.website || member.email || contacts?.phoneNumber || contacts?.companyWebsite) && (
+      {canSeePrivateDetails && (member.linkedinUrl || member.twitterUrl || member.website || contactEmails.length > 0 || contactPhones.length > 0 || companyWebsites.length > 0) && (
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
           <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-4">Contact & Links</h2>
           <div className="flex flex-col gap-3">
-            {member.email && (
-              <ContactEmailAction email={member.email} />
-            )}
-            {contacts?.phoneNumber && (
-              <a href={`tel:${contacts.phoneNumber}`} className="flex items-center gap-3 text-sm text-white/60 hover:text-white transition-colors group">
+            {contactEmails.map((email) => <ContactEmailAction key={email} email={email} />)}
+            {contactPhones.map((phoneNumber) => (
+              <a key={phoneNumber} href={`tel:${phoneNumber}`} className="flex items-center gap-3 text-sm text-white/60 hover:text-white transition-colors group">
                 <span className="w-8 h-8 rounded-lg bg-white/8 flex items-center justify-center text-base group-hover:bg-[#5d00f5]/20 transition-colors">📞</span>
-                <span>{contacts.phoneNumber}</span>
+                <span>{phoneNumber}</span>
               </a>
-            )}
-            {contacts?.companyWebsite && (
-              <a href={contacts.companyWebsite} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-white/60 hover:text-white transition-colors group">
+            ))}
+            {companyWebsites.map((companyWebsite) => (
+              <a key={companyWebsite} href={companyWebsite} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-white/60 hover:text-white transition-colors group">
                 <span className="w-8 h-8 rounded-lg bg-white/8 flex items-center justify-center text-base group-hover:bg-[#5d00f5]/20 transition-colors">🌐</span>
-                <span className="truncate">{contacts.companyWebsite.replace(/^https?:\/\/(www\.)?/, '')}</span>
+                <span className="truncate">{companyWebsite.replace(/^https?:\/\/(www\.)?/, '')}</span>
               </a>
-            )}
+            ))}
             {member.linkedinUrl && (
               <a href={member.linkedinUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-white/60 hover:text-white transition-colors group">
                 <span className="w-8 h-8 rounded-lg bg-white/8 flex items-center justify-center text-base group-hover:bg-[#5d00f5]/20 transition-colors">in</span>
@@ -169,4 +199,3 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
     </div>
   )
 }
-

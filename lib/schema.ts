@@ -111,6 +111,21 @@ export const profileContacts = pgTable('profile_contacts', {
   updatedAt:      timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+// Read-only CRM enrichment for existing Connect accounts. Kept separate from
+// member-entered profile fields so a Zoho sync never overwrites their data.
+export const zohoProfileDetails = pgTable('zoho_profile_details', {
+  userId:            text('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  zohoContactId:     text('zoho_contact_id').notNull(),
+  emails:            text('emails').notNull().default('[]'),
+  phoneNumbers:      text('phone_numbers').notNull().default('[]'),
+  accountId:         text('account_id'),
+  accountName:       text('account_name'),
+  jobTitle:          text('job_title'),
+  companyWebsite:    text('company_website'),
+  companyWhatWeDo:   text('company_what_we_do'),
+  syncedAt:          timestamp('synced_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export const pressPosts = pgTable('press_posts', {
   id:              text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   slug:            text('slug').notNull().unique(),
@@ -294,6 +309,7 @@ export const notifications = pgTable('notifications', {
 export type User = typeof users.$inferSelect
 export type UserProfile = typeof userProfiles.$inferSelect
 export type ProfileContact = typeof profileContacts.$inferSelect
+export type ZohoProfileDetail = typeof zohoProfileDetails.$inferSelect
 export type DiscountCode = typeof discountCodes.$inferSelect
 export type CoursePurchase = typeof coursePurchases.$inferSelect
 export type CourseLessonProgress = typeof courseLessonProgress.$inferSelect
