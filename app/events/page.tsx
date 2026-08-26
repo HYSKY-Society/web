@@ -36,7 +36,11 @@ export default function EventsPage() {
         <div
           className="flying-hy-featured-card group relative mb-8 cursor-pointer overflow-hidden rounded-3xl p-8 transition-transform hover:scale-[1.005] sm:p-10"
           style={{
-            background: 'linear-gradient(135deg, rgba(93,0,245,.35), rgba(0,212,212,.12))',
+            background: `
+              radial-gradient(ellipse 70% 70% at 82% 24%, rgba(93,0,245,.32), transparent),
+              radial-gradient(ellipse 55% 60% at 18% 82%, rgba(19,220,232,.14), transparent),
+              var(--bg-page-deep)
+            `,
             border: '1px solid rgba(93,0,245,.4)',
           }}
         >
@@ -50,19 +54,28 @@ export default function EventsPage() {
             <div className="event-category-badge flying-hy-featured-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-5 bg-[#5d00f5]/25 text-[#9b6dff]">
               <SidebarIcon name="plane" className="h-4 w-4" /> Featured Event
             </div>
-            <div className="text-white/50 text-sm mb-1">The 4th Global</div>
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3">FLYING HY 2026 Conference</h2>
-            <div className="flex flex-wrap gap-4 text-white/55 text-sm mb-6">
+            <h2
+              className="flying-hy-display mb-2 uppercase leading-[.86] tracking-[-2px]"
+              style={{ fontSize: 'clamp(2.5rem, 6vw, 4.8rem)' }}
+            >
+              <span className="flying-hy-title-flying">FLYING</span><br />
+              <span style={{ color: '#5d00f5' }}>HY</span>{' '}
+              <span className="flying-hy-title-year">2026</span>
+            </h2>
+            <p className="mb-4 text-xs font-bold uppercase tracking-[2.5px] text-[var(--text-primary)] sm:text-sm">
+              The 4th Annual Global Symposium
+            </p>
+            <div className="flex flex-wrap gap-4 text-[var(--text-primary)] text-sm mb-6">
               <span className="inline-flex items-center gap-2"><SidebarIcon name="events" className="h-4 w-4" /> November 4, 2026</span>
-              <span className="inline-flex items-center gap-2"><SidebarIcon name="monitor" className="h-4 w-4" /> Zoom</span>
               <span className="inline-flex items-center gap-2"><SidebarIcon name="clock" className="h-4 w-4" /> 8:00 AM – 6:05 PM CT</span>
+              <span className="inline-flex items-center gap-2"><SidebarIcon name="monitor" className="h-4 w-4" /> Zoom (Virtual)</span>
             </div>
-            <p className="text-white/50 text-sm leading-relaxed mb-6 max-w-2xl">
-              The world&apos;s largest annual hydrogen aviation event — bringing together innovators, researchers, regulators, and industry leaders from across air and aerospace.
+            <p className="text-[var(--text-primary)] text-base leading-relaxed mb-6 max-w-2xl">
+              A one-day virtual summit charting the path to <strong>hydrogen &amp; battery-electric</strong> aviation.
             </p>
             <div className="flex flex-wrap gap-3">
               <EventRegisterButton
-                label="Register Now →"
+                label="Reserve Your Seat →"
                 options={flyingHyOptions}
                 title="FLYING HY 2026 — Get Your Ticket"
                 className="btn-teal-glow pointer-events-auto relative z-20 inline-flex items-center gap-2 text-white font-bold px-8 py-3 rounded-xl text-sm"
@@ -194,4 +207,3 @@ export default function EventsPage() {
     </PublicShell>
   )
 }
-
