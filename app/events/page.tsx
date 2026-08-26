@@ -33,24 +33,15 @@ export default function EventsPage() {
 
         {/* Flying HY 2026 — Featured */}
         <div
-          className="flying-hy-featured-card group relative mb-8 cursor-pointer overflow-hidden rounded-3xl p-8 transition-transform hover:scale-[1.005] sm:p-10"
-          style={{
-            background: `
-              radial-gradient(ellipse 70% 70% at 82% 24%, rgba(93,0,245,.32), transparent),
-              radial-gradient(ellipse 55% 60% at 18% 82%, rgba(19,220,232,.14), transparent),
-              var(--bg-page-deep)
-            `,
-            border: '1px solid rgba(93,0,245,.4)',
-          }}
+          className="event-showcase-card flying-hy-featured-card group relative mb-8 cursor-pointer overflow-hidden rounded-3xl p-8 sm:p-10"
         >
-          <div className="flying-hy-featured-glow absolute -top-20 -right-20 w-72 h-72 rounded-full blur-3xl opacity-20" style={{ backgroundColor: '#5d00f5' }} />
           <Link
             href="/flying-hy"
             aria-label="View FLYING HY 2026 conference details"
             className="absolute inset-0 z-10 rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5d00f5] focus-visible:ring-offset-2"
           />
           <div className="pointer-events-none relative z-20">
-            <div className="event-category-badge flying-hy-featured-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-5 bg-[#5d00f5]/25 text-[#9b6dff]">
+            <div className="event-category-badge event-showcase-badge flying-hy-featured-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-5 bg-[#5d00f5]/25 text-[#9b6dff]">
               <SidebarIcon name="plane" className="h-4 w-4" /> Featured Event
             </div>
             <h2
@@ -81,7 +72,7 @@ export default function EventsPage() {
               />
               <Link
                 href="/flying-hy"
-                className="flying-hy-featured-details pointer-events-auto relative z-20 inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-xl text-sm border transition-colors"
+                className="event-secondary-action flying-hy-featured-details pointer-events-auto relative z-20 inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-xl text-sm border transition-colors"
               >
                 View Details →
               </Link>
@@ -90,10 +81,10 @@ export default function EventsPage() {
         </div>
 
         {/* Speed Networking */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-6">
+        <div className="event-showcase-card group relative overflow-hidden rounded-3xl p-8 sm:p-10 mb-8">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
-              <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-[#5d00f5]/20 text-[#9b6dff]">
+              <div className="event-category-badge event-showcase-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-[#5d00f5]/20 text-[#9b6dff]">
                 <SidebarIcon name="handshake" className="h-4 w-4" /> Weekly
               </div>
               <h2 className="text-xl font-bold mb-1">Speed Networking</h2>
@@ -110,14 +101,14 @@ export default function EventsPage() {
               label="Upgrade"
               options={[{ label: 'VIP Membership', icon: '👥', embedUrl: ZEFFY.membership }]}
               title="Upgrade to HySky VIP"
-              className="shrink-0 inline-flex items-center gap-2 text-sm font-bold px-6 py-3 rounded-xl bg-[#5d00f5] text-white hover:bg-[#7130f7] transition-colors cursor-pointer"
+              className="btn-teal-glow shrink-0 inline-flex items-center gap-2 text-sm font-bold px-6 py-3 rounded-xl text-white transition-colors cursor-pointer"
               style={{ color: '#fff' }}
             />
           </div>
         </div>
 
         {/* AIAA + HySky Sustainable Aviation Course */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-6">
+        <div className="event-showcase-card group relative overflow-hidden rounded-3xl p-8 sm:p-10 mb-8">
           <a
             href="https://aiaa.org/courses/advanced-sustainable-aviation-fuels-and-aircraft-design/"
             target="_blank"
@@ -134,7 +125,7 @@ export default function EventsPage() {
           </a>
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
-              <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-[#00D4D4]/15 text-[#00D4D4]">
+              <div className="event-category-badge event-showcase-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-[#00D4D4]/15 text-[#00D4D4]">
                 <SidebarIcon name="graduation" className="h-4 w-4" /> AIAA + HySky Online Course
               </div>
               <h2 className="text-xl font-bold mb-1">Advanced Sustainable Aviation Fuels and Aircraft Design</h2>
@@ -152,8 +143,7 @@ export default function EventsPage() {
                 href="https://aiaa.org/courses/advanced-sustainable-aviation-fuels-and-aircraft-design/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 text-sm font-semibold px-6 py-3 rounded-xl border transition-colors hover:bg-white/8"
-                style={{ borderColor: '#00D4D4', color: '#00D4D4' }}
+                className="event-secondary-action inline-flex items-center justify-center gap-2 text-sm font-semibold px-6 py-3 rounded-xl border transition-colors"
               >
                 View Course &amp; Register →
               </a>
@@ -162,10 +152,10 @@ export default function EventsPage() {
         </div>
 
         {/* HySky Monthly Webinar Series */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+        <div className="event-showcase-card group relative overflow-hidden rounded-3xl p-8 sm:p-10">
           <div className="flex items-start justify-between flex-wrap gap-4 mb-6">
             <div>
-              <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-[#00D4D4]/15 text-[#00D4D4]">
+            <div className="event-category-badge event-showcase-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-[#00D4D4]/15 text-[#00D4D4]">
                 <SidebarIcon name="broadcast" className="h-4 w-4" /> Monthly Webinar
               </div>
               <h2 className="text-xl font-bold mb-1">HySky Monthly</h2>
@@ -177,8 +167,7 @@ export default function EventsPage() {
               href={WEBINAR_LINK}
               target="_blank"
               rel="noopener noreferrer"
-              className="shrink-0 inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-xl border transition-colors hover:bg-white/8"
-              style={{ borderColor: '#00D4D4', color: '#00D4D4' }}
+              className="event-secondary-action shrink-0 inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-xl border transition-colors"
             >
               Register for Series →
             </a>
