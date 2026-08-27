@@ -217,9 +217,9 @@ export default function ProfileForm({ profile, contacts, importedDefaults, clerk
         </div>
         <Field label="Location" name="location" defaultValue={profile?.location} placeholder="e.g. Toulouse, France" />
         <div className="grid sm:grid-cols-3 gap-4">
-          <Field label="Your City" name="contactCity" defaultValue={contacts?.contactCity ?? importedDefaults.contactCity} />
-          <Field label="Your State / Province" name="contactState" defaultValue={contacts?.contactState ?? importedDefaults.contactState} />
-          <Field label="Your Country" name="contactCountry" defaultValue={contacts?.contactCountry ?? importedDefaults.contactCountry} />
+          <Field label="Your City" name="contactCity" defaultValue={contacts?.contactCity?.trim() || importedDefaults.contactCity} />
+          <Field label="Your State / Province" name="contactState" defaultValue={contacts?.contactState?.trim() || importedDefaults.contactState} />
+          <Field label="Your Country" name="contactCountry" defaultValue={contacts?.contactCountry?.trim() || importedDefaults.contactCountry} />
         </div>
       </div>
 

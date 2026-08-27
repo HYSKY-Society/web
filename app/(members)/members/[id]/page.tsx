@@ -72,10 +72,12 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
   const companyWebsites = uniqueContactValues([contacts?.companyWebsite, zohoDetails?.companyWebsite])
   const professionalTitle = meaningfulTitle(member.jobTitle) ?? meaningfulTitle(zohoDetails?.jobTitle)
   const professionalCompany = member.company ?? zohoDetails?.accountName
+  const preferMemberValue = (memberValue: string | null | undefined, importedValue: string | null | undefined) =>
+    memberValue?.trim() || importedValue?.trim() || null
   const professionalLocation = [
-    contacts?.contactCity ?? zohoDetails?.contactCity,
-    contacts?.contactState ?? zohoDetails?.contactState,
-    contacts?.contactCountry ?? zohoDetails?.contactCountry,
+    preferMemberValue(contacts?.contactCity, zohoDetails?.contactCity),
+    preferMemberValue(contacts?.contactState, zohoDetails?.contactState),
+    preferMemberValue(contacts?.contactCountry, zohoDetails?.contactCountry),
   ].filter(Boolean).join(', ')
   const companyWhatWeDo = contacts?.companyWhatWeDo ?? zohoDetails?.companyWhatWeDo
 

@@ -230,6 +230,8 @@ export async function getAllVisibleMembers(): Promise<MemberListItem[]> {
     const parts = values.map((value) => value?.trim()).filter((value): value is string => Boolean(value))
     return parts.length > 0 ? parts.join(', ') : null
   }
+  const preferMemberValue = (memberValue: string | null | undefined, importedValue: string | null | undefined) =>
+    memberValue?.trim() || importedValue?.trim() || null
 
   const activeMapped: MemberListItem[] = activeRows.map((row) => ({
     id: row.id,
@@ -239,9 +241,9 @@ export async function getAllVisibleMembers(): Promise<MemberListItem[]> {
     company: row.company?.trim() || row.zohoCompany?.trim() || null,
     jobTitle: meaningfulTitle(row.jobTitle) ?? meaningfulTitle(row.zohoJobTitle),
     location: row.location?.trim() || location(
-      row.contactCity ?? row.zohoContactCity,
-      row.contactState ?? row.zohoContactState,
-      row.contactCountry ?? row.zohoContactCountry,
+      preferMemberValue(row.contactCity, row.zohoContactCity),
+      preferMemberValue(row.contactState, row.zohoContactState),
+      preferMemberValue(row.contactCountry, row.zohoContactCountry),
     ),
     avatarUrl: row.avatarUrl,
     isVisible: row.isVisible,
