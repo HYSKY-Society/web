@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { directMessages, notifications, userProfiles, users } from '@/lib/schema'
+import { directMessages, notifications, pendingTiers, userProfiles, users } from '@/lib/schema'
 import { and, desc, eq, inArray, isNull, or } from 'drizzle-orm'
-import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
+import { getUserTier, hasVipCommunityAccess, pendingMemberId } from '@/lib/members'
 import { ensureNotificationsTable } from '@/lib/notifications'
+import { getPendingMessagesFromUser } from '@/lib/pending-direct-messages'
 
 export async function GET() {
   const user = await currentUser()
@@ -31,12 +32,15 @@ export async function GET() {
       unreadBySender.set(notification.actorId, (unreadBySender.get(notification.actorId) ?? 0) + 1)
     }
 
-    const messages = await db
-      .select()
-      .from(directMessages)
-      .where(or(eq(directMessages.fromUserId, user.id), eq(directMessages.toUserId, user.id)))
-      .orderBy(desc(directMessages.createdAt))
-      .limit(2000)
+    const [messages, pendingMessages] = await Promise.all([
+      db
+        .select()
+        .from(directMessages)
+        .where(or(eq(directMessages.fromUserId, user.id), eq(directMessages.toUserId, user.id)))
+        .orderBy(desc(directMessages.createdAt))
+        .limit(2000),
+      getPendingMessagesFromUser(user.id),
+    ])
 
     const conversations = new Map<string, {
       userId: string
@@ -61,25 +65,43 @@ export async function GET() {
       }
     }
 
-    const ids = Array.from(conversations.keys())
-    if (ids.length === 0) return NextResponse.json([])
+    const pendingByEmail = new Map<string, typeof pendingMessages[number]>()
+    for (const message of pendingMessages) {
+      if (!pendingByEmail.has(message.toEmail)) pendingByEmail.set(message.toEmail, message)
+    }
 
-    const members = await db
-      .select({
-        id: users.id,
-        email: users.email,
-        displayName: userProfiles.displayName,
-        headline: userProfiles.headline,
-        avatarUrl: userProfiles.avatarUrl,
-      })
-      .from(users)
-      .leftJoin(userProfiles, eq(userProfiles.userId, users.id))
-      .where(inArray(users.id, ids))
+    const ids = Array.from(conversations.keys())
+
+    const pendingEmails = Array.from(pendingByEmail.keys())
+    const [members, pendingMembers] = await Promise.all([
+      ids.length > 0
+        ? db
+            .select({
+              id: users.id,
+              email: users.email,
+              displayName: userProfiles.displayName,
+              headline: userProfiles.headline,
+              avatarUrl: userProfiles.avatarUrl,
+            })
+            .from(users)
+            .leftJoin(userProfiles, eq(userProfiles.userId, users.id))
+            .where(inArray(users.id, ids))
+        : Promise.resolve([]),
+      pendingEmails.length > 0
+        ? db
+            .select({
+              email: pendingTiers.email,
+              name: pendingTiers.name,
+              avatarUrl: pendingTiers.avatarUrl,
+            })
+            .from(pendingTiers)
+            .where(inArray(pendingTiers.email, pendingEmails))
+        : Promise.resolve([]),
+    ])
 
     const memberById = new Map(members.map((member) => [member.id, member]))
 
-    return NextResponse.json(
-      Array.from(conversations.values()).map((conversation) => {
+    const activeConversations = Array.from(conversations.values()).map((conversation) => {
         const member = memberById.get(conversation.userId)
         return {
           ...conversation,
@@ -88,7 +110,24 @@ export async function GET() {
           avatarUrl: member?.avatarUrl ?? null,
         }
       })
-    )
+
+    const pendingMemberByEmail = new Map(pendingMembers.map((member) => [member.email, member]))
+    const queuedConversations = Array.from(pendingByEmail.entries()).map(([email, message]) => {
+      const member = pendingMemberByEmail.get(email)
+      return {
+        userId: `pending-${pendingMemberId(email)}`,
+        lastMessage: message.content,
+        lastMessageAt: message.createdAt,
+        lastMessageFromMe: true,
+        unreadCount: 0,
+        displayName: member?.name ?? email.split('@')[0] ?? 'Member',
+        headline: null,
+        avatarUrl: member?.avatarUrl ?? null,
+      }
+    })
+
+    return NextResponse.json([...activeConversations, ...queuedConversations]
+      .sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()))
   } catch {
     return NextResponse.json([])
   }

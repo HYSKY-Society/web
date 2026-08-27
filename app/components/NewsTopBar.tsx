@@ -8,6 +8,15 @@ import type { NewsTier } from '@/lib/news'
 import type { ProfileContact, UserProfile } from '@/lib/schema'
 import ProfileForm from '@/app/(members)/profile/ProfileForm'
 
+function displayList(value: string | null | undefined) {
+  try {
+    const parsed = JSON.parse(value ?? '[]')
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === 'string').join('\n') : ''
+  } catch {
+    return ''
+  }
+}
+
 function ProfileIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -204,9 +213,22 @@ export default function NewsTopBar({
           <ProfileForm
             profile={profile}
             contacts={contacts}
+            importedDefaults={{
+              company: '',
+              jobTitle: '',
+              companyWebsite: contacts?.companyWebsite ?? '',
+              companyWhatWeDo: contacts?.companyWhatWeDo ?? '',
+              companyCity: contacts?.companyCity ?? '',
+              companyState: contacts?.companyState ?? '',
+              companyCountry: contacts?.companyCountry ?? '',
+              contactCity: contacts?.contactCity ?? '',
+              contactState: contacts?.contactState ?? '',
+              contactCountry: contacts?.contactCountry ?? '',
+              additionalEmails: displayList(contacts?.additionalEmails),
+              phoneNumbers: displayList(contacts?.phoneNumbers) || contacts?.phoneNumber || '',
+            }}
             clerkName={clerkName}
             clerkEmail={clerkEmail}
-            canEditLinks={isVipMember}
             canManageVisibility={canManageVisibility}
             directoryHref="https://connect.hysky.org/members"
           />

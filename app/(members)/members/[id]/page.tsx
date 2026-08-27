@@ -19,6 +19,20 @@ function uniqueContactValues(values: Array<string | null | undefined>) {
   ).values()]
 }
 
+function parseContactValues(value: string | null | undefined) {
+  try {
+    const parsed = JSON.parse(value ?? '[]')
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === 'string') : []
+  } catch {
+    return []
+  }
+}
+
+function meaningfulTitle(value: string | null | undefined) {
+  const cleaned = value?.trim() ?? ''
+  return /^(x|n\/?a|none|-|unknown)$/i.test(cleaned) ? null : (cleaned || null)
+}
+
 function TierBadge({ tier }: { tier: string }) {
   const styles: Record<string, string> = {
     free:                  'bg-white/8 text-white/50',
@@ -53,10 +67,17 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
   const name        = member.displayName || 'HySky Member'
   const isOwnProfile = userId === member.id
   const canSeePrivateDetails = canUseVipCommunity || isOwnProfile
-  const contactEmails = uniqueContactValues([member.email, ...(zohoDetails?.emails ?? [])])
-  const contactPhones = uniqueContactValues([contacts?.phoneNumber, ...(zohoDetails?.phoneNumbers ?? [])])
+  const contactEmails = uniqueContactValues([member.email, ...parseContactValues(contacts?.additionalEmails), ...(zohoDetails?.emails ?? [])])
+  const contactPhones = uniqueContactValues([contacts?.phoneNumber, ...parseContactValues(contacts?.phoneNumbers), ...(zohoDetails?.phoneNumbers ?? [])])
   const companyWebsites = uniqueContactValues([contacts?.companyWebsite, zohoDetails?.companyWebsite])
-  const zohoLocation = [zohoDetails?.contactCity, zohoDetails?.contactState, zohoDetails?.contactCountry].filter(Boolean).join(', ')
+  const professionalTitle = meaningfulTitle(member.jobTitle) ?? meaningfulTitle(zohoDetails?.jobTitle)
+  const professionalCompany = member.company ?? zohoDetails?.accountName
+  const professionalLocation = [
+    contacts?.contactCity ?? zohoDetails?.contactCity,
+    contacts?.contactState ?? zohoDetails?.contactState,
+    contacts?.contactCountry ?? zohoDetails?.contactCountry,
+  ].filter(Boolean).join(', ')
+  const companyWhatWeDo = contacts?.companyWhatWeDo ?? zohoDetails?.companyWhatWeDo
 
   return (
     <div className="text-white max-w-3xl">
@@ -98,7 +119,6 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
               name={name}
               avatarUrl={member.avatarUrl}
               canMessage={canUseVipCommunity}
-              canReceiveMessages={!member.isPending}
             />
           )}
         </div>
@@ -112,29 +132,18 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
         </div>
       )}
 
-      {/* Company */}
-      {(member.company || member.jobTitle) && (
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
-          <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-4">Company</h2>
-          <div className="space-y-2">
-            {member.company && <p className="text-lg font-semibold text-white">{member.company}</p>}
-            {member.jobTitle && <p className="text-sm text-white/55">{member.jobTitle}</p>}
-          </div>
-        </div>
-      )}
-
-      {/* Zoho CRM enrichment is private and never replaces member-entered fields. */}
-      {canSeePrivateDetails && zohoDetails && (zohoDetails.accountName || zohoDetails.jobTitle || zohoDetails.companyWhatWeDo) && (
+      {/* Member-entered professional details take priority over the Zoho import. */}
+      {(professionalCompany || professionalTitle || professionalLocation || companyWhatWeDo) && (
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
           <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-4">Professional Details</h2>
           <div className="space-y-2">
-            {zohoDetails.accountName && <p className="text-lg font-semibold text-white">{zohoDetails.accountName}</p>}
-            {zohoDetails.jobTitle && <p className="text-sm text-white/60">{zohoDetails.jobTitle}</p>}
-            {zohoLocation && <p className="text-sm text-white/50">{zohoLocation}</p>}
-            {zohoDetails.companyWhatWeDo && (
+            {professionalCompany && <p className="text-lg font-semibold text-white">{professionalCompany}</p>}
+            {professionalTitle && <p className="text-sm text-white/60">{professionalTitle}</p>}
+            {professionalLocation && <p className="text-sm text-white/50">{professionalLocation}</p>}
+            {companyWhatWeDo && (
               <div className="pt-3">
                 <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-white/35">What We Do</p>
-                <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/65">{zohoDetails.companyWhatWeDo}</p>
+                <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/65">{companyWhatWeDo}</p>
               </div>
             )}
           </div>

@@ -1,5 +1,5 @@
 import { db } from './db'
-import { users, userProfiles, coursePurchases, eventPurchases, pendingTiers, podcastEpisodes } from './schema'
+import { users, userProfiles, profileContacts, coursePurchases, eventPurchases, pendingTiers, podcastEpisodes, zohoPendingProfileDetails, zohoProfileDetails } from './schema'
 import { eq, and, or, isNull, count, notInArray, inArray } from 'drizzle-orm'
 
 // Re-export from client-safe tiers module so server code imports one place
@@ -10,7 +10,9 @@ import { TIERS_WITH_COURSES, TIERS_WITH_EVENTS } from './tiers'
 import { getAdminEmails } from './admin'
 import { getCourseSlugVariants, normalizeCourseSlug } from './course-slugs'
 import { createHash } from 'crypto'
-import { claimPendingZohoProfile } from './zoho-crm'
+import { claimPendingZohoProfile, ensureZohoProfileDetailsTable } from './zoho-crm'
+import { ensureProfileContactsTable } from './profile-contacts'
+import { claimPendingDirectMessages } from './pending-direct-messages'
 
 export function pendingMemberId(email: string): string {
   return createHash('sha256').update(email.toLowerCase()).digest('hex').slice(0, 24)
@@ -63,6 +65,7 @@ export async function ensureUser(clerkId: string, email: string): Promise<Tier> 
       })
     }
     await claimPendingZohoProfile(normalizedEmail, clerkId)
+    await claimPendingDirectMessages(normalizedEmail, clerkId)
     await db.delete(pendingTiers).where(eq(pendingTiers.email, normalizedEmail))
   }
 
@@ -175,6 +178,7 @@ export async function upsertProfile(userId: string, data: ProfileData) {
 // ── Member directory ──────────────────────────────────────────────────────────
 
 export async function getAllVisibleMembers(): Promise<MemberListItem[]> {
+  await Promise.all([ensureZohoProfileDetailsTable(), ensureProfileContactsTable()])
   const adminEmails = getAdminEmails()
   const [activeRows, registeredEmails, pendingRows] = await Promise.all([
     db
@@ -186,15 +190,62 @@ export async function getAllVisibleMembers(): Promise<MemberListItem[]> {
         company:     userProfiles.company,
         jobTitle:    userProfiles.jobTitle,
         location:    userProfiles.location,
+        contactCity: profileContacts.contactCity,
+        contactState: profileContacts.contactState,
+        contactCountry: profileContacts.contactCountry,
+        zohoCompany: zohoProfileDetails.accountName,
+        zohoJobTitle: zohoProfileDetails.jobTitle,
+        zohoContactCity: zohoProfileDetails.contactCity,
+        zohoContactState: zohoProfileDetails.contactState,
+        zohoContactCountry: zohoProfileDetails.contactCountry,
         avatarUrl:   userProfiles.avatarUrl,
         isVisible:   userProfiles.isVisible,
       })
       .from(users)
       .leftJoin(userProfiles, eq(users.id, userProfiles.userId))
+      .leftJoin(profileContacts, eq(users.id, profileContacts.userId))
+      .leftJoin(zohoProfileDetails, eq(users.id, zohoProfileDetails.userId))
       .where(or(notInArray(users.email, adminEmails), isNull(userProfiles.isVisible), eq(userProfiles.isVisible, true))),
     db.select({ email: users.email }).from(users),
-    db.select({ email: pendingTiers.email, tier: pendingTiers.tier, name: pendingTiers.name, avatarUrl: pendingTiers.avatarUrl }).from(pendingTiers),
+    db.select({
+      email: pendingTiers.email,
+      tier: pendingTiers.tier,
+      name: pendingTiers.name,
+      avatarUrl: pendingTiers.avatarUrl,
+      company: zohoPendingProfileDetails.accountName,
+      jobTitle: zohoPendingProfileDetails.jobTitle,
+      contactCity: zohoPendingProfileDetails.contactCity,
+      contactState: zohoPendingProfileDetails.contactState,
+      contactCountry: zohoPendingProfileDetails.contactCountry,
+    })
+      .from(pendingTiers)
+      .leftJoin(zohoPendingProfileDetails, eq(pendingTiers.email, zohoPendingProfileDetails.email)),
   ])
+
+  const meaningfulTitle = (value: string | null | undefined) => {
+    const cleaned = value?.trim() ?? ''
+    return /^(x|n\/?a|none|-|unknown)$/i.test(cleaned) ? null : (cleaned || null)
+  }
+  const location = (...values: Array<string | null | undefined>) => {
+    const parts = values.map((value) => value?.trim()).filter((value): value is string => Boolean(value))
+    return parts.length > 0 ? parts.join(', ') : null
+  }
+
+  const activeMapped: MemberListItem[] = activeRows.map((row) => ({
+    id: row.id,
+    tier: row.tier,
+    displayName: row.displayName,
+    headline: row.headline,
+    company: row.company?.trim() || row.zohoCompany?.trim() || null,
+    jobTitle: meaningfulTitle(row.jobTitle) ?? meaningfulTitle(row.zohoJobTitle),
+    location: row.location?.trim() || location(
+      row.contactCity ?? row.zohoContactCity,
+      row.contactState ?? row.zohoContactState,
+      row.contactCountry ?? row.zohoContactCountry,
+    ),
+    avatarUrl: row.avatarUrl,
+    isVisible: row.isVisible,
+  }))
 
   const registeredSet = new Set(registeredEmails.map(r => r.email))
 
@@ -207,15 +258,15 @@ export async function getAllVisibleMembers(): Promise<MemberListItem[]> {
       tier:        r.tier,
       displayName: r.name,
       headline:    null,
-      company:     null,
-      jobTitle:    null,
-      location:    null,
+      company:     r.company?.trim() || null,
+      jobTitle:    meaningfulTitle(r.jobTitle),
+      location:    location(r.contactCity, r.contactState, r.contactCountry),
       avatarUrl:   r.avatarUrl ?? null,
       isVisible:   true,
       isPending:   true,
     }))
 
-  return [...activeRows, ...pendingMapped]
+  return [...activeMapped, ...pendingMapped]
 }
 
 export type MemberProfile = {

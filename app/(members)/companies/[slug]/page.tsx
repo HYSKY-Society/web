@@ -1,13 +1,20 @@
+import { currentUser } from '@clerk/nextjs/server'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import SidebarIcon from '@/app/components/SidebarIcon'
 import MemberAvatar from '@/app/components/MemberAvatar'
 import { companyLocation, companyWebsiteHref, getDirectoryCompany } from '@/lib/company-directory'
+import { isAdmin } from '@/lib/admin'
+import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
 
 export const dynamic = 'force-dynamic'
 
 export default async function CompanyPage({ params }: { params: { slug: string } }) {
-  const company = await getDirectoryCompany(params.slug)
+  const viewer = await currentUser()
+  const viewerEmail = viewer?.emailAddresses.find((entry) => entry.id === viewer.primaryEmailAddressId)?.emailAddress ?? ''
+  const viewerTier = viewer ? await getUserTier(viewer.id) : 'free'
+  const canSeeContactDetails = hasVipCommunityAccess(viewerTier) || isAdmin(viewerEmail)
+  const company = await getDirectoryCompany(params.slug, { includeContactDetails: canSeeContactDetails })
   if (!company) notFound()
 
   return (
@@ -25,7 +32,9 @@ export default async function CompanyPage({ params }: { params: { slug: string }
             <div className="mb-2 flex flex-wrap items-center gap-3">
               <h1 className="text-2xl font-bold sm:text-3xl">{company.name}</h1>
             </div>
-            <p className="font-medium text-[#9b6dff]">{company.category}</p>
+            {company.category ? (
+              <p className="font-medium text-[#9b6dff]">{company.category}</p>
+            ) : null}
             <div className="mt-4 flex flex-col gap-2 text-sm text-white/50 sm:flex-row sm:flex-wrap sm:gap-5">
               {companyLocation(company) && <span className="flex items-center gap-2"><SidebarIcon name="location" className="h-4 w-4" />{companyLocation(company)}</span>}
               {company.website && (
@@ -60,6 +69,12 @@ export default async function CompanyPage({ params }: { params: { slug: string }
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-white">{contact.name}</p>
                   {contact.title && <p className="truncate text-xs text-white/45">{contact.title}</p>}
+                  {canSeeContactDetails && contact.emails.map((email) => (
+                    <p key={email} className="truncate text-[11px] text-[#9b6dff]">{email}</p>
+                  ))}
+                  {canSeeContactDetails && contact.phoneNumbers.map((phoneNumber) => (
+                    <p key={phoneNumber} className="truncate text-[11px] text-white/45">{phoneNumber}</p>
+                  ))}
                   {contact.location && <p className="truncate text-[11px] text-white/35">{contact.location}</p>}
                 </div>
               </Link>

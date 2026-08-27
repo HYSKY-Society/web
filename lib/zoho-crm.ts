@@ -9,6 +9,9 @@ export type ZohoProfileData = {
   jobTitle: string | null
   companyWebsite: string | null
   companyWhatWeDo: string | null
+  accountCity: string | null
+  accountState: string | null
+  accountCountry: string | null
   contactCity: string | null
   contactState: string | null
   contactCountry: string | null
@@ -194,6 +197,9 @@ function profileDataFromRow(row: {
   jobTitle: string | null
   companyWebsite: string | null
   companyWhatWeDo: string | null
+  accountCity: string | null
+  accountState: string | null
+  accountCountry: string | null
   contactCity: string | null
   contactState: string | null
   contactCountry: string | null
@@ -206,6 +212,9 @@ function profileDataFromRow(row: {
     jobTitle: row.jobTitle,
     companyWebsite: row.companyWebsite,
     companyWhatWeDo: row.companyWhatWeDo,
+    accountCity: row.accountCity,
+    accountState: row.accountState,
+    accountCountry: row.accountCountry,
     contactCity: row.contactCity,
     contactState: row.contactState,
     contactCountry: row.contactCountry,

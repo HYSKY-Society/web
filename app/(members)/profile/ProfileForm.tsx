@@ -4,8 +4,6 @@ import { useState, useRef } from 'react'
 import { useClerk } from '@clerk/nextjs'
 import { saveProfile } from './actions'
 import type { ProfileContact, UserProfile } from '@/lib/schema'
-import { ZeffyModal } from '@/components/ZeffyModal'
-import { ZEFFY } from '@/lib/zeffy'
 
 function Field({
   label, name, defaultValue, placeholder, type = 'text', hint,
@@ -37,12 +35,32 @@ function Field({
   )
 }
 
-export default function ProfileForm({ profile, contacts, clerkName, clerkEmail, canEditLinks, canManageVisibility, directoryHref = '/members' }: {
+type ImportedDefaults = {
+  company: string
+  jobTitle: string
+  companyWebsite: string
+  companyWhatWeDo: string
+  companyCity: string
+  companyState: string
+  companyCountry: string
+  contactCity: string
+  contactState: string
+  contactCountry: string
+  additionalEmails: string
+  phoneNumbers: string
+}
+
+function meaningfulTitle(value: string | null | undefined) {
+  const cleaned = value?.trim() ?? ''
+  return /^(x|n\/?a|none|-|unknown)$/i.test(cleaned) ? '' : cleaned
+}
+
+export default function ProfileForm({ profile, contacts, importedDefaults, clerkName, clerkEmail, canManageVisibility, directoryHref = '/members' }: {
   profile: UserProfile | null
   contacts: ProfileContact | null
+  importedDefaults: ImportedDefaults
   clerkName: string
   clerkEmail: string
-  canEditLinks: boolean
   canManageVisibility: boolean
   directoryHref?: string
 }) {
@@ -52,7 +70,6 @@ export default function ProfileForm({ profile, contacts, clerkName, clerkEmail, 
   const [avatarUrl,   setAvatarUrl]   = useState<string>(profile?.avatarUrl ?? '')
   const [uploading,   setUploading]   = useState(false)
   const [uploadError, setUploadError] = useState<string>('')
-  const [membershipOpen, setMembershipOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const initials = (clerkName || clerkEmail || 'M')
@@ -195,52 +212,37 @@ export default function ProfileForm({ profile, contacts, clerkName, clerkEmail, 
       <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
         <p className="text-xs text-white/50 uppercase tracking-wider font-semibold">Professional</p>
         <div className="grid sm:grid-cols-2 gap-4">
-          <Field label="Company / Organization" name="company" defaultValue={profile?.company} placeholder="e.g. Airbus" />
-          <Field label="Job Title / Role" name="jobTitle" defaultValue={profile?.jobTitle} placeholder="e.g. Chief Engineer" />
+          <Field label="Company / Organization" name="company" defaultValue={profile?.company ?? importedDefaults.company} placeholder="e.g. Airbus" />
+          <Field label="Job Title / Role" name="jobTitle" defaultValue={meaningfulTitle(profile?.jobTitle) || importedDefaults.jobTitle} placeholder="e.g. Chief Engineer" />
         </div>
         <Field label="Location" name="location" defaultValue={profile?.location} placeholder="e.g. Toulouse, France" />
+        <div className="grid sm:grid-cols-3 gap-4">
+          <Field label="Your City" name="contactCity" defaultValue={contacts?.contactCity ?? importedDefaults.contactCity} />
+          <Field label="Your State / Province" name="contactState" defaultValue={contacts?.contactState ?? importedDefaults.contactState} />
+          <Field label="Your Country" name="contactCountry" defaultValue={contacts?.contactCountry ?? importedDefaults.contactCountry} />
+        </div>
       </div>
 
-      {/* Contact links are a VIP profile feature. Existing values stay stored. */}
-      {canEditLinks ? (
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
-          <p className="text-xs text-white/50 uppercase tracking-wider font-semibold">Contact & Links</p>
-          <Field label="Company Website" name="companyWebsite" defaultValue={contacts?.companyWebsite} placeholder="https://company.com" />
-          <Field label="Phone Number" name="phoneNumber" defaultValue={contacts?.phoneNumber} placeholder="+1 555 123 4567" type="tel" hint="Optional. Visible only to VIP members." />
-          <Field label="LinkedIn" name="linkedinUrl" defaultValue={profile?.linkedinUrl} placeholder="https://linkedin.com/in/yourhandle" />
-          <Field label="X / Twitter" name="twitterUrl" defaultValue={profile?.twitterUrl} placeholder="https://x.com/yourhandle" />
-          <Field label="Website" name="website" defaultValue={profile?.website} placeholder="https://yoursite.com" />
+      <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
+        <p className="text-xs text-white/50 uppercase tracking-wider font-semibold">Company Details</p>
+        <Field label="Company Website" name="companyWebsite" defaultValue={contacts?.companyWebsite ?? importedDefaults.companyWebsite} placeholder="https://company.com" />
+        <Field label="What We Do" name="companyWhatWeDo" defaultValue={contacts?.companyWhatWeDo ?? importedDefaults.companyWhatWeDo} placeholder="Describe what your company does…" type="textarea" />
+        <div className="grid sm:grid-cols-3 gap-4">
+          <Field label="Company City" name="companyCity" defaultValue={contacts?.companyCity ?? importedDefaults.companyCity} />
+          <Field label="Company State / Province" name="companyState" defaultValue={contacts?.companyState ?? importedDefaults.companyState} />
+          <Field label="Company Country" name="companyCountry" defaultValue={contacts?.companyCountry ?? importedDefaults.companyCountry} />
         </div>
-      ) : (
-        <div className="rounded-2xl p-5" style={{ background: 'linear-gradient(135deg, rgba(93,0,245,.16), rgba(255,255,255,.03))', border: '1px solid rgba(93,0,245,.35)' }}>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex-1">
-              <p className="text-xs text-[#9b6dff] uppercase tracking-wider font-semibold mb-1">VIP Profile Feature</p>
-              <h2 className="text-base font-semibold text-white">Contact & Links</h2>
-              <p className="text-sm text-white/45 mt-1">Upgrade to add or edit company contact information, phone number, LinkedIn, X/Twitter, and website links.</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setMembershipOpen(true)}
-              className="shrink-0 bg-[#5d00f5] hover:bg-[#7c2fff] text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors"
-            >
-              Upgrade to VIP
-            </button>
-          </div>
-        </div>
-      )}
+      </div>
 
-      {!canEditLinks && (
-        <ZeffyModal
-          isOpen={membershipOpen}
-          onClose={() => {
-            setMembershipOpen(false)
-            window.dispatchEvent(new Event('vip-access:check'))
-          }}
-          title="Upgrade to HySky VIP"
-          options={[{ label: 'VIP Membership', icon: '👥', embedUrl: ZEFFY.membership }]}
-        />
-      )}
+      <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
+        <p className="text-xs text-white/50 uppercase tracking-wider font-semibold">Contact & Links</p>
+        <Field label="Additional Email Addresses" name="additionalEmails" defaultValue={importedDefaults.additionalEmails} placeholder="one@email.com&#10;another@email.com" type="textarea" hint="One per line. Visible only to VIP members." />
+        <Field label="Phone Numbers" name="phoneNumbers" defaultValue={importedDefaults.phoneNumbers} placeholder="+1 555 123 4567" type="textarea" hint="One per line. Visible only to VIP members." />
+        <Field label="LinkedIn" name="linkedinUrl" defaultValue={profile?.linkedinUrl} placeholder="https://linkedin.com/in/yourhandle" />
+        <Field label="X / Twitter" name="twitterUrl" defaultValue={profile?.twitterUrl} placeholder="https://x.com/yourhandle" />
+        <Field label="Website" name="website" defaultValue={profile?.website} placeholder="https://yoursite.com" />
+        <p className="text-xs text-white/30">All contact details and links are visible only to VIP members and administrators.</p>
+      </div>
 
       {/* Directory visibility is an administrator-only setting. */}
       {canManageVisibility && (

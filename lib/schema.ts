@@ -108,6 +108,15 @@ export const profileContacts = pgTable('profile_contacts', {
   userId:         text('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
   companyWebsite: text('company_website'),
   phoneNumber:    text('phone_number'),
+  additionalEmails: text('additional_emails'),
+  phoneNumbers:     text('phone_numbers'),
+  companyWhatWeDo:  text('company_what_we_do'),
+  companyCity:      text('company_city'),
+  companyState:     text('company_state'),
+  companyCountry:   text('company_country'),
+  contactCity:      text('contact_city'),
+  contactState:     text('contact_state'),
+  contactCountry:   text('contact_country'),
   updatedAt:      timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
@@ -240,6 +249,17 @@ export const directMessages = pgTable('direct_messages', {
   createdAt:  timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+// Messages addressed to migrated members before their first Connect sign-in.
+// The opaque pending-member URL is resolved to an email only on the server.
+// On first sign-in these rows are moved into direct_messages.
+export const pendingDirectMessages = pgTable('pending_direct_messages', {
+  id:         text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  fromUserId: text('from_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  toEmail:    text('to_email').notNull(),
+  content:    text('content').notNull(),
+  createdAt:  timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export const chatChannels = pgTable('chat_channels', {
   id:          text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   name:        text('name').notNull(),
@@ -351,6 +371,7 @@ export type HyskySession = typeof hyskySessions.$inferSelect
 export type PodcastEpisode = typeof podcastEpisodes.$inferSelect
 export type PendingTier = typeof pendingTiers.$inferSelect
 export type DirectMessage = typeof directMessages.$inferSelect
+export type PendingDirectMessage = typeof pendingDirectMessages.$inferSelect
 export type NewsSubscription = typeof newsSubscriptions.$inferSelect
 export type NewsArticleView  = typeof newsArticleViews.$inferSelect
 export type ChatChannel      = typeof chatChannels.$inferSelect

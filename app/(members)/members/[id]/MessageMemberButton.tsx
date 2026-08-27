@@ -10,23 +10,18 @@ export default function MessageMemberButton({
   name,
   avatarUrl,
   canMessage,
-  canReceiveMessages = true,
 }: {
   memberId: string
   name: string
   avatarUrl: string | null
   canMessage: boolean
-  canReceiveMessages?: boolean
 }) {
   const { openDM } = useChatCtx()
   const [membershipOpen, setMembershipOpen] = useState(false)
-  const [unavailableOpen, setUnavailableOpen] = useState(false)
 
   const handleClick = () => {
     if (!canMessage) {
       setMembershipOpen(true)
-    } else if (!canReceiveMessages) {
-      setUnavailableOpen(true)
     } else {
       openDM(memberId, name, avatarUrl)
     }
@@ -57,18 +52,6 @@ export default function MessageMemberButton({
           options={[{ label: 'VIP Membership', icon: '👥', embedUrl: ZEFFY.membership }]}
         />
       )}
-      {unavailableOpen && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true" aria-labelledby="message-unavailable-title">
-          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#11131a] p-6 text-white shadow-2xl">
-            <h2 id="message-unavailable-title" className="text-lg font-semibold">Messaging unavailable</h2>
-            <p className="mt-2 text-sm text-white/60">Messaging is not available for this profile yet.</p>
-            <button type="button" onClick={() => setUnavailableOpen(false)} className="mt-5 w-full rounded-xl bg-[#5d00f5] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#7b33ff]">
-              Close
-            </button>
-          </div>
-        </div>
-      )}
     </>
   )
 }
-

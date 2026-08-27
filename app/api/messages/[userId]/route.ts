@@ -4,12 +4,13 @@ import { db } from '@/lib/db'
 import { directMessages, userProfiles, users } from '@/lib/schema'
 import { and, or, eq, asc, isNull } from 'drizzle-orm'
 import { pusherServer, dmChannelName } from '@/lib/pusher'
-import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
+import { getMemberProfile, getUserTier, hasVipCommunityAccess } from '@/lib/members'
 import {
   createNotification,
   markDirectMessageNotificationsRead,
 } from '@/lib/notifications'
 import { sendDirectMessageEmail } from '@/lib/direct-message-email'
+import { getPendingConversation, queuePendingDirectMessage } from '@/lib/pending-direct-messages'
 
 async function getAuthorizedUserId(): Promise<string | null> {
   const user = await currentUser()
@@ -25,6 +26,23 @@ export async function GET(_req: NextRequest, { params }: { params: { userId: str
   const otherId = params.userId
 
   try {
+    if (otherId.startsWith('pending-') || otherId.startsWith('pending:')) {
+      const pendingMember = await getMemberProfile(otherId)
+      if (!pendingMember?.isPending) {
+        return NextResponse.json({ error: 'Member not found' }, { status: 404 })
+      }
+      const queued = await getPendingConversation(myId, pendingMember.email)
+      return NextResponse.json(queued.map((message) => ({
+        id: message.id,
+        fromUserId: message.fromUserId,
+        toUserId: otherId,
+        content: message.content,
+        readAt: null,
+        createdAt: message.createdAt,
+        pending: true,
+      })))
+    }
+
     await db
       .update(directMessages)
       .set({ readAt: new Date() })
@@ -60,19 +78,49 @@ export async function POST(req: NextRequest, { params }: { params: { userId: str
   const toUserId = params.userId
   const { content } = await req.json() as { content?: string }
   if (!content?.trim()) return NextResponse.json({ error: 'Empty message' }, { status: 400 })
+  if (content.trim().length > 5_000) return NextResponse.json({ error: 'Message is too long' }, { status: 400 })
 
   try {
+    const senderProfile = await db.query.userProfiles.findFirst({
+      where: eq(userProfiles.userId, myId),
+    })
+    const fromName   = senderProfile?.displayName ?? 'A HySky Connect member'
+    const fromAvatar = senderProfile?.avatarUrl   ?? null
+
+    if (toUserId.startsWith('pending-') || toUserId.startsWith('pending:')) {
+      const pendingMember = await getMemberProfile(toUserId)
+      if (!pendingMember?.isPending) {
+        return NextResponse.json({ error: 'Member not found' }, { status: 404 })
+      }
+
+      const queued = await queuePendingDirectMessage({
+        fromUserId: myId,
+        toEmail: pendingMember.email,
+        content: content.trim(),
+      })
+
+      await sendDirectMessageEmail({
+        to: pendingMember.email,
+        senderName: fromName,
+      }).catch((error) => {
+        console.error('[direct-message-email] Failed to notify pending member', error)
+      })
+
+      return NextResponse.json({
+        id: queued.id,
+        fromUserId: queued.fromUserId,
+        toUserId,
+        content: queued.content,
+        readAt: null,
+        createdAt: queued.createdAt,
+        pending: true,
+      })
+    }
+
     const [msg] = await db
       .insert(directMessages)
       .values({ fromUserId: myId, toUserId, content: content.trim() })
       .returning()
-
-    // Fetch sender profile for notification payload
-    const senderProfile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, myId),
-    })
-    const fromName   = senderProfile?.displayName ?? 'Member'
-    const fromAvatar = senderProfile?.avatarUrl   ?? null
 
     await createNotification({
       userId: toUserId,
