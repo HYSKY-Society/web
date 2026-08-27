@@ -156,7 +156,7 @@ function familyName(value: string) {
   return parts.length > 1 ? parts.at(-1)!.replace(/[^a-z0-9]/g, '') : ''
 }
 
-function mergeDuplicateContacts(candidates: SnapshotContact[]): SnapshotContact | null {
+function mergeDuplicateContacts(candidates: SnapshotContact[], preferred?: SnapshotContact): SnapshotContact | null {
   if (candidates.length === 0) return null
   if (candidates.length === 1) return candidates[0]
 
@@ -167,12 +167,9 @@ function mergeDuplicateContacts(candidates: SnapshotContact[]): SnapshotContact 
     contact.accountId,
     contact.accountName,
     contact.jobTitle,
-    contact.city,
-    contact.state,
-    contact.country,
     ...contact.phoneNumbers,
   ].filter(Boolean).length
-  const primary = [...candidates].sort((a, b) => score(b) - score(a))[0]
+  const primary = preferred ?? [...candidates].sort((a, b) => score(b) - score(a))[0]
   const locationSource = [...candidates].sort((a, b) =>
     [b.city, b.state, b.country].filter(Boolean).length - [a.city, a.state, a.country].filter(Boolean).length,
   )[0]
@@ -294,7 +291,9 @@ export async function importZohoSnapshot(value: unknown) {
   }
 
   const contactForEmail = (email: string) => {
-    const direct = contactsByEmail.get(email.trim().toLowerCase()) ?? []
+    const direct = [...new Map(
+      (contactsByEmail.get(email.trim().toLowerCase()) ?? []).map((contact) => [contact.id, contact]),
+    ).values()]
     const connected = new Map(direct.map((contact) => [contact.id, contact]))
     for (const contact of direct) {
       for (const relatedEmail of contact.emails) {
@@ -303,7 +302,9 @@ export async function importZohoSnapshot(value: unknown) {
         }
       }
     }
-    return mergeDuplicateContacts([...connected.values()])
+    const exactSingleEmail = direct.filter((contact) => contact.emails.length === 1)
+    const preferred = direct.length === 1 ? direct[0] : exactSingleEmail.length === 1 ? exactSingleEmail[0] : undefined
+    return mergeDuplicateContacts([...connected.values()], preferred)
   }
 
   let matched = 0
