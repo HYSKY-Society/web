@@ -151,6 +151,42 @@ function cleanStringArray(value: unknown): string[] {
   ).values()]
 }
 
+function familyName(value: string) {
+  const parts = value.trim().toLowerCase().split(/\s+/).filter(Boolean)
+  return parts.length > 1 ? parts.at(-1)!.replace(/[^a-z0-9]/g, '') : ''
+}
+
+function mergeDuplicateContacts(candidates: SnapshotContact[]): SnapshotContact | null {
+  if (candidates.length === 0) return null
+  if (candidates.length === 1) return candidates[0]
+
+  const familyNames = new Set(candidates.map((contact) => familyName(contact.name)).filter(Boolean))
+  if (familyNames.size !== 1 || candidates.some((contact) => !familyName(contact.name))) return null
+
+  const score = (contact: SnapshotContact) => [
+    contact.accountId,
+    contact.accountName,
+    contact.jobTitle,
+    contact.city,
+    contact.state,
+    contact.country,
+    ...contact.phoneNumbers,
+  ].filter(Boolean).length
+  const primary = [...candidates].sort((a, b) => score(b) - score(a))[0]
+  const locationSource = [...candidates].sort((a, b) =>
+    [b.city, b.state, b.country].filter(Boolean).length - [a.city, a.state, a.country].filter(Boolean).length,
+  )[0]
+
+  return {
+    ...primary,
+    emails: [...new Set(candidates.flatMap((contact) => contact.emails))],
+    phoneNumbers: [...new Set(candidates.flatMap((contact) => contact.phoneNumbers))],
+    city: locationSource.city ?? candidates.find((contact) => contact.city)?.city ?? null,
+    state: locationSource.state ?? candidates.find((contact) => contact.state)?.state ?? null,
+    country: locationSource.country ?? candidates.find((contact) => contact.country)?.country ?? null,
+  }
+}
+
 function parseSnapshot(value: unknown): ZohoSnapshot {
   if (!value || typeof value !== 'object') throw new Error('This is not a valid Zoho snapshot.')
   const candidate = value as Partial<ZohoSnapshot>
@@ -257,6 +293,19 @@ export async function importZohoSnapshot(value: unknown) {
     }
   }
 
+  const contactForEmail = (email: string) => {
+    const direct = contactsByEmail.get(email.trim().toLowerCase()) ?? []
+    const connected = new Map(direct.map((contact) => [contact.id, contact]))
+    for (const contact of direct) {
+      for (const relatedEmail of contact.emails) {
+        for (const related of contactsByEmail.get(relatedEmail.toLowerCase()) ?? []) {
+          connected.set(related.id, related)
+        }
+      }
+    }
+    return mergeDuplicateContacts([...connected.values()])
+  }
+
   let matched = 0
   let unmatched = 0
   let ambiguous = 0
@@ -267,19 +316,17 @@ export async function importZohoSnapshot(value: unknown) {
   const pendingRows: Array<typeof zohoPendingProfileDetails.$inferInsert> = []
 
   for (const connectUser of connectUsers) {
-    const candidates = [...new Map(
-      (contactsByEmail.get(connectUser.email.trim().toLowerCase()) ?? []).map((contact) => [contact.id, contact]),
-    ).values()]
-    if (candidates.length === 0) {
+    const directCandidates = contactsByEmail.get(connectUser.email.trim().toLowerCase()) ?? []
+    if (directCandidates.length === 0) {
       unmatched += 1
       continue
     }
-    if (candidates.length > 1) {
+    const contact = contactForEmail(connectUser.email)
+    if (!contact) {
       ambiguous += 1
       continue
     }
 
-    const contact = candidates[0]
     const account = contact.accountId ? accountsById.get(contact.accountId) : undefined
     rows.push({
       userId: connectUser.id,
@@ -306,19 +353,17 @@ export async function importZohoSnapshot(value: unknown) {
 
   for (const pendingMember of pendingMembers) {
     const normalizedEmail = pendingMember.email.trim().toLowerCase()
-    const candidates = [...new Map(
-      (contactsByEmail.get(normalizedEmail) ?? []).map((contact) => [contact.id, contact]),
-    ).values()]
-    if (candidates.length === 0) {
+    const directCandidates = contactsByEmail.get(normalizedEmail) ?? []
+    if (directCandidates.length === 0) {
       pendingUnmatched += 1
       continue
     }
-    if (candidates.length > 1) {
+    const contact = contactForEmail(normalizedEmail)
+    if (!contact) {
       pendingAmbiguous += 1
       continue
     }
 
-    const contact = candidates[0]
     const account = contact.accountId ? accountsById.get(contact.accountId) : undefined
     pendingRows.push({
       email: normalizedEmail,
