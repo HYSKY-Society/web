@@ -4,10 +4,10 @@ import Image from 'next/image'
 
 export default function SignInPage() {
   return (
-    <main className="min-h-screen bg-[#04080F] flex flex-col items-center justify-center p-4">
+    <main className="section-dark min-h-screen bg-[#04080F] flex flex-col items-center justify-center p-4">
       <Link href="/" className="mb-8 text-center group flex flex-col items-center">
         <Image src="/logo-white.png" alt="HySky Society" height={44} width={150} className="object-contain" />
-        <p className="text-white/35 text-sm mt-2 group-hover:text-white/50 transition-colors">
+        <p className="text-[#aaa6c2] text-sm mt-2 group-hover:text-[#d8d5e6] transition-colors">
           Member Portal
         </p>
       </Link>
@@ -24,16 +24,22 @@ export default function SignInPage() {
           },
           elements: {
             card: 'shadow-2xl shadow-black/50 border border-white/10',
-            headerTitle: 'text-white',
-            headerSubtitle: 'text-white/50',
-            socialButtonsBlockButton: 'border-white/20 text-white hover:bg-white/10',
-            socialButtonsBlockButtonText: 'text-white/80',
+            headerTitle: 'text-[#f8f7ff]',
+            headerSubtitle: 'text-[#bbb7cf]',
+            socialButtonsBlockButton: 'border-white/20 bg-white/[0.03] text-[#f8f7ff] hover:bg-white/10',
+            socialButtonsBlockButtonText: 'text-[#f8f7ff]',
             dividerLine: 'bg-white/10',
-            dividerText: 'text-white/30',
-            formButtonPrimary: 'bg-[#5d00f5] hover:bg-[#4a00c4]',
+            dividerText: 'text-[#aaa6c2]',
+            formButtonPrimary: 'bg-[#5d00f5] text-white hover:bg-[#4a00c4]',
+            footerActionText: 'text-[#bbb7cf]',
             footerActionLink: 'text-[#00D4D4] hover:text-[#33FFFF]',
-            identityPreviewText: 'text-white/70',
-            formFieldLabel: 'text-white/60',
+            identityPreviewText: 'text-[#e4e1ee]',
+            formFieldLabel: 'text-[#ddd9e8]',
+            formFieldInput: 'text-[#f8f7ff] placeholder:text-[#9893bd]',
+            formFieldInputShowPasswordButton: 'text-[#bbb7cf]',
+            formFieldAction: 'text-[#00D4D4] hover:text-[#33FFFF]',
+            formResendCodeLink: 'text-[#00D4D4] hover:text-[#33FFFF]',
+            alternativeMethodsBlockButton: 'border-white/20 text-[#f8f7ff] hover:bg-white/10',
           },
         }}
       />
