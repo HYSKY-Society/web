@@ -38,7 +38,7 @@ export default async function AdminPage() {
     <div className="text-white max-w-3xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-1.5">Admin</h1>
-        <p className="text-white/40 text-sm">Manage members, tiers, and discount codes.</p>
+        <p className="text-white/40 text-sm">Manage members, companies, tiers, and discount codes.</p>
       </div>
 
       {/* Sub-nav */}
