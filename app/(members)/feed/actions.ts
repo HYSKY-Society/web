@@ -1,9 +1,9 @@
 'use server'
 import { currentUser } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { feedPosts, feedPostLikes, feedPostReplies, notifications, userProfiles } from '@/lib/schema'
+import { feedPosts, feedPostLikes, feedPostReplies, notifications, userProfiles, users, pendingTiers } from '@/lib/schema'
 import { createNotification, notifyNewPost, removeNotification } from '@/lib/notifications'
-import { eq, and, inArray, sql } from 'drizzle-orm'
+import { eq, and, inArray, sql, ne, or, notInArray } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
 import { isFeedModerator } from '@/lib/admin'
@@ -25,7 +25,23 @@ export async function createPost(formData: FormData) {
 
   const content = (formData.get('content') as string | null)?.trim() ?? ''
   const imageUrls = (formData.get('imageUrls') as string | null) ?? '[]'
-  if (!content && imageUrls === '[]') return
+
+  // Parse file attachments (PDF, DOC, etc.)
+  let attachments: { url: string; name: string; type: string }[] = []
+  try {
+    const parsed = JSON.parse((formData.get('attachmentUrls') as string | null) ?? '[]')
+    if (Array.isArray(parsed)) {
+      attachments = parsed
+        .filter((a): a is { url: string; name: string; type: string } =>
+          a && typeof a.url === 'string' && typeof a.name === 'string' && typeof a.type === 'string'
+        )
+        .slice(0, 5)
+    }
+  } catch {
+    attachments = []
+  }
+
+  if (!content && imageUrls === '[]' && attachments.length === 0) return
   if (content.length > 3000) return
 
   let requestedMentionIds: string[] = []
@@ -59,6 +75,7 @@ export async function createPost(formData: FormData) {
   const metadata = [
     linkPreview ? `⁣hysky-link-preview:${encodeURIComponent(JSON.stringify(linkPreview))}` : null,
     mentions.length ? `⁣hysky-mentions:${encodeURIComponent(JSON.stringify(mentions))}` : null,
+    attachments.length ? `⁣hysky-files:${encodeURIComponent(JSON.stringify(attachments))}` : null,
   ].filter(Boolean)
   const storedContent = metadata.length ? `${content}\n${metadata.join('\n')}` : content
 
@@ -125,7 +142,7 @@ export async function deleteReply(replyId: string): Promise<{ deleted: boolean }
   await db.delete(feedPostReplies).where(eq(feedPostReplies.id, replyId))
   await db.update(feedPosts)
     .set({ replyCount: sql`greatest(${feedPosts.replyCount} - 1, 0)` })
-    .where(eq(feedPosts.id, reply.postId))
+    .where(eq(feedPostReplies.postId, reply.postId))
   await db.delete(notifications).where(and(
     eq(notifications.type, 'reply'),
     eq(notifications.entityId, reply.postId),
@@ -181,34 +198,51 @@ export async function createReply(postId: string, content: string, requestedMent
   const trimmed = content.trim()
   if (!trimmed || trimmed.length > 1000) return
 
-  const canTagMembers = await canPublish(user)
-  const uniqueMentionIds = canTagMembers
-    ? [...new Set(requestedMentionIds.filter((id): id is string => typeof id === 'string'))]
-        .filter((id) => id !== user.id)
-        .slice(0, 20)
-    : []
-  const mentionCandidates = uniqueMentionIds.length
+  // All logged-in members can tag anyone in replies
+  const uniqueMentionIds = [...new Set(requestedMentionIds.filter((id): id is string => typeof id === 'string'))]
+    .filter((id) => id !== user.id)
+    .slice(0, 20)
+
+  // Look up mention targets in userProfiles (signed-in members)
+  const profileCandidates = uniqueMentionIds.length
     ? await db
         .select({ id: userProfiles.userId, name: userProfiles.displayName })
         .from(userProfiles)
-        .where(and(
-          inArray(userProfiles.userId, uniqueMentionIds),
-          eq(userProfiles.isVisible, true),
-        ))
+        .where(inArray(userProfiles.userId, uniqueMentionIds))
     : []
-  const mentions = mentionCandidates.flatMap((member) =>
+
+  // Also look up pending members (by id stored as email in pendingTiers)
+  const pendingCandidates = uniqueMentionIds.length
+    ? await db
+        .select({ email: pendingTiers.email, name: pendingTiers.name })
+        .from(pendingTiers)
+        .where(inArray(pendingTiers.email, uniqueMentionIds))
+    : []
+
+  const mentions = profileCandidates.flatMap((member) =>
     member.name && trimmed.includes(`@${member.name}`)
       ? [{ id: member.id, name: member.name }]
       : []
   )
+  const pendingMentions = pendingCandidates.flatMap((member) =>
+    member.name && trimmed.includes(`@${member.name}`)
+      ? [{ id: member.email, name: member.name, email: member.email }]
+      : []
+  )
+
   const storedContent = mentions.length
     ? `${trimmed}\n⁣hysky-mentions:${encodeURIComponent(JSON.stringify(mentions))}`
     : trimmed
 
-  const [post] = await db.select({ authorId: feedPosts.authorId })
+  const [post] = await db.select({ authorId: feedPosts.authorId, content: feedPosts.content })
     .from(feedPosts)
     .where(eq(feedPosts.id, postId))
     .limit(1)
+
+  // Extract a short preview of the original post for email notifications
+  const postPreview = post
+    ? post.content.split('\n')[0].replace(/⁣hysky-[a-z-]+:[^\n]+/g, '').trim().split(/\s+/).slice(0, 5).join(' ')
+    : ''
 
   const [reply] = await db.insert(feedPostReplies)
     .values({ postId, authorId: user.id, content: storedContent })
@@ -216,6 +250,8 @@ export async function createReply(postId: string, content: string, requestedMent
   await db.update(feedPosts)
     .set({ replyCount: sql`${feedPosts.replyCount} + 1` })
     .where(eq(feedPosts.id, postId))
+
+  // In-app notifications for signed-in members tagged in the reply
   await Promise.all(mentions.map((member) =>
     createNotification({
       userId: member.id,
@@ -225,9 +261,33 @@ export async function createReply(postId: string, content: string, requestedMent
       href: `/feed#post-${postId}`,
     }).catch(() => {})
   ))
+
+  // Email notifications for pending members (haven't signed in yet)
+  if (pendingMentions.length && process.env.RESEND_API_KEY) {
+    const actorName = user.firstName ?? user.username ?? 'A member'
+    await Promise.all(pendingMentions.map(async (member) => {
+      try {
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: process.env.RESEND_FROM ?? 'HySky Connect <noreply@hy-sky.net>',
+            to: member.email,
+            subject: `${actorName} tagged you in a post`,
+            html: `<p>Hi ${member.name ?? 'there'},</p><p><strong>${actorName}</strong> tagged you in a reply on HySky Connect.</p>${postPreview ? `<p>Post: <em>"${postPreview}…"</em></p>` : ''}<p><a href="${process.env.NEXT_PUBLIC_APP_URL ?? 'https://hy-sky.net'}/feed#post-${postId}">View the conversation →</a></p>`,
+          }),
+        })
+      } catch {
+        // Non-critical — swallow email errors
+      }
+    }))
+  }
+
   if (post && !mentions.some((member) => member.id === post.authorId)) {
     await createNotification({ userId: post.authorId, actorId: user.id, type: 'reply', entityId: postId, href: `/feed#post-${postId}` }).catch(() => {})
   }
   revalidatePath('/feed')
 }
-
