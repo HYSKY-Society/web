@@ -16,12 +16,24 @@ interface Props {
   mentionMembers: MentionMember[]
 }
 
+type Attachment = { url: string; name: string; type: string }
+
+function fileIcon(type: string) {
+  if (type === 'application/pdf') return '📄'
+  if (type.includes('word')) return '📝'
+  if (type.includes('presentation') || type.includes('powerpoint')) return '📊'
+  if (type.includes('sheet') || type.includes('excel') || type === 'text/csv') return '📋'
+  return '📎'
+}
+
 export default function FeedComposer({ avatarUrl, displayName, mentionMembers }: Props) {
   const [content, setContent] = useState('')
   const [images, setImages] = useState<string[]>([])
+  const [attachments, setAttachments] = useState<Attachment[]>([])
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [inputKey, setInputKey] = useState(0)   // remount file input after each pick
+  const [attachKey, setAttachKey] = useState(0) // remount attachment input
   const [mentionedIds, setMentionedIds] = useState<string[]>([])
   const [mentionQuery, setMentionQuery] = useState<string | null>(null)
   const [mentionStart, setMentionStart] = useState<number | null>(null)
@@ -120,7 +132,6 @@ export default function FeedComposer({ avatarUrl, displayName, mentionMembers }:
   // ── Image upload ──────────────────────────────────────────────────────────
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
-    // Remount the input so the same file can be picked again next time
     setInputKey((k) => k + 1)
     if (!files.length) return
     const slots = 4 - images.length
@@ -147,13 +158,42 @@ export default function FeedComposer({ avatarUrl, displayName, mentionMembers }:
     }
   }
 
+  // ── File attachment upload ────────────────────────────────────────────────
+  const handleAttachmentSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? [])
+    setAttachKey((k) => k + 1)
+    if (!files.length) return
+    const slots = 5 - attachments.length
+    if (!slots) return
+    setUploadError(null)
+    setUploading(true)
+    try {
+      for (const file of files.slice(0, slots)) {
+        const fd = new FormData()
+        fd.append('file', file)
+        const res = await fetch('/api/feed/upload', { method: 'POST', body: fd })
+        if (res.ok) {
+          const data = await res.json()
+          setAttachments((prev) => [...prev, { url: data.url, name: data.name ?? file.name, type: data.type ?? file.type }])
+        } else {
+          const body = await res.json().catch(() => ({}))
+          setUploadError(body.error ?? `Upload failed (${res.status})`)
+        }
+      }
+    } catch {
+      setUploadError('Upload failed — check your connection')
+    } finally {
+      setUploading(false)
+    }
+  }
+
   // ── Submit ────────────────────────────────────────────────────────────────
-  // imageUrls come via the hidden <input> element below — React keeps it in sync
   function action(formData: FormData) {
     startTransition(async () => {
       await createPost(formData)
       setContent('')
       setImages([])
+      setAttachments([])
       setMentionedIds([])
       setMentionQuery(null)
       setMentionStart(null)
@@ -162,7 +202,7 @@ export default function FeedComposer({ avatarUrl, displayName, mentionMembers }:
     })
   }
 
-  const canSubmit = (content.trim() || images.length > 0) && !uploading && !isPending && content.length <= MAX
+  const canSubmit = (content.trim() || images.length > 0 || attachments.length > 0) && !uploading && !isPending && content.length <= MAX
 
   return (
     <div
@@ -179,9 +219,10 @@ export default function FeedComposer({ avatarUrl, displayName, mentionMembers }:
         </div>
 
         <form action={action} className="flex-1 flex flex-col gap-2 min-w-0">
-          {/* Hidden input — React keeps value in sync with images state */}
+          {/* Hidden inputs — React keeps values in sync with state */}
           <input type="hidden" name="imageUrls" value={JSON.stringify(images)} />
           <input type="hidden" name="mentionUserIds" value={JSON.stringify(mentionedIds)} />
+          <input type="hidden" name="attachmentUrls" value={JSON.stringify(attachments)} />
 
           {/* Formatting toolbar */}
           <div className="flex items-center gap-0.5">
@@ -238,6 +279,29 @@ export default function FeedComposer({ avatarUrl, displayName, mentionMembers }:
               />
             </label>
 
+            {/* File attachment picker */}
+            <label
+              title={attachments.length >= 5 ? 'Max 5 files' : 'Attach file (PDF, Word, Excel, etc.)'}
+              className={`w-7 h-7 flex items-center justify-center rounded transition-colors cursor-pointer ${
+                attachments.length >= 5
+                  ? 'text-white/20 cursor-not-allowed'
+                  : 'text-white/40 hover:text-white hover:bg-white/8'
+              }`}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
+              </svg>
+              <input
+                key={attachKey}
+                type="file"
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.csv,.txt"
+                multiple
+                disabled={attachments.length >= 5}
+                className="hidden"
+                onChange={handleAttachmentSelect}
+              />
+            </label>
+
             {uploading && (
               <span className="ml-2 text-xs text-white/35 animate-pulse">Uploading…</span>
             )}
@@ -246,7 +310,7 @@ export default function FeedComposer({ avatarUrl, displayName, mentionMembers }:
             )}
           </div>
 
-          {/* Textarea + VIP member tagging */}
+          {/* Textarea + member tagging */}
           <div className="relative">
             <textarea
               ref={textareaRef}
@@ -314,6 +378,30 @@ export default function FeedComposer({ avatarUrl, displayName, mentionMembers }:
                     onClick={() => setImages((prev) => prev.filter((_, j) => j !== i))}
                     className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
                     style={{ background: 'rgba(0,0,0,.55)' }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* File attachment list */}
+          {attachments.length > 0 && (
+            <div className="flex flex-col gap-1.5">
+              {attachments.map((att, i) => (
+                <div
+                  key={att.url}
+                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm"
+                  style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}
+                >
+                  <span className="text-base leading-none shrink-0">{fileIcon(att.type)}</span>
+                  <span className="flex-1 text-white/80 truncate min-w-0">{att.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => setAttachments((prev) => prev.filter((_, j) => j !== i))}
+                    className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs text-white/40 hover:text-white/80 hover:bg-white/10 transition-colors"
+                    aria-label={`Remove ${att.name}`}
                   >
                     ×
                   </button>
