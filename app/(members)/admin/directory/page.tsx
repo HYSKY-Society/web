@@ -16,6 +16,7 @@ import {
 } from '@/lib/schema'
 import { ensureZohoProfileDetailsTable } from '@/lib/zoho-crm'
 import ConfirmDeleteButton from './ConfirmDeleteButton'
+import SaveButton from './SaveButton'
 import { deleteCompany, deletePerson, saveCompany, savePerson } from './actions'
 
 export const dynamic = 'force-dynamic'
@@ -69,7 +70,7 @@ function Area({ label, name, defaultValue = '', rows = 3, placeholder = '' }: {
 export default async function DirectoryAdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; q?: string; person?: string }>
+  searchParams: Promise<{ view?: string; q?: string; person?: string; company?: string; saved?: string }>
 }) {
   const viewer = await currentUser()
   if (!viewer) redirect('/sign-in')
@@ -137,6 +138,8 @@ export default async function DirectoryAdminPage({
   const view = params.view === 'companies' ? 'companies' : 'people'
   const query = params.q?.trim().toLowerCase() ?? ''
   const selectedPerson = params.person?.trim() ?? ''
+  const selectedCompany = params.company?.trim() ?? ''
+  const saved = params.saved === 'person' || params.saved === 'company' ? params.saved : null
   const companyIdFor = (accountId: string | null, accountName: string | null) =>
     accountId ?? companies.find((company) => company.name.toLowerCase() === clean(accountName).toLowerCase())?.id ?? ''
 
@@ -199,6 +202,8 @@ export default async function DirectoryAdminPage({
     : companies
 
   const tabHref = (nextView: 'people' | 'companies') => `/admin/directory?view=${nextView}${query ? `&q=${encodeURIComponent(query)}` : ''}`
+  const personHref = (personKey: string) => `/admin/directory?view=people${query ? `&q=${encodeURIComponent(query)}` : ''}&person=${encodeURIComponent(personKey)}#selected-person`
+  const companyHref = (companyId: string) => `/admin/directory?view=companies${query ? `&q=${encodeURIComponent(query)}` : ''}&company=${encodeURIComponent(companyId)}#selected-company`
 
   return (
     <div className="max-w-5xl text-white">
@@ -224,159 +229,184 @@ export default async function DirectoryAdminPage({
         </form>
       </div>
 
+      {saved && (
+        <div className="mb-4 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">
+          {saved === 'person' ? 'Person saved successfully.' : 'Company saved successfully.'}
+        </div>
+      )}
+
       {view === 'people' ? (
         <div className="space-y-3">
-          {visiblePeople.map((person) => (
-            <details
-              key={`${person.kind}:${person.id}`}
-              id={`${person.kind}:${person.id}` === selectedPerson ? 'selected-person' : undefined}
-              open={`${person.kind}:${person.id}` === selectedPerson}
-              className="group scroll-mt-6 rounded-2xl border border-white/10 bg-white/5"
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="truncate font-semibold">{person.displayName || 'Unnamed member'}</span>
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${person.kind === 'pending' ? 'bg-amber-400/10 text-amber-300' : 'bg-emerald-400/10 text-emerald-300'}`}>
-                      {person.kind === 'pending' ? 'Has not signed in' : 'Active'}
-                    </span>
-                  </div>
-                  <p className="truncate text-xs text-white/40">{person.email}{person.companyName ? ` · ${person.companyName}` : ''}</p>
-                </div>
-                <span className="text-xs text-white/35 group-open:rotate-180">▼</span>
-              </summary>
-              <div className="border-t border-white/8 p-5">
-                <form action={savePerson} className="space-y-5">
-                  <input type="hidden" name="kind" value={person.kind} />
-                  <input type="hidden" name="personId" value={person.id} />
-                  <div className="grid gap-4 md:grid-cols-3">
-                    <Field label="Display name" name="displayName" defaultValue={person.displayName} />
-                    <Field label="Job title" name="jobTitle" defaultValue={person.jobTitle} />
-                    <label className={labelClass}>
-                      <span>Membership</span>
-                      <select className={fieldClass} name="tier" defaultValue={person.tier}>
-                        <option value="free">Free</option>
-                        <option value="member_courses">Courses member</option>
-                        <option value="member_courses_events">Courses + events</option>
-                        <option value="member_full">VIP member</option>
-                      </select>
-                    </label>
-                  </div>
-                  <label className={`${labelClass} block`}>
-                    <span>Company association</span>
-                    <select className={fieldClass} name="companyId" defaultValue={person.companyId}>
-                      <option value="">No company</option>
-                      {companies.map((company) => <option key={company.id} value={company.id}>{company.name}</option>)}
-                    </select>
-                    <span className="block font-normal text-white/30">Changing this moves the person to the selected company and removes empty duplicate companies automatically.</span>
-                  </label>
-
-                  {person.kind === 'active' && (
-                    <>
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <Field label="Headline" name="headline" defaultValue={person.headline} />
-                        <Field label="Public location" name="location" defaultValue={person.location} />
-                      </div>
-                      <Area label="Bio" name="bio" defaultValue={person.bio} />
-                    </>
-                  )}
-
-                  <div className="grid gap-4 md:grid-cols-3">
-                    <Field label="City" name="contactCity" defaultValue={person.contactCity} />
-                    <Field label="State / province" name="contactState" defaultValue={person.contactState} />
-                    <Field label="Country" name="contactCountry" defaultValue={person.contactCountry} />
-                  </div>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <Area label="Additional email addresses" name="emails" defaultValue={person.emails} rows={3} placeholder="One per line" />
-                    <Area label="Phone numbers" name="phoneNumbers" defaultValue={person.phoneNumbers} rows={3} placeholder="One per line" />
-                  </div>
-
-                  {person.kind === 'active' && (
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <Field label="Website" name="website" defaultValue={person.website} type="url" />
-                      <Field label="LinkedIn" name="linkedinUrl" defaultValue={person.linkedinUrl} type="url" />
-                      <Field label="X / Twitter" name="twitterUrl" defaultValue={person.twitterUrl} type="url" />
-                      <Field label="Avatar URL" name="avatarUrl" defaultValue={person.avatarUrl} type="url" />
+          {visiblePeople.map((person) => {
+            const personKey = `${person.kind}:${person.id}`
+            const isSelected = personKey === selectedPerson
+            const returnTo = personHref(personKey).replace('#selected-person', '')
+            return (
+              <article
+                key={personKey}
+                id={isSelected ? 'selected-person' : undefined}
+                className="scroll-mt-6 rounded-2xl border border-white/10 bg-white/5"
+              >
+                <Link href={personHref(personKey)} className="flex items-center justify-between gap-4 px-5 py-4 hover:bg-white/[0.03]">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="truncate font-semibold">{person.displayName || 'Unnamed member'}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${person.kind === 'pending' ? 'bg-amber-400/10 text-amber-300' : 'bg-emerald-400/10 text-emerald-300'}`}>
+                        {person.kind === 'pending' ? 'Has not signed in' : 'Active'}
+                      </span>
                     </div>
-                  )}
-                  {person.kind === 'pending' && <Field label="Avatar URL" name="avatarUrl" defaultValue={person.avatarUrl} type="url" />}
-
-                  {person.kind === 'active' && (
-                    <label className="flex items-center gap-2 text-sm text-white/65">
-                      <input type="checkbox" name="isVisible" defaultChecked={person.isVisible} /> Visible in directory
-                    </label>
-                  )}
-
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/8 pt-4">
-                    <p className="text-xs text-white/30">Primary email: {person.email} {person.kind === 'active' ? '(managed by Clerk)' : ''}</p>
-                    <button type="submit" className="rounded-lg bg-[#5d00f5] px-4 py-2 text-sm font-semibold text-white hover:bg-[#7020ff]">Save person</button>
+                    <p className="truncate text-xs text-white/40">{person.email}{person.companyName ? ` · ${person.companyName}` : ''}</p>
                   </div>
-                </form>
-                <form action={deletePerson} className="mt-3 flex justify-end">
-                  <input type="hidden" name="kind" value={person.kind} />
-                  <input type="hidden" name="personId" value={person.id} />
-                  <ConfirmDeleteButton confirmation={`Delete ${person.displayName || person.email}? This permanently removes ${person.kind === 'active' ? 'their Connect and Clerk account plus all related content' : 'their pending profile and pending messages'}.`}>
-                    Delete person
-                  </ConfirmDeleteButton>
-                </form>
-              </div>
-            </details>
-          ))}
+                  <span className="text-xs text-white/35">{isSelected ? '▲' : 'Edit →'}</span>
+                </Link>
+                {isSelected && (
+                  <div className="border-t border-white/8 p-5">
+                    <form action={savePerson} className="space-y-5">
+                      <input type="hidden" name="kind" value={person.kind} />
+                      <input type="hidden" name="personId" value={person.id} />
+                      <input type="hidden" name="returnTo" value={returnTo} />
+                      <div className="grid gap-4 md:grid-cols-3">
+                        <Field label="Display name" name="displayName" defaultValue={person.displayName} />
+                        <Field label="Job title" name="jobTitle" defaultValue={person.jobTitle} />
+                        <label className={labelClass}>
+                          <span>Membership</span>
+                          <select className={fieldClass} name="tier" defaultValue={person.tier}>
+                            <option value="free">Free</option>
+                            <option value="member_courses">Courses member</option>
+                            <option value="member_courses_events">Courses + events</option>
+                            <option value="member_full">VIP member</option>
+                          </select>
+                        </label>
+                      </div>
+                      <label className={`${labelClass} block`}>
+                        <span>Company association</span>
+                        <select className={fieldClass} name="companyId" defaultValue={person.companyId}>
+                          <option value="">No company</option>
+                          {companies.map((company) => <option key={company.id} value={company.id}>{company.name}</option>)}
+                        </select>
+                        <span className="block font-normal text-white/30">Connect overrides are preserved when Zoho synchronizes.</span>
+                      </label>
+
+                      {person.kind === 'active' && (
+                        <>
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <Field label="Headline" name="headline" defaultValue={person.headline} />
+                            <Field label="Public location" name="location" defaultValue={person.location} />
+                          </div>
+                          <Area label="Bio" name="bio" defaultValue={person.bio} />
+                        </>
+                      )}
+
+                      <div className="grid gap-4 md:grid-cols-3">
+                        <Field label="City" name="contactCity" defaultValue={person.contactCity} />
+                        <Field label="State / province" name="contactState" defaultValue={person.contactState} />
+                        <Field label="Country" name="contactCountry" defaultValue={person.contactCountry} />
+                      </div>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <Area label="Additional email addresses" name="emails" defaultValue={person.emails} rows={3} placeholder="One per line" />
+                        <Area label="Phone numbers" name="phoneNumbers" defaultValue={person.phoneNumbers} rows={3} placeholder="One per line" />
+                      </div>
+
+                      {person.kind === 'active' && (
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <Field label="Website" name="website" defaultValue={person.website} type="url" />
+                          <Field label="LinkedIn" name="linkedinUrl" defaultValue={person.linkedinUrl} type="url" />
+                          <Field label="X / Twitter" name="twitterUrl" defaultValue={person.twitterUrl} type="url" />
+                          <Field label="Avatar URL" name="avatarUrl" defaultValue={person.avatarUrl} type="url" />
+                        </div>
+                      )}
+                      {person.kind === 'pending' && <Field label="Avatar URL" name="avatarUrl" defaultValue={person.avatarUrl} type="url" />}
+
+                      {person.kind === 'active' && (
+                        <label className="flex items-center gap-2 text-sm text-white/65">
+                          <input type="checkbox" name="isVisible" defaultChecked={person.isVisible} /> Visible in directory
+                        </label>
+                      )}
+
+                      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/8 pt-4">
+                        <p className="text-xs text-white/30">Primary email: {person.email} {person.kind === 'active' ? '(managed by Clerk)' : ''}</p>
+                        <SaveButton>Save person</SaveButton>
+                      </div>
+                    </form>
+                    <form action={deletePerson} className="mt-3 flex justify-end">
+                      <input type="hidden" name="kind" value={person.kind} />
+                      <input type="hidden" name="personId" value={person.id} />
+                      <ConfirmDeleteButton confirmation={`Delete ${person.displayName || person.email}? This permanently removes ${person.kind === 'active' ? 'their Connect and Clerk account plus all related content' : 'their pending profile and pending messages'}.`}>
+                        Delete person
+                      </ConfirmDeleteButton>
+                    </form>
+                  </div>
+                )}
+              </article>
+            )
+          })}
           {visiblePeople.length === 0 && <p className="rounded-2xl border border-white/10 bg-white/5 p-10 text-center text-sm text-white/40">No people match that search.</p>}
         </div>
       ) : (
         <div className="space-y-3">
-          {visibleCompanies.map((company) => (
-            <details key={company.id} className="group rounded-2xl border border-white/10 bg-white/5">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4">
-                <div>
-                  <p className="font-semibold">{company.name}</p>
-                  <p className="text-xs text-white/40">{company.contacts.length} associated contact{company.contacts.length === 1 ? '' : 's'}</p>
-                </div>
-                <span className="text-xs text-white/35 group-open:rotate-180">▼</span>
-              </summary>
-              <div className="border-t border-white/8 p-5">
-                <form action={saveCompany} className="space-y-4">
-                  <input type="hidden" name="companyId" value={company.id} />
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <Field label="Company name" name="name" defaultValue={company.name} />
-                    <Field label="Industry / category" name="category" defaultValue={company.category} />
-                    <Field label="Website" name="website" defaultValue={company.website} />
-                    <div className="grid grid-cols-3 gap-2">
-                      <Field label="City" name="city" defaultValue={company.city} />
-                      <Field label="State" name="state" defaultValue={company.state} />
-                      <Field label="Country" name="country" defaultValue={company.country} />
-                    </div>
-                  </div>
-                  <Area label="What we do" name="summary" defaultValue={company.summary} rows={4} />
+          {visibleCompanies.map((company) => {
+            const isSelected = company.id === selectedCompany
+            const returnTo = companyHref(company.id).replace('#selected-company', '')
+            return (
+              <article
+                key={company.id}
+                id={isSelected ? 'selected-company' : undefined}
+                className="scroll-mt-6 rounded-2xl border border-white/10 bg-white/5"
+              >
+                <Link href={companyHref(company.id)} className="flex items-center justify-between gap-4 px-5 py-4 hover:bg-white/[0.03]">
                   <div>
-                    <p className="mb-2 text-xs font-semibold text-white/45">Associated people</p>
-                    <div className="flex flex-wrap gap-2">
-                      {company.contacts.map((contact) => (
-                        <Link
-                          key={contact.memberId}
-                          href={`/admin/directory?view=people&person=${encodeURIComponent(`${contact.isPending ? 'pending' : 'active'}:${contact.isPending ? contact.emails[0] : contact.memberId}`)}#selected-person`}
-                          className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/60 transition-colors hover:border-[#13dce8]/40 hover:bg-[#13dce8]/10 hover:text-[#8ff7ff]"
-                          title={`Edit ${contact.name}`}
-                        >
-                          {contact.name}
-                        </Link>
-                      ))}
-                    </div>
+                    <p className="font-semibold">{company.name}</p>
+                    <p className="text-xs text-white/40">{company.contacts.length} associated contact{company.contacts.length === 1 ? '' : 's'}</p>
                   </div>
-                  <div className="flex justify-end border-t border-white/8 pt-4">
-                    <button type="submit" className="rounded-lg bg-[#5d00f5] px-4 py-2 text-sm font-semibold text-white hover:bg-[#7020ff]">Save company</button>
+                  <span className="text-xs text-white/35">{isSelected ? '▲' : 'Edit →'}</span>
+                </Link>
+                {isSelected && (
+                  <div className="border-t border-white/8 p-5">
+                    <form action={saveCompany} className="space-y-4">
+                      <input type="hidden" name="companyId" value={company.id} />
+                      <input type="hidden" name="returnTo" value={returnTo} />
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <Field label="Company name" name="name" defaultValue={company.name} />
+                        <Field label="Industry / category" name="category" defaultValue={company.category} />
+                        <Field label="Website" name="website" defaultValue={company.website} />
+                        <div className="grid grid-cols-3 gap-2">
+                          <Field label="City" name="city" defaultValue={company.city} />
+                          <Field label="State" name="state" defaultValue={company.state} />
+                          <Field label="Country" name="country" defaultValue={company.country} />
+                        </div>
+                      </div>
+                      <Area label="What we do" name="summary" defaultValue={company.summary} rows={4} />
+                      <p className="text-xs text-white/30">Connect values on this form are treated as manual overrides and are preserved when Zoho synchronizes.</p>
+                      <div>
+                        <p className="mb-2 text-xs font-semibold text-white/45">Associated people</p>
+                        <div className="flex flex-wrap gap-2">
+                          {company.contacts.map((contact) => (
+                            <Link
+                              key={contact.memberId}
+                              href={`/admin/directory?view=people&person=${encodeURIComponent(`${contact.isPending ? 'pending' : 'active'}:${contact.isPending ? contact.emails[0] : contact.memberId}`)}#selected-person`}
+                              className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/60 transition-colors hover:border-[#13dce8]/40 hover:bg-[#13dce8]/10 hover:text-[#8ff7ff]"
+                              title={`Edit ${contact.name}`}
+                            >
+                              {contact.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex justify-end border-t border-white/8 pt-4">
+                        <SaveButton>Save company</SaveButton>
+                      </div>
+                    </form>
+                    <form action={deleteCompany} className="mt-3 flex justify-end">
+                      <input type="hidden" name="companyId" value={company.id} />
+                      <ConfirmDeleteButton confirmation={`Delete ${company.name}? Its ${company.contacts.length} associated contact${company.contacts.length === 1 ? '' : 's'} will be detached but not deleted.`}>
+                        Delete company
+                      </ConfirmDeleteButton>
+                    </form>
                   </div>
-                </form>
-                <form action={deleteCompany} className="mt-3 flex justify-end">
-                  <input type="hidden" name="companyId" value={company.id} />
-                  <ConfirmDeleteButton confirmation={`Delete ${company.name}? Its ${company.contacts.length} associated contact${company.contacts.length === 1 ? '' : 's'} will be detached but not deleted.`}>
-                    Delete company
-                  </ConfirmDeleteButton>
-                </form>
-              </div>
-            </details>
-          ))}
+                )}
+              </article>
+            )
+          })}
           {visibleCompanies.length === 0 && <p className="rounded-2xl border border-white/10 bg-white/5 p-10 text-center text-sm text-white/40">No companies match that search.</p>}
         </div>
       )}

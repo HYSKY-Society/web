@@ -3,6 +3,7 @@
 import { clerkClient, currentUser } from '@clerk/nextjs/server'
 import { eq, inArray } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { isDirectoryAdmin } from '@/lib/admin'
 import { getCompanyDirectory } from '@/lib/company-directory'
@@ -61,6 +62,14 @@ function refreshDirectory() {
   revalidatePath('/admin/directory')
   revalidatePath('/members')
   revalidatePath('/companies')
+}
+
+function savedRedirect(formData: FormData, kind: 'person' | 'company') {
+  const returnTo = value(formData, 'returnTo')
+  if (!returnTo.startsWith('/admin/directory?') || /[\r\n]/.test(returnTo)) return
+  const url = new URL(returnTo, 'https://connect.hysky.org')
+  url.searchParams.set('saved', kind)
+  redirect(`${url.pathname}${url.search}`)
 }
 
 export async function savePerson(formData: FormData) {
@@ -226,6 +235,7 @@ export async function savePerson(formData: FormData) {
   }
 
   refreshDirectory()
+  savedRedirect(formData, 'person')
 }
 
 function companyMatch(company: { id: string; name: string }, row: { accountId: string | null; accountName: string | null }) {
@@ -282,6 +292,7 @@ export async function saveCompany(formData: FormData) {
     await db.update(zohoPendingProfileDetails).set(companyData).where(inArray(zohoPendingProfileDetails.email, emails))
   }
   refreshDirectory()
+  savedRedirect(formData, 'company')
 }
 
 export async function deleteCompany(formData: FormData) {

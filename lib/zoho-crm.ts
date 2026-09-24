@@ -18,7 +18,7 @@ export type ZohoProfileData = {
   syncedAt: Date
 }
 
-type SnapshotContact = {
+export type SnapshotContact = {
   id: string
   name: string
   emails: string[]
@@ -31,7 +31,7 @@ type SnapshotContact = {
   country: string | null
 }
 
-type SnapshotAccount = {
+export type SnapshotAccount = {
   id: string
   name: string | null
   website: string | null
@@ -42,7 +42,7 @@ type SnapshotAccount = {
   country: string | null
 }
 
-type ZohoSnapshot = {
+export type ZohoSnapshot = {
   version: 1
   generatedAt: string
   contacts: SnapshotContact[]
