@@ -54,8 +54,11 @@ type MentionRef = {
 
 const MENTION_METADATA = /\n\u2063hysky-mentions:([^\n]+)/
 const LINK_PREVIEW_METADATA = /\n\u2063hysky-link-preview:([^\n]+)/
+const FILE_METADATA = /\n\u2063hysky-files:([^\n]+)/
 
-function parsePostMetadata(text: string): { visibleText: string; mentions: MentionRef[]; linkPreview: LinkPreviewData | null } {
+type FileAttachment = { url: string; name: string; type: string }
+
+function parsePostMetadata(text: string): { visibleText: string; mentions: MentionRef[]; linkPreview: LinkPreviewData | null; files: FileAttachment[] } {
   const mentionMatch = text.match(MENTION_METADATA)
   const previewMatch = text.match(LINK_PREVIEW_METADATA)
   let mentions: MentionRef[] = []
@@ -86,10 +89,24 @@ function parsePostMetadata(text: string): { visibleText: string; mentions: Menti
       }
     }
   } catch {}
+  let files: FileAttachment[] = []
+  try {
+    const fileMatch = text.match(FILE_METADATA)
+    const parsedFiles = fileMatch ? JSON.parse(decodeURIComponent(fileMatch[1])) as unknown : []
+    files = Array.isArray(parsedFiles)
+      ? parsedFiles.filter((value): value is FileAttachment =>
+          !!value && typeof value === 'object' &&
+          typeof (value as FileAttachment).url === 'string' &&
+          typeof (value as FileAttachment).name === 'string' &&
+          typeof (value as FileAttachment).type === 'string'
+        )
+      : []
+  } catch {}
   return {
-    visibleText: text.replace(LINK_PREVIEW_METADATA, '').replace(MENTION_METADATA, '').trimEnd(),
+    visibleText: text.replace(FILE_METADATA, '').replace(LINK_PREVIEW_METADATA, '').replace(MENTION_METADATA, '').trimEnd(),
     mentions,
     linkPreview,
+    files,
   }
 }
 
@@ -199,7 +216,41 @@ function LinkPreview({ text }: { text: string }) {
   )
 }
 
-// ── Image gallery ────────────────────────────────────────────────────────────
+// ── File attachment list ─────────────────────────────────────────────────────
+
+function fileAttachmentIcon(type: string): string {
+  if (type === 'application/pdf') return '📄'
+  if (type.includes('word')) return '📝'
+  if (type.includes('presentation') || type.includes('powerpoint')) return '📊'
+  if (type.includes('sheet') || type.includes('excel') || type === 'text/csv') return '📋'
+  return '📎'
+}
+
+function FileAttachmentList({ files }: { files: { url: string; name: string; type: string }[] }) {
+  if (!files.length) return null
+  return (
+    <div className="flex flex-col gap-1.5 mt-2 mb-1">
+      {files.map((file) => (
+        <a
+          key={file.url}
+          href={file.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-white/6"
+          style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}
+        >
+          <span className="text-base leading-none shrink-0">{fileAttachmentIcon(file.type)}</span>
+          <span className="flex-1 text-white/80 truncate min-w-0 hover:text-white transition-colors">{file.name}</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-white/30">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+        </a>
+      ))}
+    </div>
+  )
+}
+
+// ── Image gallery ─────────────────────────────────────────────────────────────
 
 function ImageGallery({ urls }: { urls: string[] }) {
   if (!urls.length) return null
@@ -473,6 +524,7 @@ export default function FeedPostCard({
       <RichContent text={displayPost.content} />
       <LinkPreview text={displayPost.content} />
       <ImageGallery urls={displayPost.imageUrls} />
+      <FileAttachmentList files={parsePostMetadata(displayPost.content).files} />
 
       {/* Divider */}
       <div className="mt-3 mb-3" style={{ borderTop: '1px solid var(--border-muted)' }} />
@@ -555,7 +607,7 @@ export default function FeedPostCard({
         <ReplyComposer
           postId={post.id}
           mentionMembers={mentionMembers}
-          canTagMembers={canUseVipCommunity}
+          canTagMembers={true}
           onComplete={() => setShowReplyForm(false)}
         />
       )}

@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import {
   feedPosts, feedPostLikes, feedPostReplies,
-  userProfiles, users, hyskySessions,
+  userProfiles, users, hyskySessions, pendingTiers,
 } from '@/lib/schema'
 import { eq, desc, asc, inArray, and, gte, ne, or, notInArray } from 'drizzle-orm'
 import Link from 'next/link'
@@ -185,32 +185,49 @@ export default async function FeedPage() {
     getRecentBlogPosts(14, 5),
   ])
 
-  const rawMentionMembers = canUseVipCommunity
-    ? await db
-        .select({
-          id: userProfiles.userId,
-          name: userProfiles.displayName,
-          avatarUrl: userProfiles.avatarUrl,
-          headline: userProfiles.headline,
-        })
-        .from(userProfiles)
-        .innerJoin(users, eq(userProfiles.userId, users.id))
-        .where(and(
-          ne(userProfiles.userId, clerkUser.id),
-          or(
-            notInArray(users.email, getAdminEmails()),
-            eq(userProfiles.isVisible, true),
-          ),
-        ))
-        .orderBy(asc(userProfiles.displayName))
-        .limit(1000)
-    : []
+  // Fetch all signed-in members for mention autocomplete (all logged-in members can tag)
+  const [rawMentionMembers, rawPendingMembers] = await Promise.all([
+    db
+      .select({
+        id: userProfiles.userId,
+        name: userProfiles.displayName,
+        avatarUrl: userProfiles.avatarUrl,
+        headline: userProfiles.headline,
+      })
+      .from(userProfiles)
+      .innerJoin(users, eq(userProfiles.userId, users.id))
+      .where(and(
+        ne(userProfiles.userId, clerkUser.id),
+        or(
+          notInArray(users.email, getAdminEmails()),
+          eq(userProfiles.isVisible, true),
+        ),
+      ))
+      .orderBy(asc(userProfiles.displayName))
+      .limit(1000),
+    // Also include pending members (haven't signed in yet) so they can be tagged and emailed
+    db
+      .select({
+        email: pendingTiers.email,
+        name: pendingTiers.name,
+        avatarUrl: pendingTiers.avatarUrl,
+      })
+      .from(pendingTiers)
+      .limit(500),
+  ])
 
-  const mentionMembers = rawMentionMembers.flatMap((member) =>
+  const signedInMentionMembers = rawMentionMembers.flatMap((member) =>
     member.name
       ? [{ id: member.id, name: member.name, avatarUrl: member.avatarUrl, headline: member.headline }]
       : []
   )
+  // Pending members use their email as id so the server action can look them up by email
+  const pendingMentionMembers = rawPendingMembers.flatMap((member) =>
+    member.name && member.email !== clerkUser.emailAddresses.find(e => e.id === clerkUser.primaryEmailAddressId)?.emailAddress
+      ? [{ id: member.email, name: member.name, avatarUrl: member.avatarUrl ?? null, headline: null }]
+      : []
+  )
+  const mentionMembers = [...signedInMentionMembers, ...pendingMentionMembers]
 
   // Liked post IDs set
   const likedIds = new Set(myLikesRes.map((l) => l.postId))
