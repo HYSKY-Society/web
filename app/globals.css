@@ -169,6 +169,33 @@ body {
   color: #000000 !important;
 }
 
+/* Keep admin status/accent text readable on both theme surfaces. */
+.admin-cyan-text,
+.admin-contact-link:hover {
+  color: #8ff7ff;
+}
+
+.admin-pending-text {
+  color: #fcd34d;
+}
+
+.admin-active-text {
+  color: #6ee7b7;
+}
+
+[data-theme='light'] .admin-cyan-text,
+[data-theme='light'] .admin-contact-link:hover {
+  color: #075985 !important;
+}
+
+[data-theme='light'] .admin-pending-text {
+  color: #92400e !important;
+}
+
+[data-theme='light'] .admin-active-text {
+  color: #047857 !important;
+}
+
 /* The admin invitation dialog intentionally uses the dark design in both themes. */
 [data-theme='light'] .invite-user-modal {
   background: #0b0b13 !important;

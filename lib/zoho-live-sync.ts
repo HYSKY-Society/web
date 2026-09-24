@@ -13,6 +13,9 @@ type ZohoRecord = Record<string, unknown> & { id: string }
 
 let accessTokenCache: { token: string; apiDomain: string; expiresAt: number } | null = null
 let fieldCache: Promise<{ emailFields: string[]; phoneFields: string[]; whatWeDoField: string | null }> | null = null
+let blockedAccountCache: { ids: Set<string>; expiresAt: number } | null = null
+
+const BLOCKED_ZOHO_EMAILS = new Set(['daniellemclean1@gmail.com'])
 
 function requiredEnv(name: string) {
   const value = process.env[name]?.trim()
@@ -26,6 +29,10 @@ function clean(value: unknown): string | null {
 
 function uniqueStrings(values: Array<string | null>) {
   return [...new Map(values.filter((value): value is string => Boolean(value)).map((value) => [value.toLowerCase(), value])).values()]
+}
+
+function isBlockedContact(contact: { emails: string[] }) {
+  return contact.emails.some((email) => BLOCKED_ZOHO_EMAILS.has(email.trim().toLowerCase()))
 }
 
 function lookup(value: unknown) {
@@ -151,6 +158,21 @@ async function getRecord(module: 'Contacts' | 'Accounts', recordId: string, requ
 const contactBaseFields = ['id', 'Full_Name', 'First_Name', 'Last_Name', 'Account_Name', 'Title', 'Mailing_City', 'Mailing_State', 'Mailing_Country']
 const accountBaseFields = ['id', 'Account_Name', 'Website', 'Description', 'Industry', 'Billing_City', 'Billing_State', 'Billing_Country']
 
+async function blockedZohoAccountIds(metadata: Awaited<ReturnType<typeof fields>>) {
+  if (blockedAccountCache && blockedAccountCache.expiresAt > Date.now()) return blockedAccountCache.ids
+
+  const records = await getRecords('Contacts', ['id', 'Account_Name', ...metadata.emailFields])
+  const ids = new Set(
+    records
+      .map((record) => contactFromRecord(record, metadata.emailFields, []))
+      .filter(isBlockedContact)
+      .map((contact) => contact.accountId)
+      .filter((accountId): accountId is string => Boolean(accountId)),
+  )
+  blockedAccountCache = { ids, expiresAt: Date.now() + 10 * 60 * 1000 }
+  return ids
+}
+
 export async function fetchZohoSnapshot(): Promise<ZohoSnapshot> {
   const metadata = await fields()
   const [contacts, accounts] = await Promise.all([
@@ -158,11 +180,24 @@ export async function fetchZohoSnapshot(): Promise<ZohoSnapshot> {
     getRecords('Accounts', [...accountBaseFields, ...(metadata.whatWeDoField ? [metadata.whatWeDoField] : [])]),
   ])
 
+  const parsedContacts = contacts.map((record) => contactFromRecord(record, metadata.emailFields, metadata.phoneFields))
+  const blockedAccountIds = new Set(
+    parsedContacts
+      .filter(isBlockedContact)
+      .map((contact) => contact.accountId)
+      .filter((accountId): accountId is string => Boolean(accountId)),
+  )
+  blockedAccountCache = { ids: blockedAccountIds, expiresAt: Date.now() + 10 * 60 * 1000 }
+
   return {
     version: 1,
     generatedAt: new Date().toISOString(),
-    contacts: contacts.map((record) => contactFromRecord(record, metadata.emailFields, metadata.phoneFields)),
-    accounts: accounts.map((record) => accountFromRecord(record, metadata.whatWeDoField)),
+    contacts: parsedContacts.filter(
+      (contact) => !isBlockedContact(contact) && !blockedAccountIds.has(contact.accountId ?? ''),
+    ),
+    accounts: accounts
+      .map((record) => accountFromRecord(record, metadata.whatWeDoField))
+      .filter((account) => !blockedAccountIds.has(account.id)),
   }
 }
 
@@ -175,8 +210,10 @@ export async function syncZohoRecord(moduleName: string, recordId: string) {
   await ensureZohoProfileDetailsTable()
   const module = moduleName.toLowerCase()
   const metadata = await fields()
+  const blockedAccountIds = await blockedZohoAccountIds(metadata)
 
   if (module === 'accounts' || module === 'account') {
+    if (blockedAccountIds.has(recordId)) return { module: 'Accounts', recordId, ignored: true, updated: 0 }
     const record = await getRecord('Accounts', recordId, [...accountBaseFields, ...(metadata.whatWeDoField ? [metadata.whatWeDoField] : [])])
     const account = accountFromRecord(record, metadata.whatWeDoField)
     const values = {
@@ -200,6 +237,9 @@ export async function syncZohoRecord(moduleName: string, recordId: string) {
 
   const record = await getRecord('Contacts', recordId, [...contactBaseFields, ...metadata.emailFields, ...metadata.phoneFields])
   const contact = contactFromRecord(record, metadata.emailFields, metadata.phoneFields)
+  if (isBlockedContact(contact) || (contact.accountId && blockedAccountIds.has(contact.accountId))) {
+    return { module: 'Contacts', recordId, ignored: true, updated: 0 }
+  }
   const accountRecord = contact.accountId
     ? await getRecord('Accounts', contact.accountId, [...accountBaseFields, ...(metadata.whatWeDoField ? [metadata.whatWeDoField] : [])])
     : null

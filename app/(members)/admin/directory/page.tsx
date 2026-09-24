@@ -213,7 +213,7 @@ export default async function DirectoryAdminPage({
           <h1 className="text-3xl font-bold">Directory Management</h1>
           <p className="mt-1 text-sm text-white/45">Danielle-only controls for people, companies, and company associations.</p>
         </div>
-        <div className="rounded-xl border border-[#13dce8]/20 bg-[#13dce8]/8 px-4 py-3 text-xs text-[#8ff7ff]">
+        <div className="admin-cyan-text rounded-xl border border-[#13dce8]/20 bg-[#13dce8]/8 px-4 py-3 text-xs">
           {people.length} people · {companies.length} companies
         </div>
       </div>
@@ -251,7 +251,7 @@ export default async function DirectoryAdminPage({
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="truncate font-semibold">{person.displayName || 'Unnamed member'}</span>
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${person.kind === 'pending' ? 'bg-amber-400/10 text-amber-300' : 'bg-emerald-400/10 text-emerald-300'}`}>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${person.kind === 'pending' ? 'admin-pending-text bg-amber-400/10' : 'admin-active-text bg-emerald-400/10'}`}>
                         {person.kind === 'pending' ? 'Has not signed in' : 'Active'}
                       </span>
                     </div>
@@ -384,7 +384,7 @@ export default async function DirectoryAdminPage({
                             <Link
                               key={contact.memberId}
                               href={`/admin/directory?view=people&person=${encodeURIComponent(`${contact.isPending ? 'pending' : 'active'}:${contact.isPending ? contact.emails[0] : contact.memberId}`)}#selected-person`}
-                              className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/60 transition-colors hover:border-[#13dce8]/40 hover:bg-[#13dce8]/10 hover:text-[#8ff7ff]"
+                              className="admin-contact-link rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/60 transition-colors hover:border-[#13dce8]/40 hover:bg-[#13dce8]/10"
                               title={`Edit ${contact.name}`}
                             >
                               {contact.name}
