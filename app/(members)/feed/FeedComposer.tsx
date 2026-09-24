@@ -2,6 +2,7 @@
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createPost } from './actions'
+import { upload } from '@vercel/blob/client'
 
 export type MentionMember = {
   id: string
@@ -130,6 +131,8 @@ export default function FeedComposer({ avatarUrl, displayName, mentionMembers }:
   }
 
   // ── Image upload ──────────────────────────────────────────────────────────
+  // Uploaded directly from the browser to Blob storage (bypasses the ~4.5MB
+  // serverless function body limit, which caused 413s on real files).
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
     setInputKey((k) => k + 1)
@@ -140,15 +143,16 @@ export default function FeedComposer({ avatarUrl, displayName, mentionMembers }:
     setUploading(true)
     try {
       for (const file of files.slice(0, slots)) {
-        const fd = new FormData()
-        fd.append('file', file)
-        const res = await fetch('/api/feed/upload', { method: 'POST', body: fd })
-        if (res.ok) {
-          const { url } = await res.json()
-          setImages((prev) => [...prev, url])
-        } else {
-          const body = await res.json().catch(() => ({}))
-          setUploadError(body.error ?? `Upload failed (${res.status})`)
+        try {
+          const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').substring(0, 80)
+          const blob = await upload(`feed/${Date.now()}_${safeName}`, file, {
+            access: 'public',
+            handleUploadUrl: '/api/feed/upload',
+            clientPayload: JSON.stringify({ kind: 'image' }),
+          })
+          setImages((prev) => [...prev, blob.url])
+        } catch (err) {
+          setUploadError(err instanceof Error ? err.message : 'Upload failed')
         }
       }
     } catch {
@@ -159,6 +163,8 @@ export default function FeedComposer({ avatarUrl, displayName, mentionMembers }:
   }
 
   // ── File attachment upload ────────────────────────────────────────────────
+  // Uploaded directly from the browser to Blob storage (bypasses the ~4.5MB
+  // serverless function body limit, which caused 413s on real files).
   const handleAttachmentSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
     setAttachKey((k) => k + 1)
@@ -169,15 +175,16 @@ export default function FeedComposer({ avatarUrl, displayName, mentionMembers }:
     setUploading(true)
     try {
       for (const file of files.slice(0, slots)) {
-        const fd = new FormData()
-        fd.append('file', file)
-        const res = await fetch('/api/feed/upload', { method: 'POST', body: fd })
-        if (res.ok) {
-          const data = await res.json()
-          setAttachments((prev) => [...prev, { url: data.url, name: data.name ?? file.name, type: data.type ?? file.type }])
-        } else {
-          const body = await res.json().catch(() => ({}))
-          setUploadError(body.error ?? `Upload failed (${res.status})`)
+        try {
+          const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').substring(0, 80)
+          const blob = await upload(`feed/${Date.now()}_${safeName}`, file, {
+            access: 'public',
+            handleUploadUrl: '/api/feed/upload',
+            clientPayload: JSON.stringify({ kind: 'file' }),
+          })
+          setAttachments((prev) => [...prev, { url: blob.url, name: file.name, type: file.type || blob.contentType }])
+        } catch (err) {
+          setUploadError(err instanceof Error ? err.message : 'Upload failed')
         }
       }
     } catch {
