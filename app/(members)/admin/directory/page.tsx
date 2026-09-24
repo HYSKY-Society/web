@@ -69,7 +69,7 @@ function Area({ label, name, defaultValue = '', rows = 3, placeholder = '' }: {
 export default async function DirectoryAdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; q?: string }>
+  searchParams: Promise<{ view?: string; q?: string; person?: string }>
 }) {
   const viewer = await currentUser()
   if (!viewer) redirect('/sign-in')
@@ -136,6 +136,7 @@ export default async function DirectoryAdminPage({
   const params = await searchParams
   const view = params.view === 'companies' ? 'companies' : 'people'
   const query = params.q?.trim().toLowerCase() ?? ''
+  const selectedPerson = params.person?.trim() ?? ''
   const companyIdFor = (accountId: string | null, accountName: string | null) =>
     accountId ?? companies.find((company) => company.name.toLowerCase() === clean(accountName).toLowerCase())?.id ?? ''
 
@@ -226,7 +227,12 @@ export default async function DirectoryAdminPage({
       {view === 'people' ? (
         <div className="space-y-3">
           {visiblePeople.map((person) => (
-            <details key={`${person.kind}:${person.id}`} className="group rounded-2xl border border-white/10 bg-white/5">
+            <details
+              key={`${person.kind}:${person.id}`}
+              id={`${person.kind}:${person.id}` === selectedPerson ? 'selected-person' : undefined}
+              open={`${person.kind}:${person.id}` === selectedPerson}
+              className="group scroll-mt-6 rounded-2xl border border-white/10 bg-white/5"
+            >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
@@ -347,7 +353,14 @@ export default async function DirectoryAdminPage({
                     <p className="mb-2 text-xs font-semibold text-white/45">Associated people</p>
                     <div className="flex flex-wrap gap-2">
                       {company.contacts.map((contact) => (
-                        <span key={contact.memberId} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/60">{contact.name}</span>
+                        <Link
+                          key={contact.memberId}
+                          href={`/admin/directory?view=people&person=${encodeURIComponent(`${contact.isPending ? 'pending' : 'active'}:${contact.isPending ? contact.emails[0] : contact.memberId}`)}#selected-person`}
+                          className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/60 transition-colors hover:border-[#13dce8]/40 hover:bg-[#13dce8]/10 hover:text-[#8ff7ff]"
+                          title={`Edit ${contact.name}`}
+                        >
+                          {contact.name}
+                        </Link>
                       ))}
                     </div>
                   </div>
