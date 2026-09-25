@@ -56,14 +56,14 @@ export async function createPost(formData: FormData) {
     requestedMentionIds = []
   }
 
+  // Note: tagging is an explicit action distinct from directory visibility, so we
+  // do NOT filter by isVisible here — doing so previously caused tagged members
+  // who had hidden their profile from the directory to silently get no notification.
   const mentionCandidates = requestedMentionIds.length
     ? await db
         .select({ id: userProfiles.userId, name: userProfiles.displayName })
         .from(userProfiles)
-        .where(and(
-          inArray(userProfiles.userId, requestedMentionIds),
-          eq(userProfiles.isVisible, true),
-        ))
+        .where(inArray(userProfiles.userId, requestedMentionIds))
     : []
 
   const mentions = mentionCandidates.flatMap((member) =>
@@ -94,6 +94,52 @@ export async function createPost(formData: FormData) {
   ))
   await notifyNewPost(user.id, post.id, mentions.map((member) => member.id)).catch(() => {})
   revalidatePath('/feed')
+}
+
+// Members submit these via the "Create event" button in the composer (VIP only).
+// Stored as a feed post carrying hidden \u2063hysky-event: metadata so it needs no schema
+// migration — the homefeed queries for this marker and renders matches in the
+// "Member Events" sidebar instead of the main feed.
+export async function createMemberEvent(input: {
+  title: string
+  date: string
+  link: string
+  description: string
+  imageUrl?: string
+}): Promise<{ ok: true; id: string } | { error: string }> {
+  const user = await currentUser()
+  if (!user) return { error: 'You must be signed in to create an event' }
+  if (!await canPublish(user)) return { error: 'VIP Connect is required to create an event' }
+
+  const title = input.title.trim()
+  const link = input.link.trim()
+  const description = input.description.trim()
+  const imageUrl = (input.imageUrl ?? '').trim()
+
+  if (!title) return { error: 'Title is required' }
+  if (title.length > 140) return { error: 'Title is too long' }
+  if (description.length > 500) return { error: 'Description is too long' }
+  if (link && !/^https?:\/\//i.test(link)) return { error: 'Link must start with http:// or https://' }
+  if (imageUrl && !/^https?:\/\//i.test(imageUrl)) return { error: 'Image failed to upload \u2014 please try again' }
+
+  const eventDate = new Date(input.date)
+  if (Number.isNaN(eventDate.getTime())) return { error: 'Please choose a valid date' }
+
+  const metadata = `\u2063hysky-event:${encodeURIComponent(JSON.stringify({
+    title,
+    date: eventDate.toISOString(),
+    link: link || null,
+    image: imageUrl || null,
+  }))}`
+  const visibleText = description || title
+  const storedContent = `${visibleText}\n${metadata}`
+
+  const [post] = await db.insert(feedPosts)
+    .values({ authorId: user.id, content: storedContent, imageUrls: imageUrl ? JSON.stringify([imageUrl]) : '[]' })
+    .returning({ id: feedPosts.id })
+
+  revalidatePath('/feed')
+  return { ok: true, id: post.id }
 }
 
 export async function deletePost(postId: string): Promise<{ deleted: boolean }> {
