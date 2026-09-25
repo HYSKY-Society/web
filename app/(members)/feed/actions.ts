@@ -148,6 +148,66 @@ export async function createMemberEvent(input: {
   return { ok: true, id: post.id }
 }
 
+// Lets the original author reopen the create-event form pre-filled with the
+// event's current details and overwrite the same post — rather than creating
+// a duplicate event post, this replaces the existing ⁣hysky-event: metadata
+// (and visible description text / image) on that row in place.
+export async function editMemberEvent(postId: string, input: {
+  title: string
+  date: string
+  location: string
+  link: string
+  description: string
+  imageUrl?: string
+}): Promise<{ ok: true } | { error: string }> {
+  const user = await currentUser()
+  if (!user) return { error: 'You must be signed in to edit an event' }
+
+  const [existing] = await db
+    .select({ authorId: feedPosts.authorId, content: feedPosts.content })
+    .from(feedPosts)
+    .where(eq(feedPosts.id, postId))
+    .limit(1)
+  if (!existing) return { error: 'Event not found' }
+  if (existing.authorId !== user.id) return { error: 'You can only edit your own events' }
+  if (!/\n⁣hysky-event:/.test(existing.content)) return { error: 'This post is not an event' }
+
+  const title = input.title.trim()
+  const location = input.location.trim()
+  const link = input.link.trim()
+  const description = input.description.trim()
+  const imageUrl = (input.imageUrl ?? '').trim()
+
+  if (!title) return { error: 'Title is required' }
+  if (title.length > 140) return { error: 'Title is too long' }
+  if (!location) return { error: 'Location is required' }
+  if (location.length > 140) return { error: 'Location is too long' }
+  if (description.length > 500) return { error: 'Description is too long' }
+  if (!link) return { error: 'Link is required' }
+  if (!/^https?:\/\//i.test(link)) return { error: 'Link must start with http:// or https://' }
+  if (imageUrl && !/^https?:\/\//i.test(imageUrl)) return { error: 'Image failed to upload — please try again' }
+
+  const eventDate = new Date(input.date)
+  if (Number.isNaN(eventDate.getTime())) return { error: 'Please choose a valid date' }
+
+  const metadata = `⁣hysky-event:${encodeURIComponent(JSON.stringify({
+    title,
+    date: eventDate.toISOString(),
+    location,
+    link: link || null,
+    image: imageUrl || null,
+  }))}`
+  const visibleText = description || title
+  const storedContent = `${visibleText}\n${metadata}`
+
+  await db.update(feedPosts)
+    .set({ content: storedContent, imageUrls: imageUrl ? JSON.stringify([imageUrl]) : '[]' })
+    .where(eq(feedPosts.id, postId))
+
+  revalidatePath('/feed')
+  return { ok: true }
+}
+
 // Lets the original author fix a typo or mistake after the fact. Only the
 // post's own author can edit it — moderators still use deletePost for
 // removing content outright. Reposts and event posts (which carry their own
