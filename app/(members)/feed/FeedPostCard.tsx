@@ -2,7 +2,7 @@
 import { Fragment, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { toggleLike, deletePost, deleteReply } from './actions'
+import { toggleLike, deletePost, deleteReply, editPost } from './actions'
 import { useChatCtx } from '@/app/components/ChatProvider'
 import ReplyComposer from './ReplyComposer'
 import type { MentionMember } from './FeedComposer'
@@ -494,11 +494,13 @@ export default function FeedPostCard({
   canUseVipCommunity,
   canModerate,
   mentionMembers,
+  currentUserId,
 }: {
   post: PostData
   canUseVipCommunity: boolean
   canModerate: boolean
   mentionMembers: MentionMember[]
+  currentUserId: string
 }) {
   const [liked, setLiked] = useState(post.isLiked)
   const [likeCount, setLikeCount] = useState(post.likeCount)
@@ -507,11 +509,17 @@ export default function FeedPostCard({
   const [likePending, startLike] = useTransition()
   const [deletePending, startDelete] = useTransition()
   const [copied, setCopied] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editText, setEditText] = useState('')
+  const [editError, setEditError] = useState<string | null>(null)
+  const [editPending, startEdit] = useTransition()
   const router = useRouter()
 
   const isRepost = !!post.repostOfId
   const displayPost = isRepost && post.originalPost ? post.originalPost : post
   const displayAuthor = displayPost.author
+  const eventMeta = parseEventMetadata(displayPost.content)
+  const canEdit = !isRepost && !eventMeta && displayAuthor.id === currentUserId
 
   const handleLike = () => {
     startLike(async () => {
@@ -545,6 +553,31 @@ export default function FeedPostCard({
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const handleStartEdit = () => {
+    const { visibleText } = parsePostMetadata(displayPost.content)
+    setEditText(visibleText)
+    setEditError(null)
+    setIsEditing(true)
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditing(false)
+    setEditError(null)
+  }
+
+  const handleSaveEdit = () => {
+    setEditError(null)
+    startEdit(async () => {
+      const result = await editPost(post.id, editText)
+      if ('error' in result) {
+        setEditError(result.error)
+        return
+      }
+      setIsEditing(false)
+      router.refresh()
+    })
+  }
+
   return (
     <article
       id={`post-${post.id}`}
@@ -574,6 +607,16 @@ export default function FeedPostCard({
           </div>
           <span className="text-xs text-white/30">{timeAgo(displayPost.createdAt)}</span>
         </div>
+        {canEdit && !isEditing && (
+          <button
+            type="button"
+            onClick={handleStartEdit}
+            className="shrink-0 rounded-lg px-2 py-1 text-xs font-medium text-white/45 transition-colors hover:bg-white/8 hover:text-white"
+            aria-label="Edit post"
+          >
+            Edit
+          </button>
+        )}
         {canModerate && (
           <button
             type="button"
@@ -589,10 +632,46 @@ export default function FeedPostCard({
 
       {/* Content + images */}
       {(() => {
-        const eventMeta = parseEventMetadata(displayPost.content)
         if (eventMeta) {
           const { visibleText } = parsePostMetadata(displayPost.content)
           return <EventCard event={eventMeta} description={visibleText === eventMeta.title ? '' : visibleText} />
+        }
+        if (isEditing) {
+          return (
+            <div>
+              <textarea
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                maxLength={3000}
+                rows={4}
+                autoFocus
+                className="w-full resize-none rounded-lg px-3 py-2 text-sm text-white/85 focus:outline-none focus:ring-1 focus:ring-[#5d00f5]/60"
+                style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}
+              />
+              {editError && <p className="mt-1 text-xs text-red-400">{editError}</p>}
+              <div className="mt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  disabled={editPending}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-white/50 hover:text-white transition-colors disabled:opacity-40"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveEdit}
+                  disabled={editPending || !editText.trim()}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#5d00f5] hover:bg-[#7b33ff] transition-colors disabled:opacity-40"
+                  style={{ color: '#fff' }}
+                >
+                  {editPending ? 'Saving…' : 'Save'}
+                </button>
+              </div>
+              <ImageGallery urls={displayPost.imageUrls} />
+              <FileAttachmentList files={parsePostMetadata(displayPost.content).files} />
+            </div>
+          )
         }
         return (
           <>
