@@ -443,29 +443,109 @@ Participants will gain clarity on the roles of NASA, FAA, DOE, DOT, DoD, and Con
     accentLight: '#9b6dff',
     highlights: [
       { icon: '⏱️', label: 'Duration', value: '5 Weeks' },
-      { icon: '🕐', label: 'Total Hours', value: '20 Hours' },
+      { icon: '🕐', label: 'Total Hours', value: '22 Hours' },
       { icon: '💻', label: 'Format', value: 'Online' },
-      { icon: '📅', label: 'Dates', value: 'Sep 22 – Oct 22, 2026' },
+      { icon: '📅', label: 'Dates', value: 'Oct 20 – Nov 20, 2026' },
     ],
     keyFeatures: [
       'Joint AIAA and HySky Society online short course',
       'Covers sustainable aviation fuels, hydrogen, and hybrid-electric aircraft design',
       'Includes certification, safety, and airport infrastructure',
-      'Tuesdays and Thursdays, 1:00 – 3:00 PM ET',
+      '11 live, two-hour sessions — mostly Tuesdays & Thursdays, 12:00 – 2:00 PM CT',
     ],
-    overview: 'This five-week online course connects sustainable aviation fuel strategy with practical aircraft design, certification, safety, hydrogen, hybrid-electric propulsion, and airport infrastructure considerations.',
-    objectives: [],
+    overview: 'This advanced short course treats sustainable aviation fuels (SAF) as an integrated aircraft, propulsion, airport, supply-chain, certification, and sustainability challenge. Participants connect fuel chemistry and combustion evidence to aircraft design, operability, materials compatibility, infrastructure, life-cycle assessment, and multi-criteria decision making — building a practical framework for evaluating SAF, hydrogen, batteries, and hybrid-electric architectures across performance, payload range, durability, lifecycle climate impact, economics, and technology risk.',
+    objectives: [
+      'Explain how SAF composition and properties affect combustion, operability, emissions, durability, and fuel efficiency',
+      'Quantify fuel and energy-carrier effects on aircraft sizing, payload-range performance, and propulsion-system integration',
+      'Evaluate material compatibility, fuel-system architecture, certification pathways, supply chains, and airport infrastructure',
+      'Apply conceptual design and multi-criteria methods to fuel-aware aircraft and operations decisions',
+      'Interpret life-cycle assessment, carbon-intensity, sustainability certification, and chain-of-custody requirements',
+    ],
     audience: [
-      'Aerospace engineers and aircraft designers',
-      'Sustainable aviation and propulsion professionals',
-      'Certification, safety, and airport infrastructure specialists',
+      'Aerospace and propulsion engineers, SAF producers, and fuel-system specialists',
+      'Airport and airline operations teams',
+      'Sustainability and life-cycle assessment (LCA) professionals',
+      'Certification and policy leaders, researchers, and advanced students',
     ],
     fees: [
       { label: 'Registration', price: 'See AIAA course page' },
     ],
-    outline: [],
-    instructors: [],
-    ceus: 'See AIAA course page',
+    outline: [
+      {
+        title: 'Module 1 — SAF Combustion, Engine Integration & Fuel Efficiency',
+        points: [
+          'Tue, Oct 20 — SAF Combustion Fundamentals, Fuel Efficiency and Experimental Evidence (Dr. Swapnil Jagtap)',
+          'Thu, Oct 22 — Engine Integration, Operability, Fuel Efficiency and Non-CO₂ Impacts (Randall Boehm)',
+        ],
+      },
+      {
+        title: 'Module 2 — Fuel-Driven Aircraft & Propulsion Design',
+        points: [
+          'Tue, Oct 27 — Fuel-Driven Constraints and Fuel Efficiency in Aircraft & Propulsion System Design (Dr. Swapnil Jagtap)',
+          'Thu, Oct 29 — Hybrid-Electric Regional Aircraft Case Study, Fuel Efficiency and Design Trades (Dr. Matthew Clarke)',
+        ],
+      },
+      {
+        title: 'Module 3 — Fuel Properties & Certification',
+        points: [
+          'Tue, Nov 3 — Fuel Properties, Materials Behaviour and System-Level Implications (Dr. Bhupendra Khandelwal)',
+          'Thu, Nov 5 — Design & Certification of SAF-Compatible Fuel Systems',
+        ],
+      },
+      {
+        title: 'Module 4 — Supply Chains & Airport Infrastructure',
+        points: [
+          'Tue, Nov 10 — SAF Supply Chains, Production Pathways and Blending Infrastructure (Dr. Bhupendra Khandelwal)',
+          'Thu, Nov 12 — Airport Integration, Turnaround Operations and Cross-Border Considerations (Dr. Jasenka Rakas)',
+        ],
+      },
+      {
+        title: 'Module 5 — Design Tools & Capstone Project',
+        points: [
+          'Tue, Nov 17 — Tools and Methods for Fuel-Aware Aircraft Design',
+          'Thu, Nov 19 — Fuel–Aircraft–Operations Co-Design Project (Dr. Bhupendra Khandelwal)',
+        ],
+      },
+      {
+        title: 'Module 6 — Sustainability & Life-Cycle Assessment',
+        points: [
+          'Fri, Nov 20 — Sustainability, Life-Cycle Assessment & Calculating the Carbon Intensity of Fuels (Dr. Eva Maleviti)',
+        ],
+      },
+    ],
+    instructors: [
+      {
+        name: 'Dr. Swapnil Jagtap',
+        role: 'Assistant Professor, Low Carbon Propulsion Systems; Founding Director, FlyCLean Laboratory, University of Manchester',
+        bio: 'Low-carbon propulsion, hydrogen aircraft, and model-based systems engineering.',
+      },
+      {
+        name: 'Dr. Randall Boehm',
+        role: 'Associate Research Professor, BSEL, Washington State University Tri-Cities; 20+ years at GE Aviation',
+        bio: 'Gas-turbine combustion, fuel-nozzle design, and alternative fuels.',
+      },
+      {
+        name: 'Dr. Matthew Clarke',
+        role: 'Assistant Professor, University of Illinois Urbana-Champaign; Director, Laboratory for Electric Aircraft Design and Sustainability',
+        bio: 'Aeroacoustics, physics-AI, and hybrid-electric propulsion.',
+      },
+      {
+        name: 'Dr. Bhupendra Khandelwal',
+        role: 'Associate Professor, The University of Alabama; Fellow, Royal Aeronautical Society',
+        bio: 'Propulsion, thermodynamics, SAF combustion, emissions, and zero-emission technologies.',
+      },
+      {
+        name: 'Dr. Jasenka Rakas',
+        role: 'Senior Continuing Lecturer, UC Berkeley; Deputy Director, NEXTOR',
+        bio: 'Airport systems, airspace capacity, communications reliability, and aviation operations research.',
+      },
+      {
+        name: 'Dr. Eva Maleviti',
+        role: 'Assistant Professor and MS Program Coordinator, Embry-Riddle Aeronautical University',
+        bio: 'Aviation sustainability, ICAO CORSIA, EU ETS, ESG, certification, and MRO.',
+      },
+    ],
+    ceus: '22 classroom hours',
   },
   {
     slug: 'advanced-hydrogen-aerospace-technologies-and-design',
