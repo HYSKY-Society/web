@@ -82,16 +82,17 @@ export default function CreateEventModal({ isOpen, onClose }: Props) {
     >
       <div
         className="relative w-full max-w-md rounded-2xl p-5"
-        style={{ background: '#09090f', border: '1px solid rgba(255,255,255,.12)' }}
+        style={{ background: '#fff', border: '1px solid #000' }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-white font-semibold text-base">Create an event</h2>
+          <h2 className="font-semibold text-base" style={{ color: '#000' }}>Create an event</h2>
           <button
             type="button"
             onClick={handleClose}
             aria-label="Close"
-            className="text-white/50 hover:text-white text-sm transition-colors"
+            className="text-sm transition-colors hover:opacity-70"
+            style={{ color: '#666' }}
           >
             Close ×
           </button>
@@ -99,22 +100,22 @@ export default function CreateEventModal({ isOpen, onClose }: Props) {
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="block text-xs text-white/50 mb-1">Event title *</label>
+            <label className="block text-xs mb-1" style={{ color: '#666' }}>Event title *</label>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={140}
               required
               placeholder="HySky Chapter Meetup"
-              className="w-full rounded-lg px-3 py-2 text-sm text-white placeholder-white/25 focus:outline-none focus:ring-1 focus:ring-[#5d00f5]/60"
-              style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}
+              className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#5d00f5]/60"
+              style={{ background: '#fff', border: '1px solid #ccc', color: '#000' }}
             />
           </div>
 
           <div>
-            <label className="block text-xs text-white/50 mb-1">Event image (optional)</label>
+            <label className="block text-xs mb-1" style={{ color: '#666' }}>Event image (optional)</label>
             {imageUrl ? (
-              <div className="relative rounded-lg overflow-hidden" style={{ border: '1px solid var(--border-muted)' }}>
+              <div className="relative rounded-lg overflow-hidden" style={{ border: '1px solid #ccc' }}>
                 <img src={imageUrl} alt="" className="w-full h-32 object-cover" />
                 <button
                   type="button"
@@ -126,7 +127,10 @@ export default function CreateEventModal({ isOpen, onClose }: Props) {
                 </button>
               </div>
             ) : (
-              <label className="flex items-center justify-center h-16 rounded-lg text-xs text-white/40 hover:text-white/60 cursor-pointer transition-colors" style={{ background: 'var(--surface-subtle)', border: '1px dashed var(--border-muted)' }}>
+              <label
+                className="flex items-center justify-center h-16 rounded-lg text-xs cursor-pointer transition-colors hover:opacity-70"
+                style={{ background: '#f5f5f5', border: '1px dashed #ccc', color: '#666' }}
+              >
                 {uploadingImage ? 'Uploading…' : 'Click to upload an image'}
                 <input
                   ref={imageInputRef}
@@ -141,57 +145,58 @@ export default function CreateEventModal({ isOpen, onClose }: Props) {
           </div>
 
           <div>
-            <label className="block text-xs text-white/50 mb-1">Date & time *</label>
+            <label className="block text-xs mb-1" style={{ color: '#666' }}>Date & time *</label>
             <input
               type="datetime-local"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               required
-              className="w-full rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#5d00f5]/60"
-              style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)', colorScheme: 'dark' }}
+              className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#5d00f5]/60"
+              style={{ background: '#fff', border: '1px solid #ccc', color: '#000', colorScheme: 'light' }}
             />
           </div>
 
           <div>
-            <label className="block text-xs text-white/50 mb-1">Link (optional)</label>
+            <label className="block text-xs mb-1" style={{ color: '#666' }}>Link (optional)</label>
             <input
               type="url"
               value={link}
               onChange={(e) => setLink(e.target.value)}
               placeholder="https://…"
-              className="w-full rounded-lg px-3 py-2 text-sm text-white placeholder-white/25 focus:outline-none focus:ring-1 focus:ring-[#5d00f5]/60"
-              style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}
+              className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#5d00f5]/60"
+              style={{ background: '#fff', border: '1px solid #ccc', color: '#000' }}
             />
           </div>
 
           <div>
-            <label className="block text-xs text-white/50 mb-1">Description (optional)</label>
+            <label className="block text-xs mb-1" style={{ color: '#666' }}>Description (optional)</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               maxLength={500}
               placeholder="What's happening at this event?"
-              className="w-full resize-none rounded-lg px-3 py-2 text-sm text-white placeholder-white/25 focus:outline-none focus:ring-1 focus:ring-[#5d00f5]/60"
-              style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-muted)' }}
+              className="w-full resize-none rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#5d00f5]/60"
+              style={{ background: '#fff', border: '1px solid #ccc', color: '#000' }}
             />
           </div>
 
-          {error && <p className="text-xs text-red-400">{error}</p>}
+          {error && <p className="text-xs" style={{ color: '#c0392b' }}>{error}</p>}
 
           <div className="flex justify-end gap-2 pt-1">
             <button
               type="button"
               onClick={handleClose}
-              className="px-3 py-1.5 rounded-lg text-sm text-white/60 hover:text-white transition-colors"
+              className="px-3 py-1.5 rounded-lg text-sm transition-colors hover:opacity-70"
+              style={{ color: '#666' }}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isPending || uploadingImage || !title.trim() || !date}
-              className="px-4 py-1.5 rounded-lg text-sm font-semibold bg-[#5d00f5] hover:bg-[#7b33ff] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-              style={{ color: '#fff' }}
+              className="px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ background: '#fff', border: '1px solid #000', color: '#000' }}
             >
               {isPending ? 'Creating…' : 'Create event'}
             </button>
