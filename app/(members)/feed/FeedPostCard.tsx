@@ -249,7 +249,7 @@ function EventCard({ event, description }: { event: EventMeta; description: stri
   return (
     <div className="mt-3 mb-1 rounded-xl overflow-hidden" style={{ background: '#fff' }}>
       {event.image && (
-        <div className="w-full overflow-hidden bg-white">
+        <div className="w-full overflow-hidden" style={{ background: '#fff' }}>
           <img src={event.image} alt="" className="w-full h-auto block" />
         </div>
       )}
