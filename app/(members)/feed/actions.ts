@@ -97,12 +97,13 @@ export async function createPost(formData: FormData) {
 }
 
 // Members submit these via the "Create event" button in the composer (VIP only).
-// Stored as a feed post carrying hidden \u2063hysky-event: metadata so it needs no schema
-// migration — the homefeed queries for this marker and renders matches in the
-// "Member Events" sidebar instead of the main feed.
+// Stored as a feed post carrying hidden ⁣hysky-event: metadata so it needs no schema
+// migration — it renders as a full event post in the main feed (via FeedPostCard) and
+// also surfaces in the "Member Events" sidebar.
 export async function createMemberEvent(input: {
   title: string
   date: string
+  location: string
   link: string
   description: string
   imageUrl?: string
@@ -112,22 +113,26 @@ export async function createMemberEvent(input: {
   if (!await canPublish(user)) return { error: 'VIP Connect is required to create an event' }
 
   const title = input.title.trim()
+  const location = input.location.trim()
   const link = input.link.trim()
   const description = input.description.trim()
   const imageUrl = (input.imageUrl ?? '').trim()
 
   if (!title) return { error: 'Title is required' }
   if (title.length > 140) return { error: 'Title is too long' }
+  if (!location) return { error: 'Location is required' }
+  if (location.length > 140) return { error: 'Location is too long' }
   if (description.length > 500) return { error: 'Description is too long' }
   if (link && !/^https?:\/\//i.test(link)) return { error: 'Link must start with http:// or https://' }
-  if (imageUrl && !/^https?:\/\//i.test(imageUrl)) return { error: 'Image failed to upload \u2014 please try again' }
+  if (imageUrl && !/^https?:\/\//i.test(imageUrl)) return { error: 'Image failed to upload — please try again' }
 
   const eventDate = new Date(input.date)
   if (Number.isNaN(eventDate.getTime())) return { error: 'Please choose a valid date' }
 
-  const metadata = `\u2063hysky-event:${encodeURIComponent(JSON.stringify({
+  const metadata = `⁣hysky-event:${encodeURIComponent(JSON.stringify({
     title,
     date: eventDate.toISOString(),
+    location,
     link: link || null,
     image: imageUrl || null,
   }))}`
