@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { toggleLike, deletePost, deleteReply, editPost } from './actions'
 import { useChatCtx } from '@/app/components/ChatProvider'
 import ReplyComposer from './ReplyComposer'
+import CreateEventModal from './CreateEventModal'
 import type { MentionMember } from './FeedComposer'
 import type { LinkPreviewData } from '@/lib/link-preview'
 
@@ -513,13 +514,14 @@ export default function FeedPostCard({
   const [editText, setEditText] = useState('')
   const [editError, setEditError] = useState<string | null>(null)
   const [editPending, startEdit] = useTransition()
+  const [showEventEditModal, setShowEventEditModal] = useState(false)
   const router = useRouter()
 
   const isRepost = !!post.repostOfId
   const displayPost = isRepost && post.originalPost ? post.originalPost : post
   const displayAuthor = displayPost.author
   const eventMeta = parseEventMetadata(displayPost.content)
-  const canEdit = !isRepost && !eventMeta && displayAuthor.id === currentUserId
+  const canEdit = !isRepost && displayAuthor.id === currentUserId
 
   const handleLike = () => {
     startLike(async () => {
@@ -554,6 +556,10 @@ export default function FeedPostCard({
   }
 
   const handleStartEdit = () => {
+    if (eventMeta) {
+      setShowEventEditModal(true)
+      return
+    }
     const { visibleText } = parsePostMetadata(displayPost.content)
     setEditText(visibleText)
     setEditError(null)
@@ -607,7 +613,7 @@ export default function FeedPostCard({
           </div>
           <span className="text-xs text-white/30">{timeAgo(displayPost.createdAt)}</span>
         </div>
-        {canEdit && !isEditing && (
+        {canEdit && !isEditing && !showEventEditModal && (
           <button
             type="button"
             onClick={handleStartEdit}
@@ -808,6 +814,26 @@ export default function FeedPostCard({
             </div>
           )}
         </div>
+      )}
+
+      {eventMeta && showEventEditModal && (
+        <CreateEventModal
+          isOpen={showEventEditModal}
+          onClose={() => setShowEventEditModal(false)}
+          editing={{
+            postId: post.id,
+            title: eventMeta.title,
+            date: eventMeta.date,
+            location: eventMeta.location ?? '',
+            link: eventMeta.link ?? '',
+            description: (() => {
+              const { visibleText } = parsePostMetadata(displayPost.content)
+              return visibleText === eventMeta.title ? '' : visibleText
+            })(),
+            imageUrl: eventMeta.image ?? '',
+          }}
+          onSuccess={() => router.refresh()}
+        />
       )}
     </article>
   )
