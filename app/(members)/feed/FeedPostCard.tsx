@@ -250,7 +250,12 @@ function EventCard({ event, description }: { event: EventMeta; description: stri
     <div className="mt-3 mb-1 rounded-xl overflow-hidden" style={{ background: '#fff' }}>
       {event.image && (
         <div className="w-full overflow-hidden" style={{ background: '#fff' }}>
-          <img src={event.image} alt="" className="w-full h-auto block" />
+          {/* The uploaded event image often has a faint dark border baked
+              into its own pixels (an artifact of the source screenshot).
+              Scaling it up slightly and letting the parent's
+              overflow-hidden clip the excess crops that border out of
+              view without cropping any of the actual content. */}
+          <img src={event.image} alt="" className="w-full h-auto block" style={{ transform: 'scale(1.04)' }} />
         </div>
       )}
       <div className="p-4">
