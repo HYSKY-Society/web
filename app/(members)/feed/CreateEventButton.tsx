@@ -18,8 +18,8 @@ export default function CreateEventButton({ canUseVipCommunity }: Props) {
         type="button"
         title={canUseVipCommunity ? 'Create an event' : 'Upgrade to HySky VIP to create an event'}
         onClick={() => (canUseVipCommunity ? setShowForm(true) : setShowUpgrade(true))}
-        className="ml-1 h-7 px-3 rounded-md text-xs font-semibold bg-white border border-black hover:bg-black/5 transition-colors"
-        style={{ color: '#000' }}
+        className="h-7 px-2 flex items-center justify-center rounded text-[11px] font-semibold transition-colors"
+        style={{ background: '#fff', border: '1px solid #000', color: '#000' }}
       >
         Create event
       </button>
