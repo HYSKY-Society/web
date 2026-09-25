@@ -1,15 +1,36 @@
 'use client'
-import { useRef, useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { createPortal } from 'react-dom'
 import { upload } from '@vercel/blob/client'
-import { createMemberEvent } from './actions'
+import { createMemberEvent, editMemberEvent } from './actions'
+
+interface EditingEvent {
+  postId: string
+  title: string
+  date: string
+  location: string
+  link: string
+  description: string
+  imageUrl: string
+}
 
 interface Props {
   isOpen: boolean
   onClose: () => void
+  editing?: EditingEvent | null
+  onSuccess?: () => void
 }
 
-export default function CreateEventModal({ isOpen, onClose }: Props) {
+// Formats an ISO date string as the local "YYYY-MM-DDTHH:mm" value a
+// datetime-local input expects, so editing an event shows its saved time
+// in the browser's own timezone rather than UTC.
+function toDatetimeLocal(iso: string): string {
+  const d = new Date(iso)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+export default function CreateEventModal({ isOpen, onClose, editing, onSuccess }: Props) {
   const [title, setTitle] = useState('')
   const [date, setDate] = useState('')
   const [location, setLocation] = useState('')
@@ -20,6 +41,27 @@ export default function CreateEventModal({ isOpen, onClose }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const imageInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (!isOpen) return
+    if (editing) {
+      setTitle(editing.title)
+      setDate(toDatetimeLocal(editing.date))
+      setLocation(editing.location)
+      setLink(editing.link)
+      setDescription(editing.description)
+      setImageUrl(editing.imageUrl)
+    } else {
+      setTitle('')
+      setDate('')
+      setLocation('')
+      setLink('')
+      setDescription('')
+      setImageUrl('')
+    }
+    setError(null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, editing?.postId])
 
   if (!isOpen || typeof document === 'undefined') return null
 
@@ -34,7 +76,7 @@ export default function CreateEventModal({ isOpen, onClose }: Props) {
   }
 
   function handleClose() {
-    reset()
+    if (!editing) reset()
     onClose()
   }
 
@@ -63,12 +105,15 @@ export default function CreateEventModal({ isOpen, onClose }: Props) {
     e.preventDefault()
     setError(null)
     startTransition(async () => {
-      const result = await createMemberEvent({ title, date, location, link, description, imageUrl })
+      const result = editing
+        ? await editMemberEvent(editing.postId, { title, date, location, link, description, imageUrl })
+        : await createMemberEvent({ title, date, location, link, description, imageUrl })
       if ('error' in result) {
         setError(result.error)
         return
       }
       reset()
+      onSuccess?.()
       onClose()
     })
   }
@@ -80,7 +125,7 @@ export default function CreateEventModal({ isOpen, onClose }: Props) {
       onClick={handleClose}
       role="dialog"
       aria-modal="true"
-      aria-label="Create an event"
+      aria-label={editing ? 'Edit event' : 'Create an event'}
     >
       <div
         className="relative w-full max-w-md rounded-2xl p-5"
@@ -88,7 +133,7 @@ export default function CreateEventModal({ isOpen, onClose }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-base" style={{ color: '#000' }}>Create an event</h2>
+          <h2 className="font-semibold text-base" style={{ color: '#000' }}>{editing ? 'Edit event' : 'Create an event'}</h2>
           <button
             type="button"
             onClick={handleClose}
@@ -214,7 +259,7 @@ export default function CreateEventModal({ isOpen, onClose }: Props) {
               className="px-4 py-1.5 rounded-lg text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               style={{ background: '#fff', border: '1px solid #000', color: '#000' }}
             >
-              {isPending ? 'Creating…' : 'Create event'}
+              {editing ? (isPending ? 'Saving…' : 'Save changes') : (isPending ? 'Creating…' : 'Create event')}
             </button>
           </div>
         </form>
