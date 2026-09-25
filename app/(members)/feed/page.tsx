@@ -498,7 +498,7 @@ export default async function FeedPage() {
         ) : (
           feedItems.map((item) =>
             item.kind === 'post'
-              ? <FeedPostCard key={item.post.id} post={item.post} canUseVipCommunity={canUseVipCommunity} canModerate={canModerateFeed} mentionMembers={mentionMembers} />
+              ? <FeedPostCard key={item.post.id} post={item.post} canUseVipCommunity={canUseVipCommunity} canModerate={canModerateFeed} mentionMembers={mentionMembers} currentUserId={clerkUser.id} />
               : <BlogPostCard key={item.post.id} post={item.post} />
           )
         )}
