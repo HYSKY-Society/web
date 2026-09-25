@@ -172,11 +172,12 @@ export default function CreateEventModal({ isOpen, onClose }: Props) {
           </div>
 
           <div>
-            <label className="block text-xs mb-1" style={{ color: '#666' }}>Link (optional)</label>
+            <label className="block text-xs mb-1" style={{ color: '#666' }}>Link *</label>
             <input
               type="url"
               value={link}
               onChange={(e) => setLink(e.target.value)}
+              required
               placeholder="https://…"
               className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#5d00f5]/60"
               style={{ background: '#fff', border: '1px solid #ccc', color: '#000' }}
@@ -209,7 +210,7 @@ export default function CreateEventModal({ isOpen, onClose }: Props) {
             </button>
             <button
               type="submit"
-              disabled={isPending || uploadingImage || !title.trim() || !date || !location.trim()}
+              disabled={isPending || uploadingImage || !title.trim() || !date || !location.trim() || !link.trim()}
               className="px-4 py-1.5 rounded-lg text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               style={{ background: '#fff', border: '1px solid #000', color: '#000' }}
             >
