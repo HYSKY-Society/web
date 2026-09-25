@@ -5,7 +5,7 @@ import {
   feedPosts, feedPostLikes, feedPostReplies,
   userProfiles, users, hyskySessions, pendingTiers,
 } from '@/lib/schema'
-import { eq, desc, asc, inArray, and, gte, ne, or, notInArray, like, notLike } from 'drizzle-orm'
+import { eq, desc, asc, inArray, and, gte, ne, or, notInArray, like } from 'drizzle-orm'
 import Link from 'next/link'
 import { events as allEvents } from '@/lib/events'
 import { courses as allCourses } from '@/lib/courses'
@@ -22,18 +22,18 @@ export const revalidate = 60
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function authorFromRow(row: {
-  authorId:       string
-  authorName:     string | null
-  authorAvatar:   string | null
+  authorId: string
+  authorName: string | null
+  authorAvatar: string | null
   authorHeadline: string | null
-  authorEmail:    string | null
+  authorEmail: string | null
 }): PostAuthor {
   return {
-    id:       row.authorId,
-    name:     row.authorName,
-    avatar:   row.authorAvatar,
+    id: row.authorId,
+    name: row.authorName,
+    avatar: row.authorAvatar,
     headline: row.authorHeadline,
-    email:    row.authorEmail ?? '',
+    email: row.authorEmail ?? '',
   }
 }
 
@@ -42,10 +42,10 @@ function timeLabel(date: Date | string): string {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-type MemberEventMeta = { title: string; date: string; link: string | null; image: string | null }
+type MemberEventMeta = { title: string; date: string; location: string | null; link: string | null; image: string | null }
 
 function parseMemberEvent(content: string): MemberEventMeta | null {
-  const match = content.match(/\n?\u2063hysky-event:([^\n]+)/)
+  const match = content.match(/\n?⁣hysky-event:([^\n]+)/)
   if (!match) return null
   try {
     const parsed = JSON.parse(decodeURIComponent(match[1])) as unknown
@@ -55,6 +55,7 @@ function parseMemberEvent(content: string): MemberEventMeta | null {
         return {
           title: candidate.title,
           date: candidate.date,
+          location: typeof candidate.location === 'string' ? candidate.location : null,
           link: typeof candidate.link === 'string' ? candidate.link : null,
           image: typeof candidate.image === 'string' ? candidate.image : null,
         }
@@ -64,14 +65,12 @@ function parseMemberEvent(content: string): MemberEventMeta | null {
   return null
 }
 
-// ── Right Sidebar ─────────────────────────────────────────────────────────────
+// ── Right Sidebar ────────────────────────────────────────────────────────────────
 
-function EventPill({ label, date, href }: { label: string; date: string; href: string }) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors hover:bg-white/5"
-    >
+function EventPill({ label, date, href, location }: { label: string; date: string; href: string; location?: string | null }) {
+  const isExternal = /^https?:\/\//i.test(href)
+  const inner = (
+    <>
       <div
         className="shrink-0 w-10 h-10 rounded-lg flex flex-col items-center justify-center text-center"
         style={{ background: 'rgba(93,0,245,.2)', border: '1px solid rgba(93,0,245,.25)' }}
@@ -84,11 +83,22 @@ function EventPill({ label, date, href }: { label: string; date: string; href: s
         </span>
       </div>
       <div className="min-w-0">
-        <p className="text-sm font-semibold text-white leading-snug truncate">{label}</p>
+        <p className="text-sm font-semibold text-white leading-snug">{label}</p>
         <p className="text-xs text-white/35 mt-0.5">
           {new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+          {location ? ` · ${location}` : ''}
         </p>
       </div>
+    </>
+  )
+  const className = "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors hover:bg-white/5"
+  return isExternal ? (
+    <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+      {inner}
+    </a>
+  ) : (
+    <Link href={href} className={className}>
+      {inner}
     </Link>
   )
 }
@@ -167,24 +177,23 @@ export default async function FeedPage() {
   const [rawPosts, myLikesRes, myProfile, upcomingSessions, _blogPosts] = await Promise.all([
     db
       .select({
-        id:             feedPosts.id,
-        content:        feedPosts.content,
-        imageUrls:      feedPosts.imageUrls,
-        repostOfId:     feedPosts.repostOfId,
-        likeCount:      feedPosts.likeCount,
-        replyCount:     feedPosts.replyCount,
-        repostCount:    feedPosts.repostCount,
-        createdAt:      feedPosts.createdAt,
-        authorId:       feedPosts.authorId,
-        authorName:     userProfiles.displayName,
-        authorAvatar:   userProfiles.avatarUrl,
+        id: feedPosts.id,
+        content: feedPosts.content,
+        imageUrls: feedPosts.imageUrls,
+        repostOfId: feedPosts.repostOfId,
+        likeCount: feedPosts.likeCount,
+        replyCount: feedPosts.replyCount,
+        repostCount: feedPosts.repostCount,
+        createdAt: feedPosts.createdAt,
+        authorId: feedPosts.authorId,
+        authorName: userProfiles.displayName,
+        authorAvatar: userProfiles.avatarUrl,
         authorHeadline: userProfiles.headline,
-        authorEmail:    users.email,
+        authorEmail: users.email,
       })
       .from(feedPosts)
       .leftJoin(userProfiles, eq(feedPosts.authorId, userProfiles.userId))
       .leftJoin(users, eq(feedPosts.authorId, users.id))
-      .where(notLike(feedPosts.content, '%\u2063hysky-event:%'))
       .orderBy(desc(feedPosts.createdAt))
       .limit(30),
 
@@ -253,12 +262,13 @@ export default async function FeedPage() {
   )
   const mentionMembers = [...signedInMentionMembers, ...pendingMentionMembers]
 
-  // Member-submitted events — stored as feed posts carrying hidden \u2063hysky-event:
-  // metadata (excluded from the main feed above); shown in the "Member Events" sidebar.
+  // Member-submitted events — stored as feed posts carrying hidden ⁣hysky-event:
+  // metadata. They also render as full posts in the main feed above; this query
+  // just surfaces the upcoming ones in the "Member Events" sidebar.
   const rawMemberEventPosts = await db
     .select({ id: feedPosts.id, content: feedPosts.content })
     .from(feedPosts)
-    .where(like(feedPosts.content, '%\u2063hysky-event:%'))
+    .where(like(feedPosts.content, '%⁣hysky-event:%'))
     .orderBy(desc(feedPosts.createdAt))
     .limit(50)
 
@@ -266,7 +276,7 @@ export default async function FeedPage() {
     .flatMap((row) => {
       const meta = parseMemberEvent(row.content)
       return meta
-        ? [{ key: `member-event-${row.id}`, label: meta.title, date: meta.date, href: meta.link ?? `/feed#post-${row.id}` }]
+        ? [{ key: `member-event-${row.id}`, label: meta.title, date: meta.date, href: meta.link ?? `/feed#post-${row.id}`, location: meta.location }]
         : []
     })
     .filter((event) => new Date(event.date) >= now)
@@ -281,15 +291,15 @@ export default async function FeedPage() {
   const rawRepliesPromise = postIds.length > 0
     ? db
         .select({
-          id:           feedPostReplies.id,
-          postId:       feedPostReplies.postId,
-          content:      feedPostReplies.content,
-          createdAt:    feedPostReplies.createdAt,
-          authorId:     feedPostReplies.authorId,
-          authorName:   userProfiles.displayName,
+          id: feedPostReplies.id,
+          postId: feedPostReplies.postId,
+          content: feedPostReplies.content,
+          createdAt: feedPostReplies.createdAt,
+          authorId: feedPostReplies.authorId,
+          authorName: userProfiles.displayName,
           authorAvatar: userProfiles.avatarUrl,
           authorHeadline: userProfiles.headline,
-          authorEmail:  users.email,
+          authorEmail: users.email,
         })
         .from(feedPostReplies)
         .leftJoin(userProfiles, eq(feedPostReplies.authorId, userProfiles.userId))
@@ -301,12 +311,12 @@ export default async function FeedPage() {
   const rawLikersPromise = postIds.length > 0
     ? db
         .select({
-          postId:         feedPostLikes.postId,
-          authorId:       feedPostLikes.userId,
-          authorName:     userProfiles.displayName,
-          authorAvatar:   userProfiles.avatarUrl,
+          postId: feedPostLikes.postId,
+          authorId: feedPostLikes.userId,
+          authorName: userProfiles.displayName,
+          authorAvatar: userProfiles.avatarUrl,
           authorHeadline: userProfiles.headline,
-          authorEmail:    users.email,
+          authorEmail: users.email,
         })
         .from(feedPostLikes)
         .innerJoin(users, eq(feedPostLikes.userId, users.id))
@@ -322,15 +332,15 @@ export default async function FeedPage() {
   const originalPosts = repostOfIds.length > 0
     ? await db
         .select({
-          id:             feedPosts.id,
-          content:        feedPosts.content,
-          imageUrls:      feedPosts.imageUrls,
-          createdAt:      feedPosts.createdAt,
-          authorId:       feedPosts.authorId,
-          authorName:     userProfiles.displayName,
-          authorAvatar:   userProfiles.avatarUrl,
+          id: feedPosts.id,
+          content: feedPosts.content,
+          imageUrls: feedPosts.imageUrls,
+          createdAt: feedPosts.createdAt,
+          authorId: feedPosts.authorId,
+          authorName: userProfiles.displayName,
+          authorAvatar: userProfiles.avatarUrl,
           authorHeadline: userProfiles.headline,
-          authorEmail:    users.email,
+          authorEmail: users.email,
         })
         .from(feedPosts)
         .leftJoin(userProfiles, eq(feedPosts.authorId, userProfiles.userId))
@@ -365,25 +375,25 @@ export default async function FeedPage() {
   const posts: PostData[] = rawPosts.map((p) => {
     const orig = p.repostOfId ? originalMap.get(p.repostOfId) : undefined
     return {
-      id:          p.id,
-      content:     p.content,
-      imageUrls:   parseImageUrls(p.imageUrls),
-      repostOfId:  p.repostOfId,
-      likeCount:   p.likeCount,
-      replyCount:  p.replyCount,
+      id: p.id,
+      content: p.content,
+      imageUrls: parseImageUrls(p.imageUrls),
+      repostOfId: p.repostOfId,
+      likeCount: p.likeCount,
+      replyCount: p.replyCount,
       repostCount: p.repostCount,
-      createdAt:   p.createdAt,
-      author:      authorFromRow(p),
-      isLiked:     likedIds.has(p.id),
-      likers:      likersByPost.get(p.id) ?? [],
-      replies:     repliesByPost.get(p.id) ?? [],
+      createdAt: p.createdAt,
+      author: authorFromRow(p),
+      isLiked: likedIds.has(p.id),
+      likers: likersByPost.get(p.id) ?? [],
+      replies: repliesByPost.get(p.id) ?? [],
       originalPost: orig
         ? {
-            id:        orig.id,
-            content:   orig.content,
+            id: orig.id,
+            content: orig.content,
             imageUrls: parseImageUrls(orig.imageUrls),
             createdAt: orig.createdAt,
-            author:    authorFromRow(orig),
+            author: authorFromRow(orig),
           }
         : null,
     }
@@ -523,6 +533,7 @@ export default async function FeedPage() {
                   label={event.label}
                   date={event.date}
                   href={event.href}
+                  location={event.location}
                 />
               ))}
             </div>
