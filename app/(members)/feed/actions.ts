@@ -123,7 +123,8 @@ export async function createMemberEvent(input: {
   if (!location) return { error: 'Location is required' }
   if (location.length > 140) return { error: 'Location is too long' }
   if (description.length > 500) return { error: 'Description is too long' }
-  if (link && !/^https?:\/\//i.test(link)) return { error: 'Link must start with http:// or https://' }
+  if (!link) return { error: 'Link is required' }
+  if (!/^https?:\/\//i.test(link)) return { error: 'Link must start with http:// or https://' }
   if (imageUrl && !/^https?:\/\//i.test(imageUrl)) return { error: 'Image failed to upload — please try again' }
 
   const eventDate = new Date(input.date)
