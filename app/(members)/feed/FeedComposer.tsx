@@ -3,6 +3,7 @@ import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createPost } from './actions'
 import { upload } from '@vercel/blob/client'
+import CreateEventButton from './CreateEventButton'
 
 export type MentionMember = {
   id: string
@@ -308,6 +309,8 @@ export default function FeedComposer({ avatarUrl, displayName, mentionMembers }:
                 onChange={handleAttachmentSelect}
               />
             </label>
+
+            <CreateEventButton canUseVipCommunity={true} />
 
             {uploading && (
               <span className="ml-2 text-xs text-white/35 animate-pulse">Uploading…</span>
