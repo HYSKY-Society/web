@@ -5,7 +5,7 @@ import {
   feedPosts, feedPostLikes, feedPostReplies,
   userProfiles, users, hyskySessions, pendingTiers,
 } from '@/lib/schema'
-import { eq, desc, asc, inArray, and, gte, ne, or, notInArray } from 'drizzle-orm'
+import { eq, desc, asc, inArray, and, gte, ne, or, notInArray, like, notLike } from 'drizzle-orm'
 import Link from 'next/link'
 import { events as allEvents } from '@/lib/events'
 import { courses as allCourses } from '@/lib/courses'
@@ -13,6 +13,7 @@ import { getRecentBlogPosts, type WixPost } from '@/lib/wix'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
 import { getAdminEmails, isFeedModerator } from '@/lib/admin'
 import FeedComposer from './FeedComposer'
+import CreateEventButton from './CreateEventButton'
 import FeedPostCard, { type PostData, type PostAuthor, type ReplyData } from './FeedPostCard'
 import SidebarIcon, { type SidebarIconName } from '@/app/components/SidebarIcon'
 
@@ -39,6 +40,28 @@ function authorFromRow(row: {
 function timeLabel(date: Date | string): string {
   const d = new Date(date)
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+type MemberEventMeta = { title: string; date: string; link: string | null; image: string | null }
+
+function parseMemberEvent(content: string): MemberEventMeta | null {
+  const match = content.match(/\n?\u2063hysky-event:([^\n]+)/)
+  if (!match) return null
+  try {
+    const parsed = JSON.parse(decodeURIComponent(match[1])) as unknown
+    if (parsed && typeof parsed === 'object') {
+      const candidate = parsed as Partial<MemberEventMeta>
+      if (typeof candidate.title === 'string' && typeof candidate.date === 'string') {
+        return {
+          title: candidate.title,
+          date: candidate.date,
+          link: typeof candidate.link === 'string' ? candidate.link : null,
+          image: typeof candidate.image === 'string' ? candidate.image : null,
+        }
+      }
+    }
+  } catch {}
+  return null
 }
 
 // ── Right Sidebar ─────────────────────────────────────────────────────────────
@@ -161,6 +184,7 @@ export default async function FeedPage() {
       .from(feedPosts)
       .leftJoin(userProfiles, eq(feedPosts.authorId, userProfiles.userId))
       .leftJoin(users, eq(feedPosts.authorId, users.id))
+      .where(notLike(feedPosts.content, '%\u2063hysky-event:%'))
       .orderBy(desc(feedPosts.createdAt))
       .limit(30),
 
@@ -228,6 +252,26 @@ export default async function FeedPage() {
       : []
   )
   const mentionMembers = [...signedInMentionMembers, ...pendingMentionMembers]
+
+  // Member-submitted events — stored as feed posts carrying hidden \u2063hysky-event:
+  // metadata (excluded from the main feed above); shown in the "Member Events" sidebar.
+  const rawMemberEventPosts = await db
+    .select({ id: feedPosts.id, content: feedPosts.content })
+    .from(feedPosts)
+    .where(like(feedPosts.content, '%\u2063hysky-event:%'))
+    .orderBy(desc(feedPosts.createdAt))
+    .limit(50)
+
+  const memberEvents = rawMemberEventPosts
+    .flatMap((row) => {
+      const meta = parseMemberEvent(row.content)
+      return meta
+        ? [{ key: `member-event-${row.id}`, label: meta.title, date: meta.date, href: meta.link ?? `/feed#post-${row.id}` }]
+        : []
+    })
+    .filter((event) => new Date(event.date) >= now)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .slice(0, 5)
 
   // Liked post IDs set
   const likedIds = new Set(myLikesRes.map((l) => l.postId))
@@ -372,10 +416,10 @@ export default async function FeedPage() {
       href: '/hysky-monthly',
     },
     {
-      key: 'aiaa-saf-course-2026-09-22',
-      label: 'Advanced Sustainable Aviation Fuels & Aircraft Design',
-      date: '2026-09-22T12:00:00Z',
-      href: 'https://aiaa.org/courses/advanced-sustainable-aviation-fuels-and-aircraft-design/',
+      key: 'aiaa-saf-course-2026-10-20',
+      label: 'Advanced Sustainable Aviation Fuels and Aircraft Design',
+      date: '2026-10-20T17:00:00Z',
+      href: '/courses/advanced-sustainable-aviation-fuels-and-aircraft-design',
     },
     ...upcomingSessions
       .filter((session) => session.sessionDate.toISOString().slice(0, 10) !== featuredMonthlyDate.slice(0, 10))
@@ -417,14 +461,17 @@ export default async function FeedPage() {
               <p className="text-sm font-semibold text-white">Want to share an update?</p>
               <p className="text-xs text-white/45 mt-1">Posting and direct messages are included with VIP Connect.</p>
             </div>
-            <a
-              href="https://www.zeffy.com/en-US/ticketing/hysky-societys-membership"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="shrink-0 text-xs font-semibold px-4 py-2 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] text-white transition-colors"
-            >
-              Explore VIP
-            </a>
+            <div className="shrink-0 flex items-center gap-2">
+              <CreateEventButton canUseVipCommunity={false} />
+              <a
+                href="https://www.zeffy.com/en-US/ticketing/hysky-societys-membership"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-semibold px-4 py-2 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] text-white transition-colors"
+              >
+                Explore VIP
+              </a>
+            </div>
           </div>
         )}
 
@@ -450,11 +497,27 @@ export default async function FeedPage() {
       {/* ── Right sidebar ─────────────────────────────────────────── */}
       <aside className="space-y-4 hidden xl:block">
 
-        {/* Upcoming Events */}
+        {/* Featured Events */}
         {sidebarEvents.length > 0 && (
-          <SidebarCard title="Upcoming Events">
+          <SidebarCard title="Featured Events">
             <div className="pb-2">
               {sidebarEvents.map((event) => (
+                <EventPill
+                  key={event.key}
+                  label={event.label}
+                  date={event.date}
+                  href={event.href}
+                />
+              ))}
+            </div>
+          </SidebarCard>
+        )}
+
+        {/* Member Events */}
+        {memberEvents.length > 0 && (
+          <SidebarCard title="Member Events">
+            <div className="pb-2">
+              {memberEvents.map((event) => (
                 <EventPill
                   key={event.key}
                   label={event.label}
