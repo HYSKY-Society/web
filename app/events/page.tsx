@@ -113,13 +113,13 @@ export default function EventsPage() {
             href="https://aiaa.org/courses/advanced-sustainable-aviation-fuels-and-aircraft-design/"
             target="_blank"
             rel="noopener noreferrer"
-            className="block mb-6 overflow-hidden rounded-xl bg-white"
+            className="block mb-6 overflow-hidden rounded-xl bg-black"
           >
             <Image
-              src="/events/aiaa-saf-aircraft-design-course.jpg"
+              src="/courses/saf-aircraft-design-course.jpg"
               alt="AIAA and HySky Advanced Sustainable Aviation Fuels and Aircraft Design online short course"
-              width={1920}
-              height={1080}
+              width={1600}
+              height={900}
               className="w-full h-auto"
             />
           </a>
@@ -133,8 +133,8 @@ export default function EventsPage() {
                 A five-week joint AIAA and HySky Society course covering sustainable aviation fuels, hydrogen, hybrid-electric aircraft design, certification, safety, and airport infrastructure.
               </p>
               <div className="flex flex-wrap gap-4 text-white/45 text-sm">
-                <span className="inline-flex items-center gap-2"><SidebarIcon name="events" className="h-4 w-4" /> September 22 – October 22, 2026</span>
-                <span className="inline-flex items-center gap-2"><SidebarIcon name="clock" className="h-4 w-4" /> Tuesdays &amp; Thursdays, 1:00 – 3:00 PM ET</span>
+                <span className="inline-flex items-center gap-2"><SidebarIcon name="events" className="h-4 w-4" /> October 20 – November 20, 2026</span>
+                <span className="inline-flex items-center gap-2"><SidebarIcon name="clock" className="h-4 w-4" /> 11 live sessions, mostly Tuesdays &amp; Thursdays, 12:00 – 2:00 PM CT</span>
                 <span className="inline-flex items-center gap-2"><SidebarIcon name="monitor" className="h-4 w-4" /> Online</span>
               </div>
             </div>
@@ -155,7 +155,7 @@ export default function EventsPage() {
         <div className="event-showcase-card group relative overflow-hidden rounded-3xl p-8 sm:p-10">
           <div className="flex items-start justify-between flex-wrap gap-4 mb-6">
             <div>
-            <div className="event-category-badge event-showcase-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-[#00D4D4]/15 text-[#00D4D4]">
+              <div className="event-category-badge event-showcase-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-[#00D4D4]/15 text-[#00D4D4]">
                 <SidebarIcon name="broadcast" className="h-4 w-4" /> Monthly Webinar
               </div>
               <h2 className="text-xl font-bold mb-1">HySky Monthly</h2>
