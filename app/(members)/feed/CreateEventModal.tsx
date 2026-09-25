@@ -104,10 +104,16 @@ export default function CreateEventModal({ isOpen, onClose, editing, onSuccess }
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    // The date/time input gives us a naive "local-looking" string like
+    // 2026-10-06T08:00 with no timezone info. We resolve it to an absolute
+    // instant here, in the browser, using the browser's own timezone —
+    // otherwise the server (which runs in UTC) would reinterpret those same
+    // digits as UTC and silently shift the saved time.
+    const isoDate = date ? new Date(date).toISOString() : ''
     startTransition(async () => {
       const result = editing
-        ? await editMemberEvent(editing.postId, { title, date, location, link, description, imageUrl })
-        : await createMemberEvent({ title, date, location, link, description, imageUrl })
+        ? await editMemberEvent(editing.postId, { title, date: isoDate, location, link, description, imageUrl })
+        : await createMemberEvent({ title, date: isoDate, location, link, description, imageUrl })
       if ('error' in result) {
         setError(result.error)
         return
