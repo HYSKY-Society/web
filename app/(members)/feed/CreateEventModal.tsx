@@ -12,6 +12,7 @@ interface Props {
 export default function CreateEventModal({ isOpen, onClose }: Props) {
   const [title, setTitle] = useState('')
   const [date, setDate] = useState('')
+  const [location, setLocation] = useState('')
   const [link, setLink] = useState('')
   const [description, setDescription] = useState('')
   const [imageUrl, setImageUrl] = useState('')
@@ -25,6 +26,7 @@ export default function CreateEventModal({ isOpen, onClose }: Props) {
   function reset() {
     setTitle('')
     setDate('')
+    setLocation('')
     setLink('')
     setDescription('')
     setImageUrl('')
@@ -61,7 +63,7 @@ export default function CreateEventModal({ isOpen, onClose }: Props) {
     e.preventDefault()
     setError(null)
     startTransition(async () => {
-      const result = await createMemberEvent({ title, date, link, description, imageUrl })
+      const result = await createMemberEvent({ title, date, location, link, description, imageUrl })
       if ('error' in result) {
         setError(result.error)
         return
@@ -91,7 +93,7 @@ export default function CreateEventModal({ isOpen, onClose }: Props) {
             type="button"
             onClick={handleClose}
             aria-label="Close"
-            className="text-sm transition-colors hover:opacity-70"
+            className="text-sm transition-colors"
             style={{ color: '#666' }}
           >
             Close ×
@@ -128,7 +130,7 @@ export default function CreateEventModal({ isOpen, onClose }: Props) {
               </div>
             ) : (
               <label
-                className="flex items-center justify-center h-16 rounded-lg text-xs cursor-pointer transition-colors hover:opacity-70"
+                className="flex items-center justify-center h-16 rounded-lg text-xs cursor-pointer transition-colors"
                 style={{ background: '#f5f5f5', border: '1px dashed #ccc', color: '#666' }}
               >
                 {uploadingImage ? 'Uploading…' : 'Click to upload an image'}
@@ -153,6 +155,19 @@ export default function CreateEventModal({ isOpen, onClose }: Props) {
               required
               className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#5d00f5]/60"
               style={{ background: '#fff', border: '1px solid #ccc', color: '#000', colorScheme: 'light' }}
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs mb-1" style={{ color: '#666' }}>Location *</label>
+            <input
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              maxLength={140}
+              required
+              placeholder="Online, or a city like Detroit, MI"
+              className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#5d00f5]/60"
+              style={{ background: '#fff', border: '1px solid #ccc', color: '#000' }}
             />
           </div>
 
@@ -187,15 +202,15 @@ export default function CreateEventModal({ isOpen, onClose }: Props) {
             <button
               type="button"
               onClick={handleClose}
-              className="px-3 py-1.5 rounded-lg text-sm transition-colors hover:opacity-70"
+              className="px-3 py-1.5 rounded-lg text-sm transition-colors"
               style={{ color: '#666' }}
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={isPending || uploadingImage || !title.trim() || !date}
-              className="px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              disabled={isPending || uploadingImage || !title.trim() || !date || !location.trim()}
+              className="px-4 py-1.5 rounded-lg text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               style={{ background: '#fff', border: '1px solid #000', color: '#000' }}
             >
               {isPending ? 'Creating…' : 'Create event'}
