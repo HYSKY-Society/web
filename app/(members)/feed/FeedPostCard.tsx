@@ -249,8 +249,8 @@ function EventCard({ event, description }: { event: EventMeta; description: stri
   return (
     <div className="mt-3 mb-1 rounded-xl overflow-hidden" style={{ background: '#fff', border: '1px solid #000' }}>
       {event.image && (
-        <div className="aspect-[16/9] w-full overflow-hidden bg-black/5">
-          <img src={event.image} alt="" className="w-full h-full object-cover" />
+        <div className="w-full overflow-hidden bg-black/5">
+          <img src={event.image} alt="" className="w-full h-auto block" />
         </div>
       )}
       <div className="p-4">
@@ -262,8 +262,24 @@ function EventCard({ event, description }: { event: EventMeta; description: stri
         </div>
         <h3 className="text-base font-bold leading-snug mb-2" style={{ color: '#000' }}>{event.title}</h3>
         <div className="flex flex-col gap-1 mb-2 text-sm" style={{ color: '#333' }}>
-          <span className="inline-flex items-center gap-1.5">🗓️ {dateStr} at {timeStr}</span>
-          {event.location && <span className="inline-flex items-center gap-1.5">📍 {event.location}</span>}
+          <span className="inline-flex items-center gap-1.5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5d00f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            {dateStr} at {timeStr}
+          </span>
+          {event.location && (
+            <span className="inline-flex items-center gap-1.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5d00f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              {event.location}
+            </span>
+          )}
         </div>
         {description && (
           <p className="text-sm leading-relaxed mb-3" style={{ color: '#333' }}>{description}</p>
