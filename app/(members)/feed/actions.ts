@@ -148,6 +148,40 @@ export async function createMemberEvent(input: {
   return { ok: true, id: post.id }
 }
 
+// Lets the original author fix a typo or mistake after the fact. Only the
+// post's own author can edit it — moderators still use deletePost for
+// removing content outright. Reposts and event posts (which carry their own
+// structured hidden metadata) aren't editable through this simple text edit;
+// any hidden ⁣hysky-*: metadata lines already on the post are preserved as-is.
+export async function editPost(postId: string, content: string): Promise<{ ok: true } | { error: string }> {
+  const user = await currentUser()
+  if (!user) return { error: 'You must be signed in to edit a post' }
+
+  const trimmed = content.trim()
+  if (!trimmed) return { error: 'Post cannot be empty' }
+  if (trimmed.length > 3000) return { error: 'Post is too long' }
+
+  const [post] = await db
+    .select({ authorId: feedPosts.authorId, content: feedPosts.content, repostOfId: feedPosts.repostOfId })
+    .from(feedPosts)
+    .where(eq(feedPosts.id, postId))
+    .limit(1)
+  if (!post) return { error: 'Post not found' }
+  if (post.authorId !== user.id) return { error: 'You can only edit your own posts' }
+  if (post.repostOfId) return { error: 'Reposts cannot be edited' }
+  if (/\n⁣hysky-event:/.test(post.content)) return { error: 'Events cannot be edited here' }
+
+  const metadataLines = post.content.split('\n').filter((line) => line.startsWith('⁣'))
+  const storedContent = metadataLines.length ? `${trimmed}\n${metadataLines.join('\n')}` : trimmed
+
+  await db.update(feedPosts)
+    .set({ content: storedContent })
+    .where(eq(feedPosts.id, postId))
+
+  revalidatePath('/feed')
+  return { ok: true }
+}
+
 export async function deletePost(postId: string): Promise<{ deleted: boolean }> {
   const user = await currentUser()
   if (!user || !canModerate(user)) return { deleted: false }
