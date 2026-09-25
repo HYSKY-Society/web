@@ -52,11 +52,34 @@ type MentionRef = {
   name: string
 }
 
-const MENTION_METADATA = /\n\u2063hysky-mentions:([^\n]+)/
-const LINK_PREVIEW_METADATA = /\n\u2063hysky-link-preview:([^\n]+)/
-const FILE_METADATA = /\n\u2063hysky-files:([^\n]+)/
+const MENTION_METADATA = /\n⁣hysky-mentions:([^\n]+)/
+const LINK_PREVIEW_METADATA = /\n⁣hysky-link-preview:([^\n]+)/
+const FILE_METADATA = /\n⁣hysky-files:([^\n]+)/
+const EVENT_METADATA = /\n⁣hysky-event:([^\n]+)/
 
 type FileAttachment = { url: string; name: string; type: string }
+type EventMeta = { title: string; date: string; location: string | null; link: string | null; image: string | null }
+
+function parseEventMetadata(text: string): EventMeta | null {
+  const match = text.match(EVENT_METADATA)
+  if (!match) return null
+  try {
+    const parsed = JSON.parse(decodeURIComponent(match[1])) as unknown
+    if (parsed && typeof parsed === 'object') {
+      const candidate = parsed as Partial<EventMeta>
+      if (typeof candidate.title === 'string' && typeof candidate.date === 'string') {
+        return {
+          title: candidate.title,
+          date: candidate.date,
+          location: typeof candidate.location === 'string' ? candidate.location : null,
+          link: typeof candidate.link === 'string' ? candidate.link : null,
+          image: typeof candidate.image === 'string' ? candidate.image : null,
+        }
+      }
+    }
+  } catch {}
+  return null
+}
 
 function parsePostMetadata(text: string): { visibleText: string; mentions: MentionRef[]; linkPreview: LinkPreviewData | null; files: FileAttachment[] } {
   const mentionMatch = text.match(MENTION_METADATA)
@@ -103,7 +126,7 @@ function parsePostMetadata(text: string): { visibleText: string; mentions: Menti
       : []
   } catch {}
   return {
-    visibleText: text.replace(FILE_METADATA, '').replace(LINK_PREVIEW_METADATA, '').replace(MENTION_METADATA, '').trimEnd(),
+    visibleText: text.replace(EVENT_METADATA, '').replace(FILE_METADATA, '').replace(LINK_PREVIEW_METADATA, '').replace(MENTION_METADATA, '').trimEnd(),
     mentions,
     linkPreview,
     files,
@@ -155,7 +178,7 @@ function renderLine(line: string, mentions: MentionRef[]) {
     } else {
       nodes.push(
         <a key={key++} href={token} target="_blank" rel="noopener noreferrer"
-           className="text-[#9b6dff] hover:underline break-all">
+          className="text-[#9b6dff] hover:underline break-all">
           {token}
         </a>
       )
@@ -213,6 +236,50 @@ function LinkPreview({ text }: { text: string }) {
         ) : null}
       </div>
     </a>
+  )
+}
+
+// ── Event card ────────────────────────────────────────────────────────────────
+
+function EventCard({ event, description }: { event: EventMeta; description: string }) {
+  const eventDate = new Date(event.date)
+  const dateStr = eventDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+  const timeStr = eventDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+  return (
+    <div className="mt-3 mb-1 rounded-xl overflow-hidden" style={{ background: '#fff', border: '1px solid #000' }}>
+      {event.image && (
+        <div className="aspect-[16/9] w-full overflow-hidden bg-black/5">
+          <img src={event.image} alt="" className="w-full h-full object-cover" />
+        </div>
+      )}
+      <div className="p-4">
+        <div
+          className="inline-flex items-center gap-1.5 mb-2 text-[10px] font-bold uppercase tracking-[0.1em] px-2 py-0.5 rounded"
+          style={{ background: '#f0f0f0', color: '#000' }}
+        >
+          📅 Event
+        </div>
+        <h3 className="text-base font-bold leading-snug mb-2" style={{ color: '#000' }}>{event.title}</h3>
+        <div className="flex flex-col gap-1 mb-2 text-sm" style={{ color: '#333' }}>
+          <span className="inline-flex items-center gap-1.5">🗓️ {dateStr} at {timeStr}</span>
+          {event.location && <span className="inline-flex items-center gap-1.5">📍 {event.location}</span>}
+        </div>
+        {description && (
+          <p className="text-sm leading-relaxed mb-3" style={{ color: '#333' }}>{description}</p>
+        )}
+        {event.link && (
+          <a
+            href={event.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+            style={{ background: '#fff', border: '1px solid #000', color: '#000' }}
+          >
+            View Details →
+          </a>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -416,7 +483,7 @@ function timeAgo(date: Date): string {
   if (s < 60) return 'just now'
   const m = Math.floor(s / 60); if (m < 60) return `${m}m ago`
   const h = Math.floor(m / 60); if (h < 24) return `${h}h ago`
-  const d = Math.floor(h / 24); if (d < 7)  return `${d}d ago`
+  const d = Math.floor(h / 24); if (d < 7) return `${d}d ago`
   return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
@@ -521,10 +588,21 @@ export default function FeedPostCard({
       </div>
 
       {/* Content + images */}
-      <RichContent text={displayPost.content} />
-      <LinkPreview text={displayPost.content} />
-      <ImageGallery urls={displayPost.imageUrls} />
-      <FileAttachmentList files={parsePostMetadata(displayPost.content).files} />
+      {(() => {
+        const eventMeta = parseEventMetadata(displayPost.content)
+        if (eventMeta) {
+          const { visibleText } = parsePostMetadata(displayPost.content)
+          return <EventCard event={eventMeta} description={visibleText === eventMeta.title ? '' : visibleText} />
+        }
+        return (
+          <>
+            <RichContent text={displayPost.content} />
+            <LinkPreview text={displayPost.content} />
+            <ImageGallery urls={displayPost.imageUrls} />
+            <FileAttachmentList files={parsePostMetadata(displayPost.content).files} />
+          </>
+        )
+      })()}
 
       {/* Divider */}
       <div className="mt-3 mb-3" style={{ borderTop: '1px solid var(--border-muted)' }} />
@@ -655,4 +733,3 @@ export default function FeedPostCard({
     </article>
   )
 }
-
