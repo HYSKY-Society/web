@@ -247,9 +247,9 @@ function EventCard({ event, description }: { event: EventMeta; description: stri
   const dateStr = eventDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
   const timeStr = eventDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
   return (
-    <div className="mt-3 mb-1 rounded-xl overflow-hidden" style={{ background: '#fff', border: '1px solid #000' }}>
+    <div className="mt-3 mb-1 rounded-xl overflow-hidden" style={{ background: '#fff' }}>
       {event.image && (
-        <div className="w-full overflow-hidden bg-black/5">
+        <div className="w-full overflow-hidden bg-white">
           <img src={event.image} alt="" className="w-full h-auto block" />
         </div>
       )}
