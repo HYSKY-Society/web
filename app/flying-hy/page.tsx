@@ -53,7 +53,7 @@ const eventArchive = [
 ]
 
 // Logos are sourced from the HySky Zeffy newsletter's sponsor grid.
-// These members have confirmed $500+ tiers with FLYING HY sponsorship.
+// These organizations have confirmed FLYING HY sponsorship.
 const flyingHySponsors = {
   featured: {
     name: 'Unither Bioelectronics',
@@ -64,13 +64,14 @@ const flyingHySponsors = {
     { name: 'Millennium Reign Energy', logo: 'https://res.cloudinary.com/hxn9dbuhd/image/upload/v1790727573/organizations/2/5/f/0/25f0434f-a723-495e-b95f-35a2269ea6e4/c6777d62-55a8-44d1-aac0-134d960f45c7.jpg', website: 'https://residentialhydrogenpower.com/' },
     { name: 'FC Renew', logo: 'https://res.cloudinary.com/hxn9dbuhd/image/upload/v1790729231/organizations/2/5/f/0/25f0434f-a723-495e-b95f-35a2269ea6e4/60d395f7-4dd1-45b7-9794-bbe9e431285e.jpg', website: 'https://fcrenew.com/index.html' },
     { name: 'Dynamasys', logo: 'https://res.cloudinary.com/hxn9dbuhd/image/upload/v1790726621/organizations/2/5/f/0/25f0434f-a723-495e-b95f-35a2269ea6e4/78ef0af2-be2f-4419-b29a-98ed82973567.jpg', website: 'https://dynamasys.com/' },
+    // Ingarra Engineering has no listed company website in Zoho; use its founder's public profile.
+    { name: 'Ingarra Engineering', logo: 'https://res.cloudinary.com/hxn9dbuhd/image/upload/v1790725002/organizations/2/5/f/0/25f0434f-a723-495e-b95f-35a2269ea6e4/8558acfd-21f0-424b-ae95-42be7dda11b6.jpg', website: 'https://www.linkedin.com/in/nicholasingarra/' },
   ],
   startup: [
     { name: 'Commonwealth Center for Advanced Logistics Systems', logo: 'https://res.cloudinary.com/hxn9dbuhd/image/upload/v1790724999/organizations/2/5/f/0/25f0434f-a723-495e-b95f-35a2269ea6e4/735ef9c5-445a-4286-ab98-65d5a997addc.jpg', website: 'https://www.ccals.com/' },
     { name: 'TO Viridi', logo: 'https://simplyk-bucket-production.s3.ca-central-1.amazonaws.com/organizations/2/5/f/0/25f0434f-a723-495e-b95f-35a2269ea6e4/attachments/1c755bd5-e64e-4a83-a48f-e087af5c0e60/1754087350392-jwjpura32ywq3zfwjep5', website: 'https://www.toviridi.com/' },
     { name: 'Moreton & Company', logo: 'https://simplyk-bucket-production.s3.ca-central-1.amazonaws.com/organizations/2/5/f/0/25f0434f-a723-495e-b95f-35a2269ea6e4/attachments/88cc747a-b02b-4fe2-b206-5625d3beed84/1754087615798-hlm8urvjweyfqwighcyo', website: 'https://www.moreton.com/' },
-    // Ingarra Engineering has no listed company website in Zoho; use its founder's public profile.
-    { name: 'Ingarra Engineering', logo: 'https://res.cloudinary.com/hxn9dbuhd/image/upload/v1790725002/organizations/2/5/f/0/25f0434f-a723-495e-b95f-35a2269ea6e4/8558acfd-21f0-424b-ae95-42be7dda11b6.jpg', website: 'https://www.linkedin.com/in/nicholasingarra/' },
+    { name: 'EPRI', logo: 'https://res.cloudinary.com/hxn9dbuhd/image/upload/v1790767869/organizations/2/5/f/0/25f0434f-a723-495e-b95f-35a2269ea6e4/e059a342-4986-4db9-ae3a-0a4842ddc63d.jpg', website: 'https://hydrogen.epri.com/en/' },
   ],
 }
 
@@ -330,7 +331,7 @@ export default async function FlyingHyPage() {
         />
       </a>
     </div>
-    <div className="grid grid-cols-1 gap-5 border-t border-[#5d00f5]/10 py-7 sm:grid-cols-3">
+    <div className="grid grid-cols-2 gap-5 border-t border-[#5d00f5]/10 py-7 sm:grid-cols-4">
       {flyingHySponsors.leading.map((sponsor) => (
         <a key={sponsor.name} href={sponsor.website} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${sponsor.name} (opens in a new tab)`} className="flex h-40 items-center justify-center rounded-xl p-2 transition-all duration-200 hover:-translate-y-1 hover:bg-[#ffffff] hover:shadow-[0_20px_50px_rgba(93,0,245,0.18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5d00f5] sm:h-44">
           <Image unoptimized src={sponsor.logo} alt={`${sponsor.name} logo`} width={320} height={160} className="h-full w-full object-contain" />
