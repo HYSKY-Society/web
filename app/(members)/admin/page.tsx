@@ -19,7 +19,7 @@ export default async function AdminPage() {
     db.select({ count: sql<number>`count(*)` }).from(users),
     db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.tier, 'free')),
     db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.tier, 'paid')),
-    clerkClient.users.getUserList({ limit: 500, orderBy: '-created_at' }),
+    (await clerkClient()).users.getUserList({ limit: 500, orderBy: '-created_at' }),
   ])
 
   const total = Number(totalResult[0]?.count ?? 0)

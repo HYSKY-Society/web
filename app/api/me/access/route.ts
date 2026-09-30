@@ -5,7 +5,7 @@ import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const { userId } = auth()
+  const { userId } = await auth()
   if (!userId) {
     return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
   }

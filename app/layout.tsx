@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
 import { Space_Grotesk } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] })
@@ -37,21 +38,23 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider
-      appearance={{
-        variables: { fontFamily: spaceGrotesk.style.fontFamily },
-        elements: {
-          profileSection__danger: { display: 'none' },
-        },
-      }}
-    >
-      <html lang="en" data-theme="light" suppressHydrationWarning>
-        <head>
-          {/* Apply the last saved theme before first paint to avoid a light/dark flash. */}
-          <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        </head>
-        <body className={spaceGrotesk.className}>{children}</body>
-      </html>
-    </ClerkProvider>
+    <html lang="en" data-theme="light" suppressHydrationWarning>
+      <head>
+        {/* Apply the last saved theme before first paint to avoid a light/dark flash. */}
+        <Script id="theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
+      <body className={spaceGrotesk.className}>
+        <ClerkProvider
+          appearance={{
+            variables: { fontFamily: spaceGrotesk.style.fontFamily },
+            elements: {
+              profileSection__danger: { display: 'none' },
+            },
+          }}
+        >
+          {children}
+        </ClerkProvider>
+      </body>
+    </html>
   )
 }

@@ -7,7 +7,7 @@ import type { ProfileContact, UserProfile } from '@/lib/schema'
 import { isAdmin } from '@/lib/admin'
 
 export default async function NewsShell({ children }: { children: React.ReactNode }) {
-  const { userId } = auth()
+  const { userId } = await auth()
 
   let tier: NewsTier | undefined
   let isVipMember = false

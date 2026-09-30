@@ -208,11 +208,11 @@ export async function syncZohoDirectory() {
 
 export async function syncZohoRecord(moduleName: string, recordId: string) {
   await ensureZohoProfileDetailsTable()
-  const module = moduleName.toLowerCase()
+  const recordType = moduleName.toLowerCase()
   const metadata = await fields()
   const blockedAccountIds = await blockedZohoAccountIds(metadata)
 
-  if (module === 'accounts' || module === 'account') {
+  if (recordType === 'accounts' || recordType === 'account') {
     if (blockedAccountIds.has(recordId)) return { module: 'Accounts', recordId, ignored: true, updated: 0 }
     const record = await getRecord('Accounts', recordId, [...accountBaseFields, ...(metadata.whatWeDoField ? [metadata.whatWeDoField] : [])])
     const account = accountFromRecord(record, metadata.whatWeDoField)
@@ -233,7 +233,7 @@ export async function syncZohoRecord(moduleName: string, recordId: string) {
     return { module: 'Accounts', recordId, updated: active.length + pending.length }
   }
 
-  if (module !== 'contacts' && module !== 'contact') throw new Error('Only Contacts and Accounts can be synchronized.')
+  if (recordType !== 'contacts' && recordType !== 'contact') throw new Error('Only Contacts and Accounts can be synchronized.')
 
   const record = await getRecord('Contacts', recordId, [...contactBaseFields, ...metadata.emailFields, ...metadata.phoneFields])
   const contact = contactFromRecord(record, metadata.emailFields, metadata.phoneFields)

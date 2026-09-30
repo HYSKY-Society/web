@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   await Promise.allSettled(
     inputs.map(async ({ email, firstName, lastName }) => {
       try {
-        await clerkClient.users.createUser({
+        await (await clerkClient()).users.createUser({
           emailAddress: [email],
           ...(firstName ? { firstName } : {}),
           ...(lastName  ? { lastName  } : {}),

@@ -66,16 +66,20 @@ export default function NotificationBell({ myId, canOpenDirectMessages }: { myId
   }, [])
 
   const refresh = useCallback(async () => {
-    const response = await fetch('/api/notifications', { cache: 'no-store' })
-    if (!response.ok) return
-    const data = await response.json() as { items: NotificationItem[]; unreadCount: number }
-    const previousUnread = lastUnreadRef.current
-    if (previousUnread !== null && data.unreadCount > previousUnread) {
-      playNotificationChime()
+    try {
+      const response = await fetch('/api/notifications', { cache: 'no-store' })
+      if (!response.ok) return
+      const data = await response.json() as { items: NotificationItem[]; unreadCount: number }
+      const previousUnread = lastUnreadRef.current
+      if (previousUnread !== null && data.unreadCount > previousUnread) {
+        playNotificationChime()
+      }
+      lastUnreadRef.current = data.unreadCount
+      setItems(data.items)
+      setUnreadCount(data.unreadCount)
+    } catch {
+      // Keep the last known notifications until the local server responds again.
     }
-    lastUnreadRef.current = data.unreadCount
-    setItems(data.items)
-    setUnreadCount(data.unreadCount)
   }, [playNotificationChime])
 
   useEffect(() => {
@@ -97,10 +101,11 @@ export default function NotificationBell({ myId, canOpenDirectMessages }: { myId
   }, [])
 
   useEffect(() => {
-    refresh()
+    const initialRefresh = window.setTimeout(() => void refresh(), 0)
     const timer = window.setInterval(refresh, 30000)
     window.addEventListener('notifications:refresh', refresh)
     return () => {
+      window.clearTimeout(initialRefresh)
       window.clearInterval(timer)
       window.removeEventListener('notifications:refresh', refresh)
     }

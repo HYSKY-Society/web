@@ -11,10 +11,11 @@ async function assertMember(groupId: string, userId: string) {
   return rows.length > 0
 }
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  const { userId } = auth()
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const { userId } = await auth()
   if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
-  if (!(await assertMember(params.id, userId))) return Response.json({ error: 'Forbidden' }, { status: 403 })
+  if (!(await assertMember(id, userId))) return Response.json({ error: 'Forbidden' }, { status: 403 })
 
   const msgs = await db
     .select({
@@ -28,17 +29,18 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     })
     .from(groupMessages)
     .leftJoin(userProfiles, eq(groupMessages.fromUserId, userProfiles.userId))
-    .where(eq(groupMessages.groupId, params.id))
+    .where(eq(groupMessages.groupId, id))
     .orderBy(asc(groupMessages.createdAt))
     .limit(60)
 
   return Response.json(msgs)
 }
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
-  const { userId } = auth()
+export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id: groupId } = await params
+  const { userId } = await auth()
   if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
-  if (!(await assertMember(params.id, userId))) return Response.json({ error: 'Forbidden' }, { status: 403 })
+  if (!(await assertMember(groupId, userId))) return Response.json({ error: 'Forbidden' }, { status: 403 })
 
   const { content } = await req.json()
   if (!content?.trim()) return Response.json({ error: 'Content required' }, { status: 400 })
@@ -51,11 +53,11 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
   const id = crypto.randomUUID()
   const createdAt = new Date()
-  await db.insert(groupMessages).values({ id, groupId: params.id, fromUserId: userId, content: content.trim(), createdAt })
+  await db.insert(groupMessages).values({ id, groupId, fromUserId: userId, content: content.trim(), createdAt })
 
   const msg = {
     id,
-    groupId:    params.id,
+    groupId,
     fromUserId: userId,
     content:    content.trim(),
     createdAt,
@@ -63,12 +65,12 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     fromAvatar: profile?.avatarUrl   ?? null,
   }
 
-  await pusherServer.trigger(gmChannelName(params.id), 'new-message', msg)
+  await pusherServer.trigger(gmChannelName(groupId), 'new-message', msg)
 
   // Notify other members via their personal channel
   const [groupRow, members] = await Promise.all([
-    db.select({ name: groupChats.name }).from(groupChats).where(eq(groupChats.id, params.id)).limit(1),
-    db.select({ userId: groupChatMembers.userId }).from(groupChatMembers).where(eq(groupChatMembers.groupId, params.id)),
+    db.select({ name: groupChats.name }).from(groupChats).where(eq(groupChats.id, groupId)).limit(1),
+    db.select({ userId: groupChatMembers.userId }).from(groupChatMembers).where(eq(groupChatMembers.groupId, groupId)),
   ])
   const groupName = groupRow[0]?.name ?? 'Group'
 
@@ -78,7 +80,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       .map(m =>
         pusherServer.trigger(`private-notify-${m.userId}`, 'new-gm', {
           id,
-          groupId:   params.id,
+          groupId,
           groupName,
           fromUserId: userId,
           fromName:  profile?.displayName ?? 'Member',

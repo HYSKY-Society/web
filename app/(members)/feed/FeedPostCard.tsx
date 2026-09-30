@@ -342,8 +342,8 @@ function FileAttachmentList({ files }: { files: { url: string; name: string; typ
 // ── Image gallery ─────────────────────────────────────────────────────────────
 
 function ImageGallery({ urls }: { urls: string[] }) {
-  if (!urls.length) return null
   const [lightbox, setLightbox] = useState<string | null>(null)
+  if (!urls.length) return null
   const cols = urls.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
   return (
     <>

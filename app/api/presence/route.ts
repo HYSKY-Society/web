@@ -8,7 +8,7 @@ import { and, desc, eq, gte, ne, notInArray, or } from 'drizzle-orm'
 const ONLINE_WINDOW_MS = 5 * 60 * 1000 // 5 minutes
 
 export async function POST() {
-  const { userId } = auth()
+  const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
 
   const now = new Date()
@@ -29,7 +29,7 @@ export async function POST() {
 }
 
 export async function GET(request: Request) {
-  const { userId } = auth()
+  const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
 
   const { searchParams } = new URL(request.url)

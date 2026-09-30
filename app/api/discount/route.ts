@@ -6,7 +6,7 @@ import { eq, sql } from 'drizzle-orm'
 import { getUserByClerkId } from '@/lib/members'
 
 export async function POST(req: NextRequest) {
-  const { userId } = auth()
+  const { userId } = await auth()
   if (!userId) {
     return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
   }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useSyncExternalStore } from 'react'
 import AppTopBar from './AppTopBar'
 import AppSidebar from './AppSidebar'
 import { ChatProvider } from './ChatProvider'
@@ -20,21 +20,27 @@ export type SidebarData = {
   isAdmin:              boolean
 }
 
+function subscribeToSidebarPreference(callback: () => void) {
+  window.addEventListener('storage', callback)
+  window.addEventListener('sidebar-collapsed-change', callback)
+  return () => {
+    window.removeEventListener('storage', callback)
+    window.removeEventListener('sidebar-collapsed-change', callback)
+  }
+}
+
+function getSidebarPreference() {
+  return localStorage.getItem('sidebar-collapsed') === 'true'
+}
+
 export default function AppShell({ sidebarData, children, noPadding }: { sidebarData: SidebarData; children: React.ReactNode; noPadding?: boolean }) {
   const [sidebarOpen,  setSidebarOpen]  = useState(false)
-  const [collapsed,    setCollapsed]    = useState(false)
-
-  useEffect(() => {
-    setCollapsed(localStorage.getItem('sidebar-collapsed') === 'true')
-  }, [])
+  const collapsed = useSyncExternalStore(subscribeToSidebarPreference, getSidebarPreference, () => false)
 
   const handleMenuClick = () => {
     if (window.innerWidth >= 1024) {
-      setCollapsed(c => {
-        const next = !c
-        localStorage.setItem('sidebar-collapsed', String(next))
-        return next
-      })
+      localStorage.setItem('sidebar-collapsed', String(!collapsed))
+      window.dispatchEvent(new Event('sidebar-collapsed-change'))
     } else {
       setSidebarOpen(o => !o)
     }

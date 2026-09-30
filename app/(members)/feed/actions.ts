@@ -106,7 +106,7 @@ export async function createMemberEvent(input: {
   location: string
   link: string
   description: string
-  imageUrl?: string
+  imageUrl: string
 }): Promise<{ ok: true; id: string } | { error: string }> {
   const user = await currentUser()
   if (!user) return { error: 'You must be signed in to create an event' }
@@ -116,7 +116,7 @@ export async function createMemberEvent(input: {
   const location = input.location.trim()
   const link = input.link.trim()
   const description = input.description.trim()
-  const imageUrl = (input.imageUrl ?? '').trim()
+  const imageUrl = input.imageUrl.trim()
 
   if (!title) return { error: 'Title is required' }
   if (title.length > 140) return { error: 'Title is too long' }
@@ -125,7 +125,8 @@ export async function createMemberEvent(input: {
   if (description.length > 500) return { error: 'Description is too long' }
   if (!link) return { error: 'Link is required' }
   if (!/^https?:\/\//i.test(link)) return { error: 'Link must start with http:// or https://' }
-  if (imageUrl && !/^https?:\/\//i.test(imageUrl)) return { error: 'Image failed to upload — please try again' }
+  if (!imageUrl) return { error: 'Please upload an event image' }
+  if (!/^https?:\/\//i.test(imageUrl)) return { error: 'Image failed to upload — please try again' }
 
   const eventDate = new Date(input.date)
   if (Number.isNaN(eventDate.getTime())) return { error: 'Please choose a valid date' }
@@ -135,13 +136,13 @@ export async function createMemberEvent(input: {
     date: eventDate.toISOString(),
     location,
     link: link || null,
-    image: imageUrl || null,
+    image: imageUrl,
   }))}`
   const visibleText = description || title
   const storedContent = `${visibleText}\n${metadata}`
 
   const [post] = await db.insert(feedPosts)
-    .values({ authorId: user.id, content: storedContent, imageUrls: imageUrl ? JSON.stringify([imageUrl]) : '[]' })
+    .values({ authorId: user.id, content: storedContent, imageUrls: JSON.stringify([imageUrl]) })
     .returning({ id: feedPosts.id })
 
   revalidatePath('/feed')
@@ -158,7 +159,7 @@ export async function editMemberEvent(postId: string, input: {
   location: string
   link: string
   description: string
-  imageUrl?: string
+  imageUrl: string
 }): Promise<{ ok: true } | { error: string }> {
   const user = await currentUser()
   if (!user) return { error: 'You must be signed in to edit an event' }
@@ -176,7 +177,7 @@ export async function editMemberEvent(postId: string, input: {
   const location = input.location.trim()
   const link = input.link.trim()
   const description = input.description.trim()
-  const imageUrl = (input.imageUrl ?? '').trim()
+  const imageUrl = input.imageUrl.trim()
 
   if (!title) return { error: 'Title is required' }
   if (title.length > 140) return { error: 'Title is too long' }
@@ -185,7 +186,8 @@ export async function editMemberEvent(postId: string, input: {
   if (description.length > 500) return { error: 'Description is too long' }
   if (!link) return { error: 'Link is required' }
   if (!/^https?:\/\//i.test(link)) return { error: 'Link must start with http:// or https://' }
-  if (imageUrl && !/^https?:\/\//i.test(imageUrl)) return { error: 'Image failed to upload — please try again' }
+  if (!imageUrl) return { error: 'Please upload an event image' }
+  if (!/^https?:\/\//i.test(imageUrl)) return { error: 'Image failed to upload — please try again' }
 
   const eventDate = new Date(input.date)
   if (Number.isNaN(eventDate.getTime())) return { error: 'Please choose a valid date' }
@@ -195,13 +197,13 @@ export async function editMemberEvent(postId: string, input: {
     date: eventDate.toISOString(),
     location,
     link: link || null,
-    image: imageUrl || null,
+    image: imageUrl,
   }))}`
   const visibleText = description || title
   const storedContent = `${visibleText}\n${metadata}`
 
   await db.update(feedPosts)
-    .set({ content: storedContent, imageUrls: imageUrl ? JSON.stringify([imageUrl]) : '[]' })
+    .set({ content: storedContent, imageUrls: JSON.stringify([imageUrl]) })
     .where(eq(feedPosts.id, postId))
 
   revalidatePath('/feed')

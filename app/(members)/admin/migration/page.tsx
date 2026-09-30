@@ -49,7 +49,7 @@ export default async function MigrationPage() {
   // Fetch pending invitations (legacy — may have some from before the create-accounts flow)
   let invitationsRes: { data: { status: string; emailAddress: string }[] } = { data: [] }
   try {
-    invitationsRes = await clerkClient.invitations.getInvitationList({ limit: 500 })
+    invitationsRes = await (await clerkClient()).invitations.getInvitationList({ limit: 500 })
   } catch { /* ignore — invitation status shows as unknown */ }
 
   // Fetch all Clerk user emails to detect accounts that exist but haven't logged in yet
@@ -58,7 +58,7 @@ export default async function MigrationPage() {
     let offset = 0
     const pageSize = 500
     while (true) {
-      const { data, totalCount } = await clerkClient.users.getUserList({ limit: pageSize, offset })
+      const { data, totalCount } = await (await clerkClient()).users.getUserList({ limit: pageSize, offset })
       for (const u of data) {
         for (const addr of u.emailAddresses) {
           clerkUserEmails.add(addr.emailAddress.toLowerCase())

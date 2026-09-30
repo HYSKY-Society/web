@@ -90,7 +90,7 @@ export default async function NewsPostPage({ params }: { params: { slug: string 
     modified: post.imageModified,
   })
 
-  const { userId } = auth()
+  const { userId } = await auth()
   if (!userId) redirect('/news/subscribe')
 
   const access = await canReadArticle(userId, post.id)

@@ -12,7 +12,7 @@ export async function POST() {
   // Fetch all pending invitations (up to 500)
   let invitations: { id: string; emailAddress: string; status: string }[] = []
   try {
-    const res = await clerkClient.invitations.getInvitationList({ limit: 500 })
+    const res = await (await clerkClient()).invitations.getInvitationList({ limit: 500 })
     invitations = (res.data ?? []).filter(i => i.status === 'pending')
   } catch {
     return Response.json({ error: 'Failed to fetch invitations from Clerk' }, { status: 502 })
@@ -24,7 +24,7 @@ export async function POST() {
   await Promise.allSettled(
     invitations.map(async inv => {
       try {
-        await clerkClient.invitations.revokeInvitation(inv.id)
+        await (await clerkClient()).invitations.revokeInvitation(inv.id)
         revoked++
       } catch {
         errors++

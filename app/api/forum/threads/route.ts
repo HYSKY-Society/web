@@ -5,7 +5,7 @@ import { forumThreads, userProfiles } from '@/lib/schema'
 import { eq, desc } from 'drizzle-orm'
 
 export async function GET(req: NextRequest) {
-  const { userId } = auth()
+  const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
 
   const category = req.nextUrl.searchParams.get('category') ?? undefined
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { userId } = auth()
+  const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
 
   const { title, content, category } = await req.json() as {

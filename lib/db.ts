@@ -1,5 +1,7 @@
+import { PGlite } from '@electric-sql/pglite'
 import { neon } from '@neondatabase/serverless'
 import { drizzle } from 'drizzle-orm/neon-http'
+import { drizzle as drizzlePglite } from 'drizzle-orm/pglite'
 import * as schema from './schema'
 
 type Database = ReturnType<typeof drizzle<typeof schema>>
@@ -8,6 +10,13 @@ let instance: Database | undefined
 
 function getDatabase(): Database {
   if (instance) return instance
+
+  if (process.env.LOCAL_DATABASE === 'pglite') {
+    const localDatabase = drizzlePglite(new PGlite('./.local-data'), { schema })
+    instance = localDatabase as unknown as Database
+    return instance
+  }
+
   const connectionString = process.env.DATABASE_URL
   if (!connectionString) {
     throw new Error('DATABASE_URL is required when a request uses the database.')

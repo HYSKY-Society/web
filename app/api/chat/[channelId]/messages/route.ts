@@ -6,12 +6,13 @@ import { eq, asc, desc } from 'drizzle-orm'
 import { pusherServer, chatChannelName } from '@/lib/pusher'
 import { getProfile } from '@/lib/members'
 
-export async function GET(_req: NextRequest, { params }: { params: { channelId: string } }) {
-  const { userId } = auth()
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ channelId: string }> }) {
+  const { channelId } = await params
+  const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
 
   const channel = await db.query.chatChannels.findFirst({
-    where: eq(chatChannels.id, params.channelId),
+    where: eq(chatChannels.id, channelId),
   })
   if (!channel) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
@@ -27,15 +28,16 @@ export async function GET(_req: NextRequest, { params }: { params: { channelId: 
     })
     .from(chatMessages)
     .leftJoin(userProfiles, eq(chatMessages.userId, userProfiles.userId))
-    .where(eq(chatMessages.channelId, params.channelId))
+    .where(eq(chatMessages.channelId, channelId))
     .orderBy(desc(chatMessages.createdAt))
     .limit(60)
 
   return NextResponse.json(rows.reverse())
 }
 
-export async function POST(req: NextRequest, { params }: { params: { channelId: string } }) {
-  const { userId } = auth()
+export async function POST(req: NextRequest, { params }: { params: Promise<{ channelId: string }> }) {
+  const { channelId } = await params
+  const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
 
   const { content } = await req.json() as { content?: string }
@@ -43,7 +45,7 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
 
   const [msg] = await db
     .insert(chatMessages)
-    .values({ channelId: params.channelId, userId, content: content.trim() })
+    .values({ channelId, userId, content: content.trim() })
     .returning()
 
   const profile = await getProfile(userId)
@@ -54,7 +56,7 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
   }
 
   await pusherServer.trigger(
-    chatChannelName(params.channelId),
+    chatChannelName(channelId),
     'new-message',
     payload,
   ).catch(() => {})

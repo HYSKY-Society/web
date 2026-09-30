@@ -4,8 +4,9 @@ import { db } from '@/lib/db'
 import { forumReplies, forumThreads, userProfiles } from '@/lib/schema'
 import { eq, asc, sql } from 'drizzle-orm'
 
-export async function GET(_req: NextRequest, { params }: { params: { threadId: string } }) {
-  const { userId } = auth()
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ threadId: string }> }) {
+  const { threadId } = await params
+  const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
 
   const rows = await db
@@ -20,14 +21,15 @@ export async function GET(_req: NextRequest, { params }: { params: { threadId: s
     })
     .from(forumReplies)
     .leftJoin(userProfiles, eq(forumReplies.authorId, userProfiles.userId))
-    .where(eq(forumReplies.threadId, params.threadId))
+    .where(eq(forumReplies.threadId, threadId))
     .orderBy(asc(forumReplies.createdAt))
 
   return NextResponse.json(rows)
 }
 
-export async function POST(req: NextRequest, { params }: { params: { threadId: string } }) {
-  const { userId } = auth()
+export async function POST(req: NextRequest, { params }: { params: Promise<{ threadId: string }> }) {
+  const { threadId } = await params
+  const { userId } = await auth()
   if (!userId) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
 
   const { content } = await req.json() as { content?: string }
@@ -35,7 +37,7 @@ export async function POST(req: NextRequest, { params }: { params: { threadId: s
 
   const [reply] = await db
     .insert(forumReplies)
-    .values({ threadId: params.threadId, authorId: userId, content: content.trim() })
+    .values({ threadId, authorId: userId, content: content.trim() })
     .returning()
 
   await db
@@ -44,7 +46,7 @@ export async function POST(req: NextRequest, { params }: { params: { threadId: s
       replyCount: sql`${forumThreads.replyCount} + 1`,
       updatedAt:  new Date(),
     })
-    .where(eq(forumThreads.id, params.threadId))
+    .where(eq(forumThreads.id, threadId))
 
   return NextResponse.json(reply, { status: 201 })
 }

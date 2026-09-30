@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { auth } from '@clerk/nextjs/server'
 
 export default async function PublicNav() {
-  const { userId } = auth()
+  const { userId } = await auth()
 
   return (
     <nav

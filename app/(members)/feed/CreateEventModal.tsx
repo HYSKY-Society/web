@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState, useTransition } from 'react'
+import { useRef, useState, useTransition } from 'react'
 import { createPortal } from 'react-dom'
 import { upload } from '@vercel/blob/client'
 import { createMemberEvent, editMemberEvent } from './actions'
@@ -31,39 +31,21 @@ function toDatetimeLocal(iso: string): string {
 }
 
 export default function CreateEventModal({ isOpen, onClose, editing, onSuccess }: Props) {
-  const [title, setTitle] = useState('')
-  const [date, setDate] = useState('')
-  const [location, setLocation] = useState('')
-  const [link, setLink] = useState('')
-  const [description, setDescription] = useState('')
-  const [imageUrl, setImageUrl] = useState('')
+  if (!isOpen || typeof document === 'undefined') return null
+  return <EventModal key={editing?.postId ?? 'create'} onClose={onClose} editing={editing} onSuccess={onSuccess} />
+}
+
+function EventModal({ onClose, editing, onSuccess }: Omit<Props, 'isOpen'>) {
+  const [title, setTitle] = useState(editing?.title ?? '')
+  const [date, setDate] = useState(editing ? toDatetimeLocal(editing.date) : '')
+  const [location, setLocation] = useState(editing?.location ?? '')
+  const [link, setLink] = useState(editing?.link ?? '')
+  const [description, setDescription] = useState(editing?.description ?? '')
+  const [imageUrl, setImageUrl] = useState(editing?.imageUrl ?? '')
   const [uploadingImage, setUploadingImage] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const imageInputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    if (!isOpen) return
-    if (editing) {
-      setTitle(editing.title)
-      setDate(toDatetimeLocal(editing.date))
-      setLocation(editing.location)
-      setLink(editing.link)
-      setDescription(editing.description)
-      setImageUrl(editing.imageUrl)
-    } else {
-      setTitle('')
-      setDate('')
-      setLocation('')
-      setLink('')
-      setDescription('')
-      setImageUrl('')
-    }
-    setError(null)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, editing?.postId])
-
-  if (!isOpen || typeof document === 'undefined') return null
 
   function reset() {
     setTitle('')
@@ -104,6 +86,10 @@ export default function CreateEventModal({ isOpen, onClose, editing, onSuccess }
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    if (!imageUrl.trim()) {
+      setError('Please upload an event image')
+      return
+    }
     // The date/time input gives us a naive "local-looking" string like
     // 2026-10-06T08:00 with no timezone info. We resolve it to an absolute
     // instant here, in the browser, using the browser's own timezone —
@@ -166,7 +152,7 @@ export default function CreateEventModal({ isOpen, onClose, editing, onSuccess }
           </div>
 
           <div>
-            <label className="block text-xs mb-1" style={{ color: '#666' }}>Event image (optional)</label>
+            <label className="block text-xs mb-1" style={{ color: '#666' }}>Event image *</label>
             {imageUrl ? (
               <div className="relative rounded-lg overflow-hidden" style={{ border: '1px solid #ccc' }}>
                 <img src={imageUrl} alt="" className="w-full h-32 object-cover" />
@@ -261,7 +247,7 @@ export default function CreateEventModal({ isOpen, onClose, editing, onSuccess }
             </button>
             <button
               type="submit"
-              disabled={isPending || uploadingImage || !title.trim() || !date || !location.trim() || !link.trim()}
+              disabled={isPending || uploadingImage || !title.trim() || !date || !location.trim() || !link.trim() || !imageUrl.trim()}
               className="px-4 py-1.5 rounded-lg text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               style={{ background: '#fff', border: '1px solid #000', color: '#000' }}
             >

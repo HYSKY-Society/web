@@ -7,7 +7,7 @@ import { events as allEvents } from '@/lib/events'
 import CalendarClient, { type CalEvent } from './CalendarClient'
 
 export default async function CalendarPage() {
-  const { userId } = auth()
+  const { userId } = await auth()
   if (!userId) redirect('/sign-in')
 
   const [purchases, sessions] = await Promise.all([

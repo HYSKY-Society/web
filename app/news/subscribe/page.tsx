@@ -11,7 +11,7 @@ const HYSKY_CONNECT_SIGNUP_URL = 'https://connect.hysky.org/sign-up'
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] })
 
 export default async function NewsSubscribePage() {
-  const { userId } = auth()
+  const { userId } = await auth()
   const currentTier = userId ? await ensureNewsUser(userId) : null
 
   const tiers = [

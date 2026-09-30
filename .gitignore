@@ -23,3 +23,7 @@ yarn-error.log*
 .vercel
 .env*
 .private/
+
+# Local PGlite database used for development previews
+.local-data/
+.local-data-archive/

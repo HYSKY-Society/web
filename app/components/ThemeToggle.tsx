@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 
 type Theme = 'light' | 'dark'
 
@@ -22,16 +22,11 @@ function applyTheme(theme: Theme) {
 }
 
 export default function ThemeToggle() {
-  const [isDark, setIsDark] = useState(false)
-  const [mounted, setMounted] = useState(false)
-
+  const [isDark, setIsDark] = useState(() =>
+    typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'dark',
+  )
+  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false)
   useEffect(() => {
-    const currentTheme: Theme =
-      document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'
-
-    setIsDark(currentTheme === 'dark')
-    setMounted(true)
-
     const syncThemeBetweenTabs = (event: StorageEvent) => {
       if (event.key !== 'theme' || (event.newValue !== 'light' && event.newValue !== 'dark')) return
       document.documentElement.setAttribute('data-theme', event.newValue)

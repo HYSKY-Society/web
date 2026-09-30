@@ -11,7 +11,7 @@ async function revokePendingInvitations(email: string) {
   let revoked = 0
 
   while (true) {
-    const page = await clerkClient.invitations.getInvitationList({
+    const page = await (await clerkClient()).invitations.getInvitationList({
       status: 'pending',
       limit: 100,
       offset,
@@ -20,7 +20,7 @@ async function revokePendingInvitations(email: string) {
 
     for (const invitation of invitations) {
       if (invitation.emailAddress.toLowerCase() === email) {
-        await clerkClient.invitations.revokeInvitation(invitation.id)
+        await (await clerkClient()).invitations.revokeInvitation(invitation.id)
         revoked++
       }
     }
@@ -50,14 +50,14 @@ export async function POST(req: Request) {
       const email = rawEmail.trim().toLowerCase()
       try {
         const replacedPending = await revokePendingInvitations(email) > 0
-        const invitation = await clerkClient.invitations.createInvitation({
+        const invitation = await (await clerkClient()).invitations.createInvitation({
           emailAddress: email,
           redirectUrl: APP_URL + '/feed',
           notify: false,
         })
 
         if (!invitation.url) {
-          await clerkClient.invitations.revokeInvitation(invitation.id)
+          await (await clerkClient()).invitations.revokeInvitation(invitation.id)
           throw new Error('Clerk did not create a secure invitation link.')
         }
 
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
           await sendInvitationEmail({ to: email, inviterName, invitationUrl: invitation.url })
         } catch (emailError) {
           // Do not leave another unusable pending invitation if email delivery fails.
-          await clerkClient.invitations.revokeInvitation(invitation.id)
+          await (await clerkClient()).invitations.revokeInvitation(invitation.id)
           throw emailError
         }
 

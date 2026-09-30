@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import Link from 'next/link'
 import { useChatCtx } from './ChatProvider'
 import DMWindow from './DMWindow'
 import GMWindow from './GMWindow'
@@ -45,8 +46,7 @@ function OnlineRow({
   onAddToGroup: (groupId: string) => void
 }) {
   const [hovered, setHovered]   = useState(false)
-  const plusBtnRef              = useRef<HTMLButtonElement>(null)
-  const btnRectRef              = useRef<DOMRect | null>(null)
+  const [buttonRect, setButtonRect] = useState<DOMRect | null>(null)
   const portalRef               = useRef<HTMLDivElement>(null)
 
   // Stop mousedown from bubbling to document so ChatBar's outside-click handler
@@ -83,11 +83,10 @@ function OnlineRow({
       {(hovered || groupMenuOpen) && (
         <div className="shrink-0">
           <button
-            ref={plusBtnRef}
             onClick={e => {
               e.stopPropagation()
               if (!groupMenuOpen) {
-                btnRectRef.current = plusBtnRef.current?.getBoundingClientRect() ?? null
+                setButtonRect(e.currentTarget.getBoundingClientRect())
               }
               onToggleGroupMenu()
             }}
@@ -97,13 +96,13 @@ function OnlineRow({
             +
           </button>
 
-          {groupMenuOpen && btnRectRef.current && createPortal(
+          {groupMenuOpen && buttonRect && createPortal(
             <div
               ref={portalRef}
               style={{
                 position:     'fixed',
-                right:        window.innerWidth - btnRectRef.current.right,
-                bottom:       window.innerHeight - btnRectRef.current.top + 6,
+                right:        window.innerWidth - buttonRect.right,
+                bottom:       window.innerHeight - buttonRect.top + 6,
                 zIndex:       99999,
                 background:   'var(--bg-panel)',
                 border:       '1px solid var(--border-dim)',
@@ -280,8 +279,11 @@ export default function ChatBar() {
 
   useEffect(() => {
     if (panelOpen) {
-      fetchGroups()
-      fetchConversations()
+      const initialFetch = window.setTimeout(() => {
+        void fetchGroups()
+        void fetchConversations()
+      }, 0)
+      return () => window.clearTimeout(initialFetch)
     }
   }, [panelOpen])
 
@@ -479,9 +481,9 @@ export default function ChatBar() {
                           </button>
                         ))}
                       </div>
-                      <a href="/members" className="mt-auto block px-2 pt-3 text-center text-xs font-semibold text-[#9b6dff] hover:text-white">
+                      <Link href="/members" className="mt-auto block px-2 pt-3 text-center text-xs font-semibold text-[#9b6dff] hover:text-white">
                         Browse Members →
-                      </a>
+                      </Link>
                     </div>
                   )
                 ) : (
@@ -537,4 +539,4 @@ export default function ChatBar() {
     </>
   )
 }
-
+

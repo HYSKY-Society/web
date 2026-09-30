@@ -4,6 +4,6 @@ import Navbar from '@/components/navbar'
 
 // Shows the member Navbar when logged in, PublicNav when logged out.
 export default async function SmartNav() {
-  const { userId } = auth()
+  const { userId } = await auth()
   return userId ? <Navbar /> : <PublicNav />
 }

@@ -31,7 +31,7 @@ export async function POST() {
 
   for (const { id } of rows) {
     try {
-      const cu = await clerkClient.users.getUser(id)
+      const cu = await (await clerkClient()).users.getUser(id)
       const displayName = [cu.firstName, cu.lastName].filter(Boolean).join(' ').trim() || null
       const avatarUrl   = cu.imageUrl || null
 

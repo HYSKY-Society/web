@@ -4,7 +4,7 @@ import { groupChats, groupChatMembers, userProfiles } from '@/lib/schema'
 import { eq, desc, inArray } from 'drizzle-orm'
 
 export async function GET() {
-  const { userId } = auth()
+  const { userId } = await auth()
   if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const rows = await db
@@ -39,7 +39,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const { userId } = auth()
+  const { userId } = await auth()
   if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { name } = await req.json()

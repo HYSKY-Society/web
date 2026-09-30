@@ -5,7 +5,7 @@ import {
   feedPosts, feedPostLikes, feedPostReplies,
   userProfiles, users, hyskySessions, pendingTiers,
 } from '@/lib/schema'
-import { eq, desc, asc, inArray, and, gte, ne, or, notInArray, like } from 'drizzle-orm'
+import { eq, desc, asc, inArray, and, gte, ne, or, notInArray, like, isNull } from 'drizzle-orm'
 import Link from 'next/link'
 import { events as allEvents } from '@/lib/events'
 import { courses as allCourses } from '@/lib/courses'
@@ -114,6 +114,30 @@ function SidebarCard({ title, children }: { title: string; children: React.React
       </p>
       {children}
     </div>
+  )
+}
+
+type MemberEventItem = { key: string; label: string; date: string; href: string; location: string | null }
+
+function MemberEventsCard({ events }: { events: MemberEventItem[] }) {
+  return (
+    <SidebarCard title="Member Events">
+      {events.length > 0 ? (
+        <div className="pb-2">
+          {events.map((event) => (
+            <EventPill
+              key={event.key}
+              label={event.label}
+              date={event.date}
+              href={event.href}
+              location={event.location}
+            />
+          ))}
+        </div>
+      ) : (
+        <p className="px-4 pb-4 text-xs text-white/45">No upcoming member events yet.</p>
+      )}
+    </SidebarCard>
   )
 }
 
@@ -268,9 +292,7 @@ export default async function FeedPage() {
   const rawMemberEventPosts = await db
     .select({ id: feedPosts.id, content: feedPosts.content })
     .from(feedPosts)
-    .where(like(feedPosts.content, '%⁣hysky-event:%'))
-    .orderBy(desc(feedPosts.createdAt))
-    .limit(50)
+    .where(and(like(feedPosts.content, '%⁣hysky-event:%'), isNull(feedPosts.repostOfId)))
 
   const memberEvents = rawMemberEventPosts
     .flatMap((row) => {
@@ -281,7 +303,6 @@ export default async function FeedPage() {
     })
     .filter((event) => new Date(event.date) >= now)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .slice(0, 5)
 
   // Liked post IDs set
   const likedIds = new Set(myLikesRes.map((l) => l.postId))
@@ -485,6 +506,11 @@ export default async function FeedPage() {
           </div>
         )}
 
+        {/* Keep upcoming member events visible when the desktop sidebar is hidden. */}
+        <div className="xl:hidden">
+          <MemberEventsCard events={memberEvents} />
+        </div>
+
         {/* Feed items */}
         {feedItems.length === 0 ? (
           <div
@@ -524,21 +550,7 @@ export default async function FeedPage() {
         )}
 
         {/* Member Events */}
-        {memberEvents.length > 0 && (
-          <SidebarCard title="Member Events">
-            <div className="pb-2">
-              {memberEvents.map((event) => (
-                <EventPill
-                  key={event.key}
-                  label={event.label}
-                  date={event.date}
-                  href={event.href}
-                  location={event.location}
-                />
-              ))}
-            </div>
-          </SidebarCard>
-        )}
+        <MemberEventsCard events={memberEvents} />
 
         {/* Courses */}
         <SidebarCard title="Courses">

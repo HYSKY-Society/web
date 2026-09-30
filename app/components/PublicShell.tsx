@@ -5,7 +5,7 @@ import AppShell from './AppShell'
 import PublicShellClient from './PublicShellClient'
 
 export default async function PublicShell({ children }: { children: React.ReactNode }) {
-  const { userId } = auth()
+  const { userId } = await auth()
 
   if (!userId) {
     return <PublicShellClient isLoggedIn={false}>{children}</PublicShellClient>

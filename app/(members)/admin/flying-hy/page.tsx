@@ -45,7 +45,7 @@ export default async function AdminFlyingHyPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-white text-sm">{s.name}</p>
                     {s.title && <p className="text-white/40 text-xs">{s.title}{s.organization ? ` · ${s.organization}` : ''}</p>}
-                    {s.sessionTitle && <p className="text-white/30 text-xs italic mt-0.5">"{s.sessionTitle}"</p>}
+                    {s.sessionTitle && <p className="text-white/30 text-xs italic mt-0.5">&ldquo;{s.sessionTitle}&rdquo;</p>}
                   </div>
                   <form action={deleteSpeaker.bind(null, s.id)}>
                     <button type="submit" className="text-xs px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400/70 hover:text-red-400 transition-colors shrink-0">

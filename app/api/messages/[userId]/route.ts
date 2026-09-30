@@ -19,11 +19,12 @@ async function getAuthorizedUserId(): Promise<string | null> {
   return hasVipCommunityAccess(tier) ? user.id : null
 }
 
-export async function GET(_req: NextRequest, { params }: { params: { userId: string } }) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
+  const { userId } = await params
   const myId = await getAuthorizedUserId()
   if (!myId) return NextResponse.json({ error: 'VIP membership required' }, { status: 403 })
 
-  const otherId = params.userId
+  const otherId = userId
 
   try {
     if (otherId.startsWith('pending-') || otherId.startsWith('pending:')) {
@@ -71,11 +72,12 @@ export async function GET(_req: NextRequest, { params }: { params: { userId: str
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: { userId: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
+  const { userId } = await params
   const myId = await getAuthorizedUserId()
   if (!myId) return NextResponse.json({ error: 'VIP membership required' }, { status: 403 })
 
-  const toUserId = params.userId
+  const toUserId = userId
   const { content } = await req.json() as { content?: string }
   if (!content?.trim()) return NextResponse.json({ error: 'Empty message' }, { status: 400 })
   if (content.trim().length > 5_000) return NextResponse.json({ error: 'Message is too long' }, { status: 400 })

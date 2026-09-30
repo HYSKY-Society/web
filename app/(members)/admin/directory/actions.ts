@@ -335,7 +335,7 @@ export async function deletePerson(formData: FormData) {
   const personId = value(formData, 'personId')
   if (kind === 'active') {
     if (personId === admin.id) throw new Error('You cannot delete your own account here.')
-    await clerkClient.users.deleteUser(personId)
+    await (await clerkClient()).users.deleteUser(personId)
     await db.delete(users).where(eq(users.id, personId))
   } else if (kind === 'pending') {
     const email = personId.toLowerCase()

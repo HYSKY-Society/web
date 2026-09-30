@@ -1,4 +1,5 @@
 import { EventRegisterButton } from '@/components/EventRegisterButton'
+import Image from 'next/image'
 import { ZEFFY } from '@/lib/zeffy'
 import { FLYING_HY_REGISTER_OPTIONS, FLYING_HY_REGISTRATION_TITLE } from '@/lib/flying-hy-registration'
 import PublicShell from '@/app/components/PublicShell'
@@ -50,6 +51,28 @@ const eventArchive = [
   { year: 2024, href: 'https://drive.google.com/drive/folders/1OnShS08B5FI_45F4mFjaMhqd59RxTEck?usp=drive_link' },
   { year: 2023, href: 'https://drive.google.com/drive/folders/1jFNzvclfKfLp-3yawEo3YyqdVAqtEC_k?usp=drive_link' },
 ]
+
+// Logos are sourced from the HySky Zeffy newsletter's sponsor grid.
+// These members have confirmed $500+ tiers with FLYING HY sponsorship.
+const flyingHySponsors = {
+  featured: {
+    name: 'Unither Bioelectronics',
+    logo: 'https://res.cloudinary.com/hxn9dbuhd/image/upload/v1790726008/organizations/2/5/f/0/25f0434f-a723-495e-b95f-35a2269ea6e4/80173fe0-4a24-4298-8340-5376b1a82848.jpg',
+    website: 'https://unither.aero/en/',
+  },
+  leading: [
+    { name: 'Millennium Reign Energy', logo: 'https://res.cloudinary.com/hxn9dbuhd/image/upload/v1790727573/organizations/2/5/f/0/25f0434f-a723-495e-b95f-35a2269ea6e4/c6777d62-55a8-44d1-aac0-134d960f45c7.jpg', website: 'https://residentialhydrogenpower.com/' },
+    { name: 'FC Renew', logo: 'https://res.cloudinary.com/hxn9dbuhd/image/upload/v1790729231/organizations/2/5/f/0/25f0434f-a723-495e-b95f-35a2269ea6e4/60d395f7-4dd1-45b7-9794-bbe9e431285e.jpg', website: 'https://fcrenew.com/index.html' },
+    { name: 'Dynamasys', logo: 'https://res.cloudinary.com/hxn9dbuhd/image/upload/v1790726621/organizations/2/5/f/0/25f0434f-a723-495e-b95f-35a2269ea6e4/78ef0af2-be2f-4419-b29a-98ed82973567.jpg', website: 'https://dynamasys.com/' },
+  ],
+  startup: [
+    { name: 'Commonwealth Center for Advanced Logistics Systems', logo: 'https://res.cloudinary.com/hxn9dbuhd/image/upload/v1790724999/organizations/2/5/f/0/25f0434f-a723-495e-b95f-35a2269ea6e4/735ef9c5-445a-4286-ab98-65d5a997addc.jpg', website: 'https://www.ccals.com/' },
+    { name: 'TO Viridi', logo: 'https://simplyk-bucket-production.s3.ca-central-1.amazonaws.com/organizations/2/5/f/0/25f0434f-a723-495e-b95f-35a2269ea6e4/attachments/1c755bd5-e64e-4a83-a48f-e087af5c0e60/1754087350392-jwjpura32ywq3zfwjep5', website: 'https://www.toviridi.com/' },
+    { name: 'Moreton & Company', logo: 'https://simplyk-bucket-production.s3.ca-central-1.amazonaws.com/organizations/2/5/f/0/25f0434f-a723-495e-b95f-35a2269ea6e4/attachments/88cc747a-b02b-4fe2-b206-5625d3beed84/1754087615798-hlm8urvjweyfqwighcyo', website: 'https://www.moreton.com/' },
+    // Ingarra Engineering has no listed company website in Zoho; use its founder's public profile.
+    { name: 'Ingarra Engineering', logo: 'https://res.cloudinary.com/hxn9dbuhd/image/upload/v1790725002/organizations/2/5/f/0/25f0434f-a723-495e-b95f-35a2269ea6e4/8558acfd-21f0-424b-ae95-42be7dda11b6.jpg', website: 'https://www.linkedin.com/in/nicholasingarra/' },
+  ],
+}
 
 const speakerHeadshots: Record<string, string | string[]> = {
   'Danielle McLean': '1uDNh6QU9gidXhZBP9DHj44KVI8e19IR2',
@@ -281,18 +304,47 @@ export default async function FlyingHyPage() {
         <h2 className="mb-6 font-black uppercase leading-[.92] tracking-[-1px] text-[#5d00f5]" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
           Sponsors
         </h2>
-        <p className="text-white/55 text-lg leading-relaxed max-w-2xl mb-10">
-          Gain visibility among hundreds of hydrogen aviation professionals and demonstrate your commitment to the future of clean flight.
-        </p>
-        <div className="flex flex-wrap gap-4">
-          <EventRegisterButton
-            label="Become a Sponsor →"
-            options={[{ label: 'Sponsor', icon: '🏆', embedUrl: ZEFFY.flyingHySponsor }]}
-            title="FLYING HY 2026 — Sponsorship"
-            className="inline-flex items-center gap-2 font-bold px-8 py-3.5 rounded-xl transition-all hover:scale-[1.02] bg-[#5d00f5] shadow-[0_0_30px_rgba(93,0,245,.4)]"
-            style={{ color: '#fff' } as React.CSSProperties}
-          />
-        </div>
+  <p className="text-white/55 text-lg leading-relaxed max-w-2xl mb-10">
+    Gain visibility among hundreds of hydrogen aviation professionals and demonstrate your commitment to the future of clean flight.
+  </p>
+  <div className="mb-10 flex flex-wrap gap-4">
+    <EventRegisterButton
+      label="Become a Sponsor →"
+      options={[{ label: 'Sponsor', icon: '🏆', embedUrl: ZEFFY.flyingHySponsor }]}
+      title="FLYING HY 2026 — Sponsorship"
+      className="inline-flex items-center gap-2 font-bold px-8 py-3.5 rounded-xl transition-all hover:scale-[1.02] bg-[#5d00f5] shadow-[0_0_30px_rgba(93,0,245,.4)]"
+      style={{ color: '#fff' } as React.CSSProperties}
+    />
+  </div>
+  <div className="mb-12 rounded-3xl border border-[#5d00f5]/15 bg-[#ffffff] px-5 py-10 shadow-[0_18px_55px_rgba(93,0,245,.08)] sm:px-10" aria-label="FLYING HY sponsors">
+    <div className="mx-auto max-w-xl pb-9 text-center">
+      <p className="mb-5 text-xs font-bold uppercase tracking-[.22em] text-[#5d00f5]">Featured sponsor</p>
+      <a href={flyingHySponsors.featured.website} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${flyingHySponsors.featured.name} (opens in a new tab)`} className="block rounded-xl transition-all duration-200 hover:-translate-y-1 hover:bg-[#ffffff] hover:shadow-[0_20px_50px_rgba(93,0,245,0.18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5d00f5]">
+        <Image
+          unoptimized
+          src={flyingHySponsors.featured.logo}
+          alt={`${flyingHySponsors.featured.name} logo`}
+          width={640}
+          height={240}
+          className="mx-auto h-44 w-full object-cover object-center sm:h-52"
+        />
+      </a>
+    </div>
+    <div className="grid grid-cols-1 gap-5 border-t border-[#5d00f5]/10 py-7 sm:grid-cols-3">
+      {flyingHySponsors.leading.map((sponsor) => (
+        <a key={sponsor.name} href={sponsor.website} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${sponsor.name} (opens in a new tab)`} className="flex h-40 items-center justify-center rounded-xl p-2 transition-all duration-200 hover:-translate-y-1 hover:bg-[#ffffff] hover:shadow-[0_20px_50px_rgba(93,0,245,0.18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5d00f5] sm:h-44">
+          <Image unoptimized src={sponsor.logo} alt={`${sponsor.name} logo`} width={320} height={160} className="h-full w-full object-contain" />
+        </a>
+      ))}
+    </div>
+    <div className="grid grid-cols-2 gap-4 border-t border-[#5d00f5]/10 pt-7 sm:grid-cols-4">
+      {flyingHySponsors.startup.map((sponsor) => (
+        <a key={sponsor.name} href={sponsor.website} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${sponsor.name} (opens in a new tab)`} className="flex h-32 items-center justify-center rounded-xl p-2 transition-all duration-200 hover:-translate-y-1 hover:bg-[#ffffff] hover:shadow-[0_20px_50px_rgba(93,0,245,0.18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5d00f5] sm:h-36">
+          <Image unoptimized src={sponsor.logo} alt={`${sponsor.name} logo`} width={240} height={144} className="h-full w-full object-contain" />
+        </a>
+      ))}
+    </div>
+  </div>
       </section>
 
       <div className="h-px mx-6 lg:mx-8" style={{ background: 'var(--border-muted)' }} />

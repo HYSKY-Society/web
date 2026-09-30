@@ -6,14 +6,15 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(
   _request: Request,
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
 ) {
+  const { slug } = await params
   const user = await currentUser()
   if (!user) {
     return NextResponse.json({ hasAccess: false }, { status: 401 })
   }
 
-  const hasAccess = await hasCourseAccess(user.id, params.slug)
+  const hasAccess = await hasCourseAccess(user.id, slug)
   return NextResponse.json(
     { hasAccess },
     { headers: { 'Cache-Control': 'no-store' } },
