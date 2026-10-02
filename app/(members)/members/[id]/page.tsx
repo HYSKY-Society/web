@@ -48,19 +48,20 @@ function TierBadge({ tier }: { tier: string }) {
   )
 }
 
-export default async function MemberProfilePage({ params }: { params: { id: string } }) {
+export default async function MemberProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const user = await currentUser()
   const userId = user!.id
   const viewerEmail = user!.emailAddresses.find((entry) => entry.id === user!.primaryEmailAddressId)?.emailAddress ?? ''
   const [viewerTier, member] = await Promise.all([
     getUserTier(userId),
-    getMemberProfile(params.id),
+    getMemberProfile(id),
   ])
 
   if (!member) notFound()
   const [contacts, zohoDetails] = await Promise.all([
-    member.isPending ? Promise.resolve(null) : getProfileContacts(params.id),
-    getZohoProfileDetails(params.id, member.email),
+    member.isPending ? Promise.resolve(null) : getProfileContacts(id),
+    getZohoProfileDetails(id, member.email),
   ])
   const canUseVipCommunity = hasVipCommunityAccess(viewerTier) || isAdmin(viewerEmail)
 
