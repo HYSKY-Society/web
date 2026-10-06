@@ -2,20 +2,23 @@ import { db } from '@/lib/db'
 import { hyskySessions } from '@/lib/schema'
 import { eq, desc } from 'drizzle-orm'
 import { getNextHyskyMonthly, formatSessionDate } from '@/lib/hysky-monthly'
+import { getHyskyMonthlyFlyer } from '@/lib/hysky-monthly-flyer'
 import { getMonthlyPlaylistVideos } from '@/lib/youtube-sync'
 import PublicShell from '@/app/components/PublicShell'
 import VideoCard from '@/app/components/VideoCard'
+import Image from 'next/image'
 
 export const revalidate = 3600
 
 export default async function HyskyMonthlyPage() {
-  const [sessions, playlistVideos] = await Promise.all([
+  const [sessions, playlistVideos, flyer] = await Promise.all([
     db
       .select()
       .from(hyskySessions)
       .where(eq(hyskySessions.isPublished, true))
       .orderBy(desc(hyskySessions.sessionDate)),
     getMonthlyPlaylistVideos().catch(() => []),
+    getHyskyMonthlyFlyer(),
   ])
 
   const now = new Date()
@@ -70,14 +73,23 @@ export default async function HyskyMonthlyPage() {
           {/* Next Session Card */}
           <div className="monthly-next-card rounded-3xl p-8 sm:p-10 mb-16 text-center">
             <p className="monthly-next-kicker text-white/40 text-sm uppercase tracking-widest mb-2">Next Session</p>
-            <h2 className="text-3xl font-bold mb-1">
-              {nextSession?.title ?? 'AeroDelft with Amit Weitzman'}
-            </h2>
-            <p className="monthly-next-date text-[#9b6dff] font-semibold mb-3">{nextFormatted}</p>
-            <p className="monthly-next-copy text-white/45 text-sm max-w-lg mx-auto mb-6 leading-relaxed">
-              {nextSession?.description ??
-                'Join AeroDelft and Amit Weitzman for the next free HySky Monthly conversation.'}
-            </p>
+            <p className="monthly-next-date text-[#9b6dff] font-semibold mb-5">{nextFormatted}</p>
+            {flyer ? (
+              <Image
+                src={flyer.src}
+                alt={flyer.alt}
+                width={688}
+                height={396}
+                className="w-full h-auto max-w-2xl mx-auto rounded-xl mb-6"
+              />
+            ) : (
+              <p className="monthly-next-copy text-white/45 text-sm max-w-lg mx-auto mb-6 leading-relaxed">
+                See the latest webinar details on{' '}
+                <a href="https://www.hysky.org/free-webinars" target="_blank" rel="noopener noreferrer" className="underline">
+                  HySky.org
+                </a>.
+              </p>
+            )}
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <a
                 href={registrationUrl}
@@ -129,9 +141,6 @@ export default async function HyskyMonthlyPage() {
                         })}
                       </p>
                       <h3 className="font-semibold text-white mb-1">{session.title}</h3>
-                      {session.description && (
-                        <p className="text-white/40 text-sm leading-relaxed">{session.description}</p>
-                      )}
                     </div>
                   </div>
                 ))}

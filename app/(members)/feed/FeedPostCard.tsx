@@ -8,6 +8,7 @@ import ReplyComposer from './ReplyComposer'
 import CreateEventModal from './CreateEventModal'
 import type { MentionMember } from './FeedComposer'
 import type { LinkPreviewData } from '@/lib/link-preview'
+import { isValidTimeZone } from '@/lib/event-time'
 
 export type PostAuthor = {
   id: string
@@ -59,7 +60,7 @@ const FILE_METADATA = /\n⁣hysky-files:([^\n]+)/
 const EVENT_METADATA = /\n⁣hysky-event:([^\n]+)/
 
 type FileAttachment = { url: string; name: string; type: string }
-type EventMeta = { title: string; date: string; location: string | null; link: string | null; image: string | null }
+type EventMeta = { title: string; date: string; timeZone: string | null; location: string | null; link: string | null; image: string | null }
 
 function parseEventMetadata(text: string): EventMeta | null {
   const match = text.match(EVENT_METADATA)
@@ -72,6 +73,7 @@ function parseEventMetadata(text: string): EventMeta | null {
         return {
           title: candidate.title,
           date: candidate.date,
+          timeZone: typeof candidate.timeZone === 'string' && isValidTimeZone(candidate.timeZone) ? candidate.timeZone : null,
           location: typeof candidate.location === 'string' ? candidate.location : null,
           link: typeof candidate.link === 'string' ? candidate.link : null,
           image: typeof candidate.image === 'string' ? candidate.image : null,
@@ -244,8 +246,8 @@ function LinkPreview({ text }: { text: string }) {
 
 function EventCard({ event, description }: { event: EventMeta; description: string }) {
   const eventDate = new Date(event.date)
-  const dateStr = eventDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
-  const timeStr = eventDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+  const dateStr = eventDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: event.timeZone ?? undefined })
+  const timeStr = eventDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: event.timeZone ?? undefined })
   return (
     <div className="mt-3 mb-1 rounded-xl overflow-hidden" style={{ background: '#fff' }}>
       {event.image && (
@@ -274,7 +276,7 @@ function EventCard({ event, description }: { event: EventMeta; description: stri
               <line x1="8" y1="2" x2="8" y2="6" />
               <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
-            {dateStr} at {timeStr}
+            {dateStr} at {timeStr}{event.timeZone ? ` (${event.timeZone.replaceAll('_', ' ')})` : ''}
           </span>
           {event.location && (
             <span className="inline-flex items-center gap-1.5">
@@ -845,6 +847,7 @@ export default function FeedPostCard({
             postId: post.id,
             title: eventMeta.title,
             date: eventMeta.date,
+            timeZone: eventMeta.timeZone,
             location: eventMeta.location ?? '',
             link: eventMeta.link ?? '',
             description: (() => {

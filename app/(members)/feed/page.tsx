@@ -12,6 +12,7 @@ import { courses as allCourses } from '@/lib/courses'
 import { getRecentBlogPosts, type WixPost } from '@/lib/wix'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
 import { getAdminEmails, isFeedModerator } from '@/lib/admin'
+import { isValidTimeZone } from '@/lib/event-time'
 import FeedComposer from './FeedComposer'
 import CreateEventButton from './CreateEventButton'
 import FeedPostCard, { type PostData, type PostAuthor, type ReplyData } from './FeedPostCard'
@@ -42,7 +43,7 @@ function timeLabel(date: Date | string): string {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-type MemberEventMeta = { title: string; date: string; location: string | null; link: string | null; image: string | null }
+type MemberEventMeta = { title: string; date: string; timeZone: string | null; location: string | null; link: string | null; image: string | null }
 
 function parseMemberEvent(content: string): MemberEventMeta | null {
   const match = content.match(/\n?⁣hysky-event:([^\n]+)/)
@@ -55,6 +56,7 @@ function parseMemberEvent(content: string): MemberEventMeta | null {
         return {
           title: candidate.title,
           date: candidate.date,
+          timeZone: typeof candidate.timeZone === 'string' && isValidTimeZone(candidate.timeZone) ? candidate.timeZone : null,
           location: typeof candidate.location === 'string' ? candidate.location : null,
           link: typeof candidate.link === 'string' ? candidate.link : null,
           image: typeof candidate.image === 'string' ? candidate.image : null,
@@ -67,7 +69,7 @@ function parseMemberEvent(content: string): MemberEventMeta | null {
 
 // ── Right Sidebar ────────────────────────────────────────────────────────────────
 
-function EventPill({ label, date, href, location }: { label: string; date: string; href: string; location?: string | null }) {
+function EventPill({ label, date, href, location, timeZone }: { label: string; date: string; href: string; location?: string | null; timeZone?: string | null }) {
   const isExternal = /^https?:\/\//i.test(href)
   const inner = (
     <>
@@ -76,16 +78,17 @@ function EventPill({ label, date, href, location }: { label: string; date: strin
         style={{ background: 'rgba(93,0,245,.2)', border: '1px solid rgba(93,0,245,.25)' }}
       >
         <span className="event-pill-month text-[9px] font-bold leading-none text-[#9b6dff]">
-          {new Date(date).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
+          {new Date(date).toLocaleDateString('en-US', { month: 'short', timeZone: timeZone ?? undefined }).toUpperCase()}
         </span>
         <span className="text-sm font-black leading-none text-white mt-0.5">
-          {new Date(date).getDate()}
+          {new Date(date).toLocaleDateString('en-US', { day: 'numeric', timeZone: timeZone ?? undefined })}
         </span>
       </div>
       <div className="min-w-0">
         <p className="text-sm font-semibold text-white leading-snug">{label}</p>
         <p className="text-xs text-white/35 mt-0.5">
-          {new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+          {new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: timeZone ?? undefined })}
+          {timeZone ? ` · ${timeZone.replaceAll('_', ' ')}` : ''}
           {location ? ` · ${location}` : ''}
         </p>
       </div>
@@ -117,7 +120,7 @@ function SidebarCard({ title, children }: { title: string; children: React.React
   )
 }
 
-type MemberEventItem = { key: string; label: string; date: string; href: string; location: string | null }
+type MemberEventItem = { key: string; label: string; date: string; href: string; location: string | null; timeZone: string | null }
 
 function MemberEventsCard({ events }: { events: MemberEventItem[] }) {
   return (
@@ -131,6 +134,7 @@ function MemberEventsCard({ events }: { events: MemberEventItem[] }) {
               date={event.date}
               href={event.href}
               location={event.location}
+              timeZone={event.timeZone}
             />
           ))}
         </div>
@@ -298,7 +302,7 @@ export default async function FeedPage() {
     .flatMap((row) => {
       const meta = parseMemberEvent(row.content)
       return meta
-        ? [{ key: `member-event-${row.id}`, label: meta.title, date: meta.date, href: meta.link ?? `/feed#post-${row.id}`, location: meta.location }]
+        ? [{ key: `member-event-${row.id}`, label: meta.title, date: meta.date, href: meta.link ?? `/feed#post-${row.id}`, location: meta.location, timeZone: meta.timeZone }]
         : []
     })
     .filter((event) => new Date(event.date) >= now)

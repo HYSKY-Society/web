@@ -3,11 +3,13 @@ import { useRef, useState, useTransition } from 'react'
 import { createPortal } from 'react-dom'
 import { upload } from '@vercel/blob/client'
 import { createMemberEvent, editMemberEvent } from './actions'
+import { toDateTimeLocal } from '@/lib/event-time'
 
 interface EditingEvent {
   postId: string
   title: string
   date: string
+  timeZone: string | null
   location: string
   link: string
   description: string
@@ -21,23 +23,16 @@ interface Props {
   onSuccess?: () => void
 }
 
-// Formats an ISO date string as the local "YYYY-MM-DDTHH:mm" value a
-// datetime-local input expects, so editing an event shows its saved time
-// in the browser's own timezone rather than UTC.
-function toDatetimeLocal(iso: string): string {
-  const d = new Date(iso)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
-}
-
 export default function CreateEventModal({ isOpen, onClose, editing, onSuccess }: Props) {
   if (!isOpen || typeof document === 'undefined') return null
   return <EventModal key={editing?.postId ?? 'create'} onClose={onClose} editing={editing} onSuccess={onSuccess} />
 }
 
 function EventModal({ onClose, editing, onSuccess }: Omit<Props, 'isOpen'>) {
+  const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
   const [title, setTitle] = useState(editing?.title ?? '')
-  const [date, setDate] = useState(editing ? toDatetimeLocal(editing.date) : '')
+  const [timeZone, setTimeZone] = useState(editing?.timeZone ?? browserTimeZone)
+  const [date, setDate] = useState(editing ? toDateTimeLocal(editing.date, editing.timeZone ?? browserTimeZone) : '')
   const [location, setLocation] = useState(editing?.location ?? '')
   const [link, setLink] = useState(editing?.link ?? '')
   const [description, setDescription] = useState(editing?.description ?? '')
@@ -50,6 +45,7 @@ function EventModal({ onClose, editing, onSuccess }: Omit<Props, 'isOpen'>) {
   function reset() {
     setTitle('')
     setDate('')
+    setTimeZone(browserTimeZone)
     setLocation('')
     setLink('')
     setDescription('')
@@ -90,16 +86,10 @@ function EventModal({ onClose, editing, onSuccess }: Omit<Props, 'isOpen'>) {
       setError('Please upload an event image')
       return
     }
-    // The date/time input gives us a naive "local-looking" string like
-    // 2026-10-06T08:00 with no timezone info. We resolve it to an absolute
-    // instant here, in the browser, using the browser's own timezone —
-    // otherwise the server (which runs in UTC) would reinterpret those same
-    // digits as UTC and silently shift the saved time.
-    const isoDate = date ? new Date(date).toISOString() : ''
     startTransition(async () => {
       const result = editing
-        ? await editMemberEvent(editing.postId, { title, date: isoDate, location, link, description, imageUrl })
-        : await createMemberEvent({ title, date: isoDate, location, link, description, imageUrl })
+        ? await editMemberEvent(editing.postId, { title, date, timeZone, location, link, description, imageUrl })
+        : await createMemberEvent({ title, date, timeZone, location, link, description, imageUrl })
       if ('error' in result) {
         setError(result.error)
         return
@@ -120,11 +110,11 @@ function EventModal({ onClose, editing, onSuccess }: Omit<Props, 'isOpen'>) {
       aria-label={editing ? 'Edit event' : 'Create an event'}
     >
       <div
-        className="relative w-full max-w-md rounded-2xl p-5"
+        className="relative flex w-full max-w-md max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-2xl p-5"
         style={{ background: '#fff', border: '1px solid #000' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex shrink-0 items-center justify-between">
           <h2 className="font-semibold text-base" style={{ color: '#000' }}>{editing ? 'Edit event' : 'Create an event'}</h2>
           <button
             type="button"
@@ -137,7 +127,8 @@ function EventModal({ onClose, editing, onSuccess }: Omit<Props, 'isOpen'>) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
           <div>
             <label className="block text-xs mb-1" style={{ color: '#666' }}>Event title *</label>
             <input
@@ -196,6 +187,36 @@ function EventModal({ onClose, editing, onSuccess }: Omit<Props, 'isOpen'>) {
           </div>
 
           <div>
+            <label htmlFor="event-time-zone" className="block text-xs mb-1" style={{ color: '#666' }}>Time zone *</label>
+            <select
+              id="event-time-zone"
+              value={timeZone}
+              onChange={(e) => setTimeZone(e.target.value)}
+              required
+              className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#5d00f5]/60"
+              style={{ background: '#fff', border: '1px solid #ccc', color: '#000', colorScheme: 'light' }}
+            >
+              <optgroup label="Common time zones">
+                <option value="America/New_York">Eastern Time (New York)</option>
+                <option value="America/Chicago">Central Time (Chicago)</option>
+                <option value="America/Denver">Mountain Time (Denver)</option>
+                <option value="America/Los_Angeles">Pacific Time (Los Angeles)</option>
+                <option value="America/Anchorage">Alaska Time (Anchorage)</option>
+                <option value="Pacific/Honolulu">Hawaii Time (Honolulu)</option>
+                <option value="UTC">UTC</option>
+              </optgroup>
+              <optgroup label="All time zones">
+                {Intl.supportedValuesOf('timeZone').filter((zone) => ![
+                  'America/New_York', 'America/Chicago', 'America/Denver',
+                  'America/Los_Angeles', 'America/Anchorage', 'Pacific/Honolulu',
+                ].includes(zone)).map((zone) => (
+                  <option key={zone} value={zone}>{zone.replaceAll('_', ' ')}</option>
+                ))}
+              </optgroup>
+            </select>
+          </div>
+
+          <div>
             <label className="block text-xs mb-1" style={{ color: '#666' }}>Location *</label>
             <input
               value={location}
@@ -235,8 +256,9 @@ function EventModal({ onClose, editing, onSuccess }: Omit<Props, 'isOpen'>) {
           </div>
 
           {error && <p className="text-xs" style={{ color: '#c0392b' }}>{error}</p>}
+          </div>
 
-          <div className="flex justify-end gap-2 pt-1">
+          <div className="mt-3 flex shrink-0 justify-end gap-2 border-t border-[#ddd] pt-3">
             <button
               type="button"
               onClick={handleClose}
@@ -247,7 +269,7 @@ function EventModal({ onClose, editing, onSuccess }: Omit<Props, 'isOpen'>) {
             </button>
             <button
               type="submit"
-              disabled={isPending || uploadingImage || !title.trim() || !date || !location.trim() || !link.trim() || !imageUrl.trim()}
+              disabled={isPending || uploadingImage || !title.trim() || !date || !timeZone || !location.trim() || !link.trim() || !imageUrl.trim()}
               className="px-4 py-1.5 rounded-lg text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               style={{ background: '#fff', border: '1px solid #000', color: '#000' }}
             >

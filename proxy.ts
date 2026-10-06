@@ -27,6 +27,7 @@ const isPublicRoute = createRouteMatcher([
 
 export default clerkMiddleware(async (auth, request) => {
   const hostname = request.headers.get('host') ?? ''
+  const isPublicCourseDetail = /^\/courses\/(h2-aircraft-certification|h2-safety-for-aviation|h2-aviation-policy)\/?$/.test(request.nextUrl.pathname)
 
   // When news.hysky.org is added as a Vercel domain, rewrite its root
   // and any non-/news paths so they resolve to /news/* routes.
@@ -46,7 +47,7 @@ export default clerkMiddleware(async (auth, request) => {
     }
   }
 
-  if (!isPublicRoute(request)) {
+  if (!isPublicRoute(request) && !isPublicCourseDetail) {
     await auth.protect()
   }
 })

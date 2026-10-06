@@ -8,6 +8,7 @@ import { revalidatePath } from 'next/cache'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
 import { isFeedModerator } from '@/lib/admin'
 import { fetchLinkPreview } from '@/lib/link-preview'
+import { fromDateTimeLocal, isValidTimeZone } from '@/lib/event-time'
 
 async function canPublish(user: NonNullable<Awaited<ReturnType<typeof currentUser>>>): Promise<boolean> {
   const tier = await getUserTier(user.id)
@@ -103,6 +104,7 @@ export async function createPost(formData: FormData) {
 export async function createMemberEvent(input: {
   title: string
   date: string
+  timeZone: string
   location: string
   link: string
   description: string
@@ -128,12 +130,14 @@ export async function createMemberEvent(input: {
   if (!imageUrl) return { error: 'Please upload an event image' }
   if (!/^https?:\/\//i.test(imageUrl)) return { error: 'Image failed to upload — please try again' }
 
-  const eventDate = new Date(input.date)
-  if (Number.isNaN(eventDate.getTime())) return { error: 'Please choose a valid date' }
+  if (!isValidTimeZone(input.timeZone)) return { error: 'Please choose a valid time zone' }
+  const eventDate = fromDateTimeLocal(input.date, input.timeZone)
+  if (!eventDate) return { error: 'Please choose a valid date and time for that time zone' }
 
   const metadata = `⁣hysky-event:${encodeURIComponent(JSON.stringify({
     title,
     date: eventDate.toISOString(),
+    timeZone: input.timeZone,
     location,
     link: link || null,
     image: imageUrl,
@@ -156,6 +160,7 @@ export async function createMemberEvent(input: {
 export async function editMemberEvent(postId: string, input: {
   title: string
   date: string
+  timeZone: string
   location: string
   link: string
   description: string
@@ -189,12 +194,14 @@ export async function editMemberEvent(postId: string, input: {
   if (!imageUrl) return { error: 'Please upload an event image' }
   if (!/^https?:\/\//i.test(imageUrl)) return { error: 'Image failed to upload — please try again' }
 
-  const eventDate = new Date(input.date)
-  if (Number.isNaN(eventDate.getTime())) return { error: 'Please choose a valid date' }
+  if (!isValidTimeZone(input.timeZone)) return { error: 'Please choose a valid time zone' }
+  const eventDate = fromDateTimeLocal(input.date, input.timeZone)
+  if (!eventDate) return { error: 'Please choose a valid date and time for that time zone' }
 
   const metadata = `⁣hysky-event:${encodeURIComponent(JSON.stringify({
     title,
     date: eventDate.toISOString(),
+    timeZone: input.timeZone,
     location,
     link: link || null,
     image: imageUrl,

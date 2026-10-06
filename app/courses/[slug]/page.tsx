@@ -5,6 +5,7 @@ import { currentUser } from '@clerk/nextjs/server'
 import { hasCourseAccess } from '@/lib/course-access'
 import { EnrollButton } from '@/components/EnrollButton'
 import { ZEFFY } from '@/lib/zeffy'
+import PublicShell from '@/app/components/PublicShell'
 
 const COURSE_EMBED_URLS: Record<string, string> = {
   'h2-aircraft-certification': ZEFFY.h2Certification,
@@ -12,8 +13,9 @@ const COURSE_EMBED_URLS: Record<string, string> = {
   'h2-aviation-policy':        ZEFFY.h2Policy,
 }
 
-export default async function CoursePage({ params }: { params: { slug: string } }) {
-  const course = getCourse(params.slug)
+export default async function CoursePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const course = getCourse(slug)
   if (!course) notFound()
 
   const user = await currentUser()
@@ -28,7 +30,8 @@ export default async function CoursePage({ params }: { params: { slug: string } 
   const badgeLabel = course.badge
   const embedUrl = COURSE_EMBED_URLS[course.slug] ?? ZEFFY.membership
   return (
-    <div className="text-white max-w-4xl">
+    <PublicShell>
+    <div className="text-white max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
       <Link href="/courses" className="inline-flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-8 transition-colors">
         ← Back to Courses
       </Link>
@@ -305,5 +308,6 @@ export default async function CoursePage({ params }: { params: { slug: string } 
         )}
       </div>
     </div>
+    </PublicShell>
   )
 }
