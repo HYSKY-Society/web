@@ -113,7 +113,7 @@ export default function AppSidebar({
         <SidebarSection label="Discover" collapsed={collapsed} />
         <SidebarItem href="/courses" icon="courses" label="Browse Courses" onClick={onClose} collapsed={collapsed} />
         <SidebarItem href="/events" icon="events" label="Events" onClick={onClose} collapsed={collapsed} />
-        <SidebarItem href="https://news.hysky.org" icon="news" label="HySky News" onClick={onClose} collapsed={collapsed} />
+        <SidebarItem href="/hysky-monthly" icon="video" label="HySky Monthly" onClick={onClose} collapsed={collapsed} />
 
         <SidebarSection label="Membership" collapsed={collapsed} />
         {!collapsed && (

@@ -1,5 +1,5 @@
 'use client'
-import { useRef, useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { createPortal } from 'react-dom'
 import { upload } from '@vercel/blob/client'
 import { createMemberEvent, editMemberEvent } from './actions'
@@ -41,6 +41,18 @@ function EventModal({ onClose, editing, onSuccess }: Omit<Props, 'isOpen'>) {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const imageInputRef = useRef<HTMLInputElement>(null)
+  const scrollAreaRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const previousBodyOverflow = document.body.style.overflow
+    const previousHtmlOverflow = document.documentElement.style.overflow
+    document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousBodyOverflow
+      document.documentElement.style.overflow = previousHtmlOverflow
+    }
+  }, [])
 
   function reset() {
     setTitle('')
@@ -105,6 +117,11 @@ function EventModal({ onClose, editing, onSuccess }: Omit<Props, 'isOpen'>) {
       className="fixed inset-0 z-[1000] flex items-center justify-center p-4"
       style={{ background: 'rgba(4,3,10,.88)', backdropFilter: 'blur(8px)' }}
       onClick={handleClose}
+      onWheel={(e) => {
+        if (!scrollAreaRef.current?.contains(e.target as Node)) {
+          scrollAreaRef.current?.scrollBy({ top: e.deltaY })
+        }
+      }}
       role="dialog"
       aria-modal="true"
       aria-label={editing ? 'Edit event' : 'Create an event'}
@@ -128,7 +145,7 @@ function EventModal({ onClose, editing, onSuccess }: Omit<Props, 'isOpen'>) {
         </div>
 
         <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
-          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
+          <div ref={scrollAreaRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain pr-1">
           <div>
             <label className="block text-xs mb-1" style={{ color: '#666' }}>Event title *</label>
             <input
