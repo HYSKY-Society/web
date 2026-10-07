@@ -16,6 +16,8 @@ type NotificationItem = {
   actor: { userId: string; displayName: string | null; avatarUrl: string | null } | null
 }
 
+const FALLBACK_REFRESH_INTERVAL_MS = 15 * 60 * 1000
+
 function notificationText(item: NotificationItem) {
   const name = item.actor?.displayName ?? 'A HySky member'
   if (item.type === 'post') return `${name} posted in the community`
@@ -66,6 +68,7 @@ export default function NotificationBell({ myId, canOpenDirectMessages }: { myId
   }, [])
 
   const refresh = useCallback(async () => {
+    if (document.visibilityState !== 'visible') return
     try {
       const response = await fetch('/api/notifications', { cache: 'no-store' })
       if (!response.ok) return
@@ -101,13 +104,20 @@ export default function NotificationBell({ myId, canOpenDirectMessages }: { myId
   }, [])
 
   useEffect(() => {
-    const initialRefresh = window.setTimeout(() => void refresh(), 0)
-    const timer = window.setInterval(refresh, 30000)
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible') void refresh()
+    }
+    const initialRefresh = window.setTimeout(refreshWhenVisible, 0)
+    const timer = window.setInterval(refreshWhenVisible, FALLBACK_REFRESH_INTERVAL_MS)
     window.addEventListener('notifications:refresh', refresh)
+    window.addEventListener('focus', refreshWhenVisible)
+    document.addEventListener('visibilitychange', refreshWhenVisible)
     return () => {
       window.clearTimeout(initialRefresh)
       window.clearInterval(timer)
       window.removeEventListener('notifications:refresh', refresh)
+      window.removeEventListener('focus', refreshWhenVisible)
+      document.removeEventListener('visibilitychange', refreshWhenVisible)
     }
   }, [refresh])
 

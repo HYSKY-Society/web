@@ -43,7 +43,7 @@ export function EnrollButton({
     let checking = false
 
     const checkAccess = async () => {
-      if (!active || checking) return
+      if (!active || checking || document.visibilityState !== 'visible') return
       checking = true
 
       try {
@@ -70,7 +70,7 @@ export function EnrollButton({
     }
 
     void checkAccess()
-    const intervalId = window.setInterval(checkAccess, 1500)
+    const intervalId = window.setInterval(checkAccess, 5000)
     window.addEventListener('focus', checkAccess)
     document.addEventListener('visibilitychange', checkWhenVisible)
 

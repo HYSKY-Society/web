@@ -15,12 +15,16 @@ export async function POST(req: NextRequest) {
   const socketId    = params.get('socket_id')!
   const channelName = params.get('channel_name')!
 
-  const allowed = ['private-dm-', 'presence-chat-', 'presence-online', 'private-notify-', 'private-gm-']
+  const allowed = ['private-dm-', 'presence-chat-', 'presence-online', 'private-notify-', 'private-access-', 'private-gm-']
   if (!allowed.some(prefix => channelName.startsWith(prefix))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
   if (channelName.startsWith('private-notify-') && channelName !== `private-notify-${userId}`) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  if (channelName.startsWith('private-access-') && channelName !== `private-access-${userId}`) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 

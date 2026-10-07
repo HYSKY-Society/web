@@ -23,7 +23,10 @@ export default function CreateEventButton({ canUseVipCommunity }: Props) {
         Create event
       </button>
       <CreateEventModal isOpen={showForm} onClose={() => setShowForm(false)} />
-      <ZeffyModal isOpen={showUpgrade} onClose={() => setShowUpgrade(false)} title="Upgrade to HySky VIP" options={[{ label: 'VIP Membership', icon: '👥', embedUrl: ZEFFY.membership }]} />
+      <ZeffyModal isOpen={showUpgrade} onClose={() => {
+        setShowUpgrade(false)
+        window.dispatchEvent(new Event('vip-access:check'))
+      }} title="Upgrade to HySky VIP" options={[{ label: 'VIP Membership', icon: '👥', embedUrl: ZEFFY.membership }]} />
     </>
   )
 }

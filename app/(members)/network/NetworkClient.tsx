@@ -68,16 +68,22 @@ export default function NetworkClient() {
 
   useEffect(() => {
     const updatePresence = () => {
+      if (document.visibilityState !== 'visible') return
       fetch('/api/presence', { method: 'POST' }).catch(() => {})
     }
     updatePresence()
     const interval = window.setInterval(updatePresence, 30_000)
-    return () => window.clearInterval(interval)
+    document.addEventListener('visibilitychange', updatePresence)
+    return () => {
+      window.clearInterval(interval)
+      document.removeEventListener('visibilitychange', updatePresence)
+    }
   }, [])
 
   useEffect(() => {
     let active = true
     const loadMembers = () => {
+      if (document.visibilityState !== 'visible') return
       fetch('/api/presence?all=true')
         .then((response) => response.ok ? response.json() : [])
         .then((data) => {
@@ -91,15 +97,18 @@ export default function NetworkClient() {
 
     loadMembers()
     const interval = window.setInterval(loadMembers, 60_000)
+    document.addEventListener('visibilitychange', loadMembers)
     return () => {
       active = false
       window.clearInterval(interval)
+      document.removeEventListener('visibilitychange', loadMembers)
     }
   }, [])
 
   useEffect(() => {
     let active = true
     const loadConversations = () => {
+      if (document.visibilityState !== 'visible') return
       fetch('/api/messages')
         .then((response) => response.ok ? response.json() : [])
         .then((data) => {
@@ -115,12 +124,14 @@ export default function NetworkClient() {
     const interval = window.setInterval(loadConversations, 15_000)
     window.addEventListener('focus', loadConversations)
     window.addEventListener('notifications:refresh', loadConversations)
+    document.addEventListener('visibilitychange', loadConversations)
 
     return () => {
       active = false
       window.clearInterval(interval)
       window.removeEventListener('focus', loadConversations)
       window.removeEventListener('notifications:refresh', loadConversations)
+      document.removeEventListener('visibilitychange', loadConversations)
     }
   }, [])
 

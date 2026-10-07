@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { discountCodes, users } from '@/lib/schema'
 import { eq, sql } from 'drizzle-orm'
 import { getUserByClerkId } from '@/lib/members'
+import { notifyMembershipChanged } from '@/lib/membership-events'
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth()
@@ -54,6 +55,8 @@ export async function POST(req: NextRequest) {
         .where(eq(discountCodes.id, discount.id))
     }
   })
+
+  await notifyMembershipChanged(userId)
 
   return NextResponse.json({ ok: true })
 }

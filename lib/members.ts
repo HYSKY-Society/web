@@ -82,7 +82,11 @@ export async function setUserTier(clerkId: string, tier: Tier) {
 }
 
 export async function setUserTierByEmail(email: string, tier: Tier) {
-  await db.update(users).set({ tier }).where(eq(users.email, email.toLowerCase().trim()))
+  const updated = await db.update(users).set({ tier }).where(eq(users.email, email.toLowerCase().trim())).returning({ id: users.id })
+  if (updated.length > 0) {
+    const { notifyMembershipChanged } = await import('./membership-events')
+    await Promise.all(updated.map((user) => notifyMembershipChanged(user.id)))
+  }
 }
 
 // ── Course / Event access ─────────────────────────────────────────────────────

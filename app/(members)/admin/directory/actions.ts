@@ -18,6 +18,7 @@ import {
   zohoProfileDetails,
 } from '@/lib/schema'
 import { ensureZohoProfileDetailsTable } from '@/lib/zoho-crm'
+import { notifyMembershipChanged } from '@/lib/membership-events'
 
 const TIERS = new Set(['free', 'member_courses', 'member_courses_events', 'member_full'])
 
@@ -94,6 +95,7 @@ export async function savePerson(formData: FormData) {
     const existingZoho = await db.query.zohoProfileDetails.findFirst({ where: eq(zohoProfileDetails.userId, personId) })
 
     await db.update(users).set({ tier, updatedAt: new Date() }).where(eq(users.id, personId))
+    if (member.tier !== tier) await notifyMembershipChanged(personId)
     await db.insert(userProfiles).values({
       userId: personId,
       displayName,

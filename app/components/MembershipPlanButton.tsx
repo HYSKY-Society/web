@@ -77,7 +77,10 @@ export default function MembershipPlanButton({ tierLabel, isVip }: { tierLabel: 
       ) : (
         <ZeffyModal
           isOpen={open}
-          onClose={() => setOpen(false)}
+          onClose={() => {
+            setOpen(false)
+            window.dispatchEvent(new Event('vip-access:check'))
+          }}
           title="Upgrade Your HySky Membership"
           options={[{ label: 'VIP Membership', icon: '', embedUrl: ZEFFY.membership }]}
         />

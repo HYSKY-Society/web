@@ -82,7 +82,10 @@ export default function FreeMemberSearch() {
 
       <ZeffyModal
         isOpen={upgradeOpen}
-        onClose={() => setUpgradeOpen(false)}
+        onClose={() => {
+          setUpgradeOpen(false)
+          window.dispatchEvent(new Event('vip-access:check'))
+        }}
         title="Upgrade to message members"
         options={[{ label: 'VIP Membership', icon: '👥', embedUrl: ZEFFY.membership }]}
       />

@@ -11,6 +11,7 @@ import MakeVipButton from './MakeVipButton'
 import UserSearch from './UserSearch'
 import InviteUserButton from './InviteUserButton'
 import ZohoImportButton from './ZohoImportButton'
+import { notifyMembershipChanged } from '@/lib/membership-events'
 
 const COURSES = [
   { slug: 'h2-aircraft-certification', label: 'Certification' },
@@ -41,6 +42,7 @@ async function updateMembership(formData: FormData) {
     .update(users)
     .set({ tier: targetTier as 'free' | 'member_full' })
     .where(eq(users.id, userId))
+  await notifyMembershipChanged(userId)
   revalidatePath('/admin/users')
 }
 
