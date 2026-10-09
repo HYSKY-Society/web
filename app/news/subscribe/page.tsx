@@ -1,7 +1,5 @@
-import { auth } from '@clerk/nextjs/server'
 import Link from 'next/link'
 import NewsShell from '@/app/components/NewsShell'
-import { ensureNewsUser } from '@/lib/news'
 import { Space_Grotesk } from 'next/font/google'
 
 const ZEFFY_SUBSCRIPTION_URL = 'https://www.zeffy.com/en-US/ticketing/hysky-subscription'
@@ -10,10 +8,7 @@ const HYSKY_CONNECT_SIGNUP_URL = 'https://connect.hysky.org/sign-up'
 
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] })
 
-export default async function NewsSubscribePage() {
-  const { userId } = await auth()
-  const currentTier = userId ? await ensureNewsUser(userId) : null
-
+export default function NewsSubscribePage() {
   const tiers = [
     {
       key:         'free' as const,
@@ -21,8 +16,8 @@ export default async function NewsSubscribePage() {
       price:       '$0',
       per:         '',
       description: 'Browse article previews. Upgrade to open full articles and the archive.',
-      cta:         userId ? 'Take me to the articles' : 'Create a free account',
-      ctaHref:     userId ? '/news' : HYSKY_CONNECT_SIGNUP_URL,
+      cta:         'Create a free account',
+      ctaHref:     HYSKY_CONNECT_SIGNUP_URL,
       highlight:   false,
     },
     {
@@ -31,8 +26,8 @@ export default async function NewsSubscribePage() {
       price:       '$0',
       per:         '',
       description: 'Unlimited articles + full archive. Included with an active paid HySky Connect VIP membership.',
-      cta:         currentTier === 'complimentary' ? 'Your current plan' : 'Become a VIP member and save',
-      ctaHref:     currentTier === 'complimentary' ? null : HYSKY_CONNECT_URL,
+      cta:         'Become a VIP member and save',
+      ctaHref:     HYSKY_CONNECT_URL,
       highlight:   false,
     },
     {
@@ -41,8 +36,8 @@ export default async function NewsSubscribePage() {
       price:       '$15',
       per:         '/ month',
       description: 'Unlimited articles + full archive access. Cancel any time.',
-      cta:         currentTier === 'monthly' ? 'Your current plan' : 'Subscribe monthly',
-      ctaHref:     currentTier === 'monthly' ? null : ZEFFY_SUBSCRIPTION_URL,
+      cta:         'Subscribe monthly',
+      ctaHref:     ZEFFY_SUBSCRIPTION_URL,
       highlight:   true,
     },
     {
@@ -51,8 +46,8 @@ export default async function NewsSubscribePage() {
       price:       '$149',
       per:         '/ year',
       description: 'Unlimited articles + full archive. Best value â€” save $31 vs monthly.',
-      cta:         currentTier === 'annual' ? 'Your current plan' : 'Subscribe annually',
-      ctaHref:     currentTier === 'annual' ? null : ZEFFY_SUBSCRIPTION_URL,
+      cta:         'Subscribe annually',
+      ctaHref:     ZEFFY_SUBSCRIPTION_URL,
       highlight:   false,
     },
   ]
@@ -82,7 +77,6 @@ export default async function NewsSubscribePage() {
         {/* Tier grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
           {tiers.map(tier => {
-            const isCurrent = currentTier === tier.key
             return (
               <div
                 key={tier.key}
@@ -118,36 +112,18 @@ export default async function NewsSubscribePage() {
                 </div>
 
                 <div style={{ marginTop: 'auto' }}>
-                  {isCurrent && tier.key !== 'free' ? (
-                    <div style={{
-                      textAlign: 'center', padding: '10px',
-                      border: '1px solid #e0e0e0', borderRadius: 10,
-                      fontSize: '0.85rem', fontWeight: 600, color: '#aaa',
-                    }}>
-                      âœ“ Current plan
-                    </div>
-                  ) : tier.ctaHref ? (
-                    <Link href={tier.ctaHref} style={{
-                      display: 'block', textAlign: 'center',
-                      padding: '11px 0',
-                      background: tier.highlight ? '#5D00F5' : 'transparent',
-                      border: tier.highlight ? 'none' : '1.5px solid #5D00F5',
-                      borderRadius: 10,
-                      fontWeight: 700, fontSize: '0.9rem',
-                      color: tier.highlight ? '#fff' : '#5D00F5',
-                      textDecoration: 'none',
-                    }}>
-                      {tier.cta}
-                    </Link>
-                  ) : (
-                    <div style={{
-                      textAlign: 'center', padding: '10px',
-                      border: '1px solid #e8e8e8', borderRadius: 10,
-                      fontSize: '0.82rem', color: '#aaa',
-                    }}>
-                      {tier.cta}
-                    </div>
-                  )}
+                  <Link href={tier.ctaHref} style={{
+                    display: 'block', textAlign: 'center',
+                    padding: '11px 0',
+                    background: tier.highlight ? '#5D00F5' : 'transparent',
+                    border: tier.highlight ? 'none' : '1.5px solid #5D00F5',
+                    borderRadius: 10,
+                    fontWeight: 700, fontSize: '0.9rem',
+                    color: tier.highlight ? '#fff' : '#5D00F5',
+                    textDecoration: 'none',
+                  }}>
+                    {tier.cta}
+                  </Link>
                 </div>
               </div>
             )

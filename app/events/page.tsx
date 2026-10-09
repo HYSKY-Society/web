@@ -1,20 +1,9 @@
 import Image from 'next/image'
-import Link from 'next/link'
 import { EventRegisterButton } from '@/components/EventRegisterButton'
 import { ZEFFY } from '@/lib/zeffy'
 import PublicShell from '@/app/components/PublicShell'
 import SidebarIcon from '@/app/components/SidebarIcon'
 import { FLYING_HY_WIX_URL } from '@/lib/flying-hy-url'
-
-const webinarDates = [
-  'May 18, 2026',
-  'June 15, 2026',
-  'July 20, 2026',
-  'August 17, 2026',
-  'September 21, 2026',
-  'October 26, 2026',
-  'November 30, 2026',
-]
 
 const WEBINAR_LINK = 'https://us06web.zoom.us/meeting/register/tZUtd-GpqzojGdXo6wK6DVPDD55IQyYJvL1e#/registration'
 
@@ -148,7 +137,7 @@ export default function EventsPage() {
 
         {/* HySky Monthly Webinar Series */}
         <div className="event-showcase-card group relative overflow-hidden rounded-3xl p-8 sm:p-10">
-          <div className="flex items-start justify-between flex-wrap gap-4 mb-6">
+          <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
               <div className="event-category-badge event-showcase-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-[#00D4D4]/15 text-[#00D4D4]">
                 <SidebarIcon name="broadcast" className="h-4 w-4" /> Monthly Webinar
@@ -166,24 +155,6 @@ export default function EventsPage() {
             >
               Register for Series →
             </a>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-3">
-            {webinarDates.map((date) => (
-              <a
-                key={date}
-                href={WEBINAR_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center justify-between px-5 py-4 rounded-xl border border-white/8 bg-white/3 hover:bg-white/6 hover:border-[#00D4D4]/40 transition-all"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="w-2 h-2 rounded-full bg-[#00D4D4] shrink-0" />
-                  <span className="font-medium text-sm">{date}</span>
-                </div>
-                <span className="text-white/30 group-hover:text-[#00D4D4] text-xs transition-colors">Register →</span>
-              </a>
-            ))}
           </div>
         </div>
       </div>

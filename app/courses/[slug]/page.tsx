@@ -1,8 +1,6 @@
-import { getCourse } from '@/lib/courses'
-import { notFound, redirect } from 'next/navigation'
+import { courses, getCourse } from '@/lib/courses'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { currentUser } from '@clerk/nextjs/server'
-import { hasCourseAccess } from '@/lib/course-access'
 import { EnrollButton } from '@/components/EnrollButton'
 import { ZEFFY } from '@/lib/zeffy'
 import PublicShell from '@/app/components/PublicShell'
@@ -13,20 +11,19 @@ const COURSE_EMBED_URLS: Record<string, string> = {
   'h2-aviation-policy':        ZEFFY.h2Policy,
 }
 
+export function generateStaticParams() {
+  return courses.map((course) => ({ slug: course.slug }))
+}
+
 export default async function CoursePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const course = getCourse(slug)
   if (!course) notFound()
 
-  const user = await currentUser()
-  const hasAccess = user ? await hasCourseAccess(user.id, course.slug) : false
   const contentPath = `/courses/${course.slug}/content`
-
-  if (hasAccess) redirect(contentPath)
 
   const accent = course.accent
   const accentLight = course.accentLight
-  const accentTextClass = accent.toLowerCase() === '#00d4d4' ? 'text-black' : 'text-[#fff]'
   const badgeLabel = course.badge
   const embedUrl = COURSE_EMBED_URLS[course.slug] ?? ZEFFY.membership
   return (
@@ -66,7 +63,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
           </div>
 
           <EnrollButton
-            hasAccess={hasAccess}
+            hasAccess={false}
             courseSlug={course.slug}
             courseTitle={course.title}
             courseImage={course.image}
@@ -74,6 +71,9 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
             contentPath={contentPath}
             accent={accent}
           />
+          <Link href={contentPath} className="ml-4 inline-flex py-3.5 text-sm font-semibold text-white/70 underline-offset-4 hover:text-white hover:underline">
+            Already enrolled? Open course →
+          </Link>
         </div>
       </div>
 
@@ -279,33 +279,22 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
 
       {/* Bottom CTA */}
       <div className="rounded-3xl p-8 sm:p-12 text-center" style={{ background: `linear-gradient(135deg, ${accent}20, ${accent}08)`, border: `1px solid ${accent}30` }}>
-        {hasAccess ? (
-          <>
-            <h2 className="font-bold text-2xl mb-2">You&apos;re enrolled!</h2>
-            <p className="text-white/50 mb-6">Jump back into the course content anytime.</p>
-            <Link
-              href={contentPath}
-              className={`inline-flex items-center gap-2 ${accentTextClass} font-bold px-10 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-base`}
-              style={{ backgroundColor: accent, boxShadow: `0 8px 32px ${accent}50` }}
-            >
-              Access Course Content →
-            </Link>
-          </>
-        ) : (
-          <>
-            <h2 className="font-bold text-2xl mb-2">Ready to enroll?</h2>
-            <p className="text-white/50 mb-6">Join industry professionals advancing hydrogen aviation.</p>
-            <EnrollButton
-              hasAccess={false}
-              courseSlug={course.slug}
-              courseTitle={course.title}
-              courseImage={course.image}
-              courseEmbedUrl={embedUrl}
-              contentPath={contentPath}
-              accent={accent}
-            />
-          </>
-        )}
+        <h2 className="font-bold text-2xl mb-2">Ready to enroll?</h2>
+        <p className="text-white/50 mb-6">Join industry professionals advancing hydrogen aviation.</p>
+        <EnrollButton
+          hasAccess={false}
+          courseSlug={course.slug}
+          courseTitle={course.title}
+          courseImage={course.image}
+          courseEmbedUrl={embedUrl}
+          contentPath={contentPath}
+          accent={accent}
+        />
+        <div className="mt-5">
+          <Link href={contentPath} className="text-sm font-semibold text-white/70 underline-offset-4 hover:text-white hover:underline">
+            Already enrolled? Open course →
+          </Link>
+        </div>
       </div>
     </div>
     </PublicShell>

@@ -11,7 +11,6 @@ const programs = [
   { tag: 'Education',   title: 'HySky Edu',        desc: 'Courses and training for hydrogen aircraft certification, operations, infrastructure, safety, and policy.' },
   { tag: 'Event',       title: 'FLYING HY',        desc: "The world's largest annual hydrogen aviation event, bringing together innovators across air and aerospace.", href: FLYING_HY_WIX_URL },
   { tag: 'Webinars',    title: 'HySky Monthly',    desc: 'Free monthly webinars featuring leaders building the hydrogen aviation future.' },
-  { tag: 'Podcast',     title: 'HySky Pod',        desc: 'Conversations with aviation, hydrogen, and climate tech innovators pushing the industry forward.' },
   { tag: 'Advocacy',    title: 'Policy + Power',   desc: 'Helping the ecosystem understand policy, engage responsibly, and advocate for hydrogen aviation progress.' },
 ]
 

@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { SignInButton, SignUpButton } from '@clerk/nextjs'
 import ThemeToggle from './ThemeToggle'
 import NotificationBell from './NotificationBell'
 import FlyingHyTicketButton from './FlyingHyTicketButton'
@@ -53,6 +52,7 @@ export default function AppTopBar({
       {/* Full HySky Connect wordmark with a wider responsive logo slot. */}
       <Link
         href={isLoggedIn ? '/feed' : '/about'}
+        prefetch={false}
         className="relative mr-2 block h-[48px] w-[112px] shrink-0 sm:mr-5 sm:w-[190px] lg:w-[230px]"
         aria-label="HySky Connect home"
       >
@@ -81,16 +81,12 @@ export default function AppTopBar({
         <ThemeToggle />
         {!isLoggedIn && (
           <>
-            <SignInButton mode="modal">
-              <button className="text-sm font-medium px-3 py-1.5 rounded-lg text-white/55 hover:text-white hover:bg-white/6 transition-colors">
-                Log In
-              </button>
-            </SignInButton>
-            <SignUpButton mode="modal">
-              <button className="hidden sm:block text-sm font-bold px-4 py-1.5 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] transition-colors" style={{ color: '#fff' }}>
-                Join Free
-              </button>
-            </SignUpButton>
+            <Link href="/sign-in" prefetch={false} className="text-sm font-medium px-3 py-1.5 rounded-lg text-white/55 hover:text-white hover:bg-white/6 transition-colors">
+              Log In
+            </Link>
+            <Link href="/sign-up" prefetch={false} className="hidden sm:block text-sm font-bold px-4 py-1.5 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] transition-colors" style={{ color: '#fff' }}>
+              Join Free
+            </Link>
           </>
         )}
       </div>

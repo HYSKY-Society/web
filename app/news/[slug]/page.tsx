@@ -8,7 +8,7 @@ import type { ReactNode } from 'react'
 import { db } from '@/lib/db'
 import { pressPosts } from '@/lib/schema'
 import { eq, and } from 'drizzle-orm'
-import NewsShell from '@/app/components/NewsShell'
+import NewsShell from '@/app/components/NewsMemberShell'
 import { canReadArticle, recordArticleView } from '@/lib/news'
 import { getNewsImage } from '@/lib/news-images'
 

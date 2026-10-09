@@ -35,6 +35,7 @@ function SidebarItem({
     <div className="group/item relative">
       <Link
         href={href}
+        prefetch={false}
         onClick={onClick}
         className={`flex items-center rounded-lg text-sm transition-colors ${
           collapsed
@@ -135,6 +136,7 @@ export default function AppSidebar({
         {collapsed ? (
           <Link
             href="/profile"
+            prefetch={false}
             onClick={onClose}
             aria-label="Edit My Profile"
             title="My Profile"
@@ -146,6 +148,7 @@ export default function AppSidebar({
           <div className="flex items-center gap-3">
             <Link
               href="/profile"
+              prefetch={false}
               onClick={onClose}
               aria-label="Edit My Profile"
               title="My Profile"

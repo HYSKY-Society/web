@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import { ClerkProvider } from '@clerk/nextjs'
 import { Space_Grotesk } from 'next/font/google'
 import Script from 'next/script'
+import AppProviders from './components/AppProviders'
 import './globals.css'
 
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] })
@@ -44,16 +44,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script id="theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className={spaceGrotesk.className}>
-        <ClerkProvider
-          appearance={{
-            variables: { fontFamily: spaceGrotesk.style.fontFamily },
-            elements: {
-              profileSection__danger: { display: 'none' },
-            },
-          }}
-        >
+        <AppProviders fontFamily={spaceGrotesk.style.fontFamily}>
           {children}
-        </ClerkProvider>
+        </AppProviders>
       </body>
     </html>
   )

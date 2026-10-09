@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { SignInButton, SignUpButton } from '@clerk/nextjs'
 import SidebarIcon, { type SidebarIconName } from './SidebarIcon'
 
 const NAV: Array<{ href: string; label: string; icon: SidebarIconName; newTab?: boolean; sub?: Array<{ href: string; label: string }> }> = [
@@ -10,8 +9,6 @@ const NAV: Array<{ href: string; label: string; icon: SidebarIconName; newTab?: 
   { href: '/courses',      label: 'Courses',       icon: 'courses' },
   { href: '/events',       label: 'Events',        icon: 'events' },
   { href: '/hysky-monthly', label: 'HySky Monthly', icon: 'video' },
-  { href: '/podcast',       label: 'Podcast',       icon: 'podcast' },
-  { href: 'https://news.hysky.org', label: 'News', icon: 'news', newTab: false },
 ]
 
 export default function PublicSidebar({
@@ -31,6 +28,7 @@ export default function PublicSidebar({
             <div key={href}>
               <Link
                 href={href}
+                prefetch={false}
                 onClick={onClose}
                 {...(newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                 className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
@@ -53,39 +51,35 @@ export default function PublicSidebar({
             </div>
           )
         })}
-        {isLoggedIn && (
-          <Link
-            href="/feed"
-            onClick={onClose}
-            className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm text-[#9b6dff] hover:text-white hover:bg-white/6 transition-colors"
-          >
-            <SidebarIcon name="feed" />
-            <span className="truncate">Go to Feed</span>
-          </Link>
-        )}
+        <Link
+          href="/feed"
+          prefetch={false}
+          onClick={onClose}
+          className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm text-[#9b6dff] hover:text-white hover:bg-white/6 transition-colors"
+        >
+          <SidebarIcon name="feed" />
+          <span className="truncate">Start Connecting</span>
+        </Link>
       </nav>
 
       <div className="shrink-0 border-t border-white/8 px-4 py-4">
         {isLoggedIn ? (
           <Link
             href="/feed"
+            prefetch={false}
             className="flex items-center justify-center gap-2 w-full text-sm font-bold py-2.5 px-4 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] transition-colors"
               style={{ color: '#fff' }}
           >
-            Go to Feed →
+            Start Connecting →
           </Link>
         ) : (
           <div className="space-y-2">
-            <SignInButton mode="modal">
-              <button className="w-full text-sm font-semibold py-2 px-4 rounded-lg border border-white/15 text-white/70 hover:text-white hover:border-white/30 transition-colors">
-                Log In
-              </button>
-            </SignInButton>
-            <SignUpButton mode="modal">
-              <button className="w-full text-sm font-bold py-2 px-4 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] transition-colors" style={{ color: '#fff' }}>
-                Join Free
-              </button>
-            </SignUpButton>
+            <Link href="/sign-in" prefetch={false} className="block w-full text-center text-sm font-semibold py-2 px-4 rounded-lg border border-white/15 text-white/70 hover:text-white hover:border-white/30 transition-colors">
+              Log In
+            </Link>
+            <Link href="/sign-up" prefetch={false} className="block w-full text-center text-sm font-bold py-2 px-4 rounded-lg bg-[#5d00f5] hover:bg-[#7b33ff] transition-colors" style={{ color: '#fff' }}>
+              Join Free
+            </Link>
           </div>
         )}
       </div>
