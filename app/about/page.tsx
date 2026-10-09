@@ -4,11 +4,12 @@ import ScrollAnimations from '@/app/components/ScrollAnimations'
 import NewsletterPopup from '@/app/components/NewsletterPopup'
 import HeroHelicopter from '@/app/components/HeroHelicopter'
 import PublicShell from '@/app/components/PublicShell'
+import { FLYING_HY_WIX_URL } from '@/lib/flying-hy-url'
 
 const programs = [
   { tag: 'Membership',  title: 'HySky Connect',   desc: 'A dedicated platform where the hydrogen aviation ecosystem connects, collaborates, and grows.' },
   { tag: 'Education',   title: 'HySky Edu',        desc: 'Courses and training for hydrogen aircraft certification, operations, infrastructure, safety, and policy.' },
-  { tag: 'Event',       title: 'FLYING HY',        desc: "The world's largest annual hydrogen aviation event, bringing together innovators across air and aerospace.", href: '/flying-hy' },
+  { tag: 'Event',       title: 'FLYING HY',        desc: "The world's largest annual hydrogen aviation event, bringing together innovators across air and aerospace.", href: FLYING_HY_WIX_URL },
   { tag: 'Webinars',    title: 'HySky Monthly',    desc: 'Free monthly webinars featuring leaders building the hydrogen aviation future.' },
   { tag: 'Podcast',     title: 'HySky Pod',        desc: 'Conversations with aviation, hydrogen, and climate tech innovators pushing the industry forward.' },
   { tag: 'Advocacy',    title: 'Policy + Power',   desc: 'Helping the ecosystem understand policy, engage responsibly, and advocate for hydrogen aviation progress.' },

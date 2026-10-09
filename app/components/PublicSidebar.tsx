@@ -9,12 +9,6 @@ const NAV: Array<{ href: string; label: string; icon: SidebarIconName; newTab?: 
   { href: '/about',        label: 'About Us',      icon: 'home' },
   { href: '/courses',      label: 'Courses',       icon: 'courses' },
   { href: '/events',       label: 'Events',        icon: 'events' },
-  { href: '/flying-hy',    label: 'FLYING HY',     icon: 'plane', sub: [
-    { href: '/flying-hy#speakers', label: 'Speakers' },
-    { href: '/flying-hy#agenda',   label: 'Agenda' },
-    { href: '/flying-hy#sponsors', label: 'Sponsors' },
-    { href: '/flying-hy#faq',      label: 'FAQ' },
-  ]},
   { href: '/hysky-monthly', label: 'HySky Monthly', icon: 'video' },
   { href: '/podcast',       label: 'Podcast',       icon: 'podcast' },
   { href: 'https://news.hysky.org', label: 'News', icon: 'news', newTab: false },

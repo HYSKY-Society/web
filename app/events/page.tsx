@@ -4,6 +4,7 @@ import { EventRegisterButton } from '@/components/EventRegisterButton'
 import { ZEFFY } from '@/lib/zeffy'
 import PublicShell from '@/app/components/PublicShell'
 import SidebarIcon from '@/app/components/SidebarIcon'
+import { FLYING_HY_WIX_URL } from '@/lib/flying-hy-url'
 
 const webinarDates = [
   'May 18, 2026',
@@ -17,12 +18,6 @@ const webinarDates = [
 
 const WEBINAR_LINK = 'https://us06web.zoom.us/meeting/register/tZUtd-GpqzojGdXo6wK6DVPDD55IQyYJvL1e#/registration'
 
-const flyingHyOptions = [
-  { label: 'Attendee', icon: '🎟️', embedUrl: ZEFFY.flyingHyAttendee },
-  { label: 'Sponsor', icon: '🏆', embedUrl: ZEFFY.flyingHySponsor },
-  { label: 'Membership', icon: '👥', embedUrl: ZEFFY.membership },
-]
-
 export default function EventsPage() {
   return (
     <PublicShell>
@@ -35,8 +30,8 @@ export default function EventsPage() {
         <div
           className="event-showcase-card flying-hy-featured-card group relative mb-8 cursor-pointer overflow-hidden rounded-3xl p-8 sm:p-10"
         >
-          <Link
-            href="/flying-hy"
+          <a
+            href={FLYING_HY_WIX_URL}
             aria-label="View FLYING HY 2026 conference details"
             className="absolute inset-0 z-10 rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5d00f5] focus-visible:ring-offset-2"
           />
@@ -64,18 +59,18 @@ export default function EventsPage() {
               A one-day virtual summit charting the path to <strong>hydrogen &amp; battery-electric</strong> aviation.
             </p>
             <div className="flex flex-wrap gap-3">
-              <EventRegisterButton
-                label="Reserve Your Seat →"
-                options={flyingHyOptions}
-                title="FLYING HY 2026 — Get Your Ticket"
+              <a
+                href={FLYING_HY_WIX_URL}
                 className="btn-teal-glow pointer-events-auto relative z-20 inline-flex items-center gap-2 text-white font-bold px-8 py-3 rounded-xl text-sm"
-              />
-              <Link
-                href="/flying-hy"
+              >
+                Reserve Your Seat →
+              </a>
+              <a
+                href={FLYING_HY_WIX_URL}
                 className="event-secondary-action flying-hy-featured-details pointer-events-auto relative z-20 inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-xl text-sm border transition-colors"
               >
                 View Details →
-              </Link>
+              </a>
             </div>
           </div>
         </div>

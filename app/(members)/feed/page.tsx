@@ -8,6 +8,7 @@ import {
 import { eq, desc, asc, inArray, and, gte, ne, or, notInArray, like, isNull } from 'drizzle-orm'
 import Link from 'next/link'
 import { events as allEvents } from '@/lib/events'
+import { FLYING_HY_WIX_URL } from '@/lib/flying-hy-url'
 import { courses as allCourses } from '@/lib/courses'
 import { getRecentBlogPosts, type WixPost } from '@/lib/wix'
 import { getUserTier, hasVipCommunityAccess } from '@/lib/members'
@@ -442,7 +443,7 @@ export default async function FeedPage() {
       key: `event-${event.slug}`,
       label: event.title,
       date: event.date,
-      href: event.slug === 'flying-hy-2026' ? '/flying-hy' : `/events/${event.slug}`,
+      href: event.slug === 'flying-hy-2026' ? FLYING_HY_WIX_URL : `/events/${event.slug}`,
     })),
     {
       key: 'hysky-monthly-aerodelft-2026-09-21',

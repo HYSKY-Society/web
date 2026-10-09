@@ -5,6 +5,7 @@ import { eventPurchases, hyskySessions } from '@/lib/schema'
 import { eq, asc } from 'drizzle-orm'
 import { events as allEvents } from '@/lib/events'
 import CalendarClient, { type CalEvent } from './CalendarClient'
+import { FLYING_HY_WIX_URL } from '@/lib/flying-hy-url'
 
 export default async function CalendarPage() {
   const { userId } = await auth()
@@ -27,7 +28,7 @@ export default async function CalendarPage() {
         date: new Date(e.date).toISOString(),
         title: e.title,
         type: 'event' as const,
-        href: e.slug === 'flying-hy-2026' ? '/flying-hy' : `/events/${e.slug}`,
+        href: e.slug === 'flying-hy-2026' ? FLYING_HY_WIX_URL : `/events/${e.slug}`,
       })),
     // HySky Monthly sessions
     ...sessions.map(s => ({
