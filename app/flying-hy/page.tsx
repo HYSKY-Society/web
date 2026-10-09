@@ -160,6 +160,9 @@ function speakerCompanyLogoUrl(name: string): string | null {
   return fileId ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w600` : null
 }
 
+// Keep the speaker cards for a future event, but do not render them on the public page.
+const SHOW_SPEAKER_CARDS = false
+
 export default async function FlyingHyPage() {
   const agenda = await getFlyingHyAgenda()
 
@@ -215,6 +218,7 @@ export default async function FlyingHyPage() {
       <FlyingHyInPageNav />
 
       {/* ── SPEAKERS ── */}
+      {SHOW_SPEAKER_CARDS && (
       <section id="speakers" className="scroll-mt-[110px] max-w-5xl mx-auto px-6 pt-8 pb-20 lg:px-8">
         <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-10 text-[#5d00f5]" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
           Speakers
@@ -290,6 +294,7 @@ export default async function FlyingHyPage() {
           })}
         </div>
       </section>
+      )}
 
       <div className="h-px mx-6 lg:mx-8" style={{ background: 'var(--border-muted)' }} />
 

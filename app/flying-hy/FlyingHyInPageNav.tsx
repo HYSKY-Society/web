@@ -1,7 +1,6 @@
 'use client'
 
 const SECTIONS = [
-  { href: '#speakers', label: 'Speakers' },
   { href: '#agenda',   label: 'Agenda' },
   { href: '#sponsors', label: 'Sponsors' },
   { href: '#faq',      label: 'FAQ' },
