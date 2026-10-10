@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
-import { db } from '@/lib/db'
-import { zeffyInvoices } from '@/lib/schema'
+
 import { setUserTierByEmail, getUserByEmail, addCoursePurchase, addEventPurchase } from '@/lib/members'
 import type { Tier } from '@/lib/members'
 import { grantNewsSubscriptionByEmail } from '@/lib/news'
@@ -10,17 +8,6 @@ import { grantNewsSubscriptionByEmail } from '@/lib/news'
 // { type: "payment.completed", data: { description, campaign_type, items[], buyer: { email } } }
 // Zeffy does not currently document a webhook signature, so the endpoint uses
 // a long, secret query parameter and fails closed when it is not configured.
-
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'invoices@hysky.org'
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://connect.hysky.org'
-
-function parseAmount(raw: unknown): string {
-  if (!raw) return '0.00'
-  const n = Number(raw)
-  if (isNaN(n)) return '0.00'
-  // Zeffy may send cents (e.g. 7500) or dollars (e.g. 75.00)
-  return (n > 1000 && Number.isInteger(n) ? n / 100 : n).toFixed(2)
-}
 
 function identifyCourseSlug(purchaseText: string): string | null {
   if (purchaseText.includes('h2 aircraft') || purchaseText.includes('certification')) {
@@ -71,16 +58,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Buyer email not found' }, { status: 422 })
   }
 
-  // Extract buyer info.
-  const firstName = (buyer?.first_name ?? buyer?.firstName ?? '') as string
-  const lastName = (buyer?.last_name ?? buyer?.lastName ?? '') as string
-  const name = `${firstName} ${lastName}`.trim() || ((buyer?.name as string) ?? email)
-  const org = (buyer?.organization ?? buyer?.company ?? '') as string
-
   // Extract order info.
-  const amount = parseAmount(data?.amount ?? data?.total)
-  const currency = ((data?.currency as string) ?? 'USD').toUpperCase()
-  const orderId = (data?.id ?? data?.order_id ?? data?.orderId ?? '') as string
   const eventName = (data?.description as string) ?? 'HySky Society Purchase'
   const paidAt = data?.created_at ? new Date(data.created_at as string) : new Date()
   const description = eventName.toLowerCase()
@@ -102,55 +80,6 @@ export async function POST(req: NextRequest) {
       { error: 'No HySky account matches the checkout email' },
       { status: 409 },
     )
-  }
-
-  // Store invoice in DB.
-  const [invoice] = await db
-    .insert(zeffyInvoices)
-    .values({
-      email,
-      name,
-      org: org || null,
-      amount,
-      currency,
-      eventName,
-      paidAt,
-      zeffyOrderId: orderId || null,
-    })
-    .returning()
-
-  const invoiceUrl = `${APP_URL}/invoice/${invoice.token}`
-
-  // Send invoice email.
-  if (process.env.RESEND_API_KEY) {
-    const resend = new Resend(process.env.RESEND_API_KEY)
-    await resend.emails.send({
-      from: FROM_EMAIL,
-      to: email,
-      subject: `Your HySky Society Invoice — ${eventName}`,
-      html: `
-        <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;color:#111827">
-          <img src="${APP_URL}/logo-purple.png" alt="HySky Society" style="height:48px;margin-bottom:24px" />
-          <h2 style="margin:0 0 8px;font-size:20px;color:#3f11fa">Your invoice is ready</h2>
-          <p style="margin:0 0 24px;color:#6b7280;font-size:15px">
-            Hi ${firstName || name}, thank you for your purchase of <strong>${eventName}</strong>.
-            Your formal invoice is attached below — click to view and save as PDF.
-          </p>
-          <a href="${invoiceUrl}"
-             style="display:inline-block;background:#3f11fa;color:#fff;text-decoration:none;
-                    padding:12px 28px;border-radius:8px;font-weight:600;font-size:15px">
-            View &amp; Download Invoice →
-          </a>
-          <p style="margin:32px 0 0;font-size:12px;color:#9ca3af">
-            HySky Society · hysky@hysky.org · www.hysky.org<br/>
-            This link is unique to your order and can be used any time.
-          </p>
-        </div>
-      `,
-    })
-    console.log(`[zeffy-webhook] Invoice email sent to ${email}: ${invoiceUrl}`)
-  } else {
-    console.warn(`[zeffy-webhook] RESEND_API_KEY not set — skipping email. Invoice URL: ${invoiceUrl}`)
   }
 
   // Route the successful purchase.
