@@ -62,7 +62,7 @@ export default function ZohoImportButton() {
         type="button"
         onClick={() => inputRef.current?.click()}
         disabled={status === 'importing'}
-        className="rounded-lg border border-[#13dce8]/50 bg-[#13dce8]/10 px-4 py-2.5 text-sm font-semibold text-[#13dce8] transition-colors hover:bg-[#13dce8]/20 disabled:cursor-wait disabled:opacity-60"
+        className="rounded-lg border border-accent-cyan/50 bg-accent-cyan/10 px-4 py-2.5 text-sm font-semibold text-accent-cyan transition-colors hover:bg-accent-cyan/20 disabled:cursor-wait disabled:opacity-60"
       >
         {status === 'importing' ? 'Importing…' : 'Import Zoho Snapshot'}
       </button>

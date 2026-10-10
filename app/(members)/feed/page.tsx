@@ -171,7 +171,7 @@ function BlogPostCard({ post }: { post: WixPost }) {
         <div className="flex items-center gap-2 mb-2">
           <span
             className="text-[10px] font-bold px-2 py-0.5 rounded"
-            style={{ background: 'rgba(19,220,232,.12)', color: '#13dce8' }}
+            style={{ background: 'rgb(var(--accent-cyan) / .12)', color: 'rgb(var(--accent-cyan))' }}
           >
             HySky BLOG
           </span>
@@ -185,7 +185,7 @@ function BlogPostCard({ post }: { post: WixPost }) {
         {post.excerpt && (
           <p className="text-xs text-white/50 leading-relaxed line-clamp-3">{post.excerpt}</p>
         )}
-        <p className="mt-2 text-xs text-[#13dce8]/70">Read more →</p>
+        <p className="mt-2 text-xs text-accent-cyan/70">Read more →</p>
       </div>
     </a>
   )

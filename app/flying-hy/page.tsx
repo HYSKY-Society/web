@@ -174,7 +174,7 @@ export default async function FlyingHyPage() {
         style={{
           background: `
             radial-gradient(ellipse 70% 60% at 60% 40%, rgba(93,0,245,.35), transparent),
-            radial-gradient(ellipse 50% 50% at 20% 70%, rgba(0,212,212,.15), transparent),
+            radial-gradient(ellipse 50% 50% at 20% 70%, rgb(var(--accent-teal) / .15), transparent),
             var(--bg-page-deep)
           `,
         }}
@@ -236,7 +236,7 @@ export default async function FlyingHyPage() {
                 key={`${speaker.time}-${speaker.name}`}
                 tabIndex={0}
                 aria-label={`${speaker.name}, ${speaker.company}. Hover or focus to view company.`}
-                className="group relative h-[280px] min-w-0 rounded-2xl outline-none [perspective:1200px] focus-visible:ring-2 focus-visible:ring-[#13dce8] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                className="group relative h-[280px] min-w-0 rounded-2xl outline-none [perspective:1200px] focus-visible:ring-2 focus-visible:ring-accent-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
               >
                 <div className="absolute inset-0 h-full transition-transform duration-700 ease-out [transform-style:preserve-3d] [-webkit-transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus:[transform:rotateY(180deg)] motion-reduce:duration-0">
                   <div
@@ -267,7 +267,7 @@ export default async function FlyingHyPage() {
                   <div
                     className="flying-hy-speaker-back absolute inset-0 flex min-w-0 flex-col items-center justify-start overflow-hidden rounded-2xl px-5 pb-5 pt-7 text-center [backface-visibility:hidden] [-webkit-backface-visibility:hidden] [transform:rotateY(180deg)]"
                     style={{
-                      border: '1px solid rgba(19,220,232,.35)',
+                      border: '1px solid rgb(var(--accent-cyan) / .35)',
                       boxShadow: 'inset 0 0 60px rgba(93,0,245,.12)',
                     }}
                   >
@@ -374,7 +374,7 @@ export default async function FlyingHyPage() {
       {/* ── CTA ── */}
       <section className="max-w-5xl mx-auto px-6 lg:px-8 py-16">
         <div className="relative overflow-hidden rounded-3xl p-10 sm:p-14 text-center"
-          style={{ background: 'linear-gradient(135deg, rgba(93,0,245,.3), rgba(0,212,212,.1))', border: '1px solid rgba(93,0,245,.4)' }}>
+          style={{ background: 'linear-gradient(135deg, rgba(93,0,245,.3), rgb(var(--accent-teal) / .1))', border: '1px solid rgba(93,0,245,.4)' }}>
           <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl opacity-20" style={{ background: '#5d00f5' }} />
           <div className="relative">
             <h2 className="font-black uppercase text-3xl sm:text-4xl mb-3 text-white">Reserve Your Seat</h2>

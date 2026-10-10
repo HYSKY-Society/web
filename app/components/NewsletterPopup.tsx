@@ -8,8 +8,8 @@ export default function NewsletterPopup() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="border bg-black text-[#13dce8] text-sm font-bold px-5 py-2.5 rounded-full transition-all hover:bg-[#111]"
-        style={{ borderColor: '#13dce8' }}
+        className="newsletter-action border bg-black text-accent-cyan text-sm font-bold px-5 py-2.5 rounded-full transition-all hover:bg-[#111]"
+        style={{ borderColor: 'rgb(var(--accent-cyan))' }}
       >
         Subscribe to Our Newsletter
       </button>

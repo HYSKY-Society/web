@@ -82,14 +82,14 @@ export function EnrollButton({
     }
   }, [open, hasAccess, courseSlug, contentPath, router])
 
-  const textColor = accent.toLowerCase() === '#00d4d4' ? 'text-black' : 'text-[#fff]'
+  const textColor = accent === 'rgb(var(--accent-teal))' ? 'solid-theme-accent text-black' : 'text-[#fff]'
   const cls = size === 'lg'
     ? `inline-flex items-center gap-2 ${textColor} font-bold px-10 py-4 rounded-xl transition-all hover:scale-[1.03] hover:shadow-2xl text-base`
     : `inline-flex items-center gap-2 ${textColor} font-semibold px-6 py-3 rounded-xl transition-all hover:scale-[1.02] text-sm`
 
   if (hasAccess) {
     return (
-      <Link href={contentPath} className={cls} style={{ backgroundColor: accent, boxShadow: `0 8px 32px ${accent}50` }}>
+      <Link href={contentPath} className={cls} style={{ backgroundColor: accent, boxShadow: `0 8px 32px color-mix(in srgb, ${accent} 31.3725%, transparent)` }}>
         Access Course Content →
       </Link>
     )
@@ -104,8 +104,8 @@ export function EnrollButton({
           aria-label={`Enroll with the ${feeLabel} option`}
           className="group w-full rounded-2xl p-5 border flex items-center justify-between gap-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           style={{
-            borderColor: `${accent}${featured ? '90' : '55'}`,
-            boxShadow: featured ? `0 8px 24px ${accent}18` : undefined,
+            borderColor: `color-mix(in srgb, ${accent} ${featured ? 56.4706 : 33.3333}%, transparent)`,
+            boxShadow: featured ? `0 8px 24px color-mix(in srgb, ${accent} 9.4118%, transparent)` : undefined,
             outlineColor: accent,
           }}
         >
@@ -134,7 +134,7 @@ export function EnrollButton({
       <button
         onClick={() => setOpen(true)}
         className={cls}
-        style={{ backgroundColor: accent, boxShadow: `0 8px 32px ${accent}50` }}
+        style={{ backgroundColor: accent, boxShadow: `0 8px 32px color-mix(in srgb, ${accent} 31.3725%, transparent)` }}
       >
         Enroll Now →
       </button>

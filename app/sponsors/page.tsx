@@ -13,7 +13,7 @@ const TIERS = [
   { id: 'vip_bronze',   label: 'Bronze',   color: '#CD7F32', glow: 'rgba(205,127,50,.15)' },
   { id: 'vip_copper',   label: 'Copper',   color: '#B87333', glow: 'rgba(184,115,51,.12)' },
   { id: 'vip_startup',  label: 'Startup',  color: '#9b6dff', glow: 'rgba(93,0,245,.15)' },
-  { id: 'vip_early_bird', label: 'Early Bird VIP', color: '#13dce8', glow: 'rgba(19,220,232,.12)' },
+  { id: 'vip_early_bird', label: 'Early Bird VIP', color: 'rgb(var(--accent-cyan))', glow: 'rgb(var(--accent-cyan) / .12)' },
   { id: 'vip_free',     label: 'Community Partner', color: '#ffffff', glow: 'rgba(255,255,255,.06)' },
 ]
 

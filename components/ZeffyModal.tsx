@@ -80,7 +80,7 @@ export function ZeffyModal({
             <div
               className="absolute inset-0"
               style={{
-                background: `linear-gradient(180deg, rgba(4,3,10,.08) 20%, rgba(4,3,10,.95) 100%), linear-gradient(135deg, ${heroAccent}22, transparent)`,
+                background: `linear-gradient(180deg, rgba(4,3,10,.08) 20%, rgba(4,3,10,.95) 100%), linear-gradient(135deg, color-mix(in srgb, ${heroAccent} 13.3333%, transparent), transparent)`,
               }}
             />
             <div className="relative z-10 mt-auto p-8 text-left">

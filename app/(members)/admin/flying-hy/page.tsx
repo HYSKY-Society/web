@@ -72,7 +72,7 @@ export default async function AdminFlyingHyPage() {
                 <div key={item.id} className="flex items-start gap-4 rounded-xl p-4"
                   style={{ background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)' }}>
                   <div className="shrink-0 w-20 text-right">
-                    <span className="text-[#13dce8] text-xs font-bold">{item.timeSlot ?? '—'}</span>
+                    <span className="text-accent-cyan text-xs font-bold">{item.timeSlot ?? '—'}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-white text-sm">{item.title}</p>

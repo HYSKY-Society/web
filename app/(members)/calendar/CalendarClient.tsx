@@ -104,7 +104,7 @@ export default function CalendarClient({ events }: { events: CalEvent[] }) {
                         className={`block truncate text-[9px] sm:text-[10px] px-1 py-0.5 rounded font-medium transition-opacity hover:opacity-80 ${
                           e.type === 'event'
                             ? 'bg-[#5d00f5]/35 text-[#c4a0ff]'
-                            : 'bg-[#13dce8]/15 text-[#13dce8]'
+                            : 'bg-accent-cyan/15 text-accent-cyan'
                         }`}
                       >
                         {e.title}
@@ -129,7 +129,7 @@ export default function CalendarClient({ events }: { events: CalEvent[] }) {
             <span className="text-xs text-white/35">Your registered events</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-[#13dce8]/15" />
+            <span className="w-3 h-3 rounded bg-accent-cyan/15" />
             <span className="text-xs text-white/35">HYSKY Monthly sessions</span>
           </div>
         </div>
@@ -150,12 +150,12 @@ export default function CalendarClient({ events }: { events: CalEvent[] }) {
                   style={{ background: 'rgba(255,255,255,.025)', border: '1px solid rgba(255,255,255,.07)' }}
                 >
                   <div className={`shrink-0 w-10 h-10 rounded-lg flex flex-col items-center justify-center ${
-                    e.type === 'event' ? 'bg-[#5d00f5]/25' : 'bg-[#13dce8]/12'
+                    e.type === 'event' ? 'bg-[#5d00f5]/25' : 'bg-accent-cyan/12'
                   }`}>
-                    <span className={`text-[10px] font-bold uppercase ${e.type === 'event' ? 'text-[#9b6dff]' : 'text-[#13dce8]'}`}>
+                    <span className={`text-[10px] font-bold uppercase ${e.type === 'event' ? 'text-[#9b6dff]' : 'text-accent-cyan'}`}>
                       {MONTHS[d.getMonth()].slice(0, 3)}
                     </span>
-                    <span className={`text-sm font-black leading-none ${e.type === 'event' ? 'text-[#9b6dff]' : 'text-[#13dce8]'}`}>
+                    <span className={`text-sm font-black leading-none ${e.type === 'event' ? 'text-[#9b6dff]' : 'text-accent-cyan'}`}>
                       {d.getDate()}
                     </span>
                   </div>
@@ -166,7 +166,7 @@ export default function CalendarClient({ events }: { events: CalEvent[] }) {
                     </p>
                   </div>
                   <span className={`shrink-0 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${
-                    e.type === 'event' ? 'bg-[#5d00f5]/20 text-[#9b6dff]' : 'bg-[#13dce8]/10 text-[#13dce8]'
+                    e.type === 'event' ? 'bg-[#5d00f5]/20 text-[#9b6dff]' : 'bg-accent-cyan/10 text-accent-cyan'
                   }`}>
                     {e.type === 'event' ? 'Event' : 'Monthly'}
                   </span>

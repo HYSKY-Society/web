@@ -36,6 +36,9 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    ".local-site",
+    "scripts/local-member-preview",
+    "scripts/full-local-preview"
   ]
 }

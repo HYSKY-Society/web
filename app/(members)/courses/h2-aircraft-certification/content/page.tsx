@@ -28,13 +28,13 @@ export default async function CourseContentPage() {
 
       <div
         className="relative overflow-hidden rounded-3xl p-8 sm:p-10 mb-8"
-        style={{ background: `linear-gradient(135deg, ${accent}25, ${accent}08)`, border: `1px solid ${accent}40` }}
+        style={{ background: `linear-gradient(135deg, color-mix(in srgb, ${accent} 14.5098%, transparent), color-mix(in srgb, ${accent} 3.1373%, transparent))`, border: `1px solid color-mix(in srgb, ${accent} 25.0980%, transparent)` }}
       >
         <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full blur-3xl opacity-20" style={{ backgroundColor: accent }} />
         <div className="relative">
           <div
             className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-4"
-            style={{ backgroundColor: `${accent}25`, color: '#000' }}
+            style={{ backgroundColor: `color-mix(in srgb, ${accent} 14.5098%, transparent)`, color: '#000' }}
           >
             ✈️ Certification Course
           </div>

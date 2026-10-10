@@ -109,7 +109,7 @@ export default function EventsPage() {
           </a>
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
-              <div className="event-category-badge event-showcase-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-[#00D4D4]/15 text-[#00D4D4]">
+              <div className="event-category-badge event-showcase-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-accent-teal/15 text-accent-teal">
                 <SidebarIcon name="graduation" className="h-4 w-4" /> AIAA + HySky Online Course
               </div>
               <h2 className="text-xl font-bold mb-1">Advanced Sustainable Aviation Fuels and Aircraft Design</h2>
@@ -139,7 +139,7 @@ export default function EventsPage() {
         <div className="event-showcase-card group relative overflow-hidden rounded-3xl p-8 sm:p-10">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
-              <div className="event-category-badge event-showcase-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-[#00D4D4]/15 text-[#00D4D4]">
+              <div className="event-category-badge event-showcase-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3 bg-accent-teal/15 text-accent-teal">
                 <SidebarIcon name="broadcast" className="h-4 w-4" /> Monthly Webinar
               </div>
               <h2 className="text-xl font-bold mb-1">HySky Monthly</h2>

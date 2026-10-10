@@ -203,8 +203,8 @@ This training is essential for aircraft developers, compliance leads, regulators
     imageAlt: 'Hydrogen Safety for Aviation online short course with blue hydrogen-themed artwork',
     buyLink: 'https://www.zeffy.com/en-US/ticketing/h2-safety-for-aviation-course',
     badge: '🛡️ Safety',
-    accent: '#00D4D4',
-    accentLight: '#67e8f9',
+    accent: 'rgb(var(--accent-teal))',
+    accentLight: 'rgb(var(--accent-soft))',
     highlights: [
       { icon: '⏱️', label: 'Duration', value: '3 Weeks' },
       { icon: '🎓', label: 'Classes', value: '6 Classes' },
@@ -556,8 +556,8 @@ Participants will gain clarity on the roles of NASA, FAA, DOE, DOT, DoD, and Con
     externalLink: 'https://aiaa.mycrowdwisdom.com/diweb/catalog/item?id=14691996',
     buyLink: 'https://aiaa.mycrowdwisdom.com/diweb/catalog/item?id=14691996',
     badge: '⚡ Aerospace Technology',
-    accent: '#00D4D4',
-    accentLight: '#33ffff',
+    accent: 'rgb(var(--accent-teal))',
+    accentLight: 'rgb(var(--accent-aqua))',
     highlights: [
       { icon: '▶️', label: 'Format', value: 'On Demand' },
       { icon: '🕐', label: 'Total Hours', value: '20 Hours' },

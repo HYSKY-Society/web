@@ -5,6 +5,8 @@ import { db } from '@/lib/db'
 import { users } from '@/lib/schema'
 import { eq, sql } from 'drizzle-orm'
 import { getAdminEmails, ADMIN_NAV, isDirectoryAdmin } from '@/lib/admin'
+import AddMemberDialog from './directory/AddMemberDialog'
+import { addMember } from './directory/actions'
 
 export default async function AdminPage() {
   const user = await currentUser()
@@ -31,7 +33,7 @@ export default async function AdminPage() {
     { label: 'Total Members', value: total, color: 'text-[#5d00f5]' },
     { label: 'Free Tier', value: freeCount, color: 'text-amber-400' },
     { label: 'Paid Tier', value: paidCount, color: 'text-emerald-400' },
-    { label: 'Clerk Accounts', value: clerkCount, color: 'text-[#13dce8]' },
+    { label: 'Clerk Accounts', value: clerkCount, color: 'text-accent-cyan' },
   ]
 
   return (
@@ -69,12 +71,15 @@ export default async function AdminPage() {
       {/* Quick links */}
       <div className="grid sm:grid-cols-2 gap-4">
         {isDirectoryAdmin(userEmail) && (
+          <AddMemberDialog action={addMember} />
+        )}
+        {isDirectoryAdmin(userEmail) && (
           <Link
             href="/admin/directory"
-            className="group bg-white/5 border border-white/10 hover:border-[#13dce8]/50 rounded-2xl p-6 transition-all hover:bg-white/8"
+            className="group bg-white/5 border border-white/10 hover:border-accent-cyan/50 rounded-2xl p-6 transition-all hover:bg-white/8"
           >
             <div className="text-2xl mb-3">🏢</div>
-            <h2 className="font-semibold mb-1 group-hover:text-[#13dce8] transition-colors">Directory Management</h2>
+            <h2 className="font-semibold mb-1 group-hover:text-accent-cyan transition-colors">Directory Management</h2>
             <p className="text-white/40 text-sm">Edit people and companies, change company links, or remove directory records.</p>
           </Link>
         )}

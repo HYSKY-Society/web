@@ -29,7 +29,6 @@ const isPublicRoute = createRouteMatcher([
   '/sponsors',
   '/invoice(.*)',
   '/api/webhooks(.*)',
-  '/api/news-automation/drafts',
   '/api/oembed',
   '/api/presence',
   '/api/messages(.*)',

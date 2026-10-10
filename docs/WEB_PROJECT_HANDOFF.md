@@ -8,7 +8,7 @@ This project owns the HySky member and news websites. It is separate from the sy
 
 ## Sites and services
 
-- `connect.hysky.org`: member community, feed, courses, events, profiles, administration, and the press editor.
+- `connect.hysky.org`: member community, feed, courses, events, profiles, and administration.
 - `news.hysky.org`: HySky News landing page, article archive, article pages, subscriptions, and metered access.
 - Clerk: shared identity and sign-in across Connect and News.
 - Neon: application data, membership/access records, press posts, and article-view metering.
@@ -36,37 +36,28 @@ This repository owns:
 - Zeffy subscription links or approved popups;
 - Connect feed/community permissions;
 - course and event presentation;
-- press-post editing, draft review, publishing, ordering, images, and SEO rendering;
-- the protected server endpoint that accepts a structured unpublished draft;
-- the admin control that requests an automation run and displays its result.
+- existing news article display, images, and SEO rendering.
 
 It does not own news discovery, editorial source rules, AI prompts, research, deduplication, or article generation. Those belong in `HYSKY-Society/hysky-news-automation`.
 
-## News automation connection
+## News automation retirement — 2026-10-10
 
-The website should expose only a narrow contract:
+The user requested removal of the unused news automation workflow. The local
+source now removes the News Automation navigation item, `/admin/press` and its
+article editor, both automation APIs, draft validation, automatic feed teaser
+creation, and the press seed script. The user approved publishing this release
+on 2026-10-10. Confirm the deployed commit in Vercel when checking live status.
 
-1. A protected admin route requests either a normal scan or an optional editor-entered topic from Azure.
-2. Azure returns run status and, when successful, a draft identifier or review path.
-3. A separate secret-protected ingest route validates a structured article and inserts it into `press_posts` with `is_published = false`.
-4. The administrator reviews and explicitly publishes the article.
-
-Do not place the editorial decision-making rules in the React admin form. The form is a control and review surface, not the research engine.
-
-## Current automation warning
-
-As of 2026-08-13 16:26:39 -05:00, the news automation is not accepted as working:
-
-- editor-directed runs can fail because the `SelectionDecision` structured response is missing the required `uncertainties` field;
-- normal runs can complete with only an irrelevant hydrogen-bicycle candidate and produce no draft.
-
-These are automation-repository issues. Do not redesign the website to mask them. The detailed record and future acceptance test are in `HYSKY-Society/hysky-news-automation/NEWS_AUTOMATION_HANDOFF.md`.
+Existing public news pages, subscriptions, article access rules, stored articles,
+and historical database migrations remain. No database records were deleted.
+The separate automation repository and external Azure services were not changed.
+Do not restore the retired workflow without a new user request.
 
 ## How to resume in a separate Codex task
 
 Start a task named something like **HySky Web / Connect** and provide this instruction:
 
-> Work only in `HYSKY-Society/web`. Read `docs/WEB_PROJECT_HANDOFF.md` first. Preserve the shared Clerk login, Neon membership model, news paywall, and draft-only automation boundary. Do not change the news research pipeline.
+> Work only in `HYSKY-Society/web`. Read `docs/WEB_PROJECT_HANDOFF.md` first. Preserve the shared Clerk login, Neon membership model, and news paywall. Keep the retired news automation removed. Work locally unless deployment is explicitly requested.
 
 Use a separate task for news discovery, article-generation prompts, schedules, source rules, and Azure automation debugging.
 

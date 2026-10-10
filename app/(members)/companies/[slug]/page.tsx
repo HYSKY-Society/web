@@ -60,7 +60,7 @@ export default async function CompanyPage({ params }: { params: { slug: string }
             <h2 className="text-lg font-bold">Associated Contacts</h2>
             <p className="mt-1 text-xs text-white/40">HySky Connect members associated with this company.</p>
           </div>
-          <span className="rounded-full bg-[#13dce8]/10 px-2.5 py-1 text-xs font-semibold text-[#13dce8]">{company.contacts.length}</span>
+          <span className="rounded-full bg-accent-cyan/10 px-2.5 py-1 text-xs font-semibold text-accent-cyan">{company.contacts.length}</span>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           {company.contacts.map((contact) => (

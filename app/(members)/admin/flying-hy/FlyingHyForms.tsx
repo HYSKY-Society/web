@@ -133,7 +133,7 @@ export function AddAgendaForm() {
           </Field>
         </div>
       </div>
-      <button type="submit" disabled={loading} className="px-5 py-2 rounded-lg text-sm font-bold text-white disabled:opacity-50" style={{ background: '#13dce8', color: '#000' }}>
+      <button type="submit" disabled={loading} className="solid-theme-accent px-5 py-2 rounded-lg text-sm font-bold text-white disabled:opacity-50" style={{ background: 'rgb(var(--accent-cyan))', color: '#000' }}>
         {loading ? 'Adding…' : 'Add Agenda Item'}
       </button>
     </form>

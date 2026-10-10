@@ -129,7 +129,7 @@ export function SequentialCourse({
 }) {
   const accentColor = theme?.accent ?? '#5d00f5'
   const accentHoverColor = theme?.accentHover ?? '#7130f7'
-  const completeColor = theme?.complete ?? '#00D4D4'
+  const completeColor = theme?.complete ?? 'rgb(var(--accent-teal))'
   const [completed, setCompleted] = useState(() => new Set(initialCompletedLessonIds))
   const [savingLessonId, setSavingLessonId] = useState<string | null>(null)
   const [slidesLesson, setSlidesLesson] = useState<{ title: string; slidesUrl: string } | null>(null)
@@ -211,14 +211,14 @@ export function SequentialCourse({
   return (
     <>
       {guidebook && (
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border p-5" style={{ borderColor: `${completeColor}66`, backgroundColor: `${completeColor}1a` }}>
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border p-5" style={{ borderColor: `color-mix(in srgb, ${completeColor} 40.0000%, transparent)`, backgroundColor: `color-mix(in srgb, ${completeColor} 10.1961%, transparent)` }}>
           <div>
             <div className="text-xs font-bold uppercase tracking-wider" style={{ color: '#000' }}>Course resource</div>
             <div className="mt-1 font-semibold text-white">{guidebook.title}</div>
           </div>
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={() => openSlides({ title: guidebook.title, slidesUrl: guidebook.url })} className="rounded-xl px-5 py-3 text-sm font-bold transition-colors" style={{ backgroundColor: accentColor, color: '#fff' }}>▣ View Guidebook</button>
-            <a href={slidesDownloadUrl(guidebook.url)} download className="rounded-xl border bg-black px-5 py-3 text-sm font-bold transition-colors hover:bg-white/10" style={{ borderColor: completeColor, color: completeColor }}>↓ Download</a>
+            <a href={slidesDownloadUrl(guidebook.url)} download className="course-download rounded-xl border bg-black px-5 py-3 text-sm font-bold transition-colors hover:bg-white/10" style={{ borderColor: completeColor, color: completeColor }}>↓ Download</a>
           </div>
         </div>
       )}
@@ -289,7 +289,7 @@ export function SequentialCourse({
                 </div>
                 {isCompleted ? (
                   <span className="shrink-0 rounded-full border px-3 py-1 text-xs font-bold"
-                    style={{ borderColor: completeColor, backgroundColor: `${completeColor}22`, color: '#000' }}>
+                    style={{ borderColor: completeColor, backgroundColor: `color-mix(in srgb, ${completeColor} 13.3333%, transparent)`, color: '#000' }}>
                     ✓ Complete
                   </span>
                 ) : !isUnlocked ? (
@@ -311,7 +311,7 @@ export function SequentialCourse({
                       <button
                         type="button"
                         onClick={() => openSlides({ title: lesson.title, slidesUrl: lesson.slidesUrl! })}
-                        className="inline-flex items-center gap-2 rounded-xl border bg-black px-6 py-3 text-sm font-semibold transition-colors hover:bg-white/10"
+                        className="inline-flex items-center gap-2 course-download rounded-xl border bg-black px-6 py-3 text-sm font-semibold transition-colors hover:bg-white/10"
                         style={{ borderColor: completeColor, color: completeColor }}
                       >
                         ▣ View Slides
@@ -362,7 +362,7 @@ export function SequentialCourse({
           }}
         >
           <div
-            className="fixed flex min-h-[320px] min-w-[280px] max-h-[calc(100vh-16px)] max-w-[calc(100vw-16px)] flex-col overflow-hidden rounded-2xl border border-white/15 bg-[#080b12] shadow-2xl"
+            className="course-slides-panel fixed flex min-h-[320px] min-w-[280px] max-h-[calc(100vh-16px)] max-w-[calc(100vw-16px)] flex-col overflow-hidden rounded-2xl border border-white/15 bg-[#080b12] shadow-2xl"
             style={{
               left: slidesPosition.x,
               top: slidesPosition.y,
@@ -385,13 +385,13 @@ export function SequentialCourse({
                     data-no-drag
                     href={slidesDownloadUrl(slidesLesson.slidesUrl)}
                     download
-                    className="rounded-lg border bg-black px-3 py-1.5 text-xs font-bold transition-colors hover:bg-white/10"
+                    className="course-download rounded-lg border bg-black px-3 py-1.5 text-xs font-bold transition-colors hover:bg-white/10"
                     style={{ borderColor: completeColor, color: completeColor }}
                   >
                     ↓ Download
                   </a>
                 </div>
-                <h2 id="slides-title" className="mt-1 truncate font-semibold" style={{ color: '#fff' }}>{slidesLesson.title}</h2>
+                <h2 id="slides-title" className="mt-1 truncate font-semibold text-white">{slidesLesson.title}</h2>
               </div>
               <button
                 data-no-drag

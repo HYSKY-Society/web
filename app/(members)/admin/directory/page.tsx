@@ -17,11 +17,12 @@ import {
 import { ensureZohoProfileDetailsTable } from '@/lib/zoho-crm'
 import ConfirmDeleteButton from './ConfirmDeleteButton'
 import SaveButton from './SaveButton'
-import { deleteCompany, deletePerson, saveCompany, savePerson } from './actions'
+import AddMemberForm from './AddMemberForm'
+import { addMember, deleteCompany, deletePerson, saveCompany, savePerson } from './actions'
 
 export const dynamic = 'force-dynamic'
 
-const fieldClass = 'w-full rounded-lg border border-white/15 bg-black/20 px-3 py-2 text-sm text-white placeholder:text-white/25 outline-none focus:border-[#13dce8]/60'
+const fieldClass = 'w-full rounded-lg border border-white/15 bg-black/20 px-3 py-2 text-sm text-white placeholder:text-white/25 outline-none focus:border-accent-cyan/60'
 const labelClass = 'space-y-1 text-xs font-semibold text-white/55'
 
 function parseList(serialized: string | null | undefined) {
@@ -213,7 +214,7 @@ export default async function DirectoryAdminPage({
           <h1 className="text-3xl font-bold">Directory Management</h1>
           <p className="mt-1 text-sm text-white/45">Danielle-only controls for people, companies, and company associations.</p>
         </div>
-        <div className="admin-cyan-text rounded-xl border border-[#13dce8]/20 bg-[#13dce8]/8 px-4 py-3 text-xs">
+        <div className="admin-cyan-text rounded-xl border border-accent-cyan/20 bg-accent-cyan/8 px-4 py-3 text-xs">
           {people.length} people · {companies.length} companies
         </div>
       </div>
@@ -234,6 +235,8 @@ export default async function DirectoryAdminPage({
           {saved === 'person' ? 'Person saved successfully.' : 'Company saved successfully.'}
         </div>
       )}
+
+      {view === 'people' && <AddMemberForm action={addMember} />}
 
       {view === 'people' ? (
         <div className="space-y-3">
@@ -384,7 +387,7 @@ export default async function DirectoryAdminPage({
                             <Link
                               key={contact.memberId}
                               href={`/admin/directory?view=people&person=${encodeURIComponent(`${contact.isPending ? 'pending' : 'active'}:${contact.isPending ? contact.emails[0] : contact.memberId}`)}#selected-person`}
-                              className="admin-contact-link rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/60 transition-colors hover:border-[#13dce8]/40 hover:bg-[#13dce8]/10"
+                              className="admin-contact-link rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/60 transition-colors hover:border-accent-cyan/40 hover:bg-accent-cyan/10"
                               title={`Edit ${contact.name}`}
                             >
                               {contact.name}

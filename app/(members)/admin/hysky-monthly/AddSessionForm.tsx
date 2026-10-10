@@ -68,7 +68,7 @@ export default function AddSessionForm({ createSession, nextDateDefault }: {
           onClick={autoFill}
           disabled={fetching}
           className="shrink-0 text-xs px-3 rounded-lg font-medium transition-colors disabled:opacity-50"
-          style={{ background: 'rgba(19,220,232,.15)', color: '#13dce8', border: '1px solid rgba(19,220,232,.25)' }}
+          style={{ background: 'rgb(var(--accent-cyan) / .15)', color: 'rgb(var(--accent-cyan))', border: '1px solid rgb(var(--accent-cyan) / .25)' }}
         >
           {fetching ? '…' : '↓ Fill title'}
         </button>

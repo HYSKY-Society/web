@@ -39,7 +39,7 @@ export default function CoursesPage() {
                 )}
                 <div
                   className="course-category-badge inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider mb-4 px-2.5 py-1 rounded-full"
-                  style={{ backgroundColor: `${course.accent}25`, color: course.accentLight }}
+                  style={{ backgroundColor: `color-mix(in srgb, ${course.accent} 14.5098%, transparent)`, color: course.accentLight }}
                 >
                   {course.badge}
                 </div>

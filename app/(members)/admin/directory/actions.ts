@@ -19,6 +19,7 @@ import {
 } from '@/lib/schema'
 import { ensureZohoProfileDetailsTable } from '@/lib/zoho-crm'
 import { notifyMembershipChanged } from '@/lib/membership-events'
+import { addManualMember, ManualMemberError, type AddMemberState } from '@/lib/manual-members'
 
 const TIERS = new Set(['free', 'member_courses', 'member_courses_events', 'member_full'])
 
@@ -46,6 +47,65 @@ async function requireDirectoryAdmin() {
   const email = user?.emailAddresses.find((entry) => entry.id === user.primaryEmailAddressId)?.emailAddress ?? ''
   if (!user || !isDirectoryAdmin(email)) throw new Error('Forbidden')
   return user
+}
+
+export async function addMember(_state: AddMemberState, formData: FormData): Promise<AddMemberState> {
+  const actor = await requireDirectoryAdmin()
+  const primary = actor.emailAddresses.find((entry) => entry.id === actor.primaryEmailAddressId)
+  if (primary?.verification?.status !== 'verified') return { error: 'Verify your admin email first.' }
+
+  try {
+    // Instantiate Clerk only after the local duplicate check requires it.
+    const identity = (user: Awaited<ReturnType<Awaited<ReturnType<typeof clerkClient>>['users']['getUser']>>) => ({
+      id: user.id,
+      primaryEmail: user.emailAddresses.find((entry) => entry.id === user.primaryEmailAddressId)?.emailAddress ?? '',
+      name: [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || null,
+    })
+    const result = await addManualMember(primary.emailAddress, {
+      email: value(formData, 'email'), name: value(formData, 'name'), tier: value(formData, 'tier'),
+    }, {
+      async findMember(email) {
+        const active = await db.query.users.findFirst({ where: eq(users.email, email) })
+        if (active) return { kind: 'active', id: active.id }
+        const pending = await db.query.pendingTiers.findFirst({ where: eq(pendingTiers.email, email) })
+        return pending ? { kind: 'pending', id: pending.email } : null
+      },
+      async findIdentity(email) {
+        const matches = await (await clerkClient()).users.getUserList({ emailAddress: [email], limit: 2 })
+        if (matches.data.length > 1) throw new ManualMemberError('Multiple Clerk accounts match this email. Review them in Clerk first.')
+        return matches.data[0] ? identity(matches.data[0]) : null
+      },
+      async createIdentity(email) {
+        return identity(await (await clerkClient()).users.createUser({
+          emailAddress: [email], skipPasswordRequirement: true,
+        }))
+      },
+      async saveMember(clerkUser, input) {
+        // A Clerk user.created webhook may have already inserted this same ID
+        // as Free. Apply the level explicitly selected by the owner in that case.
+        await db.insert(users).values({ id: clerkUser.id, email: input.email, tier: input.tier })
+          .onConflictDoUpdate({ target: users.id, set: { tier: input.tier, updatedAt: new Date() } })
+        await db.insert(userProfiles).values({ userId: clerkUser.id, displayName: input.name || clerkUser.name })
+          .onConflictDoUpdate({ target: userProfiles.userId, set: { displayName: input.name || clerkUser.name } })
+      },
+    })
+    if (!result.existing) {
+      refreshDirectory()
+      revalidatePath('/admin/users')
+      revalidatePath('/admin')
+    }
+    return {
+      message: result.existing ? 'This member is already in Connect. Their membership has not changed.' : 'Member added to Connect and Clerk. No email was sent.',
+      href: `/admin/directory?view=people&person=${encodeURIComponent(`${result.kind}:${result.id}`)}#selected-person`,
+    }
+  } catch (error) {
+    // Clerk API errors are objects; expose only a useful message, never raw
+    // responses, keys, or buyer data. Retrying reuses any created Clerk account.
+    if (error && typeof error === 'object' && 'clerkError' in error) {
+      return { error: 'Clerk could not add this account. Check its required sign-up fields and email-code sign-in settings, then retry.' }
+    }
+    return { error: error instanceof ManualMemberError ? error.message : 'Could not finish saving this member. Retry to reuse any Clerk account already created.' }
+  }
 }
 
 async function selectedCompany(companyId: string) {

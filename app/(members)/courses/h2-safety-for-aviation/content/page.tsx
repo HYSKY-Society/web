@@ -6,8 +6,8 @@ import { SequentialCourse } from '@/components/SequentialCourse'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
-const accent = '#00D4D4'
-const accentLight = '#67e8f9'
+const accent = 'rgb(var(--accent-teal))'
+const accentLight = 'rgb(var(--accent-soft))'
 
 export default async function CourseContentPage() {
   const user = await currentUser()
@@ -24,13 +24,13 @@ export default async function CourseContentPage() {
 
       <div
         className="relative overflow-hidden rounded-3xl p-8 sm:p-10 mb-8"
-        style={{ background: `linear-gradient(135deg, ${accent}25, ${accent}08)`, border: `1px solid ${accent}40` }}
+        style={{ background: `linear-gradient(135deg, color-mix(in srgb, ${accent} 14.5098%, transparent), color-mix(in srgb, ${accent} 3.1373%, transparent))`, border: `1px solid color-mix(in srgb, ${accent} 25.0980%, transparent)` }}
       >
         <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full blur-3xl opacity-20" style={{ backgroundColor: accent }} />
         <div className="relative">
           <div
             className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-4"
-            style={{ backgroundColor: `${accent}25`, color: '#000' }}
+            style={{ backgroundColor: `color-mix(in srgb, ${accent} 14.5098%, transparent)`, color: '#000' }}
           >
             🛡️ Safety Course
           </div>
@@ -43,7 +43,7 @@ export default async function CourseContentPage() {
         courseSlug={H2_SAFETY_COURSE_SLUG}
         lessons={h2SafetyLessons}
         initialCompletedLessonIds={completedLessonIds}
-        theme={{ accent, accentHover: '#00b8c4', complete: accentLight }}
+        theme={{ accent, accentHover: 'rgb(var(--accent-deep))', complete: accentLight }}
       />
 
       <div className="mt-8 rounded-2xl p-6 text-center border border-white/10 bg-white/5">

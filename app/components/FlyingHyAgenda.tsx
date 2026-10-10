@@ -14,7 +14,7 @@ export default async function FlyingHyAgenda({ agenda: providedAgenda }: FlyingH
           Agenda
         </h2>
         <div className="flex flex-wrap gap-2 text-xs font-bold">
-          <span className="flying-hy-agenda-date rounded-full border border-[#13dce8]/30 bg-[#13dce8]/10 px-3 py-1.5">
+          <span className="flying-hy-agenda-date rounded-full border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1.5">
             November 4, 2026
           </span>
           <span className="flying-hy-agenda-timezone rounded-full border border-[#5d00f5]/30 bg-[#5d00f5]/10 px-3 py-1.5 text-[#9b6dff]">
@@ -26,17 +26,17 @@ export default async function FlyingHyAgenda({ agenda: providedAgenda }: FlyingH
       <div
         className="flying-hy-agenda-container relative overflow-hidden rounded-3xl"
         style={{
-          background: 'linear-gradient(145deg, rgba(93,0,245,.16), rgba(19,220,232,.06) 48%, var(--bg-panel))',
+          background: 'linear-gradient(145deg, rgba(93,0,245,.16), rgb(var(--accent-cyan) / .06) 48%, var(--bg-panel))',
           border: '1px solid rgba(93,0,245,.32)',
         }}
       >
-        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full blur-3xl opacity-20 bg-[#13dce8]" />
+        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full blur-3xl opacity-20 bg-accent-cyan" />
         <div className="relative px-5 py-8 sm:p-10">
           <div className="relative">
             <div className="space-y-3">
               {agenda.map((item) => (
                 <article key={`${item.time}-${item.name}`}
-                  className="flying-hy-agenda-row group relative grid grid-cols-[100px_minmax(0,1fr)] items-center gap-x-4 gap-y-1 rounded-2xl border border-white/10 bg-black/10 px-4 py-3 transition-all hover:-translate-y-0.5 hover:border-[#13dce8]/40 hover:bg-[#13dce8]/5 sm:grid-cols-[100px_minmax(0,1fr)_minmax(0,1fr)] sm:gap-8 sm:px-6">
+                  className="flying-hy-agenda-row group relative grid grid-cols-[100px_minmax(0,1fr)] items-center gap-x-4 gap-y-1 rounded-2xl border border-white/10 bg-black/10 px-4 py-3 transition-all hover:-translate-y-0.5 hover:border-accent-cyan/40 hover:bg-accent-cyan/5 sm:grid-cols-[100px_minmax(0,1fr)_minmax(0,1fr)] sm:gap-8 sm:px-6">
                   <div className="flex items-center">
                     <p className="text-sm font-normal leading-tight text-[var(--text-primary)] group-hover:font-bold">
                       {item.time.split('–')[0].trim()}

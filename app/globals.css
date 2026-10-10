@@ -20,7 +20,7 @@
 }
 
 .flying-hy-title-year {
-  color: #13dce8;
+  color: rgb(var(--accent-cyan));
 }
 
 [data-theme='light'] .flying-hy-title-flying {
@@ -33,18 +33,18 @@
 
 [data-theme='light'] .flying-hy-topbar {
   border-bottom-color: transparent !important;
-  border-image: linear-gradient(90deg, #5d00f5 0%, #13dce8 100%) 1;
+  border-image: linear-gradient(90deg, #5d00f5 0%, rgb(var(--accent-cyan)) 100%) 1;
 }
 
 [data-theme='light'] .flying-hy-inpage-nav {
   background: #ffffff !important;
   border-bottom-color: transparent !important;
-  border-image: linear-gradient(90deg, #5d00f5 0%, #13dce8 100%) 1;
+  border-image: linear-gradient(90deg, #5d00f5 0%, rgb(var(--accent-cyan)) 100%) 1;
 }
 
 .flying-hy-agenda-kicker,
 .flying-hy-agenda-date {
-  color: #13dce8;
+  color: rgb(var(--accent-cyan));
 }
 
 [data-theme='light'] .flying-hy-agenda-kicker,
@@ -69,23 +69,23 @@
 }
 
 [data-theme='light'] .flying-hy-agenda-row:hover {
-  background: rgba(19, 220, 232, .05);
+  background: rgb(var(--accent-cyan) / .05);
 }
 
 .flying-hy-hero-icon {
   width: 1.05rem;
   height: 1.05rem;
   flex: 0 0 auto;
-  color: #13dce8;
+  color: rgb(var(--accent-cyan));
 }
 
 [data-theme='light'] .flying-hy-hero-icon {
-  color: #5d00f5;
+  color: #000000;
 }
 
 .flying-hy-speaker-back {
   background:
-    radial-gradient(circle at 50% 30%, rgba(19, 220, 232, .18), transparent 42%),
+    radial-gradient(circle at 50% 30%, rgb(var(--accent-cyan) / .18), transparent 42%),
     radial-gradient(circle at 20% 90%, rgba(93, 0, 245, .32), transparent 55%),
     var(--surface-subtle);
 }
@@ -101,6 +101,13 @@
 
 /* ── CSS custom properties ──────────────────────────────────────────── */
 :root {
+  --accent-cyan: 19 220 232;
+  --accent-teal: 0 212 212;
+  --accent-aqua: 51 255 255;
+  --accent-soft: 103 232 249;
+  --accent-pale: 143 247 255;
+  --accent-hover: 85 242 245;
+  --accent-deep: 0 184 196;
   color-scheme: dark;
   /* White is remapped via Tailwind config to rgb(var(--color-white) / alpha) */
   --color-white:    255 255 255;
@@ -118,6 +125,13 @@
 }
 
 [data-theme='light'] {
+  --accent-cyan: 0 0 0;
+  --accent-teal: 0 0 0;
+  --accent-aqua: 0 0 0;
+  --accent-soft: 0 0 0;
+  --accent-pale: 0 0 0;
+  --accent-hover: 0 0 0;
+  --accent-deep: 0 0 0;
   color-scheme: light;
   --color-white:    0 0 0;
   --bg-page:        #f0f3fa;
@@ -145,11 +159,11 @@ body {
 /* Make navigation pictograms follow the selected HySky theme instead of
    retaining their platform-specific multicolor emoji artwork. */
 .themed-icon {
-  color: #13dce8;
+  color: rgb(var(--accent-cyan));
 }
 
 [data-theme='light'] .themed-icon {
-  color: #5d00f5;
+  color: #000000;
 }
 
 [data-theme='light'] .sidebar-tooltip {
@@ -159,7 +173,7 @@ body {
   box-shadow: 0 12px 30px rgba(28, 23, 52, .18);
 }
 
-/* VIP badges use purple on light surfaces while retaining turquoise in dark mode. */
+/* Theme accents become black on light surfaces. */
 [data-theme='light'] .vip-tier-badge {
   background: rgba(93, 0, 245, .12) !important;
   color: #5d00f5 !important;
@@ -172,7 +186,7 @@ body {
 /* Keep admin status/accent text readable on both theme surfaces. */
 .admin-cyan-text,
 .admin-contact-link:hover {
-  color: #8ff7ff;
+  color: rgb(var(--accent-pale));
 }
 
 .admin-pending-text {
@@ -185,7 +199,7 @@ body {
 
 [data-theme='light'] .admin-cyan-text,
 [data-theme='light'] .admin-contact-link:hover {
-  color: #075985 !important;
+  color: #000000 !important;
 }
 
 [data-theme='light'] .admin-pending-text {
@@ -221,7 +235,7 @@ body {
 .event-showcase-card {
   background:
     radial-gradient(ellipse 70% 70% at 82% 24%, rgba(93, 0, 245, .32), transparent),
-    radial-gradient(ellipse 55% 60% at 18% 82%, rgba(19, 220, 232, .14), transparent),
+    radial-gradient(ellipse 55% 60% at 18% 82%, rgb(var(--accent-cyan) / .14), transparent),
     var(--bg-page-deep);
   border: 1px solid rgba(93, 0, 245, .4);
   transition: transform .2s, border-color .2s, box-shadow .2s;
@@ -229,21 +243,21 @@ body {
 
 .event-showcase-card:hover {
   transform: scale(1.005);
-  border-color: rgba(19, 220, 232, .55);
+  border-color: rgb(var(--accent-cyan) / .55);
   box-shadow: 0 18px 55px rgba(93, 0, 245, .12);
 }
 
 [data-theme='light'] .event-showcase-card {
   background:
-    radial-gradient(circle at 92% 16%, rgba(19, 220, 232, .14), transparent 42%) padding-box,
+    radial-gradient(circle at 92% 16%, rgb(var(--accent-cyan) / .14), transparent 42%) padding-box,
     linear-gradient(#ffffff, #ffffff) padding-box,
-    linear-gradient(90deg, rgba(19, 220, 232, .48) 0%, rgba(93, 0, 245, .48) 100%) border-box !important;
+    linear-gradient(90deg, rgb(var(--accent-cyan) / .48) 0%, rgba(93, 0, 245, .48) 100%) border-box !important;
   border: .75px solid transparent !important;
-  box-shadow: 0 18px 55px rgba(19, 220, 232, .08);
+  box-shadow: 0 18px 55px rgb(var(--accent-cyan) / .08);
 }
 
 [data-theme='light'] .event-showcase-card:hover {
-  box-shadow: 0 20px 60px rgba(19, 220, 232, .14);
+  box-shadow: 0 20px 60px rgb(var(--accent-cyan) / .14);
 }
 
 [data-theme='light'] .event-showcase-badge {
@@ -254,16 +268,16 @@ body {
 .event-secondary-action,
 .flying-hy-featured-details {
   background: #05070a !important;
-  border: 1px solid #13dce8 !important;
-  color: #13dce8 !important;
-  box-shadow: 0 0 0 1px rgba(19, 220, 232, .16), 0 10px 28px rgba(19, 220, 232, .24) !important;
+  border: 1px solid rgb(var(--accent-cyan)) !important;
+  color: rgb(var(--accent-cyan)) !important;
+  box-shadow: 0 0 0 1px rgb(var(--accent-cyan) / .16), 0 10px 28px rgb(var(--accent-cyan) / .24) !important;
   transition: color .2s, box-shadow .2s, transform .2s !important;
 }
 
 .event-secondary-action:hover,
 .flying-hy-featured-details:hover {
-  color: #55f2f5 !important;
-  box-shadow: 0 0 0 1px rgba(19, 220, 232, .28), 0 12px 34px rgba(19, 220, 232, .34) !important;
+  color: rgb(var(--accent-hover)) !important;
+  box-shadow: 0 0 0 1px rgb(var(--accent-cyan) / .28), 0 12px 34px rgb(var(--accent-cyan) / .34) !important;
   transform: scale(1.02);
 }
 
@@ -390,7 +404,7 @@ body {
 /* Keep colorful category labels legible on light surfaces. */
 [data-theme='light'] .course-category-badge,
 [data-theme='light'] .event-category-badge {
-  color: #111827 !important;
+  color: #000000 !important;
 }
 
 /* Preserve dark styling within a section regardless of page theme (hero banners, etc.) */
@@ -417,14 +431,14 @@ body {
 .btn-teal-glow {
   color: #ffffff;
   background-color: #5d00f5;
-  border: 1px solid #00D4D4;
-  box-shadow: 0 0 0 rgba(0, 212, 212, 0);
+  border: 1px solid rgb(var(--accent-teal));
+  box-shadow: 0 0 0 rgb(var(--accent-teal) / 0);
   transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
 }
 
 .btn-teal-glow:hover {
   background-color: #4a00c4;
-  box-shadow: 0 0 20px rgba(0, 212, 212, 0.5);
+  box-shadow: 0 0 20px rgb(var(--accent-teal) / 0.5);
   transform: scale(1.02);
 }
 
@@ -449,7 +463,33 @@ body {
 }
 
 .audience-you:hover {
-  background: rgba(19, 220, 232, 0.07) !important;
-  box-shadow: inset 0 0 0 1px rgba(19,220,232,.3), 0 0 40px rgba(19,220,232,.12);
-  text-shadow: 0 0 10px rgba(19,220,232,1), 0 0 25px rgba(19,220,232,.6), 0 0 50px rgba(19,220,232,.3);
+  background: rgb(var(--accent-cyan) / 0.07) !important;
+  box-shadow: inset 0 0 0 1px rgb(var(--accent-cyan) / .3), 0 0 40px rgb(var(--accent-cyan) / .12);
+  text-shadow: 0 0 10px rgb(var(--accent-cyan) / 1), 0 0 25px rgb(var(--accent-cyan) / .6), 0 0 50px rgb(var(--accent-cyan) / .3);
+}
+
+/* Black accent fills need white labels; tinted accent surfaces keep black copy. */
+[data-theme='light'] :is([class~="bg-accent-cyan"], [class~="bg-accent-teal"], [class~="bg-accent-aqua"], [class~="bg-accent-soft"], [class~="bg-accent-pale"], [class~="bg-accent-hover"], [class~="bg-accent-deep"], .solid-theme-accent) {
+  --color-white: 255 255 255;
+  color: #ffffff !important;
+}
+[data-theme='light'] :is([class~="bg-accent-cyan"], [class~="bg-accent-teal"], [class~="bg-accent-aqua"], [class~="bg-accent-soft"], [class~="bg-accent-pale"], [class~="bg-accent-hover"], [class~="bg-accent-deep"], .solid-theme-accent) * {
+  color: inherit !important;
+}
+[data-theme='light'] :is([class~="hover:bg-accent-cyan"], [class~="hover:bg-accent-teal"], [class~="hover:bg-accent-aqua"], [class~="hover:bg-accent-soft"], [class~="hover:bg-accent-pale"], [class~="hover:bg-accent-hover"], [class~="hover:bg-accent-deep"]):hover {
+  --color-white: 255 255 255;
+  color: #ffffff !important;
+}
+[data-theme='light'] .event-secondary-action,
+[data-theme='light'] .flying-hy-featured-details,
+[data-theme='light'] .newsletter-action,
+[data-theme='light'] .course-slides-panel,
+[data-theme='light'] .course-download {
+  background: #ffffff !important;
+}
+
+[data-theme='light'] :is([class~="bg-accent-cyan"], [class~="bg-accent-teal"])[class~="hover:bg-white"]:hover {
+  --color-white: 0 0 0;
+  background: #ffffff;
+  color: #000000 !important;
 }

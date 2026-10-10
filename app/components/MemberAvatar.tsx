@@ -26,7 +26,7 @@ export default function MemberAvatar({
   className?: string
 }) {
   const [failedUrl, setFailedUrl] = useState<string | null>(null)
-  const colors = ['bg-[#5d00f5]', 'bg-[#13dce8]', 'bg-amber-500', 'bg-emerald-500', 'bg-rose-500']
+  const colors = ['bg-[#5d00f5]', 'bg-accent-cyan', 'bg-amber-500', 'bg-emerald-500', 'bg-rose-500']
   const colorIndex = (name ?? '?').charCodeAt(0) % colors.length
   const showImage = Boolean(url && url !== failedUrl)
 

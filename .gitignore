@@ -27,3 +27,5 @@ yarn-error.log*
 # Local PGlite database used for development previews
 .local-data/
 .local-data-archive/
+.local-site/
+scripts/local-member-preview/next-env.d.ts

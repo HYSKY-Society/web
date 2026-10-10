@@ -32,7 +32,7 @@ export default function EventPage({ params }: { params: { slug: string } }) {
         <div
           className="relative overflow-hidden rounded-3xl p-8 sm:p-12 mb-6"
           style={{
-            background: 'linear-gradient(135deg, rgba(93,0,245,.35), rgba(0,212,212,.12))',
+            background: 'linear-gradient(135deg, rgba(93,0,245,.35), rgb(var(--accent-teal) / .12))',
             border: '1px solid rgba(93,0,245,.4)',
           }}
         >

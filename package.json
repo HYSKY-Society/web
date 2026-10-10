@@ -4,6 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:member-preview": "next dev scripts/local-member-preview --webpack --hostname 127.0.0.1 --port 3000",
+    "dev:full-preview": "node scripts/start-full-local-preview.mjs",
+    "test:manual-members": "node --test tests/manual-members.test.cjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",

@@ -125,7 +125,7 @@ export default async function AdminPodcastPage() {
                     {ep.episodeNumber && (
                       <span
                         className="text-xs px-2 py-0.5 rounded-full"
-                        style={{ background: 'rgba(19,220,232,.15)', color: '#13dce8' }}
+                        style={{ background: 'rgb(var(--accent-cyan) / .15)', color: 'rgb(var(--accent-cyan))' }}
                       >
                         Ep. {ep.episodeNumber}
                       </span>

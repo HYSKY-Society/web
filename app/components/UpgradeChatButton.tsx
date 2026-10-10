@@ -19,7 +19,7 @@ export default function UpgradeChatButton() {
           style={{ background: '#5d00f5', boxShadow: '0 8px 32px #5d00f540' }}
         >
           💬
-          <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-[#13dce8] text-[8px] font-black flex items-center justify-center" style={{ color: '#04080F' }}>
+          <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-accent-cyan text-[8px] font-black flex items-center justify-center" style={{ color: '#04080F' }}>
             VIP
           </span>
         </button>

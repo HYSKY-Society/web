@@ -68,7 +68,7 @@ export default function CompanyDirectoryPreview({ companies }: { companies: Dire
           >
             <div className="flex items-start gap-3">
               <div
-                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-sm font-black text-white ${index % 2 === 0 ? 'bg-[#5d00f5]' : 'bg-[#13dce8]'}`}
+                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-sm font-black text-white ${index % 2 === 0 ? 'bg-[#5d00f5]' : 'bg-accent-cyan'}`}
                 style={index % 2 === 0 ? undefined : { color: '#071018' }}
               >
                 {company.initials}

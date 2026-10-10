@@ -38,7 +38,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
         <div className="absolute z-0 pointer-events-none -top-24 -right-24 w-96 h-96 rounded-full blur-3xl opacity-[0.12]" style={{ backgroundColor: accent }} />
         <div className="absolute z-0 pointer-events-none -bottom-24 -left-24 w-64 h-64 rounded-full blur-3xl opacity-[0.04]" style={{ backgroundColor: accent }} />
         <div className="relative z-10">
-          <div className="course-category-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-5" style={{ backgroundColor: `${accent}25`, color: accentLight }}>
+          <div className="course-category-badge inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-5" style={{ backgroundColor: `color-mix(in srgb, ${accent} 14.5098%, transparent)`, color: accentLight }}>
             {badgeLabel}
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold mb-4 leading-tight">{course.title}</h1>
@@ -255,7 +255,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
           <div className="space-y-6">
             {course.instructors.map((ins) => (
               <div key={ins.name} className="flex gap-4 pb-6 border-b border-white/6 last:border-0 last:pb-0">
-                <div className="shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg" style={{ backgroundColor: `${accent}30`, border: `1px solid ${accent}40` }}>
+                <div className="shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg" style={{ backgroundColor: `color-mix(in srgb, ${accent} 18.8235%, transparent)`, border: `1px solid color-mix(in srgb, ${accent} 25.0980%, transparent)` }}>
                   {ins.name.charAt(0)}
                 </div>
                 <div>
@@ -278,7 +278,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
       )}
 
       {/* Bottom CTA */}
-      <div className="rounded-3xl p-8 sm:p-12 text-center" style={{ background: `linear-gradient(135deg, ${accent}20, ${accent}08)`, border: `1px solid ${accent}30` }}>
+      <div className="rounded-3xl p-8 sm:p-12 text-center" style={{ background: `linear-gradient(135deg, color-mix(in srgb, ${accent} 12.5490%, transparent), color-mix(in srgb, ${accent} 3.1373%, transparent))`, border: `1px solid color-mix(in srgb, ${accent} 18.8235%, transparent)` }}>
         <h2 className="font-bold text-2xl mb-2">Ready to enroll?</h2>
         <p className="text-white/50 mb-6">Join industry professionals advancing hydrogen aviation.</p>
         <EnrollButton

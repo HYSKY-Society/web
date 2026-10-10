@@ -42,7 +42,7 @@ export default async function AboutPage() {
         <div className="absolute inset-0 z-0" style={{
           background: `
             radial-gradient(ellipse 60% 60% at 70% 40%, rgba(93,0,245,.28), transparent),
-            radial-gradient(ellipse 40% 40% at 20% 70%, rgba(19,220,232,.12), transparent),
+            radial-gradient(ellipse 40% 40% at 20% 70%, rgb(var(--accent-cyan) / .12), transparent),
             var(--bg-page-deep)
           `
         }}>
@@ -75,8 +75,8 @@ export default async function AboutPage() {
           <div className="flex flex-wrap gap-4 items-center">
             <Link
               href="/sign-up"
-              className="bg-[#13dce8] hover:bg-white text-black font-black px-8 py-4 rounded-full text-base transition-all"
-              style={{ boxShadow: '0 0 35px rgba(19,220,232,.45)' }}
+              className="bg-accent-cyan hover:bg-white text-black font-black px-8 py-4 rounded-full text-base transition-all"
+              style={{ boxShadow: '0 0 35px rgb(var(--accent-cyan) / .45)' }}
             >
               Join the Movement
             </Link>
@@ -103,9 +103,9 @@ export default async function AboutPage() {
             </p>
           </div>
           <div className="lg:border-l lg:pl-16" style={{ borderColor: 'var(--border-muted)' }}>
-            <div className="text-[#13dce8] text-xs font-bold uppercase tracking-[2.5px] mb-5">Vision</div>
+            <div className="text-accent-cyan text-xs font-bold uppercase tracking-[2.5px] mb-5">Vision</div>
             <h2 className="font-black uppercase leading-[.92] tracking-[-1px] mb-6" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
-              Where We&apos;re <span style={{ color: '#13dce8' }}>Going</span>
+              Where We&apos;re <span style={{ color: 'rgb(var(--accent-cyan))' }}>Going</span>
             </h2>
             <p className="text-white/55 text-lg leading-relaxed">
               Clean skies for future generations through hydrogen-powered flight. We solve the chicken-and-egg problem of hydrogen by starting small with long-range hydrogen-powered UAVs, building the supporting infrastructure, and scaling up to passenger aircraft.
@@ -147,7 +147,7 @@ export default async function AboutPage() {
                 className="p-9 transition-colors hover:bg-[#5d00f5]/[.08] group cursor-pointer"
                 style={{ backgroundColor: 'var(--bg-card)' }}>
                 <div className="text-[#5d00f5] text-xs font-bold uppercase tracking-[2px] mb-3">{p.tag}</div>
-                <h3 className="text-xl font-black mb-2 group-hover:text-[#13dce8] transition-colors">{p.title}</h3>
+                <h3 className="text-xl font-black mb-2 group-hover:text-accent-cyan transition-colors">{p.title}</h3>
                 <p className="text-white/45 text-sm leading-relaxed">{p.desc}</p>
               </Link>
             ) : (
@@ -181,8 +181,8 @@ export default async function AboutPage() {
             </p>
             <Link
               href="/sign-up"
-              className="inline-block bg-[#13dce8] hover:bg-white text-black font-black px-8 py-4 rounded-full text-base transition-all"
-              style={{ boxShadow: '0 0 35px rgba(19,220,232,.45)' }}
+              className="inline-block bg-accent-cyan hover:bg-white text-black font-black px-8 py-4 rounded-full text-base transition-all"
+              style={{ boxShadow: '0 0 35px rgb(var(--accent-cyan) / .45)' }}
             >
               Become a Member
             </Link>
@@ -208,12 +208,12 @@ export default async function AboutPage() {
               key={a.text}
               className={`flex items-center gap-4 px-7 py-6 text-sm font-medium transition-all cursor-default ${
                 a.highlight
-                  ? 'audience-you text-[#13dce8] font-bold'
+                  ? 'audience-you text-accent-cyan font-bold'
                   : 'text-white/45 hover:text-white hover:bg-[#5d00f5]/[.06]'
               }`}
               style={{ backgroundColor: 'var(--bg-card)' }}
             >
-              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${a.highlight ? 'bg-[#13dce8]' : 'bg-[#5d00f5]'}`} />
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${a.highlight ? 'bg-accent-cyan' : 'bg-[#5d00f5]'}`} />
               {a.text}
             </div>
           ))}
@@ -255,14 +255,14 @@ export default async function AboutPage() {
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
               href="/sign-up"
-              className="inline-block bg-[#13dce8] hover:bg-white text-black hover:text-[#13dce8] font-black px-8 py-4 rounded-full text-base transition-all"
-              style={{ boxShadow: '0 0 35px rgba(19,220,232,.45)' }}
+              className="inline-block bg-accent-cyan hover:bg-white text-black hover:text-accent-cyan font-black px-8 py-4 rounded-full text-base transition-all"
+              style={{ boxShadow: '0 0 35px rgb(var(--accent-cyan) / .45)' }}
             >
               Join the Movement
             </Link>
             <a
               href="mailto:admin@hysky.org"
-              className="inline-block border border-[#13dce8] bg-white text-[#13dce8] hover:bg-[#13dce8] hover:text-black px-8 py-4 rounded-full text-base font-bold transition-all"
+              className="inline-block border border-accent-cyan bg-white text-accent-cyan hover:bg-accent-cyan hover:text-black px-8 py-4 rounded-full text-base font-bold transition-all"
             >
               Contact Us
             </a>
